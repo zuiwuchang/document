@@ -1,0 +1,52 @@
+@charset "utf-8";
+/* CSS Document */
+
+.dark_ui_listbox{
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;	
+}
+
+.dark_ui_listbox_item{
+	float:left;
+	list-style: none;
+	text-align:center;
+	margin-left:20px;
+	margin-top:20px;
+	
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	
+	/*border:#FFF solid;*/
+}
+
+.dark_ui_listbox_item_image{
+	/*width:128px;
+	height:128px;*/
+	margin-top:5px;
+	cursor:pointer;
+	
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;	
+}
+.dark_ui_listbox_item_image_hover{
+	/*width:138px;
+	height:138px;*/
+	cursor:pointer;
+	
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;	
+}
+
+.dark_ui_listbox_item_image_down{
+	/*width:140px;
+	height:140px;	*/
+	cursor:pointer;
+	
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;	
+}

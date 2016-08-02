@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#Go">Go</a>
+		<a href="#cmd">Go 命令</a>
+		<a href="#window">環境配置 windows</a>
+		<a href="#hellow">hellow word</a>
+		<a href="#build">交叉編譯</a>
+	</div>
+
+	<div class="note"><a name="Go"></a>
+		<p><span class="flag">Go</span>
+<pre>Go 為google 2007年開發的一個 開源(BSD) 語言
+
+官網<a target="_blank" href="http://golang.org/">http://golang.org/</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="cmd"></a>
+		<p><span class="flag">Go 命令</span>
+<pre>//顯示 安裝Go版本
+go version
+
+//在8000端口 開始 數目文檔服務 之後可通過瀏覽器打開 http:\\localhost:8000 查看Go文檔
+godoc -http=:8000
+
+//編譯 go 程序
+go build
+
+//編譯 go 並將編譯後的 軟體 cp 到 $GOBIN 下
+go install
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="window"></a>
+		<p><span class="flag">環境配置 windows</span>
+<pre>1	從官網下載 go*.*.*.msi|zip 安裝
+2	安裝IDE 或者像 神一樣用記事本編寫(Go 使用utf8 純文本編寫)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="hellow"></a>
+		<p><span class="flag">hellow word</span>
+<pre>package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("Hello, 世界")
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="build"></a>
+		<p><span class="flag">交叉編譯</span>
+<pre>go 從1.3開始 支持交叉編譯
+
+1	編譯交叉編譯需要的工具 
+	cd $GOROOT/src
+	make.bash/make.bat
+
+2	設置環境變量 指定 目標 環境
+	export GOARCH=386
+	export GOOS=linux
+	export CGO_ENABLED=0	<span class="care">禁用 CGO 目前 交叉編譯 不支持CGO</span>
+
+3	執行 go build 編譯
+</pre>
+
+<table>
+<tr><th>OS</th><th>ARCH</th><th>OS version</th></tr>
+<tr><td>linux</td><td>386 / amd64 / arm</td><td>&gt;= Linux 2.6</td></tr>
+<tr><td>darwin</td><td>386 / amd64</td><td>OS X (Snow Leopard + Lion)</td></tr>
+<tr><td>freebsd</td><td>386 / amd64</td><td>&gt;= FreeBSD 7</td></tr>
+<tr><td>windows</td><td>386 / amd64</td><td>&gt;= Windows 2000</td></tr>
+</table>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>在 編譯 交叉編譯 工具時 需要 分別設置 GOARCH GOOS
+為不同平台 編譯 不同的 編譯工具
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

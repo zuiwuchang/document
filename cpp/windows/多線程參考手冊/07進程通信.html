@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>進程通信</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1>
+    	<a href="#process">進程通信</a><br />
+        <a href="#WM_COPYDATA">WM_COPYDATA</a><br />
+        <a href="#shared">共享內存</a><br />
+    	
+    </h1></p>
+    
+    <div class="div_box"><a name="process"></a><h2>
+    	<p><font color="#FF0000">進程通信</font><br />
+		有時不得不以多進程編程 此時進程通信變得必不可少
+        </p>
+   	</h2></div>
+    
+    <div class="div_box"><a name="WM_COPYDATA"></a><h2>
+    	<p><font color="#FF0000">WM_COPYDATA</font><br />
+		想一個ui進程 發送WM_COPYDATA消息<br />
+        LPARAM 將指定一塊內存 此內存將被拷貝到 目標進程 
+        
+<pre>SendMessage(hwndReceiver,
+WM_COPYDATA,
+(WPARAM)hwndSender,
+(LPARAM)&amp;cds)
+
+cds是一個
+typedef struct tagCOPYDATASTRUCT 
+{  
+DWORD dwData;		//用戶自定義值
+DWORD cbData;		//lpData大小
+PVOID lpData;		//被傳送數據塊地址
+} COPYDATASTRUCT; </pre>
+        </p>
+        
+        <p><font color="#FF0000">注意</font><br />
+		LPARAM指定的內存 將在消息 被處理後 被系統回收 故進程若對於其需要自己拷貝 且只有可讀屬性<br /><br />
+        
+        只能以SendMessage發送WM_COPYDATA消息 因為系統需要在消息處理後 回收此內存
+        </p>
+   	</h2></div>
+   
+   <div class="div_box"><a name="shared"></a><h2>
+    	<p><font color="#FF0000">共享內存</font><br />
+		共享內存 將被映射到所有 要求加載它的 進程中 故可以用於進程通信
+        </p>
+        <p><font color="#FF0000">相關API</font>
+<pre>//映射一個文件 或產生頁面共享數據塊
+HANDLE WINAPI CreateFileMapping(
+  __in      HANDLE hFile,				//對於產生頁面文件傳入INVALID_HANDLE_VALUE	//CrateFile的文件HANDLE
+  __in_opt  LPSECURITY_ATTRIBUTES lpAttributes,		//安全描述符
+  __in      DWORD flProtect,				//網頁保護屬性 PAGE_READWRITE
+  __in      DWORD dwMaximumSizeHigh,			//對於產生頁面文件傳0		 //映射文件大小高32位
+  __in      DWORD dwMaximumSizeLow,			//產生共享頁面大小		//映射文件大小低32位
+  __in_opt  LPCTSTR lpName				//全局名稱 以供其他進程打開
+);
+//成功	返回共享句柄	GetLastError()==ERROR_ALREADY_EXISTS 此共享名已經存在
+//失敗	返回NULL 
+
+//由共享句柄 返回共享內存的指針	失敗返回NULL
+LPVOID WINAPI MapViewOfFile(
+  __in  HANDLE hFileMappingObject,		//CreateFileMapping返回句柄
+  __in  DWORD dwDesiredAccess,			//共享內存傳入FILE_MAP_ALL_ACCESS
+  __in  DWORD dwFileOffsetHigh,			//共享內存傳入0	//映射文件高32位偏移
+  __in  DWORD dwFileOffsetLow,			//共享內存出入0	//映射文件低32位偏移
+  __in  SIZE_T dwNumberOfBytesToMap		//要映射的大小傳入0 整個共享內存
+);
+//釋放共享內存指針
+BOOL WINAPI UnmapViewOfFile(
+  __in  LPCVOID lpBaseAddress
+);
+
+//打開共享內存 或用CreateFileMapping打開
+HANDLE WINAPI OpenFileMapping(
+  __in  DWORD dwDesiredAccess,	//共享內存傳入FILE_MAP_ALL_ACCESS
+  __in  BOOL bInheritHandle,	//TRUE句柄可被子進程繼承
+  __in  LPCTSTR lpName		//共享內存名
+);
+
+//CloseHandle
+</pre>
+		</p>
+        
+        <p><font color="#FF0000">注意</font><br />
+		對於不再使用的 共享內存指針 應該UnmapViewOfFile釋放<br />
+        對於打開的句柄 不再使用應該CloseHandle<br />
+        
+        操作 共享內存時 應該注意同步 命名互斥體 事件 是個不錯的選擇 
+        </p>
+   	</h2></div>
+</td></tr></table>
+</body>
+</html>

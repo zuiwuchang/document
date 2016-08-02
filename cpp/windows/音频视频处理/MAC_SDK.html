@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>MAC_SDK</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+    <p><h1><font color="#FF0000">MAC_SDK</font></h1></p>
+    
+    <h2>
+   	 <a href="#MAC_SDK">Monkey's Audio</a><br />
+   	 <a href="#Analyze">解析ape</a><br />
+     <a href="#pAPEDecompress">解壓ape</a><br />
+    </h2>
+    
+    <div class="div_box"><a name="MAC_SDK"></a><p><h3>
+    	<p><h2><font color="#FF0000">Monkey's Audio</font></h2>
+		Monkey's Audio 相當流行的一個無損音樂壓縮格式<br />
+        MAC_SDK為其官方發布的api 
+        </p>
+   	</h3></p></div>
+    
+   <div class="div_box"><a name="Analyze"></a><p><h3>
+    	<p><h2><font color="#FF0000">解析ape</font></h2>
+			獲取ape信息
+<pre>#include&lt;MAC_SDK_412\All.h&gt;
+#include&lt;MAC_SDK_412\MACLib.h&gt;
+//#include&lt;MAC_SDK_412\APETag.h&gt;
+
+#pragma comment(lib,"maclib.lib")</pre>
+        </p>
+        
+        <p><h2><font color="#FF0000">example</font></h2>
+<pre>//定義一個 解壓接口
+	std::shared_ptr&lt;APE::IAPEDecompress&gt; pAPEDecompress;
+	try
+	{
+		int err_code;
+		
+		pAPEDecompress=std::shared_ptr&lt;APE::IAPEDecompress&gt;(CreateIAPEDecompress(L"爱是没余地.ape",&err_code));
+		if(!pAPEDecompress.get())
+		{
+			throw dark::debug::wexception(L"無法解析文件",err_code);
+		}
+
+		std::wcout&lt;&lt;L"APE 格式 信息\n";
+		std::wcout&lt;&lt;L"\tVersion:"&lt;&lt; pAPEDecompress-&gt;GetInfo(APE::APE_INFO_FILE_VERSION)/1000.0f&lt;&lt;L"\n";
+		switch (pAPEDecompress-&gt;GetInfo(APE::APE_INFO_COMPRESSION_LEVEL))
+		{
+			case COMPRESSION_LEVEL_FAST: 
+				std::wcout&lt;&lt;L"\tCompression level: Fast\n\n";
+				break;
+			case COMPRESSION_LEVEL_NORMAL: 
+				std::wcout&lt;&lt;L"\tCompression level: Normal\n\n";
+				break;
+			case COMPRESSION_LEVEL_HIGH:
+				std::wcout&lt;&lt;L"\tCompression level: High\n\n";
+				break;
+				
+			case COMPRESSION_LEVEL_EXTRA_HIGH: 
+				std::wcout&lt;&lt;L"\tCompression level: Extra High\n\n";
+				break;
+		}
+
+		std::wcout&lt;&lt;L"音樂 信息\n";
+		//採樣率
+		std::wcout&lt;&lt;L"\tSamples per second:"&lt;&lt;pAPEDecompress-&gt;GetInfo(APE::APE_INFO_SAMPLE_RATE)&lt;&lt;"\n";
+		//採用位
+		std::wcout&lt;&lt;L"\tBits per sample:"&lt;&lt;pAPEDecompress-&gt;GetInfo(APE::APE_INFO_BITS_PER_SAMPLE)&lt;&lt;"\n";
+		//聲道
+		std::wcout&lt;&lt;L"\tNumber of channels: "&lt;&lt;pAPEDecompress-&gt;GetInfo(APE::APE_INFO_CHANNELS)&lt;&lt;"\n";
+
+		std::wcout&lt;&lt;L"\tPeak level: "&lt;&lt;pAPEDecompress-&gt;GetInfo(APE::APE_INFO_PEAK_LEVEL)&lt;&lt;"\n\n";
+		
+		std::wcout&lt;&lt;L"\t音樂時長 (s):"&lt;&lt;pAPEDecompress-&gt;GetInfo(APE::APE_INFO_LENGTH_MS) / 1000&lt;&lt;"\n";
+		std::wcout&lt;&lt;L"\t文件大小 (kb):"&lt;&lt;pAPEDecompress-&gt;GetInfo(APE::APE_INFO_APE_TOTAL_BYTES) / 1024&lt;&lt;"\n\n";
+	
+	}
+	catch(const dark::debug::wexception& e)
+	{
+		std::wcout&lt;&lt;e.what()&lt;&lt;std::endl;
+	}</pre>        
+        </p>
+   	</h3></p></div>
+   <div class="div_box"><a name="pAPEDecompress"></a><p><h3>
+    	<p><h2><font color="#FF0000">解壓ape</font></h2>
+        #include&lt;MAC_SDK_412\All.h&gt;<br />
+		#include&lt;MAC_SDK_412\MACLib.h&gt;<br />
+		#pragma comment(lib,"maclib.lib")
+        </p>
+        
+        <p><h2><font color="#FF0000">example</font></h2>
+<pre>//定義一個 解壓接口
+	std::shared_ptr&lt;APE::IAPEDecompress&gt; pAPEDecompress;
+	try
+	{
+		int err_code;
+		
+		pAPEDecompress=std::shared_ptr&lt;APE::IAPEDecompress&gt;(CreateIAPEDecompress(L"爱是没余地.ape",&err_code));
+		if(!pAPEDecompress.get())
+		{
+			throw dark::debug::wexception(L"無法解析文件",err_code);
+		}
+
+		
+		//返回解壓後塊大小
+		int nTotalBlocks = pAPEDecompress->GetInfo(APE::APE_DECOMPRESS_TOTAL_BLOCKS);
+		//返回數據塊對齊大小
+		int nBlockAlign = pAPEDecompress->GetInfo(APE::APE_INFO_BLOCK_ALIGN);
+		//nTotalBlocks*nBlockAlign 為解壓後數據大小
+
+		//臨時緩衝區存儲解壓數據
+		boost::shared_array&lt;char&gt; pBuffer (new char [1024 * nBlockAlign]);
+
+		std::ofstream fstream("a.wav",std::ios::binary|std::ios::out);
+
+
+		int nBlocksRetrieved = 1;
+		int nTotalBlocksRetrieved = 0;
+			
+		while (nBlocksRetrieved > 0)
+		{
+			//解壓數據塊
+            //pAPEDecompress->Seek(nRandomBlock) 可以設置解壓位置 
+			if(pAPEDecompress->GetData( pBuffer.get()		//存儲數據緩衝區
+				, 1024										//要讀取多少數據塊
+				, &nBlocksRetrieved							//返回讀取了多少塊 <=0 解壓完成
+				))
+			{
+				throw dark::debug::wexception(L"解壓錯誤");
+			}
+			//nBlocksRetrieved * nBlockAlign 為解壓字節
+			fstream.write(pBuffer.get(),nBlocksRetrieved * nBlockAlign);
+			
+			//計算解壓總塊數
+			nTotalBlocksRetrieved += nBlocksRetrieved;
+			//輸出解壓百分比
+			printf("Progress: %.1f%%          \r", (float(nTotalBlocksRetrieved) * float(100)) / float(max(nTotalBlocks, 1.0)));	
+		}
+
+		fstream.close();
+	
+	}
+	catch(const dark::debug::wexception& e)
+	{
+		std::wcout&lt;&lt;e.what()&lt;&lt;std::endl;
+	}</pre>        
+        </p>
+   	</h3></p></div>
+</td></tr></table>
+</body>
+</html>

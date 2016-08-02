@@ -1,0 +1,289 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>document-view</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">document-view</font>
+</p>
+
+<p>
+	<a href="#CDocument">CDocument</a><br />
+   	<a href="#CView">CView</a><br />
+    <a href="#frame">frame	CFrameWnd</a><br />
+    <a href="#template">document template	CDocTemplate</a><br />
+    <a href="#get">相互訪問</a><br />
+    <a href="#split">分隔對話框</a><br />
+    <a href="#CArchive">CArchive</a><br />
+</p>
+
+
+<div class="mydiv"><a name="CDocument"></a>
+	<p><font color="#FF0000">CDocument</font><br />
+	document代表了數據<br /><br />
+    應該從 CDocument 繼承 並聲明一些變量(用以保存數據) 之後至少重載Serialize 以實現數據的讀取 存儲
+	</p>
+    
+	<p><font color="#FF0000">可用方法</font><br /> 
+<pre>
+void AddView(CView* pView);		//附加view到document
+void RemoveView(CView* pView);	//移除view
+
+//遍歷view指針
+virtual POSITION GetFirstViewPosition() const;
+virtual CView* GetNextView (POSITION& rPosition) const;
+
+//返回 設置 document 相關數據文件路徑
+const CString& GetPathName() const;
+virtual void SetPathName(LPCTSTR lpszPathName ,BOOL bAddToMRU = TRUE);	//TRUE 加入MRU文件列表中
+
+//返回 設置 文檔標題
+const CString& GetTitle() const;
+virtual void SetTitle(LPCTSTR lpszTitle);
+
+//返回 設置 自從上次保存後 是否修改過文檔
+void SetModifiedFlag(BOOL bModified = TRUE);
+BOOL IsModified();
+
+<font color="#FF0000">//通知 view 數據發送改變 將引起非pSender 的 CView::OnUpdate  被調用
+void UpdateAllViews(CView* pSender,	//view指示那個view的數據發送改變
+	LPARAM lHint = 0L,			//傳遞給view的一個 參數
+    CObject* pHint = NULL);		//.... CObject 指針</font>
+</pre>    
+    </p>    
+	
+    <p><font color="#FF0000">可重載函數</font><br />    
+<pre>//數據 讀取	存儲
+void CMFCApplication3Doc::Serialize(CArchive& ar)
+
+//新建文檔時 
+BOOL CMFCApplication3Doc::OnNewDocument()
+
+//打開文檔時 
+BOOL CMFCApplication3Doc::OnOpenDocument(LPCTSTR lpszPathName)
+
+//保存文檔時
+BOOL CMFCApplication3Doc::OnSaveDocument(LPCTSTR lpszPathName)
+
+//關閉文檔後時
+void CMFCApplication3Doc::OnCloseDocument()
+
+//清除文檔時
+void CMFCApplication3Doc::DeleteContents()
+
+//關閉查看文檔的框架時
+BOOL CMFCApplication3Doc::CanCloseFrame(CFrameWnd* pFrame)
+
+</pre>	</p>    
+
+</div>
+
+<div class="mydiv"><a name="CView"></a>
+	<p><font color="#FF0000">CView</font><br />
+	view 負責呈現 document 中的數據<br /><br />
+    應該從 CView 繼承 之後存在用於顯示數據的OnDraw 或Onprint<br /><br />
+    view實際上是個沒有邊框的窗口 真正出現時 外圍還有一個邊框窗口 frame
+	</p>
+    
+    <p><font color="#FF0000">可用方法</font><br />
+<pre>//返回關聯的 document
+CDocument* GetDocument( ) const;
+
+//檢查文檔是否被選中
+virtual BOOL IsSelected( const CObject* pDocItem ) const;
+</pre>	
+    </p>
+    <p><font color="#FF0000">可用重載函數</font><br />
+<pre>//創建文檔 創建視圖 後
+void CMyListView::OnInitialUpdate()
+
+<font color="#FF0000">//document 調用 UpdateAllViews後
+void CMyListView::OnUpdate(CView* /*pSender*/, LPARAM /*lHint*/, CObject* /*pHint*/)</font>
+</pre>    
+    </p>
+</div>
+
+<div class="mydiv"><a name="frame"></a>
+	<p><font color="#FF0000">frame	CFrameWnd</font><br />
+	frame view中使用的UI	狀態欄等...<br /><br />
+    CFrameWnd
+	</p>
+</div>
+
+<div class="mydiv"><a name="template"></a>
+	<p><font color="#FF0000">document	template	CDocTemplate</font><br />
+	MFC把 document/view/frame視為一體 每當慾打開一份文件 程序就應該產生一份 document/view/frame<br />
+    CDocTemplate負責管理掌管 document/view/frame<br /><br />
+    
+    CDocTemplate有兩個派生類 分別為 CMultiDocTemplate CSingleDocTemplate
+	</p>
+    <p><font color="#FF0000">相關操作</font><br />
+<pre>
+</pre>    
+    </p>
+</div>
+
+<div class="mydiv"><a name="get"></a>
+	<p><font color="#FF0000">相互訪問</font><br />
+	<table border="2">
+    <tr><td>對象</td><td>可訪問對象</td></tr>
+    <tr><td>CDocument</td><td>CView [GetFirstViewPosition GetNextView ]<br />CDocTemplate [GetDocTemplate]</td></tr>
+    <tr><td>CView</td><td>CDocument [GetDocument]<br />CFrameWnd [GetParentFrame]</td></tr>
+    <tr><td>CFrameWnd</td><td>CView [GetActiveView 當前view]<br />CDocument [GetActiveDocument 當前view相連的document]</td></tr>
+   
+    </table>
+	</p>
+</div>
+
+<div class="mydiv"><a name="split"></a>
+	<p><font color="#FF0000">分隔對話框</font><br />
+    CSplitterWnd 用於實現分隔對話框<br />
+    分隔操作 一般放在 CFrameWnd::OnCreateClient 中
+    </p>
+    <p><font color="#FF0000">example</font><br />
+<pre>CSplitterWnd  splite;
+BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
+{
+	// TODO: 在此添加专用代码和/或调用基类
+
+	//創建一個3行1列隊分隔窗口
+	if(splite.CreateStatic(this,3,1))
+	{
+		//設置view
+		/*BOOL bOk=*/splite.CreateView(0,0,RUNTIME_CLASS(CEditView),CSize(0,100),pContext);
+		splite.CreateView(1,0,RUNTIME_CLASS(CEditView),CSize(0,100),pContext);
+
+		//將第(3,1) 在拆分為一個 (1,2)的 分隔窗口
+		if(splite2.CreateStatic(&splite,1,2,WS_CHILD|WS_VISIBLE,
+			splite.IdFromRowCol(2,0)	//(2,0)
+			))
+		{
+			splite2.CreateView(0,0,RUNTIME_CLASS(CEditView),CSize(100,0),pContext);
+			splite2.CreateView(0,1,RUNTIME_CLASS(CEditView),CSize(0,0),pContext);
+		}
+	}
+	
+	<font color="#FF0000">//返回TRUE 以避免 框架添加默認的 view</font>
+	return TRUE;
+	//return CFrameWnd::OnCreateClient(lpcs, pContext);
+}
+</pre>    
+    </p>
+</div>    
+
+<div class="mydiv"><a name="CArchive"></a>
+	<p><font color="#FF0000">CArchive</font><br />
+    每个 CArchive 都与一个 CFile* 关联
+<pre>//写
+CFile file(L"1.txt",CFile::modeCreate | CFile::modeWrite);
+	CArchive ar(&file,CArchive::store);
+
+	CMyClass my;
+	my.x=1;
+	my.y=2;
+	my.Serialize(ar);
+    
+//读
+CFile file(L"1.txt", CFile::modeRead);
+
+	CArchive ar(&file,CArchive::load);
+	CMyClass my;
+
+	my.Serialize(ar);
+        </pre>    
+    </p>
+    
+    <p><font color="#FF0000">自定义类 实现 串行化</font><br />
+<pre>从 CObject继承
+实现void Serialize (CArchive& ar)
+在类声明中使用DECLARE_SERIAL (类名) 宏
+定义一个无参构造函数
+使用IMPLEMENT_SERIAL（类名, CObject, 版本号） 宏
+
+重载&lt;&lt; &gt;&gt;  (可选)
+</pre>    
+    </p>
+    <p><font color="#FF0000">串行化 example</font><br />
+<pre><h2><font color="#FF0000">.h</font></h2>
+#pragma once
+
+// CMyClass 命令目标
+
+class CMyClass 
+	: <font color="#FF0000">public CObject</font>
+{
+
+	<font color="#FF0000">DECLARE_SERIAL (CMyClass)</font>
+
+public:
+	CMyClass();
+	virtual ~CMyClass();
+
+	<font color="#FF0000">void Serialize (CArchive& ar);</font>
+
+	int x;
+	int y;
+
+};
+
+<h2><font color="#FF0000">.cpp</font></h2>
+// CMyClass
+
+<font color="#FF0000">IMPLEMENT_SERIAL(CMyClass,CObject,1)</font>
+
+CMyClass::CMyClass()
+{
+}
+
+CMyClass::~CMyClass()
+{
+}
+
+// CMyClass 成员函数
+<font color="#FF0000">void CMyClass::Serialize (CArchive& ar)</font>
+{
+	if(ar.IsLoading())
+	{
+		//加载数据
+		ar&gt;&gt;x&gt;&gt;y;
+	}
+	else
+	{
+		//保存数据
+		ar&lt;&lt;x&lt;&lt;y;
+	}
+}
+</pre>    
+    </p>
+    
+    <p><font color="#FF0000">重载 &lt;&lt; &gt;&gt;</font><br />
+<pre>CArchive& operator&lt;&lt;( CArchive&amp ar,CMyClass& data)
+{
+	//保存数据
+	if(ar.IsStoring())
+	{
+		data.Serialize(ar);
+	}
+	return ar;
+}
+CArchive& operator&gt;&gt;( CArchive& ar,CMyClass& data)
+{
+	//加载数据
+	if(ar.IsLoading())
+	{
+		data.Serialize(ar);
+	}
+	return ar;
+}</pre>    
+    </p>
+    <p><font color="#FF0000">注意</font><br />
+    要版本号一致 CArchive 才能正确读取 自定义类
+    </p>
+</div>
+</td></tr></table>
+</body>
+</html>

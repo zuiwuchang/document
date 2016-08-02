@@ -1,0 +1,328 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>layout</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">layout</font>
+</p>
+
+<p>
+	<a href="#layout">layout通用特性</a><br />
+	<a href="#using">使用layout</a><br />
+	<a href="#wxBoxSizer">wxBoxSizer</a><br />
+	<a href="#wxStaticBoxSizer">wxStaticBoxSizer</a><br />
+	<a href="#wxGridSizer">wxGridSizer</a><br />
+	<a href="#wxFlexGridSizer">wxFlexGridSizer</a><br />
+    <a href="#wxGridBagSizer">wxGridBagSizer</a><br />
+
+</p>
+
+
+<div class="mydiv"><a name="layout"></a>
+	<p><font color="#FF0000">layout通用特性</font>
+<pre>wxSizer 是所有布局控件的 抽象基类
+
+所有布局控件都是容器：	其可容纳其他窗口 布局空间
+自然大小:	控件能够计算自己的最小的尺寸(通过每个元素的DoGetBestSize) 
+边界:	指每个控件之间 隔开的空白区域大小(单位:像素) 一般为5
+对齐方式
+伸缩因子:	对于布局空间 大于所有控件需要的空间时 伸缩因子用以确定 控件的缩放比例以 分配多余的空间 
+		对于伸缩因子为0的控件 不进行缩放
+		对于伸缩因子大于0的控件 按照所有大于0的控件 因子/总因子 分配空间
+
+</pre>
+    </p>
+    
+    <p><font color="#FF0000">注意</font>
+<pre>不是每个元素都能自己计算大小 如列表框(这需要在构造列表框时 指定其大小)
+</pre>
+    </p>
+</div>  
+ 
+<div class="mydiv"><a name="using"></a>
+	<p><font color="#FF0000">使用layout</font>
+<pre>//将一个布局控件设置为子窗口(绑定顶层窗口 和 布局控件)
+void wxWindow::SetSizer(wxSizer* sizer, 
+	bool deleteOld=true)	//若已经存在布局控件 是否销毁久的 true(销毁)
+void wxWindow::SetSizerAndFit(wxSizer* sizer, bool deleteOld=true)
+
+wxSize wxSizer::Fit(wxWindow* window)	//调整使顶层窗口大小 使其刚好容纳所有控件
+void wxSizer::SetSizeHints(wxWindow* window)		//首先调用Fit 之后设置当前wxWindow的大小 为wxWindow的最小尺寸
+</pre>	
+	</p>
+</div>
+
+<div class="mydiv"><a name="wxBoxSizer"></a>
+	<p><font color="#FF0000">wxBoxSizer</font>
+<pre>wxBoxSizer 控件 按照 水平 或 垂直 排列的布局方式
+wxBoxSizer::wxBoxSizer(int orient)	//wxVERTICAL(垂直排列)	wxHORIZONTAL(水平排列)
+
+//增加一个窗口
+wxSizerItem* Add(wxWindow* window, 
+		int proportion = 0,		//缩放因子
+		int flag = 0, 			//标志位	
+		int border = 0,			//边界大小
+		wxObject* userData = NULL)
+
+//增加一个布局控件
+wxSizerItem* Add(wxSizer* sizer, int proportion = 0, int flag = 0, int border = 0, wxObject* userData = NULL)
+
+<font color="#FF0000">flag取值</font>
+0				子元素保留原大小
+wxEXPAND			子元素跟随布局控件一起改变大小
+wxSHAPED			子元素保持原有比例按缩放因子缩放
+
+wxALIGN_LEFT			左对齐
+wxALIGN_RIGHT			右对齐
+wxALIGN_TOP			顶部对齐
+wxALIGN_BOTTOM			底部对齐
+wxALIGN_CENTER_VERTICAL 	垂直居中
+wxALIGN_CENTER_HORIZONTAL 	水平居中
+wxALIGN_CENTER			wxALIGN_CENTER_VERTICAL |  wxALIGN_CENTER_HORIZONTAL
+
+wxTOP			//边界位于元素顶部
+wxBOTTOM		//...底部
+wxLEFT			//...左侧
+wxRIGHT			//...右侧
+wxALL			//...四周
+</pre>	
+	</p>
+	<p><font color="#FF0000">example</font>
+<pre>wxTestFrame::wxTestFrame(wxFrame *frame, const wxString& title)
+    : wxFrame(frame, -1, title)
+{
+#if wxUSE_MENUS
+	//...
+#endif // wxUSE_MENUS
+
+#if wxUSE_STATUSBAR
+	//...
+#endif // wxUSE_STATUSBAR
+
+
+    wxBoxSizer* top_sizer=new wxBoxSizer(wxVERTICAL);
+    top_sizer->Add(new wxButton(this,id_buton_ok,_("ok")),1,wxEXPAND|wxALL,5);
+
+    wxBoxSizer* sizer=new wxBoxSizer(wxHORIZONTAL);
+    top_sizer->Add(sizer,0,wxEXPAND|wxALL,10);
+
+    sizer->Add(new wxButton(this,id_buton_center,_("center")),1,wxALL,5);
+    sizer->Add(new wxButton(this,id_buton_exit,_("exit")),1,wxALL,5);
+
+    SetSizer(top_sizer);
+    //top_sizer->Fit(this);
+    top_sizer->SetSizeHints(this);
+}</pre>	
+	</p>
+</div>
+
+<div class="mydiv"><a name="wxStaticBoxSizer"></a>
+	<p><font color="#FF0000">wxStaticBoxSizer</font>
+<pre>wxStaticBoxSizer 完全同 wxBoxSizer 只不过 在 布局的 边上 加上了一个 静态文本框 以作为装饰
+wxStaticBoxSizer 构造时 需要传入 一个 动态创建的 静态框 wxStaticBox 
+其他 同 wxBoxSizer
+
+wxStaticBoxSizer(wxStaticBox* box, int orient)
+</pre>	
+	</p>
+	<p><font color="#FF0000">example</font><br />
+<pre>    //创建 顶层布局
+    wxBoxSizer* top_sizer=new wxBoxSizer(wxVERTICAL);
+
+    //创建 静态框 静态文本框布局
+    wxStaticBox* static_box = new wxStaticBox(this,wxID_ANY,_("wxStaticBoxSizer"));
+    wxStaticBoxSizer* static_sizer  =   new wxStaticBoxSizer(static_box,wxVERTICAL);
+
+    static_sizer->Add(new wxButton(this,id_buton_ok,_("ok")),1,wxALL,5);
+    static_sizer->Add(new wxButton(this,id_buton_center,_("center")),1,wxALL,5);
+
+    //将 wxStaticBox 增加到 顶层布局
+    top_sizer->Add(static_sizer,1,wxEXPAND | wxALL,10);
+
+
+    SetSizer(top_sizer);
+    top_sizer->SetSizeHints(this);
+</pre>
+	</p>
+	
+	<p><font color="#FF0000">注意</font><br />
+<pre>wxStaticBoxSizer 当然 也可以作为 顶层布局 
+不过 那样 处于边缘位置的 静态文本框 边框就无法 显示清楚
+</pre>
+	</p>
+</div>	
+<div class="mydiv"><a name="wxGridSizer"></a>
+	<p><font color="#FF0000">wxGridSizer</font>
+<pre>wxGridSizer 使控件 按照 一个 n*m 的 二维表格 排列 
+其中 每个 格子的 大小 为 所有控件中 最大控件的大小
+
+wxGridSizer(int rows, int cols, int vgap, int hgap)
+wxGridSizer(int cols, int vgap = 0, int hgap = 0)	//vgap hgap 分别为 行 列 间距
+</pre>
+	</p>
+	
+	<p><font color="#FF0000">example</font>
+<pre>    //创建 wxGridSizer
+    wxGridSizer* grid_sizer =   new wxGridSizer(2   //行
+                                                ,3  //列
+                                                ,0 //行间距
+                                                ,0 //列间距
+                                                );
+    //add
+    grid_sizer->Add(new wxButton(this,wxID_ANY,_("0")),0,wxALL,5);
+    grid_sizer->Add(new wxButton(this,wxID_ANY,_("1")),0,wxALL,5);
+    grid_sizer->Add(new wxButton(this,wxID_ANY,_("2")),0,wxALL,5);
+    grid_sizer->Add(new wxButton(this,wxID_ANY,_("3")),0,wxALL,5);
+    grid_sizer->Add(new wxButton(this,wxID_ANY,_("4")),0,wxALL,5);
+
+    SetSizer(grid_sizer);
+    grid_sizer->SetSizeHints(this);
+</pre>
+	</p>
+	
+	<p><font color="#FF0000">注意</font>
+<pre>实际加入到 wxGridSizer 的元素 可以少或多于 构造时 指定的 rows * cols
+rows 只是作为 参考 实际以 cols 计算的 真实 行为准确
+</pre>
+	</p>
+</div>	
+<div class="mydiv"><a name="wxFlexGridSizer"></a>
+	<p><font color="#FF0000">wxFlexGridSizer</font>
+<pre>wxFlexGridSizer 排列方式同 wxGridSizer 不过 其只要求 同列格子大小相同
+且 默认 wxFlexGridSizer 的行列 不随窗口改变而 改变
+
+但可以使用 
+void AddGrowableRow(size_t idx, int proportion = 0)
+void AddGrowableCol(size_t idx, int proportion = 0)
+设置 某 行 列 随窗口改变 而缩放 
+proportion 为缩放因子
+
+使用
+void RemoveGrowableRow(size_t idx)
+void RemoveGrowableCol(size_t idx)
+设置 某 行 列 不 缩放
+</pre>
+	</p>
+	
+	<p><font color="#FF0000">example</font>
+<pre>    //创建 wxFlexGridSizer
+    wxFlexGridSizer* grid_sizer =   new wxFlexGridSizer(2   //行
+                                                ,3  //列
+                                                ,0 //行间距
+                                                ,0 //列间距
+                                                );
+
+    //设置可缩放 行
+    grid_sizer->AddGrowableRow(0,1);
+    //设置可缩放 列
+    grid_sizer->AddGrowableCol(0,1);
+   
+    //add
+    grid_sizer->Add(new wxButton(this,wxID_ANY,_("0")),0,wxALL,5);
+    grid_sizer->Add(new wxButton(this,wxID_ANY,_("1")),0,wxALL,5);
+    grid_sizer->Add(new wxButton(this,wxID_ANY,_("2")),0,wxALL,5);
+    grid_sizer->Add(new wxButton(this,wxID_ANY,_("3")),0,wxALL,5);
+    grid_sizer->Add(new wxButton(this,wxID_ANY,_("4")),0,wxALL,5);
+
+    SetSizer(grid_sizer);
+    grid_sizer->SetSizeHints(this);
+</pre>
+	</p>
+	<p><font color="#FF0000">注意</font>
+<pre>如果只有 1行 或 1列 可缩放 缩放因子 可使用 默认的0 (不推荐)
+但 若有多汗 必须设置 缩放因子
+</pre>
+	</p>
+</div>	
+
+<div class="mydiv"><a name="wxGridBagSizer"></a>
+	<p><font color="#FF0000">wxGridBagSizer</font><br />
+<pre>wxGridBagSizer 依然使用 二維表 排列 元素
+不過 在 add 時 需要	 傳入 wxGBPosition 指定 元素位置(第n行 m列)
+			 傳入 wxGBSpan 指定 元素 大小(佔用 n 行 m 列)
+其他參數 同 wxBoxSizer 不過沒有縮放因子參數             
+             
+默認 情況下 wxGridBagSizer 的 行列 不隨 窗口變化而 改變
+
+但可以使用 
+void AddGrowableRow(size_t idx, int proportion = 0)
+void AddGrowableCol(size_t idx, int proportion = 0)
+设置 某 行 列 随窗口改变 而缩放 
+proportion 为缩放因子
+
+使用
+void RemoveGrowableRow(size_t idx)
+void RemoveGrowableCol(size_t idx)
+设置 某 行 列 不 缩放
+</pre>    
+    </p>
+    
+    <p><font color="#FF0000">wxGridBagSizer</font>
+<pre>#include&lt;wx/gbsizer.h&gt;
+    //创建 wxGridBagSizer
+    wxGridBagSizer* grid_sizer  =   new wxGridBagSizer(0 //行间距
+                                                ,0 //列间距
+                                                );
+    //add
+
+    //第一行 第一格
+    grid_sizer->Add(new wxButton(this,wxID_ANY,_("1"))
+                    ,wxGBPosition(0,0)
+                    ,wxGBSpan(1,1)
+                    ,wxALL
+                    ,5
+                    );
+
+    //第二行 第 2 3 格
+    grid_sizer->Add(new wxButton(this,wxID_ANY,_("2"))
+                    ,wxGBPosition(1,1)
+                    ,wxGBSpan(1,2)
+                    ,wxEXPAND | wxALL   //wxEXPAND 設置控件隨 佈局改變 大小
+                    ,5
+                    );
+
+    //第三行 第 2 格
+    grid_sizer->Add(new wxButton(this,wxID_ANY,_("3"))
+                    ,wxGBPosition(2,1)
+                    ,wxGBSpan(1,1)
+                    ,wxALL
+                    ,5
+                    );
+
+    //第三行 第 3 格
+    grid_sizer->Add(new wxButton(this,wxID_ANY,_("4"))
+                    ,wxGBPosition(2,2)
+                    ,wxGBSpan(1,1)
+                    ,wxALL
+                    ,5
+                    );
+
+    //设置可缩放 行
+    grid_sizer->AddGrowableRow(1,1);
+    //设置可缩放 列
+    grid_sizer->AddGrowableCol(1,1);
+
+    SetSizer(grid_sizer);
+    grid_sizer->SetSizeHints(this);
+</pre>
+	</p>    
+    
+    <p><font color="#FF0000">注意</font>
+<pre>add時 需要 指定 wxEXPAND 元素 大小才會 改變 
+否則 只 改變了 行 列 大小 
+參見 wxBoxSizer Add flag 參數 
+
+wxGridBagSizer 的 頭文件wx/gbsizer.h 默認 未被 include 
+需要 自己 include
+</pre>
+	</p>
+</div>    
+
+</td></tr></table>
+</body>
+</html>

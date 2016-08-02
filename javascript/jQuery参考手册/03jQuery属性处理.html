@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>jQuery属性处理</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#attr">attr</a>
+		<a href="#css">css</a>
+	</div>
+
+
+	<div class="note"><a name="attr"></a>
+		<p><span class="flag">attr</span>
+<pre>//返回 name 属性
+$(selector).attr("name")
+
+//设置 name 属性为 test
+$(selector).attr("name","test");
+
+//为匹配selector的数组设置 name 属性值为 函数返回值
+$(selector).attr(name,fun(index,value));
+
+//一次设置多个属性
+$(selector).attr({"name":"test","width":200});
+
+
+
+//移除 name 属性
+$(selector).removeAttr("name");
+</pre>
+		</p>
+		<p><span class="flag">class</span>
+<pre>//增加 test 到样式表
+$(selector).addClass("test");
+
+//从样式表中移除 test
+$(selector).removeClass("test");
+
+//切换样式表 test (既样式表中有test则移除test 否则添加test)
+$(selector).toggleClass("test");
+
+//查询样式表中是否有test
+$(selector).hasClass("test");
+
+
+其次class属性亦可用 attr 操作
+</pre>
+		</p>
+		<p><span class="flag">html</span>
+<pre>//返回/设置 html
+$(selector).html();
+
+$(selector).html(html);
+
+//设置html为 函数返回值
+$(selector).html(fun(index,value));	
+
+
+
+//返回/设置 文本
+$(selector).text();
+$(selector).text("<span class="care">text 设置或返回 会连同所有后代元素的文本一起 返回或设置</span>");	
+</pre>
+		</p>
+		<p><span class="flag">表单</span>
+<pre>//返回value
+$(selector).val();
+
+//设置value
+$(selector).val(value);
+
+//设置value 为函数返回值
+$(selector).val(fun(index,value));
+
+
+
+//把 单选框 或 列表框 中value值为 value1,value2,...的选中
+$(selector).val([value1,value2,...])	
+	<span class="care">$("select[name=select_test]").value("option1","option3");</span>
+</pre>
+		</p>
+		
+	</div>
+
+	<div class="note"><a name="css"></a>
+		<p><span class="flag">css</span>
+<pre>//获取<span class="care">第一个</span>匹配selector元素的 color
+//对获取css而言 margin background border等简写形式不支持 对于background-color亦可写作backgroundColor
+$(selector).css("color");
+
+
+//把<span class="care">所有</span>匹配selector的 border 设置为指定值
+$(selector).css("border","4px solid white");
+
+//设置name值为函数返回值
+$(selector).css(name,fun(index,value));
+
+//一次设置多个值
+$(selector).css({name1:value1,name2:vales2,...})
+</pre>
+		</p>
+		<p><span class="flag">尺寸</span>
+<pre>//以px为单位 返回<span class="care">第一个</span>匹配selector元素的<span class="care">实际</span>宽度
+$(selector).width();
+
+//...高度
+$(selector).height();
+
+//设置<span class="care">所有</span>匹配selector元素的宽度
+$(selector).width(30);
+
+//...高度
+$(selector).height(30);
+
+
+
+若要获取 设置元素内部区域(包括内边距padding) innerHeight innerWidth
+若要获取 设置元素外部区域(包括内边距padding 边框border) outerHeight outerWidth<br />
+</pre>
+		</p>
+		<p><span class="flag">位置</span>
+<pre>//返回<span class="care">第一个</span>匹配selector的<span class="care">可见元素</span>
+var a=$(selector).offset();
+
+//返回<span class="care">相对当前视窗</span>垂直偏移
+a.top;
+
+//返回<span class="care">相对当前视窗</span>水平偏移
+a.left;
+
+//设置垂直 水平 偏移
+$(selector).offset({"top":40,"left":40});
+
+
+
+//返回<span class="care">第一个</span>匹配selector的<span class="care">可见元素</span>
+$(selector).position();	
+
+//返回<span class="care">相对最近祖先元素</span>垂直偏移
+a.top;
+
+//返回<span class="care">相对最近祖先元素</span>水平偏移
+a.left;
+
+
+
+//返回<span class="care">第一个</span>匹配selector元素的垂直滚动条 相对该元素顶端的偏移(没有滚动条返回0)
+$(selector).scrollTop();
+
+//...水平滚动条
+$(selector).scrolleft();
+</pre>
+		</p>
+	
+	</div>
+</div>
+</body>
+</html>

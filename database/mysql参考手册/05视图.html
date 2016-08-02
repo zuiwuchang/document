@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>视图</title>
+</head>
+<body>
+<table align="center"><tr><td>
+	<p>
+	<h3>
+    <br /><font color="#FF0000">创建视图</font>
+    <br />create [undefined|merge|temptable] view 视图名 [(字段...)] as select ...[with [cascaded|local] check option];
+    <br /><br />with check option表示更新视图时要保证在该视图的权限范围之内
+    <br />cascaded表示更新时要满足所有相关视图和表条件
+    <br />local表示更新时只需要保证满足视图本身定义条件
+    <br /><br />undefined默认 具体定义余未了解
+    <br />merge余暂时不解
+    <br />temptable将视图结果存储到临时表，在再临时表中执行sql语句
+    </h3>
+	</p>
+    
+    <p>
+    <h3>
+   	<br /><font color="#FF0000">查看视图</font>
+    <br />desc 视图名 
+    <br />show create view 视图名
+    <br />show table status like '视图名'
+    <br /><br />mysql中视图信息存储在information_schema.views中
+    <br /><font color="#FF0000">so</font> select * from information_schema.views;
+    </h3>
+    </p>
+    
+    <p>
+    <h3>
+   	<br /><font color="#FF0000">修改视图</font>
+    <br />alter [undefined|merge|temptable] view 视图名 [(字段...)] as select ...[with [cascaded|local] check option];
+    <br />create or replace [undefined|merge|temptable] view 视图名 [(字段...)] as select ...[with [cascaded|local] check option];//若view不存在创建之
+    </h3>
+    </p>
+    
+    <p>
+    <h3>
+   	<br /><font color="#FF0000">更新视图</font>
+    <br />同表
+    </h3>
+    </p>
+    
+    <p>
+	<h3>
+    <br /><font color="#FF0000">删除视图</font>
+    <br />drop view 视图名 ;
+    <br />drop view viewname;
+    <br />drop view if exists viewname;
+    </h3>
+    </p>
+</td></tr></table>
+</body>
+</html>

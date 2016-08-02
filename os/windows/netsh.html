@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>windows</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#netsh">端口映射</a>
+		
+	</div>
+
+	<div class="note"><a name="netsh"></a>
+		<p><span class="flag">端口映射</span>
+<pre>windows 在安裝了ipv6後可以(ipv6 install) 使用 netsh實現 端口映射
+
+
+//將 10.10.10.10:11111 映射到10.10.10.11:80
+netsh interface portproxy add v4tov4 listenport=11111 listenaddress=10.10.10.10 connectport=80 connectaddress=10.10.10.11
+
+//刪除 映射 10.10.10.10:11111
+netsh interface portproxy del v4tov4 listenport=11111 listenaddress=10.10.10.10
+
+//查看 映射 設置
+netsh interface portproxy show v4tov4
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>netsh 映射 會一直生效 即使重啟
+需要使用 del 手動刪除
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

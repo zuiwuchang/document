@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>01select(選擇)</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+
+    <p><h1><font color="#FF0000">select(選擇)</font></h1></p>
+    
+    <h2>
+    <a href="#WSAAsyncSelect">select</a><br />
+    
+    
+    </h2>
+    
+    <div class="div_box"><a name="WSAAsyncSelect"></a><p><h3>
+    	<p><h2><font color="#FF0000">select</font></h2>
+        select 模型 實際上io依然是阻塞模式(除非手動調用 u_long ul=1;
+ioctlsocket(sock,FIONBIO,&amp;ul); 將套接字設置為非阻塞) <br />
+        只是可以使用select 對socket數組進行檢索 以在有數據可讀 或可寫時 進行讀寫操作    
+        </p>
+      	<p><h2><font color="#FF0000">相關API</font></h2>
+<pre>//超時返回0 錯誤返回SOCKET_ERROR(-1) 否則返回处于就绪状态并且已经包含在fd_set结构中的描述字总数
+int select(
+  __in     int nfds,				//此參數被忽略 只是用於兼容Berkeley sockets
+  __inout  fd_set* readfds,				//需要檢索 可讀
+  __inout  fd_set* writefds,			//用以檢索 可寫
+  __inout  fd_set* exceptfds,			//用於檢索 例外
+  __in     const struct timeval* timeout	//超時	NULL 一直等待
+);
+
+typedef struct timeval {  
+	long tv_sec;  		//秒
+	long tv_usec;		//微妙
+} timeval;
+
+typedef struct fd_set {  
+u_int fd_count;  				//fd_array中元素數量
+SOCKET fd_array[FD_SETSIZE];	//
+} fd_set;
+
+<font color="#FF0000">//輔助宏</font>
+//將一個socket從 fd_set 移除
+FD_CLR(s, *set) 
+
+//檢索一個socket是否在 fd_set中 且處於可讀狀態
+FD_ISSET(s, *set) 
+
+//將一個socket 加入 fd_set中 且FD_ISSET此socket會返回TRUE
+FD_SET(s, *set) 
+
+//將fd_set中所有 socket移除
+FD_ZERO(*set) 
+
+</pre>
+        </p>
+        
+        <p><h2><font color="#FF0000">注意</font></h2>
+        對於fd_set.fd_count為0時 select將立刻返回SOCKET_ERROR<br />
+        對於一個處於監聽的套接字 當有連接請求到達時 其標誌為 可讀<br /><br />
+        
+        select無法直接獲取 是哪個socket引發的select返回 需要使用FD_ISSET檢索 所有socket 引發select的socket會使FD_ISSET返回TRUE<br />
+        <font color="#FF0000">select 超時後應該重新填充 fd_set(超時 會設置fd_set.fd_count=0 等操作)       </font>
+        
+        </p>
+   	</h3></p></div>
+    
+    
+</td></tr></table>
+</body>
+</html>

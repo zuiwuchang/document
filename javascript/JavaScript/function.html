@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>函数</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#function">函数的定义</a>
+		<a href="#arguments">函数的参数</a>
+		<a href="#return">函数的返回值</a>
+		<a href="#con">构造函数</a>
+		<a href="#using">常用函数</a>
+	</div>
+
+	<div class="note"><a name="function"></a>
+		<p><span class="flag">函数的定义</span>
+<pre><span class="care">方式一</span>
+function sum(a,b){
+	return a+b;
+}
+var sum = function(a,b){
+	return a+b;
+}
+
+<span class="care">方式二</span>
+//var name=new Function([参数,...],函数体);
+var sum = new Function("a","b","return a+b;");
+sum(1,2);
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>函数的参数可以是另外的函数 
+可用 if(<span class="care">参数 instanceof Function</span>) 判断传入的是否是函数
+
+javascript中的函数都是对象Function的实例
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="arguments"></a>
+		<p><span class="flag">函数的参数</span>
+<pre>arguments对象代表了当前被调用的函数的参数数组 其length代表了实际传入参数数
+fun.length代表了函数定义的参数数
+
+參數 是基本型別則為 值傳遞 複合型別為應引用傳遞
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="return"></a>
+		<p><span class="flag">函数的返回值</span>
+<pre>对于基本型别javascript函数返回值的副本
+
+对于<span class="care">复合型别</span>javascript函数返回 <span class="care">引用</span>
+javascript还可以返回函数的引用(函数 是复合型别 Function的实例)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="con"></a>
+		<p><span class="flag">构造函数</span>
+<pre>对于javascript没有类的概念 只需定义出构造函数就可将其看成一个'对象类'
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>function A(name){
+	this.name=name;
+	this.getName=getName;
+}
+function getName(){
+	return this.name;
+}
+
+var a=new A("123");
+alert(a.getName());
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="using"></a>
+		<p><span class="flag">常用函数</span>
+<pre>//将字符串进行 url 编码 	
+//java.net.URLEncoder.encode(str, "UTF-8").replaceAll("\\+",  "%20")	
+//(java中 很sb的把 空格 换为了+ 而非%20 故需要自己再替换回%20);
+encodeURIComponent(URIstring)
+
+//将url编码的字符串 解码	
+//java.net.URLDecoder.decode(str, "UTF-8");
+decodeURIComponent(URIstring)
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

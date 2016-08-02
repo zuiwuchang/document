@@ -1,0 +1,164 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>dark</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#log">log</a>	
+	</div>
+
+
+	<div class="note"><a name="log"></a>
+		<p><span class="flag">log</span>
+<pre>namespace dark::debug
+#include&lt;dark\debug\log.hpp&gt;
+
+餘開發的一個 簡單日誌系統
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>using namespace dark::debug;
+#if	1
+int _tmain(int argc, _TCHAR* argv[])
+{
+	
+	
+	//log核心實例
+	log_t	log;
+	
+	//創建 日志槽
+	log_t::sink_t	skin_ptr(&amp;std::cout,log_t::not_delete_ostream);
+	
+	//將日誌槽 增加到 log核心
+	log.insert_skin(skin_ptr);
+
+	//創建附加屬性
+	log_t::key_words_t key_words	=	log_t::make_key_words();
+		(*key_words)[words_level]	=	1;
+		(*key_words)[words_datetime]	=	std::string("[%Y/%m/%d %H:%M:%S %A]\t");	// 設置 記錄 日期 時間 以及其記錄格式
+		
+	//將屬性增加到 日誌槽
+	log.key_words(skin_ptr,key_words);
+
+		//增加 文件日誌槽
+		log_t::sink_t	file_skin_ptr	=		boost::make_shared&lt;std::ofstream&gt;("my_0.log",std::ios::out | std::ios::app);
+
+		log.insert_skin(file_skin_ptr);
+			
+			log_t::key_words_t key_file_words	=	log_t::make_key_words();
+			(*key_file_words)[words_level]		=	1;
+			(*key_file_words)[words_datetime]	=	std::string("[%Y/%m/%d %H:%M:%S %A]\t");
+			(*key_file_words)[words_file]		=	boost::make_tuple(std::string("my_")	//名稱
+				,std::string(".log")		//後綴名
+				,0							//文件名增量 起始索引
+				,100						//單個文件大小為100字節 一般10MB比較合適 10 * 1024 * 1024
+				,std::locale("chs")
+				);
+			
+
+		log.key_words(file_skin_ptr,key_file_words);
+		
+
+	//寫入日誌
+	log.write_log("trace",trace);
+	log.write_log("debug",debug);
+	log.write_log("info",info);
+	log.write_log("warning",warning);
+	log.write_log("error",error);
+	log.write_log("fatal",fatal);
+
+
+	//設置 過濾器
+	log.filter(info);
+
+	log.write_log("************華麗的分割線***********",info);
+	log.write_log("trace",trace);
+	log.write_log("debug",debug);
+	log.write_log("info",info);
+	log.write_log("warning",warning);
+	log.write_log("error",error);
+	log.write_log("fatal",fatal);
+	
+	std::system("pause");
+	return 0;
+}
+#else
+int _tmain(int argc, _TCHAR* argv[])
+{
+	std::wcout.imbue(std::locale("chs"));
+	
+	//log核心實例
+	wlog_t	wlog;
+	
+	//創建 日志槽
+	wlog_t::sink_t	wskin_ptr(&amp;std::wcout,wlog_t::not_delete_ostream);
+	
+	//將日誌槽 增加到 log核心
+	wlog.insert_skin(wskin_ptr);
+
+	//創建附加屬性
+	wlog_t::key_words_t key_words	=	wlog_t::make_key_words();
+		(*key_words)[words_level]	=	1;
+		(*key_words)[words_datetime]	=	std::wstring(L"[%Y/%m/%d %H:%M:%S %A]\t");	// 設置 記錄 日期 時間 以及其記錄格式
+		
+	//將屬性增加到 日誌槽
+	wlog.key_words(wskin_ptr,key_words);
+
+		//增加 文件日誌槽
+		wlog_t::sink_t	wfile_skin_ptr	=		boost::make_shared&lt;std::wofstream&gt;(L"my_0.log",std::ios::out | std::ios::app);
+		wfile_skin_ptr->imbue(std::locale("chs"));
+
+		wlog.insert_skin(wfile_skin_ptr);
+			
+			wlog_t::key_words_t key_file_words	=	wlog_t::make_key_words();
+			(*key_file_words)[words_level]		=	1;
+			(*key_file_words)[words_datetime]	=	std::wstring(L"[%Y/%m/%d %H:%M:%S %A]\t");
+			(*key_file_words)[words_file]		=	boost::make_tuple(std::wstring(L"my_")	//名稱
+				,std::wstring(L".log")		//後綴名
+				,0							//文件名增量 起始索引
+				,100						//單個文件大小為100字節 一般10MB比較合適 10 * 1024 * 1024
+				,std::locale("chs")
+				);
+			
+
+		wlog.key_words(wfile_skin_ptr,key_file_words);
+		
+
+	//寫入日誌
+	wlog.write_log(L"trace",trace);
+	wlog.write_log(L"debug",debug);
+	wlog.write_log(L"info",info);
+	wlog.write_log(L"warning",warning);
+	wlog.write_log(L"error",error);
+	wlog.write_log(L"fatal",fatal);
+	
+
+	//設置 過濾器
+	wlog.filter(info);
+
+	wlog.write_log(L"************華麗的分割線***********",info);
+	wlog.write_log(L"trace",trace);
+	wlog.write_log(L"debug",debug);
+	wlog.write_log(L"info",info);
+	wlog.write_log(L"warning",warning);
+	wlog.write_log(L"error",error);
+	wlog.write_log(L"fatal",fatal);
+
+	std::system("pause");
+	return 0;
+}
+#endif
+</pre>
+		</p>
+
+	</div>
+
+</div>
+</body>
+</html>

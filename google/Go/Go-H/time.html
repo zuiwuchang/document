@@ -1,0 +1,221 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#time">time</a>
+		<a href="#now">時間點</a>
+		<a href="#duration">時間段</a>
+		<a href="#Timer">Timer</a>
+	</div>
+
+	<div class="note">
+		<p><a name="time"></a><span class="flag">time</span>
+<pre>time包 提供了時間 處理的常用 函數
+time包 對於時間段概念 類似c++ boost date_time 庫 時間點 時間段的 概念
+(參見 c++ boost date_time)
+可用 時間點 +- 時間段 兩時間點相減 得時間段
+</pre>
+		</p>
+	</div>
+
+	<div class="note">
+		<p><a name="now"></a><span class="flag">時間點</span>
+<pre>時間點 用於表示 某個時刻 (如 2014-11-02 17:19:19.0760086 +0800 CST)
+使用 type Time struct 表示
+</pre>
+		</p>
+
+		<p><span class="flag">常用接口</span>
+<pre>//月份常量
+const (
+    January Month = 1 + iota
+    February
+    March
+    April
+    May
+    June
+    July
+    August
+    September
+    October
+    November
+    December
+)
+
+//返回當前 本地時間
+func Now() Time
+
+//返回指定時間
+func Date(year int, month Month, day, hour, min, sec, nsec int, loc *Location) Time
+
+//解析時間
+func Parse(layout, value string) (Time, error)
+
+//格式化到字符串
+func (t Time) Format(layout string) string
+
+//是否在指定時間 之 後/前/等
+func (t Time) After(u Time) bool
+func (t Time) Before(u Time) bool
+func (t Time) Equal(u Time) bool
+
+//返回 年/月/日/星期/此年第n天
+func (t Time) Year() int
+func (t Time) Month() Month
+func (t Time) Day() int
+func (t Time) Weekday() Weekday
+func (t Time) YearDay() int
+
+//增加(d) 減少(-d) 時間段
+func (t Time) Add(d Duration) Time
+
+//返回 兩時間點 相差 時間段
+func (t Time) Sub(u Time) Duration
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	fmt.Println("***********	獲取時間	**************")
+	t := time.Now()
+	fmt.Println("now", t)
+
+	t = time.Date(2014, time.November, 2, 0, 0, 0, 0, time.Local)
+	fmt.Println("Date", t)
+
+	fmt.Println("***********	解析時間	**************")
+	const longForm = "Jan 2, 2006 at 3:04pm (MST)"
+	t, _ = time.Parse(longForm, "Feb 3, 2013 at 7:54pm (PST)")
+	fmt.Println("longForm", t)
+
+	const shortForm = "2006-Jan-02"
+	t, _ = time.Parse(shortForm, "2013-Feb-03")
+	fmt.Println("shortForm", t)
+
+	fmt.Println("注意 此處的模板 必須為 2006年 1月 2日 15時 4 分 5秒")
+	withNanos := "2006-01-02 15:04:05"
+	t, _ = time.Parse(withNanos, "2013-10-05 18:30:50")
+	fmt.Println(withNanos, t)
+
+	withNanos = "2006/01/02 15:04:05"
+	t, _ = time.Parse(withNanos, "2013/10/05 18:30:50")
+	fmt.Println(withNanos, t)
+
+	fmt.Println("***********	輸出到字符串	**************")
+	fmt.Println("String", t.String())
+
+	fmt.Println("withNanos", t.Format(withNanos))
+
+	t.After(u)
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note">
+		<p><a name="duration"></a><span class="flag">時間段</span>
+<pre>const (
+    Nanosecond  Duration = 1
+    Microsecond          = 1000 * Nanosecond
+    Millisecond          = 1000 * Microsecond
+    Second               = 1000 * Millisecond
+    Minute               = 60 * Second
+    Hour                 = 60 * Minute
+)
+
+time 沒有boost data_time 中 year month 這些方便的時間段
+(果然還是boost最diao)
+</pre>
+		</p>
+		<p><span class="flag">常用接口</span>
+<pre>//使當前 goroutine 睡眠一段時間
+func Sleep(d Duration)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+
+	t := time.Now()
+	fmt.Println(t)
+	time.Sleep(time.Second * 1)
+	t = time.Now()
+	fmt.Println(t)
+
+	t = t.Add(time.Hour * 24)
+	fmt.Println(t)
+
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note">
+		<p><a name="Timer"></a><span class="flag">Timer</span>
+<pre>time.Timer 是一個定時器 
+其在 當前中goroutine中 延遲一定時間 執行一個 function
+</pre>
+		</p>
+		<p><span class="flag">Timer</span>
+<pre>//創建計時器
+func AfterFunc(d Duration, f func()) *Timer
+func NewTimer(d Duration) *Timer
+
+//復位計時器
+func (t *Timer) Reset(d Duration) bool
+
+//停止計時器
+func (t *Timer) Stop() bool
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	//方式一 異步
+	var t *time.Timer
+	t = time.AfterFunc(time.Second*1, func() {
+		fmt.Println("AfterFunc", time.Now())
+		t.Reset(time.Second * 1)
+	})
+	fmt.Println("first message")
+
+	//方式二 同步
+	t1 := time.NewTimer(time.Second * 2)
+	<-t1.C
+	fmt.Println("NewTimer", time.Now())
+
+	//方式三 同步
+	<-time.After(time.Second * 2)
+	fmt.Println("After", time.Now())
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

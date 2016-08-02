@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>文档对象</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#document">document对象</a>
+	</div>
+	<div class="note"><a name="document"></a>
+		<p><span class="flag">document对象</span>
+<pre>document对象提供了一系列函数和属性以操作html文档
+
+<table>
+<tr><td>属性和方法</td><td>描述</td></tr>
+<tr><td>title</td><td>此属性获得或设置html标题</td></tr>
+<tr><td>URL</td><td>返回url地址</td></tr>
+<tr><td>location</td>返回或设置url<td></td></tr>
+<tr><td>referrer</td><td>返回上一文档url(可用于防盗链)
+
+var fontUrl=document.referrer;
+//获取当前主机域名
+var host=location.hostname;
+if(fontUrl!=""){
+	var fontHost=frontUrl.substring(7,host.length+7);
+	if(host!=fontHost){
+		alert("盗链");
+	}
+}</td></tr>
+<tr><td>write(html)</td><td>在html文档中输出</td></tr>
+	<tr><td>getElementById(id)</td><td></td></tr>
+<tr><td>...其他详见后章</td><td></td></tr>
+	
+</table>
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

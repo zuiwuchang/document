@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>更改jQuery对象</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#child">改为后代元素</a>
+		<a href="#father">改为祖先元素</a>
+		<a href="#brother">改为兄弟元素</a>
+		<a href="#other">other</a>
+	</div>
+
+
+	<div class="note"><a name="child"></a>
+		<p><span class="flag">改为后代元素</span>
+			<table>
+				<tr><th>方法</th><th>描述</th></tr>
+				<tr><td>.children(selector)</td><td>从子元素中选取selector<br />.children()选取所有子元素</td></tr>
+				<tr><td>.find(selector)</td><td>从后代元素中选取selector<br />.find()不会选取任何元素</td></tr>
+				<tr><td>.contents()</td><td>子元素 和 子元素的文本</td></tr>
+			</table>
+		</p>
+	</div>
+
+	<div class="note"><a name="father"></a>
+		<p><span class="flag">改为祖先元素</span>
+			<table>
+				<tr><th>方法</th><th>描述</th></tr>
+				<tr><td>.parent(selector)</td><td>从父元素中选取selector<br />.parent()选取所有父元素</td></tr>
+				<tr><td>.parents(selector)</td><td>从祖先元素中选取selector<br />.parents()选取所有元素</td></tr>
+				<tr><td>.parentss(selector)</td><td>从祖先元素中选取元素直到遇到selector为止 且不包含selector<br />.parentsUntil()选取所有元素</td></tr>
+			</table>
+		</p>
+	</div>
+
+	<div class="note"><a name="brother"></a>
+		<p><span class="flag">改为兄弟元素</span>
+			<table>
+				<tr><th>方法</th><th>描述</th></tr>
+				<tr><td>.next(selector)</td><td>从下一个兄弟元素中选取selector<br />.next()选取所有下一个兄弟元素</td></tr>
+				<tr><td>.prev(selector)</td><td>从上一个兄弟元素中选取selector<br />.prev()选取所有上一个兄弟元素</td></tr>
+				<tr><td>.nextAll(selector)</td><td>从后面的兄弟元素中选取selector<br />.nextAll()选取所有后面的兄弟元素</td></tr>
+				<tr><td>.prevAll(selector)</td><td>从前面的兄弟元素中选取selector<br />.prevAll()选取所有前面的兄弟元素</td></tr>
+				<tr><td>.siblings(selector)</td><td>从后兄弟元素中选取selector<br />.siblings()选取所有的兄弟元素</td></tr>
+				<tr><td>.nextUntil(selector)</td><td>从后面的兄弟元素中选取 直到遇到selector 且不包含selector<br />.nextUntil()选取所有后面的兄弟元素</td></tr>
+				<tr><td>.prevUntil(selector)</td><td>从前面的兄弟元素中选取 直到遇到selector 且不包含selector<br />.prevUntil()选取所有前面的兄弟元素</td></tr>
+			</table>
+		</p>
+	</div>
+
+	<div class="note"><a name="other"></a>
+		<p><span class="flag">other</span>
+			<table>
+				<tr><th>方法</th><th>描述</th></tr>
+				<tr><td>.add(selector)</td><td>在原先元素后增加 用selector选取的元素</td></tr>
+				<tr><td>.andSelf()</td><td>更改元素后调用之 把更改后元素和原元素合并到一数组</td></tr>
+				<tr><td>.eq(index)</td><td>选取地index+1个元素</td></tr>
+				<tr><td>.first()</td><td>eq(0)</td></tr>
+				<tr><td>last()</td><td>eq(-1)</td></tr>
+				<tr><td>.slice(start,[end])</td><td>索引为[start,end)的元素 无end则后面全部</td></tr>
+				<tr><td>.end()</td><td>更改元素后调用 还原之</td></tr>
+			</table>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

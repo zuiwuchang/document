@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>基本語法</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#base">基本語法</a>
+		<a href="#byte">位操作</a>
+		<a href="#var">基本型別</a>
+		<a href="#class">class</a>
+		<a href="#import">包</a>
+		<a href="#io">基本輸入輸出</a>
+		<a href="#if">控制流程</a>
+		<a href="#try">異常</a>
+		<a href="#format">格式化輸出</a>
+		<a href="#cast">轉型</a>
+	</div>
+
+	<div class="note"><a name="base"></a>
+		<p><span class="flag">基本語法</span>
+<pre>java 的基本語法 類似c++ 參見c++
+
+//如下 定義了一個常量(java使用final 而非c/c++優美的const)
+final int var	=	1;
+
+java 中實例化一個對象 必須使用 new 如
+ClassName t = new ClassName(); 
+
+Java調用static 方法 竟然是使用 . 而非優雅的 ::
+
+java的數學函數 基本額位於 class Math 的static 函數
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="byte"></a>
+		<p><span class="flag">位操作</span>
+<pre>~ 按位非（NOT）
+& 按位与（AND）
+| 按位或（OR）
+^ 按位异或（XOR）
+>> 右移
+>>> 无符号右移
+<<左移
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="var"></a>
+		<p><span class="flag">基本型別</span>
+<pre>java 提供如下8中 基本型別
+<table>
+<tr><td>型別</td><td>佔用內存</td><td>取值</td></tr>
+<tr><td>byte</td><td>1</td><td>-128~127</td></tr>
+<tr><td>short</td><td>2</td><td>-32 768~32 767</td></tr>
+<tr><td>int</td><td>4</td><td>-2 147 483 648~2 147 483 647</td></tr>
+<tr><td>long</td><td>8</td><td>-9 223 372 036 854 775 807~9 223 372 036 854 775 807</td></tr>
+<tr><td>float</td><td>4</td><td>-3.4E38~3.4E38(保留7位有效數字)</td></tr>
+<tr><td>double</td><td>8</td><td>-1.7E308~1.7E308(保留16位有效數字)</td></tr>
+<tr><td>char</td><td>2</td><td>UNICODE 字符</td></tr>
+<tr><td>boolean	</td><td>1</td><td>true false</td></tr>
+</table>
+
+java 使用只是用 UNICODE字符串 故 char為2字節
+
+java.lang 下定義了8個class 用於管理基本型別
+</pre>
+		</p>
+
+		<p><span class="flag">字符串 String</span>
+<pre>java 使用 class String表示一個字符串
+可以使用
++
++=
+連接字符串 或基本型別(基本型別會被自動轉型為字符串 [真是糟糕的設計])
+
+要比較字符串是否相等 不能用 == != （這只是比較是否指向同一個地址）
+要調用 String的成員 函數equals 比較相等性
+equalsIgnoreCase 可忽略大小寫比較
+
+
+
+java每個字符串都是 單獨的 object 
+任意的修改都將 創建新的 字符串
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="class"></a>
+		<p><span class="flag">class</span>
+<pre>java在定義class時 需要在其前加上 訪問權限
+public	任何包 類 皆可使用
+
+成員訪問權限 參見c++
+
+
+java中 每個定義的 方法 變量前 都需要寫出訪問權限(真是裝b)
+
+java中一般變量都定義為 private
+之後定義一個 public 的 set* 和 get* 方法
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="import"></a>
+		<p><span class="flag">包</span>
+<pre>java 將API封裝在一個叫包的 地方
+import 包名 可以 導入包
+
+import java.text.*;	//將java.text中 所有類導入
+import java.swing.JOptionPane;	//將java.swing中的JOptionPane類導入
+</pre>
+		</p>
+		<p><span class="flag">常用包</span>
+<table>
+<tr><td>包名</td><td>範圍</td></tr>
+<tr><td>java.lang</td><td>基本類 如Object 數據型別 字符串 算數運行 線程 異常 os管理</td></tr>
+<tr><td>java.text</td><td>文本 容器 數字 消息 的 格式化 處理</td></tr>
+<tr><td>java.util</td><td>各種資源 國際化 集合類</td></tr>
+<tr><td>java.awt</td><td>繪圖 佈局 舊的GUI圖像庫</td></tr>
+<tr><td>java.awt.event</td><td>各種事件處理接口</td></tr>
+<tr><td>java.io</td><td>文本輸入輸出</td></tr>
+<tr><td>java.sql</td><td>數據庫操作接口</td></tr>
+<tr><td>java.applet</td><td>提供applet必須的類 舊的applet庫</td></tr>
+<tr><td>javax.swing</td><td>新的 GUI 和 applet庫</td></tr>
+</table>
+		</p>
+	</div>
+
+	<div class="note"><a name="io"></a>
+		<p><span class="flag">基本輸入輸出</span>
+<pre>
+</pre>
+		</p>
+		<p><span class="flag">JOptionPance</span>
+<pre>import javax.swing.JOptionPane;
+
+JOptionPane只提供了static函數 
+主要用於彈出一個 輸入框 showInputDialog 或彈出框showMessageDialog
+或一個 帶有 yes no 的彈出框 showConfirmDialog
+</pre>
+		</p>
+		<p><span class="flag">System.out</span>
+<pre>class System.out 位於 java.lang 被默認加載
+
+System.out.print 和 System.out.println 重載了多種基本型別 用於將其輸出到 標準輸出設備 
+ln版本 多輸出一個 \n 換行
+
+print 將調用 傳入 Object的 toString()返回字符串 之後輸出
+故對於自定義類 只需要 覆蓋 toString 即可
+public String toString()
+</pre>
+		</p>
+		<p><span class="flag">Scanner</span>
+<pre>import java.util.Scanner;
+
+Scanner 接受一個輸入設備構造
+其方法
+next()
+nextInt()
+next...
+接受一個 字符串 int short... 輸入
+
+String cmd;
+Scanner scan    =   new Scanner(System.in);
+cmd = scan.next();
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="if"></a>
+		<p><span class="flag">控制流程</span>
+<pre>java 的 if while 同c++
+switch
+?:
+for
+do{}while;
+break
+continue
+不過其判別式必須是 true false 而非 非0既真(真是SB)
+</pre>
+		</p>
+		<p><span class="flag">帶標籤的break</span>
+<pre>java提供了帶標籤的break 
+只能用在 嵌套循環中
+
+0	out:
+1	for
+2		for
+3		break out;
+
+0	定義了一個標籤
+3	此處的break 將調出 標籤下面那個循環 既此處外層的break
+
+java亦提供了帶標籤的continue(真是SB的特性)
+用法同帶標籤的 break不過 現在是進入下個循環 而非 跳出
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="try"></a>
+		<p><span class="flag">異常</span>
+<pre>java 的異常語法類似 c++
+不過其可 同時
+catch 和 finally
+
+finally中的語句 無論 是否出現異常 都被執行
+且java 只能拋出 java.lang.Exception 及其子類作為異常(真是弱)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="format"></a>
+		<p><span class="flag">格式化輸出</span>
+<pre>java 只能將數值 格式化為字符串 之後輸出 字符串(神一樣的裝b行為)
+</pre>
+		</p>
+		<p><span class="flag">貨幣格式化</span>
+<pre>import java.text.NumberFormat;
+
+class NumberFormat 提供了 格式化貨幣的 功能
+
+1	使用 getCurrencyInstance() 返回一個系統貨幣格式
+	或getCurrencyInstance(Locale) 返回一個指定的貨幣格式
+2	調用 format 傳入數值 返回格式化後的字符串
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>NumberFormat fmt    =    NumberFormat.getCurrencyInstance();
+System.out.println(fmt.format(123));
+
+Locale locale   =   Locale.GERMAN;
+fmt    =    NumberFormat.getCurrencyInstance(locale);
+System.out.println(fmt.format(123));
+</pre>
+		</p>
+		<p><span class="flag">百分比格式化</span>
+<pre>同樣是使用 class NumberFormat
+
+1	使用getPercentInstance()
+	或getPercentInstance(Locale) 返回需要的格式
+2	調用setMinimumFractionDigits/setMaximumFractionDigits 設置最大/最少 小數點位數
+3	調用 format 返回格式化字符串
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>NumberFormat fmt = NumberFormat.getPercentInstance(Locale.GERMAN);
+System.out.println(fmt.format(123));
+</pre>
+		</p>
+		<p><span class="flag">數值格式化</span>
+<pre>基本同百分比格式化
+只是由於getPercentInstance 改為調用getNumberInstance
+同樣是使用 setMinimumFractionDigits/setMaximumFractionDigits 設置小數點位數
+</pre>
+		</p>
+		<p><span class="flag">BigDecimal</span>
+<pre>import java.math.BigDecimal;
+
+BigDecimal 用於操作超過16位的有效數字
+
+add
+subtract
+...
+等方法首先基本算數算法(c++的operator優勢 完秒java)
+
+格式化類 NumberFormat 的 format 亦可傳入BigDecimal
+</pre>
+		</p>
+		<p><span class="flag">Date</span>
+<pre>import java.text.SimpleDateFormat;
+
+SimpleDateFormat fmt   =   new SimpleDateFormat("yyyy-MM-dd HH:mm:ss E");
+
+//date to str 
+String str =   fmt.format(new Date());
+System.out.println(str);
+
+//str to date
+try {
+	Date date = fmt.parse(str);
+	System.out.println(fmt.format(date));
+} catch (ParseException ex) {
+	Logger.getLogger(JavaApplication7.class.getName()).log(Level.SEVERE, null, ex);
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="cast"></a>
+		<p><span class="flag">轉型</span>
+<pre>自動轉型基本同 c++
+
+class
+Byte
+Short
+Integer
+Long
+Float
+Double
+Boolean
+Character
+是對8種基本型別的包裝 其通過傳入基本型別構造
+
+toString() 轉型為字符串
+intValue longValue...返回基本型別數據
+
+static parseByte parseShort... 從字符串轉型為包裝類
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

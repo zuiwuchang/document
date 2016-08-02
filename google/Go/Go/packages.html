@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>packages</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#packages">packages 包</a>
+		<a href="#function">function 函数</a>
+		<a href="#var">var 变量</a>
+		<a href="#string">string</a>
+		<a href="#func">內建函數</a>
+	</div>
+
+	<div class="note"><a name="packages"></a>
+		<p><span class="flag">packages 包</span>
+<pre>每個 Go 程序都由 包組成
+程序入口點是 main
+
+使用 import 引入包
+(可像示例中impot 多個包 亦可分別 import
+import "fmt"
+import "math/rand"
+import bar "bytes"	//導入包 並為使用 bar覆蓋其默認包名
+)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+	"math/rand"
+)
+
+func main() {
+	fmt.Println("My favorite number is", rand.Intn(10))
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>包中被導出的名稱 首字母必須大寫(大寫既自動被導出) 如 
+math.Pi (正確寫法)
+math.pi	(錯誤寫法)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="function"></a>
+		<p><span class="flag">function 函数</span>
+<pre>//Go 使用func 定义函数 返回值型别 在函数定义之后
+func add(x , y int) int {	//同型别参数 只需要在最后写出型别
+	return x + y
+}
+</pre>
+		</p>
+		<p><span class="flag">Go 函数 可以返回多个值</span>
+<pre>func main() {
+	l, r := swap("left", "right")
+	fmt.Println(l,r)
+}
+
+func swap(left, right string) (string, string) {
+	return right, left
+}
+</pre>
+		</p>
+		<p><span class="flag">可以给返回值 命名</span>
+<pre>//一个空 return 将返回 被命名的 返回值
+func main() {
+	l, r := swap("left", "right")
+	fmt.Println(l)
+	fmt.Println(r)
+}
+
+func swap(left, right string) (l, r string) {
+	l = right
+	r = left
+	return
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="var"></a>
+		<p><span class="flag">var 变量</span>
+<pre>Go 使用 var 定义变量
+var x,y,z int
+var x,y,z int = 1,2,3
+
+x,y := 1,2	相当于c++ auto
+</pre>
+		</p>
+		<p><span class="flag">基本 型别</span>
+<pre>bool
+
+string
+
+int int8 int16 int32 int 64
+uint uint8 uint16 uint32 uint64 uintptr
+
+byte // uint8 的别名
+
+rune // int32 的别名
+// 代表一个Unicode码
+
+float32 float64
+
+complex64 complex128
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>Go 去除了隐式型别 转换 所有转换 必须显示 写法同c
+常量定义使用(const Pi	=	3.1415927)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="string"></a>
+		<p><span class="flag">string</span>
+<pre>Go 全部使用 UTF-8 字符 string 亦然
+s := "123"
+s[0] = 'k'	此為錯誤寫法 因為 UTF-8 是不定長度 需要先是 []rune(s) 返回 字符數組
+(Rune 是int32的別名)
+
+c := []rune(s)
+c[=] = 'k'
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="func"></a>
+		<p><span class="flag">內建函數</span>
+<pre>Go 預定義了少量函數 無需引入任何包 就可以使用
+close	用於關閉channel
+delete	刪除map key
+len 	返回slice 字符串長度
+cap		返回slice 數組 函數 詳細信息
+new		分配內存
+make	創建內建型別 map slice channel ...
+copy	複製slice
+append	追加slice
+panic recover	用於異常機制
+print println	底層打印函數 主要用於調試
+complex real imag	用於複數處理
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

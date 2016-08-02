@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>导出表</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+    <p><h1><font color="#FF0000">导出表</font></h1></p>
+    
+    <h2>
+    <a href="#export">导出表</a><br />
+    <a href="#IMAGE_EXPORT_DIRECTORY">IMAGE_EXPORT_DIRECTORY</a><br />
+   
+    
+    
+    </h2>
+    <div class="div_boxex"><a name="export"></a><p><h3>
+    	<p><h2><font color="#FF0000">导出表</font></h2><br />
+        	导出表 记录了程序导出函数/符号信息 
+        </p>
+   	</h3></p></div>
+    
+  
+    
+    <div class="div_boxex"><a name="IMAGE_EXPORT_DIRECTORY"></a><p><h3>
+    	<p><h2><font color="#FF0000">IMAGE_EXPORT_DIRECTORY</font></h2>
+        	<pre>typedef struct _IMAGE_EXPORT_DIRECTORY {
+    DWORD   Characteristics;			//一般为0未使用
+    DWORD   TimeDateStamp;				//时间戳
+    WORD    MajorVersion;			//未用
+    WORD    MinorVersion;			//未用
+  <font color="#FF0000">  DWORD   Name;				//指向 导出表文件名 以\0结束ansi
+    DWORD   Base;				//导出函数最小编号
+    DWORD   NumberOfFunctions;			//导出函数数目 其实是最大编号-最小编号+1
+    DWORD   NumberOfNames;			//以名字 导出函数数 以\0结束ansi
+    DWORD   AddressOfFunctions;     		// RVA from base of image	函数地址[NumberOfFunctions] 对于没用的索引存储为0
+    DWORD   AddressOfNames;         		// RVA from base of image	指向 函数名地址数组[NumberOfNames] 的指针
+    DWORD   AddressOfNameOrdinals;  		// RVA from base of image	函数名对应索引数组WORD [NumberOfNames]</font>
+} IMAGE_EXPORT_DIRECTORY, *PIMAGE_EXPORT_DIRECTORY;
+            </pre>
+        </p>
+        <p><h2><font color="#FF0000">注意</font></h2><br />
+        函数的编号 = 索引 + Base
+        </p>
+   	</h3></p></div>
+    
+    
+</td></tr></table>
+</body>
+</html>

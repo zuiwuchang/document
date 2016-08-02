@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>目录与分区</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1>
+    	<p><font color="#FF0000">描述</font><br />
+        	环境搭建
+		</p>
+        <a href="#limit">解除限制</a> <br />
+    	<a href="#JCA">添加BouncyCastle</a> <br />
+        <a href="#hex">Hex</a> <br />
+        
+    </h1></p>
+    
+    <div class="div_box"><a name='limit'><h3>
+    	<p><font color="#FF0000">解除限制</font><br />
+    		由于加密解密库的进出口限制 默认sun的java加密环境最大key长度往往不支持到安全长度<br />
+            故需要解除此限制<br /><br />
+            
+            到sun的官网下载jce_policy-6.zip 解除限制文件	//6是java环境版本<br /> 
+            解压得到 local_policy.jar 和 US_export_policy.jar 文件<br />
+            替换JDK_HOME/jre/lib/security/ 和 JRE_HOME/lib/security/ 下的限制文件
+  	  	</p>
+    </h3></a></div>
+    
+    <div class="div_box"><a name='JCA'><h3>
+    	<p><font color="#FF0000">添加BouncyCastle</font><br />
+    		java的JCA提供了对加密解密的操作框架<br />
+            JCE提供了具体的加密算法实现<br />
+            BouncyCastle是开源的加密库支持JCE 实现了sun默认下未提供的一些算法
+  	  	</p>
+        
+        <p><font color="#FF0000">修改配置文件支持BouncyCastle</font><br />
+        1 到BouncyCastle官网下载 bcprov-ext-jdk15on-148.jar bcprov-jdk15on-148.jar	//...jdk15on-148是支持的java版本 和BouncyCastle版本号<br />
+        2 vi JDK_HOME/jre/lib/security/java.security	//修改JCE提供源信息<br />
+        3 <font color="#FF0000">在</font><br />
+        security.provider.1=sun.security.provider.Sun<br />
+        security.provider.2=sun.security.rsa.SunRsaSign<br />
+        security.provider.3=com.sun.net.ssl.internal.ssl.Provider<br />
+        security.provider.4=com.sun.crypto.provider.SunJCE<br />
+        security.provider.5=sun.security.jgss.SunProvider<br />
+        security.provider.6=com.sun.security.sasl.Provider<br />
+        security.provider.7=org.jcp.xml.dsig.internal.dom.XMLDSigRI<br />
+        security.provider.8=sun.security.smartcardio.SunPCSC<br />
+        ...<br />
+        <font color="#FF0000">后面添加 BouncyCastle的支持 如下语句</font><br />
+        security.provider.<font color="#FF0000">9</font>=org.bouncycastle.jce.provider.BouncyCastleProvider	//9因为前一个源生8<br />
+        4 将 bcprov-ext-jdk15on-148.jar	 复制到 JDK_HOME/jre/lib/ext/<br />
+        5 安装同样的方法修改 JRE运行环境 java.security cp ...
+        </p>
+        
+        <p><font color="#FF0000">代码实现支持BouncyCastle</font><br />
+        1 到BouncyCastle官网下载 bcprov-ext-jdk15on-148.jar bcprov-jdk15on-148.jar //<font color="#FF0000">和修改配置文件名不同哦</font><br />
+        2 将bcprov-ext-jdk15on-148.jar导入 项目<br />
+        3 import org.bouncycastle.jce.provider.BouncyCastleProvider; //导入BouncyCastle源支持<br />
+        4 Security.addProvider(new BouncyCastleProvider());	//添加BouncyCastle源支持
+        </p>
+        
+        <P><font color="#FF0000">bcprov-ext-jdk15on-148.jar bcprov-jdk15on-148.jar</font><br />
+        似乎bcprov-ext-jdk15on-148.jar是扩展包 包含了全部算法<br />
+        bcprov-jdk15on-148.jar是基本包 包含了大多数常用算法
+        </P>
+        
+        <P><font color="#FF0000">获取BouncyCastle支持算法信息</font><br />
+        Provider p=Security.getProvider("BC");<br />
+		for(Map.Entry<Object,Object> e:p.entrySet())<br />
+		{<br />
+			System.err.println(e.getKey()+"-"+e.getValue());<br />
+		}
+        </P>
+    </h3></a></div>
+    
+  	<div class="div_box"><a name='hex'><h3>
+    	<p><font color="#FF0000">Hex</font><br />
+        org.bouncycastle.util.encoders.Hex<br />
+        实现了将 bytes 转换了 十六进制<br />
+        常用于输出摘要信息
+    	</p>
+        
+        <p><font color="#FF0000">example</font><br />
+        String str="l";<br />
+		byte [] date=Hex.encode(str.getBytes());<br />
+		str=new String(date);<br />
+		System.out.println(str);	//输出	6c 因为l的编码时108 转为16进制就是 6c<br />
+		date=Hex.decode(str.getBytes());<br />
+		str=new String(date);		<br />
+		System.out.println(str);	//输出	l
+        </p>
+    </h3></a></div>     
+  
+</td></tr></table>
+</body>
+</html>

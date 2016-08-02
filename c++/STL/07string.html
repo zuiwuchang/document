@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>07string</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#string">string</a>
+		<a href="#constructors">构造 析构</a>
+		<a href="#find">find</a>
+	</div>
+
+	<div class="note"><a name="string"></a>
+		<p><span class="flag">string</span>
+<pre>#include &lt;string&gt;
+
+凡是以 一个索引和一个长度作为参数 的地方 字符串遵循以下两规则
+1.	索引值必须合法
+	对于搜索函数 可接受超过实际字符数的索引 这是会返回 string::npos
+2.	字符长度可任意 若大于实际剩余字符数 或用 string::npos 表示剩余所有字符
+</pre>
+		</p>
+		<p><span class="flag">function</span>
+<pre>=,assign		赋值
+swap()						//交换两字符串内容
++= append() push_back()		//添加字符
+insert()					//插入字符
+erase()						//删除字符
+clear()						//移除全部字符 使之为空
+resize()					//改变字符数量(在末端删除或添加字符)
+replace()					//替换字符串
++							//串联字符串
+== != &lt; &lt;= &gt; &gt;=
+	compare()				//比较字符串内容
+size() length()				//返回字符数量
+max_size()					//返回字符最大可能个数
+empty()						//判断字符串是否为空
+capacity()					//保留一定内存以容纳一定数量的字符
+[] at()						//存取单一字符
+&gt;&gt; getline()			//从stream中读取某值
+&lt;&lt;					//将某值写入stream
+copy()						//将内容复制为一个C-string
+c_str()						//将内容以const C-string返回
+data()						//将内容以const字符数组 返回
+substr()					//返回某个子字符串
+
+begin()
+end()
+rbegin()
+rend()
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="constructors"></a>
+		<p><span class="flag">构造 析构</span>
+<pre>string	s			//空s
+string s(str)			//copy构造
+string s(str,n)			//以str内开始于n的部分 当作s初值
+string s(str,n,len)		//...	的len个字符	...
+string s(cstr)			//以C-string构造
+string(chars,chars_len)		//以C-string chars的前chars_len个字符构造
+string s(n,c)			//以重复的n个c字符构造
+string s(begin,end)		//以迭代器区间构造
+s.~string()			//析构 销毁所有字符 释放内存
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="find"></a>
+		<p><span class="flag">find</span>
+<pre>find()			//搜索第一个与value相等的字符
+rfind()			//搜索最后一个与...
+find_first_of()		//搜索第一个与"value中某个值相等"的字符
+find_last_of()		//...最后一个...
+find_first_not_of	//...不相等...
+find_last_not_of()	//...最后一个...不相等...
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

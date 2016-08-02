@@ -1,0 +1,430 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>程序管理与SELinux初探</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1>
+    	<p><font color="#FF0000">10程序管理与SELinux初探</font><br />
+        	
+		</p>
+        <a href="#jobs">jobs 工作调度</a> <br />
+        <a href="#nohup">nohup ... &amp; 终端机后台</a> <br />
+        <a href="#process">進程查看</a> <br />
+        <a href="#manager">進程管理</a> <br />
+        <a href="#source">系統資源查看</a> <br />
+        <a href="#SELinux">SELinux</a> <br />
+       	
+    </h1></p>
+    
+    <div class="div_box"><a name='jobs'><h3>
+    	<p><font color="#FF0000">jobs 工作调度</font><br />
+       	将bash下的子进程放入到后台执行
+        
+        </p>
+        <p><font color="#FF0000">example</font><br />
+       	jobs	//显示后台jobs<br />
+        -l	//同时显出pid<br />
+        -r	//只显示 run 的jobs<br />
+        -s	//只显示 stop	 的jobs<br /><br />
+        
+        命令 &amp;	//后台执行命令<br />
+        [ctrl]+z	//暂停当前任务 并放入后台<br />
+        bg	%n	//n是任务编号 使后台任务变为 run<br />
+        fg	%n	//... 使任务到前台执行<br /><br />
+        
+        kill %n -9	//向任务的进程发送 signal<br />
+        kill pid -9	//根据pid向一个进程 signal<br />
+        -l	//列出kill能使用的 signal<br />
+        signal取值<br />
+        -1	//重新读取一次配置文件<br />
+        -2	//同[ctrl]+c<br />
+        <font color="#FF0000">-9	//强制杀死一个进程<br />
+        -15	//正常关闭一个进程</font><br />
+        -17	//同[ctrl]+z 將指定進程暫停<br />
+        ...
+        </p>
+        
+       
+  	</h3></a></div>
+   <div class="div_box"><a name='nohup'><h3>
+    	<p><font color="#FF0000">nohup ... &amp; 终端机后台</font><br />
+       	使用命令执行和tty终端机无关 以至在注销 或 脱机 后依然运行<br />
+        此不支持bash内置命令
+        
+        </p>
+        <p><font color="#FF0000">example</font><br />
+       	nohup myscript.sh &amp; //终端机后台执行
+        </p>
+        
+       
+  	</h3></a></div>
+    <div class="div_box"><a name='process'><h3>
+    	<p><font color="#FF0000">進程查看</font>
+        查看系統中的進程
+        </p>
+        
+        <p><font color="#FF0000">ps</font>
+<pre>ps aux	查看系統所有進程
+ps -l	程序自己進程
+
+參數
+-A	//所有進程均顯示出來
+-a	//不與terminal有關的進程
+-u	//有效用戶 相關進程
+-Z	//查看安全上下文
+x	//通常與a聯用 可列出完整信息
+輸出格式
+l	//詳細列出pid信息
+j	//以job格式
+-f	//更加完整的輸出
+
+
+<img src="image/10程序管理与SELinux初探/ps_l.PNG" />
+F	代表進程標誌 說明進程權限
+	4	root
+	1	此子進程僅可進行複製而無法實際執行
+S	進程狀態
+	R	進程正在運行中
+	S	睡眠
+	D	不可被喚醒的睡眠狀態(通常是在等待I/O)
+	T	停止(可能是在後台暫停) 或除錯狀態
+	Z	殭屍狀態 進程已經終止 但無法被從內存中刪除
+
+UID/PID/PPID
+	此進程被該UID擁有 其PID為PID 和父進程PID為PPID
+C
+	CPU使用率 百分比    
+PRI/NI
+	進程被CPU執行的優先級 數值越小 越快被CPU執行    
+ADDR/SZ/WCHAN
+	ADDR指出進程在內存哪個部分 若進程處於running 一般顯示為-
+	SZ代表用掉的內存
+	WCHAN表示進程是否處於running 若running 顯示 -
+TTY
+	終端機位置(ttyn)	若為遠程登錄使用動態終端機端口(pts/n)
+TIME
+	使用掉的cpu時間(實際花費的cpu運行時間 而非系統時間)
+CMD
+	所觸發的命令
+    
+<img src="image/10程序管理与SELinux初探/ps_aux.PNG" />
+USER		進程所屬用戶帳號
+PID		進程pid
+%CPU		使用cpu百分比
+%MEM		佔用物理內存百分比
+VSZ		使用的虛擬內存量(kb)
+RSS		佔用的固定內存量(kb)
+TTY		終端機位置
+STAT		進程狀態(R/S/T/Z)
+START		進程被觸發啟動的時間
+TIME		進程實際使用掉的CPU時間
+COMMAND		觸發命令	(default 表示殭屍進程)
+</pre>
+        </p>
+        <p><font color="#FF0000">top</font><br />
+        實時查看進程信息
+<pre>top
+-d	//後接數值 知道刷新進程信息秒數
+-b	//以批次方式執行top
+-n	//後接次數 與-b配合 指定進行幾次top輸出
+-p	//指定只查看某些pid
+在top執行過程可以使用的按鍵命令
+	?	顯示可用top命令
+	P	以CPU使用資源排序
+	M	以內存使用資源排序
+	N	以pid排序
+	T	由CPU時間累積(TIME+)排序
+	k	給予指定pid一個信號
+	r	給予指定pid一個新的nice
+	q	離開top   
+<img src="image/10程序管理与SELinux初探/top.PNG" />
+第一行(top)		分別顯示 系統時間 系統運行時間 已經登錄人數 系統負載(1,5,15分鐘)
+第二行(Tasks)		顯示目前進程總數 和運行等狀態
+第三行(CPU(s))	CPU總體負載
+第四行 五行		物理內存 虛擬內存 使用情況
+
+PID
+USER
+PR		priority的縮寫
+NI		Nice的縮寫
+UIRT
+RES
+SHR
+S
+%CPU
+%MEN
+TIME+
+COMMAND
+
+</pre>
+        </p>
+        
+        <p><font color="#FF0000">pstree</font><br /><br />
+        以樹狀圖顯示進程 父子關係<br />
+        -A	以ascii字符串顯示		(默認以unicode顯示)<br />
+        -U	以utf8字符串顯示<br />
+        -P	同時列出pid<br />
+        <img src="image/10程序管理与SELinux初探/pstree.PNG" />
+        </p>
+ 	</h3></a></div>
+    <div class="div_box"><a name='manager'></a><h3>
+    	<p><font color="#FF0000">進程管理</font><br />
+        進程間的關聯是通過發送信號的<br />
+<pre>kill -signal pid	//用法見<a href="#jobs">jobs 工作调度</a>
+killall [-iIE] -signal [command]	//為以指定命令啟動的全部進程 發送一個信號
+-i	//以交互方式運行(若要刪除進程 將提示用戶)
+-e	//後面接到command要一直 但完整命令不超過15個字符
+-I	//命令忽略大小寫
+
+<font color="#FF0000">example</font>
+killall -9 httpd
+</pre>        
+        </p>
+        
+        <p><font color="#FF0000">進程優先級</font><br />
+        進程的執行優先級為 PRI(Priority)<br />
+        PRI越小 優先級越高 此值無法由用戶直接指定<br />
+        一般新的PRI=PRI（old）+NICE <br />
+        故可通過NICE設置影響優先級 但最終PRI依舊由系統動態指定<br /><br />
+        nice 取值範圍 [-20,19]<br />
+        一般用戶只能設置自己進程的nice 且只能調高(>0 且 >nice(old)) 而不能調低<br />
+        root可隨意設置任何用戶進程的nice為[-19,20] <br />
+		<font color="#FF0000">nice [-n 數值] command //設置指定命令啟動的進程nice</font><br />
+        <font color="#FF0000">renice [數值] PID	//將已經啟動的pid為PID的進程 設置其nice為指定值</font>
+        </p>
+	</h3></div>    
+    <div class="div_box"><a name='source'></a><h3>
+    	<p><font color="#FF0000">系統資源查看</font><br />
+        </p>
+        
+        <p><font color="#FF0000">free //查看內存使用情況</font><br />
+        -b	//以byte為單位<br />
+        -k	//kb<br />
+        -m	//mb<br />
+        -g	//gb<br />
+        -t	//顯示內存總量 物理+虛擬
+        </p>
+        
+        <p><font color="#FF0000">uname	//查看系統內核</font><br />
+        -a	//列出所有信息<br />
+        -s	//內核名稱 Linux<br />
+        -r	//內核版本 x.x.x<br />
+        -m	//硬件名稱 i686<br />
+        -p	//cpu類型 i686<br />
+        -i	//硬件平台 ix86 
+        </p>
+        <p><font color="#FF0000">uptime	//查看系統啟動時間 運行時間 負載</font><br />
+        創建top
+        </p>
+        <p><font color="#FF0000">netstat	//跟踪網絡</font><br />
+        -a	//將目前所有連接 監聽 socket 數據都列出來<br />
+        -t	//列出 tcp 數據包<br />
+        -u	//列出 udp 數據包<br />
+        -n	//不列出服務名 以端口號顯示<br />
+        -l	//列出正在監聽的服務<br />
+        -p	//列出網絡服務對於pid<br />
+        <img src="image/10程序管理与SELinux初探/netstat.PNG" /><br />
+        上面分別顯示了兩種數據 Active Internet...(網絡連接信息) Active Unix...(通過socket與本地進程連接的信息)
+<pre><font color="#FF0000">Active Internet...(網絡連接信息)</font>
+Proto		網絡協議
+Recv_Q		用戶進程發送數據
+Send_Q		遠程進程發送數據
+LocalAddress	本地	ip	端口
+ForeignAddress	遠程	ip	端口
+State		狀態 ESTABLISED(建立)	LUSTEN(監聽)
+
+<font color="#FF0000">Active Unix...(通過socket與本地進程連接的信息)</font>
+Proto	一般顯示 unix
+RefCnt	連接到此socket的進程數量
+Flags	連接標識
+Type	socket類型 strean dgram
+State	若為CONNECTED表示多個進程已經建立連接
+Path	連接到此socket的相關程序路徑 或 相關數據輸出路徑
+
+</pre>
+        </p>
+        
+        <p><font color="#FF0000">dmesg //查看系統檢測硬件情況</font><br />
+        如查看網卡識別  dmesg | grep eth
+        </p>
+        
+        <p><font color="#FF0000">vmstat //檢測資源表和</font><br />
+        vmstat 刷新間隔 檢測次數<br />
+        -a	//使用inactive/active 替代buffer/cache<br />
+        -f	//開機到目前為止系統複製進程數<br />
+        -s	//將一些事件導致內存變化情況列表說明<br />
+        -S	//後接單位 K/M<br />
+        -d	//列出磁盤讀寫總量統計表<br />
+        -p	//後接分區 顯示分區讀寫總量統計表<br />
+        <img src="image/10程序管理与SELinux初探/vmstat.PNG" />
+<pre>r	等待運行進程數
+b	不可喚醒進程數
+
+swpd	虛擬內存使用量
+free	為被使用內存量
+buff	用於緩衝存儲器
+cache	用於高速緩存
+
+si	磁盤中將程序取出量
+so	由於內存不足將程序寫入到swap量
+
+bi	由磁盤寫入塊數量
+bo	寫入到磁盤去掉塊數量
+
+in	每秒被中斷進程次數
+cs	每秒事件切換次數
+
+us	非內核層使用cpu狀態
+sy	內存層使用cpu狀態
+id	閒置狀態
+wa	等待I/O所耗費cpu狀態
+st	被虛擬機盜用的cpu使用狀態
+</pre>
+        </p>
+      	
+        <p><font color="#FF0000">fuser [-umv] [-k [i] [-signal] ] file/dir	//列出正在使用此文件/目錄 的進程的pid</font><br />
+        -u	//除了pid 同時列出進程所有者<br />
+        -m	//後面接到文件名會自動上體到該文件系統的頂層<br /> 
+        -v	//列出每個文件與創新 命令的完整性關係<br />
+        -k	//為找到的pid發送一個signal 默認-9<br />
+        -i	//配合-k 以交互方式 發送 signal<br />
+        <img src="image/10程序管理与SELinux初探/fuser.PNG" />
+        </p>  
+        
+        <p><font color="#FF0000">lsof [-aUu] [+d]	//列出被進程打開的文件</font><br />
+        -a	多項數據 同時成立 才列出<br />
+        -U	僅列出系統socket文件類型<br />
+        -u	後接username 列出該用戶相關進程打開的文件<br />
+        +d	後接目錄 	既找出某個目錄下打開的文件
+        </p>
+        
+        <p><font color="#FF0000">pidof	[-sx] program_name	//列出正在執行的進程pid (多個程序名以空格隔開)</font><br />
+        pidof vi init ...<br />
+        -s	僅列出第一個pid<br />
+        -x	同時列出可能的ppid
+        </p>
+        
+ 	</h3></div>
+    <div class="div_box"><a name='SELinux'></a><h3>
+    	<p><font color="#FF0000">SELinux</font><br />
+        Security Enhanced Linux的縮寫 (Linux強化安全)<br />
+        用於限制 主體(進程) 對 目標(文件)的訪問權限<br /><br />
+        當 進程 訪問 一個文件 首先查看策略 再查看安全上下文 根據安全上下文確定 是否可訪問<br />
+        ls -Z //查看安全上下文<br />
+        安全上下文以 : 隔開<br />
+        identify(身份標識):role(角色):type(類型)
+<pre>identify
+	root		表示root帳號身份
+	system_u	表示系統出現方面標識 通常就是進程
+	user_u		代表一般用戶帳號相關身份
+role
+	object_r	代表文件或目錄資源
+	system_r	代表進程 一般用戶也會被指定為此值
+<font color="#FF0000">type</font> 關係到主體是否能訪問目標
+	在文件資源中為類型 type
+	在主體中稱為域	 domain
+    
+<font color="#FF0000">example</font>
+ls -Zd	/usr/sbin/httpd /var/www/html
+-rwxr-xr-x	root	root	system_u:object_r:httpd_exec_t	/usr/sbin/httpd
+drwxr-xr-x	root	root	system_u:object_r:httpd_sys_content_t	/var/www/html
+
+故httpd屬於httpd_exec_t類型 html屬於httpd_sys_content_t此是一個可以讓httpd域讀取的類型
+
+首先觸發httpd去訪問html
+httpd 將具有httpd域
+根據httpd域得知httpd_sys_content_t是可以被訪問的
+根據rwx權限 訪問
+</pre>
+        </p>
+        
+        <p><font color="#FF0000">SELinux 的啟動 關閉 查看</font><br />
+<pre><font color="#FF0000">getenforce	//查看SELinux運行狀態</font>
+Enforcing	以強制模式啟動(既正在運行SELinux)
+permissive	寬容模式(既正在運行SELinux 但只會發出警告 而不會限制訪問)
+disabled	關閉(既沒有運行SELinux)
+
+<font color="#FF0000">[dark@localhost /]$ sestatus	//查看策略</font>
+SELinux status:                 enabled			//是否啟用SELinux
+SELinuxfs mount:                /selinux		//SELinux相關文件數據掛載點
+Current mode:                   enforcing		//運行模式
+Mode from config file:          enforcing		//配置文件指定模式
+Policy version:                 24
+Policy from config file:        targeted		//目前的策略
+
+<font color="#FF0000">SELinux 配置文件在 /etc/selinux/config</font>
+SELINUX=enforcing	//運行模式
+SELINUXTYPE=targeted	//策略
+<font color="#FF0000">注意</font>
+修改SELinux 配置文件需要重新啟動系統
+若以關閉改為啟動 還需要修改  系統啟動配置 /boot//grub/menu.lst 中將 selinux=0 去掉(或改為=其他非0值 ==0代表跳過selinux配置文件且不啟動selinux)SELinux由關閉改為啟動 開機將花費不少時間用於寫入安全上下文 且在寫完後還需要重啟一次才能啟動SELinux
+</pre>
+        </p>
+        
+        <p><font color="#FF0000">設置安全上下文</font><br />
+<pre>chcon [-R] [-t type] [-u user] [-r role] 文件	//設置文件為指導安全上下文
+chcon [-R] --reference=範例文件 文件	//設置文件安全上下文 和範例文件相同
+-R	//連同目錄下的子目錄也同時修改
+-t	//後接類型
+-u	//後接身份標識
+-r	//後接角色
+
+restorecon [-RV] 文件 	//設置文件為此目錄下默認安全上下文
+-R	連同子目錄也設置
+-V	將過程顯示到屏幕
+</pre>
+        </p>
+        
+        <p><font color="#FF0000">seinfo [-Atrub] //查詢已定義的策略</font><br />
+<pre>seinfo [-Atrub]
+-A	//查詢下面全部信息
+-t	//查詢所有類型type
+-r	//...角色role
+-u	//...身份標識user
+-b	//查詢所有規則種類(布爾值)
+</pre>
+        <img src="image/10程序管理与SELinux初探/seinfo.PNG" /><br />
+        由第一行 /etc/selinux/<font color="#FF0000">targeted</font>/policy/policy.24知道此是targeted的策略<br />
+        Types:            3620 	指出安全上下文類型數<br />
+         Booleans:          205	指出針對網絡服務制定的規則數<br /><br />
+         
+         查詢所有與httpd相關的布爾值<br />
+         <img src="image/10程序管理与SELinux初探/httpd.PNG" />
+        
+        </p>
+        
+        <p><font color="#FF0000">sesearch [-A] //查詢策略</font><br />
+        -A	//列出allow規則<br />
+        -t	//後接要查詢的type<br />
+        -b	//後接要查詢的布爾值<br />
+        <img src="image/10程序管理与SELinux初探/sesearch.PNG" />
+        </p>
+        
+        <p><font color="#FF0000">啟用關閉布爾值規則</font><br />
+        getsebool -a	//查詢所有布爾值規則 啟用狀態<br /><br />
+        
+        setsebool -P 布爾值規則=[0|1]	//啟用規則 0 關閉規則
+        </p>
+        
+        <p><font color="#FF0000">默認目錄安全上下文</font><br />
+<pre>semanage
+-a	//增加
+-m	//修改
+-d	//刪除
+
+sudo semanage fcontext -l	//查詢默認安全上下文
+
+sudo semanage fcontext -a -t 規則 "目錄"	//設置目錄默認規則
+<font color="#FF0000">example</font>
+<img src="image/10程序管理与SELinux初探/semanage.PNG" />
+</pre> 
+       </p>
+ 	</h3></div>
+    
+</td></tr></table>
+</body>
+</html>

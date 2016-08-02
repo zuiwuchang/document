@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>lua</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#useradata">useradata</a>	
+	</div>
+
+	<div class="note"><a name="useradata"></a>
+		<p><span class="flag">useradata</span>
+<pre>lua 提供了 lua_newuserdata 函數 malloc 一塊內存 useradata
+並入棧
+其生命週期 由 lua 控制
+
+
+
+可以方便的 將 c 結構 和lua用 useradata交互
+
+
+
+利用 原表 可以 將 c++結構 和lua 映射
+//創建一個 原表 入棧 並以字符串與註冊表之關聯 
+luaL_newmetatable
+
+//返回 註冊表中關聯的 原表
+luaL_getmetatable
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><span class="care">c++</span>
+#include&lt;lua.hpp&gt;
+#include&lt;iostream&gt;
+extern "C"
+{
+    class Test
+    {
+    public:
+        void Create()
+        {
+            std::cout&lt;&lt;"create\n";
+        }
+        void Destory()
+        {
+            std::cout&lt;&lt;"destory\n";
+        }
+        void Show()
+        {
+            std::cout&lt;&lt;"show\n";
+        }
+    };
+
+
+    static int create(lua_State* L)
+    {
+        //申請 用戶 數據
+        Test* p = (Test*)lua_newuserdata(L,sizeof(Test));
+        p->Create();    //調用構造函數
+
+        //為新對象 設置元表
+        luaL_getmetatable(L, "dark.image");
+        lua_setmetatable(L, -2);
+        return 1;
+    }
+
+    static int test_destory(lua_State* L)
+    {
+        Test* p = (Test*)lua_touserdata(L,1);
+        p->Destory();
+        return 0;
+    }
+    static int test_show(lua_State* L)
+    {
+        Test* p = (Test*)lua_touserdata(L,1);
+        p->Show();
+        return 0;
+    }
+    __declspec(dllexport) int  luaopen_libimage(lua_State *L)
+    {
+        //創建 元表
+        luaL_newmetatable(L, "dark.image");
+
+        //將 __index 指向元表 本身
+        lua_pushvalue(L, -1);
+        lua_setfield(L,-2,"__index");
+
+        //註冊 show 函數
+        lua_pushcfunction(L, test_show);
+        lua_setfield(L,-2,"show");
+
+        //註冊析構 函數
+        lua_pushcfunction(L, test_destory);
+        lua_setfield(L,-2,"__gc");
+
+
+
+        lua_newtable(L);
+        lua_pushstring(L,"create");
+        lua_pushcfunction(L,create);
+        lua_settable(L,-3);
+
+        //lua_setglobal(L,"libmylib");
+        //return 0
+
+        return 1;
+    }
+}
+
+
+
+<span class="care">lua</span>
+my = require  "libimage"
+print("create a0")
+do
+	local a0 = my.create()
+	do
+		local a1 = a0
+		a1:show()
+	end
+end
+print("end")
+</pre>
+		</p>
+	</div>
+	
+</div>
+</body>
+</html>
+

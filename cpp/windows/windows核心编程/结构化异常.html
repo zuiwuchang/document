@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>结构化异常</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+    <p><h1><font color="#FF0000">结构化异常</font></h1></p>
+    
+    <h2>
+    <a href="#finally">终止异常程序</a><br />
+    <a href="#except">异常处理程序与软件异常</a><br />
+    
+    
+    </h2>
+    
+    
+    <div class="div_box"><a name="finally"></a><p><h3>
+    	<p><h2><font color="#FF0000">终止异常程序</font></h2>
+        <pre>__try
+{
+...
+}
+__finally
+{
+...
+}</pre>
+finally中代码 保证在try 之后被执行<br />
+若try中有return 则将try代码展开到try中执行<br />
+若return n 将n保存到临时变量中 执行完展开代码后 将临时变量设置到返回值<br />
+(在 try中 return n 在 finally中 return x 会导致x覆盖保存的临时变量值 从而改变返回值)<br />
+若try中 包含有break continue goto等改变程序流程的语句 finally中代码也会先被展开执行<br />
+<font color="#FF0000">在try中 使用__leave; 将流程直接转到finally 或except 从而避免代码展开 以提高效率<br />
+对于ExitProcess TerminateThread TerminateProcess 等函数引起的程序退出 finally不会执行</font>
+        </p>
+        
+        <p><h2><font color="#FF0000">example</font></h2>
+<pre>	int* lp_one=NULL;
+	int* lp_two=NULL;
+	__try
+	{
+		lp_one=new int;
+		lp_two=new int;
+		delete lp_two;
+		lp_two=NULL;
+		if(!lp_one || !lp_two)
+		{
+			__leave;
+		}
+		*lp_one=*lp_two=10;
+	}
+	__finally
+	{
+		if(lp_one)
+		{
+			delete lp_one;
+		}
+		if(lp_two)
+		{
+			delete lp_two;
+		}
+	}</pre>
+        </p>
+        
+        <p><h2><font color="#FF0000">AbnormalTermination 函数</font></h2>
+        BOOL AbnormalTermination(void);<br />
+        此函数只能在 finally 中调用<br />
+        其返回try中 是否由于 break leave continue return 等代码执行流程发生了改变
+        </p>
+	</h3></p></div>
+  	<div class="div_box"><a name="except"></a><p><h3>
+    	<p><h2><font color="#FF0000">异常处理程序与软件异常</font></h2>
+        <pre>__try 
+{
+   // guarded code
+}
+__except ( expression )
+{
+   // exception handler code
+}
+根据expression 的结果
+<font color="#FF0000">若为EXCEPTION_EXECUTE_HANDLER		1	执行except后代代码</font>
+若为EXCEPTION_CONTINUE_SEARCH		0	执行上层except
+若为EXCEPTION_CONTINUE_EXECUTION	-1	返回产生异常的位置继续执行
+</pre>
+        
+        </p>
+ 	</h3></p></div>
+    
+</td></tr></table>
+</body>
+</html>

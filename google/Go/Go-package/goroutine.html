@@ -1,0 +1,312 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#goroutine">goroutine</a>
+		<a href="#channel">channel</a>
+		<a href="#select">select</a>
+		<a href="#sync">sync</a>
+			
+	</div>
+
+	<div class="note"><a name="goroutine"></a>
+		<p><span class="flag">goroutine</span>
+<pre>goroutine 是一個類似線程的 可執行單元 (go 會負責 堆棧的 保存 恢復)
+但她不由 os調度 而由 go runtime 調度(go 會使用全部 cpu 並行運行)
+(goroutine 類似協程 但 其是並行運行的 而協程是 阻塞運行的)
+(runtime.GOMAXPROCS(n) 可設置 最多使用cpu個數 默認使用 全部cpu)
+
+goroutine 開銷 比 線程 地很多 可以 輕鬆的 創建 上百萬個
+
+使用 <span>go [函數調用] </span> 創建一個 goroutine
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	for i := 0; i &lt; 10; i++ {
+		go func(v int) {
+			fmt.Println(v)
+		}(i)
+	}
+
+	//等待其她 goroutine 結束
+	time.Sleep(time.Second)
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>goroutine 並發調用的 函數 返回值 會被 忽略
+
+main 自動運行在第一個 goroutine(main goroutine)上
+main goroutine 結束 時 goruntine 會強制 結束掉其他 goroutine
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="channel"></a>
+		<p><span class="flag">channel</span>
+<pre>go 使用 消息機制 而非 共享內存 在多個 goroutine間通信
+channel 是go為此 提供的 解決方案
+
+channel 是一個 類型安全的 雙向數據管道
+使用 
+make(chan,型別)
+make(chan,型別,緩存長度)
+定義
+chan&lt;-數據 寫入管道
+[變量=]&lt;-chan 讀取管道
+
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	chs := make([]chan int, 10)
+	for i := 0; i &lt; 10; i++ {
+		chs[i] = make(chan int)
+
+		go func(ch chan int, i int) {
+			fmt.Println(i)
+			ch &lt;- i
+		}(chs[i], i)
+	}
+
+	//等待其她 goroutine 結束
+	sum := 0
+	for _, ch := range chs {
+		sum += &lt;-ch
+	}
+	fmt.Println("sum =", sum)
+
+	ch := make(chan int)
+	go func() {
+		for i := 0; i &lt; 2; i++ {
+			ch &lt;- i + 100
+		}
+		close(ch)
+	}()
+	for i := range ch {
+		fmt.Println(i)
+	}
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>一般 channel 可以不用 close 
+但如果 close 之後 不能再 傳輸 消息 
+且 讀取消息的 &lt; range 將返回
+
+使用channel發送字符串 int等基本型別是安全的 
+然發送指針 引用 不能保證數據安全 除非文檔有單獨說明如*regexp.Regexp
+(因爲無法保證 指針 引用在發送後 接收前 其內容不被改變)
+
+
+channel 的讀寫 都是 阻塞的 且一個不帶 緩衝的channel
+一個寫入 一個 數據 就必須 等待 數據被讀出 才能再 寫入
+
+
+
+channel 是 雙向的 但可以定義 一個 只能 讀/寫 的 channel
+var name chan&lt;-	//寫
+var name &lt;-chan	//讀
+</pre>
+		</p>
+	</div>
+	
+	<div class="note"><a name="select"></a>
+		<p><span class="flag">select</span>
+<pre>select 類似 switch 但其 case 不是 條件語句
+而是 channel 的 讀/寫 操作 一旦 某一操作 可執行 便 執行此 分支
+(多個分支 同時滿足 條件 隨機執行其中一個 分支)
+如果 都不可執行 等待 如果存在default 執行 default
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	ch := make(chan int)
+	for {
+		go func(ch chan int) {
+			select {
+			case ch &lt;- 0:
+			case ch &lt;- 1:
+			case rand := &lt;-ch:
+				fmt.Println("lase second rand number[0,1] is", rand)
+			}
+		}(ch)
+		time.Sleep(time.Second)
+	}
+}
+</pre>
+		</p>
+		<p><span class="flag">channel 超時</span>
+<pre>channel 沒有提供 超時 功能 
+然 使用 select 可以 方便的 實現 超時
+(既創建一個 超時 channel)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+	"math/rand"
+	"time"
+)
+
+func main() {
+	ch := make(chan int)
+	timeout := make(chan bool)
+
+	go func(ch chan int) {
+		for {
+			ch &lt;- rand.Intn(10)
+			time.Sleep(time.Millisecond * 1500)
+		}
+	}(ch)
+
+	for {
+		go func(ch chan&lt;- bool) {
+			ch &lt;- true
+		}(timeout)
+
+		select {
+		case r := &lt;-ch:
+			fmt.Println("rand =", r)
+		case &lt;-timeout:
+			fmt.Println("timeout deal")
+		}
+	}
+
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="sync"></a>
+		<p><span class="flag">sync</span>
+<pre>channel 雖然 解決了一些 數據共享問題
+
+然 依然 無法 避免 共享 內存
+sync 包 提供 了 Mutex RWMutex ... 用以 處理 同步
+</pre>
+		</p>
+		<p><span class="flag">sync.Once</span>
+<pre>sync.Once 型別的 Do方法 用於 在多個goroutine中 只執行一次
+
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+var once sync.Once
+
+func work(i int, ch chan int32) {
+	once.Do(func() {
+		fmt.Println("only once")
+	})
+
+	fmt.Println(i)
+	ch &lt;- 0
+}
+func main() {
+	count := 5
+	ch := make(chan int32, 4)
+	for i := 0; i &lt; count; i++ {
+		go work(i, ch)
+	}
+
+	for count &gt; 0 {
+		&lt;-ch
+		count -= 1
+	}
+}
+</pre>
+		</p>
+		<p><span class="flag">sync.Mutex</span>
+<pre>sync.Mutex 型別是一個 互斥量 
+//鎖定/解鎖
+func (m *Mutex) Lock()
+func (m *Mutex) Unlock()
+
+package main
+
+import (
+	"fmt"
+	"sync"
+	"time"
+)
+
+var mutex sync.Mutex
+
+func work(ch chan int) {
+	fmt.Println("work")
+
+	mutex.Lock()
+	fmt.Println("work ...")
+	mutex.Unlock()
+
+	ch &lt;- 0
+}
+func main() {
+	fmt.Println("Lock")
+	mutex.Lock()
+	fmt.Println("start goroutine")
+	ch := make(chan int)
+	go work(ch)
+	time.Sleep(1000 * time.Millisecond)
+	fmt.Println("Unlock")
+	mutex.Unlock()
+
+	&lt;-ch
+}
+</pre>
+		</p>
+		<p><span class="flag">sync.RWMutex</span>
+<pre>sync.RWMutex 型別是一個讀寫鎖
+func (rw *RWMutex) Lock()
+func (rw *RWMutex) RLock()
+func (rw *RWMutex) RLocker() Locker
+func (rw *RWMutex) RUnlock()
+func (rw *RWMutex) Unlock()
+</pre>
+		</p>
+		<p><span class="flag">sync.Cond</span>
+<pre>sync.Cond 型別 用於實現生產者 消費者模型
+func NewCond(l Locker) *Cond
+func (c *Cond) Broadcast()
+func (c *Cond) Signal()
+func (c *Cond) Wait()
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>lua</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#iterator">迭代器 泛型for</a>
+		<a href="#pre">無狀態迭代器</a>
+		
+		
+	</div>
+
+	<div class="note"><a name="iterator"></a>
+		<p><span class="flag">迭代器 泛型for</span>
+<pre>lua 要求 迭代器為一個函數 每次調用 都返回集合的 下一個 元素
+返回 nil 代表介紹遍歷
+
+
+
+//定義一個 數組 迭代器
+function values(t)
+	local i	=0
+	return function ()
+				i	=	i	+	1
+				return t[i]
+			end
+end
+
+//遍歷之
+t	=	{1,2,3}
+iter	=	values(t)
+while true do
+	local v = iter()
+	if v == nil then
+		break
+	end
+
+	print(v)
+
+end
+
+
+
+//泛型for 只是簡化了上面的 while
+for v in values(t) do
+	print(v);
+end
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="pre"></a>
+		<p><span class="flag">無狀態迭代器</span>
+<pre>上述迭代器 每次遍歷 都需要 重新創建一個 迭代器實例(存儲遍歷位置)
+無狀態迭代器 可以使所有 遍歷都是用 同一個實例
+
+
+
+無狀態迭代器 需要 返回三個值 遍歷函數iter,被遍歷的恆定量a,初始遍歷索引index
+for 每次循環 自動調用 iter(a,index)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>local function iter(a,i)
+	i=i+1
+	local v= a[i]
+	if v then
+		return i,v
+	end
+end
+local function ipairs(a)
+	return iter,a,0
+end
+a={5,4,3,2,1}
+for i,v in ipairs(a) do
+	print(i,v)
+end
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

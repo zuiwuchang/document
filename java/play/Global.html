@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Global object</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#Global">Global object</a>
+		<a href="#shutdown">start-up and shutdown</a>
+		<a href="#error">error page</a>
+		<a href="#found">not found</a>
+		<a href="#requests">requests</a>
+	</div>
+
+	<div class="note"><a name="Global"></a>
+		<p><span class="flag">Global object</span>
+<pre>定義
+import play.*;
+
+public class Global extends GlobalSettings {
+
+}
+
+可以改變 對程式 進行一些定制
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="shutdown"></a>
+		<p><span class="flag">start-up and shutdown</span>
+<pre>You can override the onStart and onStop operation to be notified of the corresponding application lifecycle events:
+
+import play.*;
+
+public class Global extends GlobalSettings {
+
+    public void onStart(Application app) {
+        Logger.info("Application has started");
+    }
+
+    public void onStop(Application app) {
+        Logger.info("Application shutdown...");
+    }
+
+}
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="error"></a>
+		<p><span class="flag">error page</span>
+<pre>When an exception occurs in your application, the onError operation will be called. The default is to use the internal framework error page. You can override this:
+
+import play.*;
+import play.mvc.*;
+import play.mvc.Http.*;
+import play.libs.F.*;
+
+import static play.mvc.Results.*;
+
+public class Global extends GlobalSettings {
+
+    public Promise&lt;Result&gt; onError(RequestHeader request, Throwable t) {
+        return Promise.&lt;Result&gt;pure(internalServerError(
+            views.html.errorPage.render(t)
+        ));
+    }
+
+}
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="found"></a>
+		<p><span class="flag">not found</span>
+<pre>If the framework doesn’t find an action method for a request, the onHandlerNotFound operation will be called:
+
+import play.*;
+import play.mvc.*;
+import play.mvc.Http.*;
+import play.libs.F.*;
+
+import static play.mvc.Results.*;
+
+public class Global extends GlobalSettings {
+
+    public Promise&lt;Result&gt; onHandlerNotFound(RequestHeader request) {
+        return Promise.&lt;Result&gt;pure(notFound(
+            views.html.notFoundPage.render(request.uri())
+        ));
+    }
+
+}
+The onBadRequest operation will be called if a route was found, but it was not possible to bind the request parameters:
+
+import play.*;
+import play.mvc.*;
+import play.mvc.Http.*;
+import play.libs.F.*;
+
+import static play.mvc.Results.*;
+
+public class Global extends GlobalSettings {
+
+    public Promise&lt;Result&gt; onBadRequest(RequestHeader request, String error) {
+        return Promise.&lt;Result&gt;pure(badRequest("Don't try to hack the URI!"));
+    }
+
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="requests"></a>
+		<p><span class="flag">requests</span>
+<pre>One important aspect of the GlobalSettings class is that it provides a way to intercept requests and execute business logic before a request is dispatched to an action.
+
+For example:
+
+import play.*;
+import play.mvc.Action;
+import play.mvc.Http.Request;
+import java.lang.reflect.Method;
+
+public class Global extends GlobalSettings {
+
+    public Action onRequest(Request request, Method actionMethod) {
+        System.out.println("before each request..." + request.toString());
+        return super.onRequest(request, actionMethod);
+    }
+
+}
+It’s also possible to intercept a specific action method. This can be achieved via Action composition.
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

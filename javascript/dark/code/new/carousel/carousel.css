@@ -1,0 +1,107 @@
+.dark_ui_carousel{
+	position: relative;
+	height:100%;
+	width:100%;
+}
+
+.dark_ui_carousel_node{
+	display:none;
+	height:100%;
+	width:100%;
+}
+
+.dark_ui_carousel_node_img{
+	height:100%;
+	width:100%;
+}
+
+.dark_ui_carousel_node_text{
+	display:none;
+}
+
+.dark_ui_carousel_text_show{
+	padding: 10px;
+	bottom: 10px;
+	left: 10px;
+	right: 10px;
+	z-index: 1000;
+	position: absolute;
+	background: #CBBFAE;
+	background: rgba(190,176,155, 0.4);
+	border-left: 4px solid rgba(255,255,255,0.7);
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+	filter: alpha(opacity=0);
+	opacity: 1;
+	color: #fff;
+	-webkit-transition: all 200ms;
+	-moz-transition: all 200ms;
+	-o-transition: all 200ms;
+	-ms-transition: all 200ms;
+	transition: all 200ms;
+}
+
+.dark_ui_carousel_text_show h3{
+	font-size: 20px;
+	text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+}
+
+.dark_ui_carousel_next{
+	position: absolute;	
+}
+
+.dark_ui_carousel_previous{
+	position: absolute;	
+}
+
+.dark_ui_carousel_slidesjs_pagination{
+  margin: 7px 0 0;
+  position: absolute;
+  list-style: none;
+}
+.dark_ui_carousel_slidesjs_pagination li a {
+  display: block;
+  width: 13px;
+  height: 0;
+  padding-top: 13px;
+  background-image: url(pagination.png);
+  background-position: 0 0;
+  float: left;
+  overflow: hidden;
+}
+.dark_ui_carousel_slidesjs_pagination li{
+	float:left;
+}
+.dark_ui_carousel_slidesjs_pagination li a:hover {
+  background-position: 0 -26px;
+}
+
+.dark_ui_carousel_slidesjs_pagination li a.active, .dark_ui_carousel_slidesjs_pagination li a:hover.active {
+  background-position: 0 -13px;
+}
+
+.dark_ui_carousel_previous{
+	background-image: url(btns-next-prev.png);
+	background-repeat: no-repeat;
+	display: block;
+	width: 12px;
+	height: 18px;
+	overflow: hidden;
+	text-indent: -9999px;
+}
+a:hover.dark_ui_carousel_previous{
+	background-position:0 -18px;
+}
+
+.dark_ui_carousel_next{
+	background-image: url(btns-next-prev.png);
+	background-repeat: no-repeat;
+	display: block;
+	width: 12px;
+	height: 18px;
+	overflow: hidden;
+	text-indent: -9999px;
+	background-position:-12px 0;
+}
+a:hover.dark_ui_carousel_next{
+	background-position:-12px -18px;
+}

@@ -1,0 +1,86 @@
+<!DOCTYPE html >
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Sublime Text 3</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#Go">Go</a>
+		<a href="#lua">lua</a>
+		<a href="#python">python</a>
+	</div>
+
+	<div class="note"><a name="Go"></a>
+		<p><span class="flag">Go</span>
+<pre>安裝Go
+配置Go環境變量
+GOPATH	項目位置
+GOROOT	Go安裝路徑
+PATH		$GOROOT/bin
+
+安裝 GoSublime 插件
+
+書寫GO代碼 Ctrl + B 調出GoSublime命令框 輸入go命令編譯 調試項目
+若插件 提示配置GOPATH GOROOT 
+Preferences->Package Setting->GoSublime->Settings-User 配置之
+{
+	"env":{"GOPATH":"/home/dark/project/go",
+		"GOROOT":"/opt/go"
+	}
+}
+</pre>
+		</p>
+	</div>	
+
+	<div class="note"><a name="lua"></a>
+		<p><span class="flag">lua</span>
+<pre>編譯lua
+配置lua環境變量
+
+Sublime Tools->Build System->New Build System 配置之
+{
+	"cmd": ["lua.exe","$file_name"],
+	"file_regex": "^(?:lua:)?[\t ](...*?):([0-9]*):?([0-9]*)",
+	"selector": "source.lua"
+}
+
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="python"></a>
+		<p><span class="flag">python</span>
+<pre>Sublime 3 默認支持 python
+不去 在win下(win控制台使用 ascii python3.X使用unicode) 其無法輸出中文
+為 Sublime 3添加 環境變量 PYTHONIOENCODING=utf-8
+
+
+
+安裝 SublimeCodeIntel 插件 並為其配置 以支持 代碼提示
+{
+	"Python": {
+		"python":"F:/lib/Python35/python.exe",
+		"pythonExtraPaths":[
+			"F:/lib/Python35",
+			"F:/lib/Python35/DLLs",
+			"F:/lib/Python35/Lib",
+			"F:/lib/Python35/Lib/lib-tk",
+			"F:/lib/Python35/Lib/site-packages"
+		]
+	}
+}
+
+
+
+安裝 Python PEP8 Autoformat 插件
+以 ctrl + shift + R 自動格式化 python 代碼
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

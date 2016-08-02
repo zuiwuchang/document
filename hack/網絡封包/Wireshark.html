@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>網絡封包</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">Wireshark</font>
+</p>
+
+<p>
+	<a href="#Wireshark">Wireshark</a><br />
+    <a href="#view">view</a><br />
+    <a href="#get">捕獲過濾器</a><br />
+    <a href="#show">顯示過濾器</a><br />
+    
+   
+</p>
+
+
+<div class="mydiv"><a name="Wireshark"></a>
+	<p><font color="#FF0000">Wireshark</font>
+<pre>Wireshark 一個強大 流行的 跨平台 網絡數據包分析 軟件
+
+Wireshark中有兩種 過濾器
+捕獲過濾器	指定要捕獲的數據
+顯示過濾器	快速定位獲取數據
+
+官網<a href="http://www.wireshark.org/">http://www.wireshark.org/</a>
+</pre> 
+	</p>
+</div>
+
+<div class="mydiv"><a name="view"></a>
+	<p><font color="#FF0000">view</font>
+<pre><img src="image/Wireshark/Wireshark.PNG" />
+
+1	菜單欄
+2	菜單快捷鍵欄
+3	顯示過濾器	(定義過濾器)
+4	封包列表		(捕獲的封包)
+5	封包詳細信息	(封包信息)
+6	16進制數據	(16進制顯示的 封包信息)
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="get"></a>
+	<p><font color="#FF0000">捕獲過濾器</font>
+<pre>打開 菜單->Capture->Options 設置捕獲過濾器
+
+選擇一個網絡適配器
+
+填寫 Capture Filter 過濾器即可
+(或點擊 Capture Filter 選擇一個 過濾器)
+
+
+
+Capture Filter 語法
+[Protocol] [Direction] [Host(s)] [Value] [Logical Operations] [Other expression_r]
+
+Protocol(協議)
+	ether fddi ip arp decnet iat sca moprc mopdi tcp udp ...
+	默認所有
+     
+Direction(方向)
+	src dst
+	src or dst host 10.2.2.2
+	host 10.2.2.2 (不指明 代表 src or dst)
+
+Host(s)
+	net port host portrange
+
+Logical Operations(邏輯運算)
+	not and or 
+	(not最高優先級	and or同優先級)
+	src or dst host 10.2.2.2
+</pre>
+	</p>
+</div>    
+
+<div class="mydiv"><a name="show"></a>
+	<p><font color="#FF0000">顯示過濾器</font>
+<pre>在 Filter 後輸入 顯示過濾器 之後回車
+或點擊 Expression 選擇一個 過濾器 之後回車
+
+語法
+[Protocl] [string1] [string2] [comparison operator] [value] [logical operations] [other expression_r]
+
+Protocl(協議)
+
+string1 string2 (協議子類)
+
+comparison operator(比較運算) (可用 英文 或 c語法)
+eq	==
+ne	!=
+gt	&gt;
+lt	&lt;
+gr	&gt;=
+le	&lt;=
+
+and	&amp;&amp;
+or	||
+xor	^^
+not	!
+
+	tcp.port == 80 or tcp.dstport == 90
+	顯示 80端口 或者 目標端口為90  信息
+    
+	snmp || dns || icmp	
+	显示SNMP或DNS或ICMP封包。
+
+	ip.addr == 10.1.1.1
+	显示来源或目的IP地址为10.1.1.1的封包。
+
+	ip.src != 10.1.2.3 or ip.dst != 10.4.5.6
+	显示来源不为10.1.2.3或者目的不为10.4.5.6的封包。
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">Follow TCP Stream</font>
+<pre>對於TCP包 右擊選擇 Follow TCP Stream 可將 包以 tcp方式 顯示
+(安裝 tcp 收發 順序排列)
+
+紅色	A到B
+白色	B到A
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">注意</font>
+<pre>顯示過濾器 輸入框 背景紅色 表示語法錯誤 綠色 表示語法正確
+</pre>
+	</p>
+    
+</div>    
+</td></tr></table>
+</body>
+</html>

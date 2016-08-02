@@ -1,0 +1,7 @@
+.leftimage{
+	float: left;
+	margin-right: 20px;
+}
+.clearleft{
+	clear: left;
+}

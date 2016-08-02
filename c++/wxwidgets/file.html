@@ -1,0 +1,142 @@
+<!DOCTYPE html">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>文件文件流</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#file">file</a>
+		<a href="#wxFile">wxFile</a>
+		<a href="#wxDir">wxDir</a>
+	</div>
+
+	<div class="note"><a name="file"></a>
+		<p><span class="flag">file</span>
+<pre>wxwidgets 提供了一些列 跨平台的 文件處理 功能
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="wxFile"></a>
+		<p><span class="flag">wxFile</span>
+<pre>wxFile 從底層對文件提供了 二進制讀寫功能 
+其類似於c的 FILE* (其實其內部就是保存了一個到 FILE* 的連接)
+
+wxFFile 基本同 wxFile 只是其提供了 緩衝區功能
+</pre>
+		</p>
+		<p><span class="flag">常用API</span>
+<pre>//文件打開 模式
+enum  	OpenMode { 
+  read, 
+  write, 
+  read_write, 
+  write_append, 
+  write_excl 
+}
+
+enum  	{ 
+  fd_invalid = -1, 
+  fd_stdin, 
+  fd_stdout, 
+  fd_stderr 
+}
+
+wxFile ()
+
+//打開文件
+wxFile (const wxString &filename, wxFile::OpenMode mode=wxFile::read)
+bool 	Open (const wxString &filename, wxFile::OpenMode mode=wxFile::read, int access=wxS_DEFAULT)
+
+//創建一個文件用於寫
+bool 	Create (const wxString &filename, bool overwrite=false, int access=wxS_DEFAULT)
+
+//關閉文件
+bool 	Close ()
+
+//連接/端口 到 FILE*
+wxFile (int fd)
+void 	Attach (int fd)
+int 	Detach ()
+
+//返回 FILE*
+int 	fd () cons
+
+//返回是否打開文件
+bool 	IsOpened () const
+
+//返回文件 大小
+wxFileOffset 	Length () const
+
+//讀文件
+ssize_t 	Read (void *buffer, size_t count)
+bool 	ReadAll (wxString *str, const wxMBConv &conv=wxConvAuto())
+
+//寫文件
+size_t 	Write (const void *buffer, size_t count)
+bool 	Write (const wxString &s, const wxMBConv &conv=wxConvUTF8)
+
+//是否讀寫位置
+wxFileOffset 	Seek (wxFileOffset ofs, wxSeekMode mode=wxFromStart)
+wxFileOffset 	SeekEnd (wxFileOffset ofs=0)
+
+//返回文件 讀寫位置
+wxFileOffset 	Tell () const
+
+//到文件尾 返回true
+bool wxFile::Eof	(		)	const
+
+bool wxFile::Flush	(		)	
+
+int 	GetLastError () const
+void 	ClearLastError ()
+
+
+
+//返回是否 可以以指定方式操作文件
+static bool wxFile::Access	(	const wxString & 	name,
+wxFile::OpenMode 	mode 
+)	
+
+//返回 指定文件(<span class="care">不包括 文件夾 鏈接文件</span>) 是否存在
+static bool 	Exists (const wxString &filename)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="wxDir"></a>
+		<p><span class="flag">wxDir</span>
+<pre>wxDir 提供了對目錄的操作
+最常用的就是 遍歷指定目錄下的 所有 文件 | 目錄
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>	wxString str;
+
+	//打开 工作目录
+	wxDir dir(wxGetCwd());
+	if ( !dir.IsOpened() )
+	{
+		return;
+	}
+
+	//查找文件
+	wxString filename;
+	wxString find = wxEmptyString;
+	int flags = wxDIR_FILES;
+	bool cont = dir.GetFirst(&filename, find, flags);
+	while ( cont )
+	{
+		str += _T("\n") + filename;
+		cont = dir.GetNext(&filename);
+	}
+	wxMessageBox(str);
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

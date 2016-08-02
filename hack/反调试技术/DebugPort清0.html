@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>DebugPort清0</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1>
+    	<a href="#DebugPort">DebugPort清0</a><br />
+        <a href="#TP">TP</a>
+        
+    </h1></p>
+    
+  
+    
+    <div class="div_box"><a name="DebugPort"></a><h2>
+        <p><font color="#FF0000">DebugPort清0</font> <br />
+       ring0下 _EPROCESS 结构记录了进程相关信息 <br />
+       _EPROCESS 下 DebugPort记录了相关调试信息 将此设置为0 便可使程序无法被调试
+        </p>
+        
+        <p><font color="#FF0000">anti-anti</font>
+<pre><font color="#FF0000">1</font>
+windbg中执行 <font color="#FF0000">!process 0 0 </font>获取进程PEPROCESS
+<img src="image/DebugPort清0/process.PNG" />
+<font color="#FF0000">2</font>
+windbg中执行 <font color="#FF0000">dt _EPROCESS PEPROCESS </font>查看进程_EPROCESS信息 主要寻找DebugPort偏移
+<img src="image/DebugPort清0/debugport.PNG" />
+<font color="#FF0000">3</font>
+windbg中执行 <font color="#FF0000">ba w1 PEPROCESS+DebugPort偏移 </font>对DebugPort下写入断点
+<img src="image/DebugPort清0/ba.PNG" />
+<font color="#FF0000">4</font>
+windbg中执行 <font color="#FF0000">g </font>断在DebugPort清0处
+
+</pre>
+         </p>
+    </p></h2></div>
+    
+    <div class="div_box"><a name="TP"></a><h2>
+        <p><font color="#FF0000">TP</font> <br />
+        TP 註冊了一個 DPC 定時器 一個內核線程A 另一個內核線程B (A 相對 B 在較低地址)<br />
+        線程B 不斷 Debug_Port 清0(代碼B中 也校驗了 B中 關鍵代碼)<br />
+        線程A 校驗線程B 代碼是否被hook (可能是 關鍵代碼處 CRC)<br />
+        DPC定時器 檢查線程A 是否正常<br />
+        (線程A還在校驗DPC定時器)
+        </p>
+        
+        <p><font color="#FF0000">anti-anti</font> <br />
+        先 hook 廢掉 DPC<br />
+        再 hook 廢掉 線程A<br />
+        hook 廢掉線程 B中的代碼校驗<br />
+        最後 hook 廢掉線程 B中的 Debug_Port 清0
+        </p>
+       
+	</h2></div>
+</td></tr></table>
+</body>
+</html>

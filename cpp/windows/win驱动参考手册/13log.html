@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>log</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1>
+    
+    <a href="#KdPrint">KdPrint</a><br />
+    <a href="#DbgSetDebugPrintCallback">捕获 DbgPrint</a>
+    
+    </h1></p>
+    
+    <div class="div_box"><a name="KdPrint"></a><h2>
+    	<p><font color="#FF0000">KdPrint(())</font><br />
+        KdPrint 宏在调试版本下 打印log信息 在发布版本下被替换为空<br />
+      	<pre>WCHAR file_buffer[MAX_PATH]={0};
+
+KdPrint(("进程名:<font color="#FF0000">%S</font>\n",file_buffer));
+
+UNICODE_STRING protected_name;
+RtlInitUnicodeString(&protected_name,file_buffer);
+
+KdPrint(("进程名:<font color="#FF0000">%wZ</font>\n",&protected_name));</pre>
+<img src="image/log/KdPrint.PNG" />
+        </p>
+        
+        <p><font color="#FF0000">注意</font><br />
+       	KdPrint 在调试版本 会被 替换成对 DbgPrint函数 的调用<br />
+        故要在 发布版打印log 可直接调用 DbgPrint
+        </p>
+    </h2></div>
+    
+     <div class="div_box"><a name="DbgSetDebugPrintCallback"></a><h2>
+    	<p><font color="#FF0000">捕获 DbgPrint</font><br />
+        在 win vista 之后的系统可以 调用 DbgSetDebugPrintCallback 注册一个回调函数用以捕获 DbgPrint的打印信息<br />
+        在 win vista 之前系统只有hook DbgPrint
+<pre>NTSTATUS
+NTAPI
+DbgSetDebugPrintCallback (
+    __in PDEBUG_PRINT_CALLBACK DebugPrintCallback,	//要注册或卸载掉回调函数
+    __in BOOLEAN Enable								//TRUE 注册函数 FALSE 卸载函数
+    );
+    
+//回调函数声明
+VOID
+(*PDEBUG_PRINT_CALLBACK) (
+    __in PSTRING Output,		//被打印的 ANSI_STRING 字符串
+    __in ULONG ComponentId,		//暂时不解
+    __in ULONG Level			//执行等级
+    );
+</pre>
+        </p>
+  	</h2></div>
+   
+    
+</td></tr></table>
+</body>
+</html>

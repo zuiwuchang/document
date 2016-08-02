@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>dark</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+
+	<div class="title">
+		<a href="#str">字符串</a>
+		<a href="#each">each 遍歷元素</a>
+		<a href="#data">data 附加數據</a>
+	</div>字符串
+
+	
+	<div class="note"><a name="str"></a>
+		<p><span class="flag">字符串</span>
+<pre>//清除字符串空格
+str = "	123	";
+alert($.trim(str));
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="each"></a>
+		<p><span class="flag">each 遍歷元素</span>
+<pre>//遍歷元素 對被個元素都 調用 function 
+//返回 false 將終止遍歷後續元素
+//index 為元素索引 從0開始計算 element為當前元素 (兩個都為可選參數)
+$("input").each(function(index, element) {
+	if(index > 0){
+		return false;
+		}
+	alert(index);
+	});
+
+//操縱 第一個被 選中 元素 
+alert($("input").attr("name"));
+
+//設置所有 p 的值
+$("input").val("123");
+
+
+//返回元素個數
+alert($("input").size());
+alert($("input").length);
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="data"></a>
+		<p><span class="flag">data 附加數據</span>
+<pre>for(i=0;i&lt;5;++i){
+	//為元素 設置附加值
+	$("#test_id").data("key" + i,"value" + i);
+}
+//獲取元素附加值
+alert($("#test_id").data("key0"));
+
+//移除指定 key 的附加值
+$("#test_id").removeData("key0");
+alert($("#test_id").data("key0"));
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

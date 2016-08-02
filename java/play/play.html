@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>play</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#play">play</a>
+		<a href="#evi">環境配置</a>
+		<a href="#command">常用命令</a>
+		
+		
+	</div>
+
+	<div class="note"><a name="play"></a>
+		<p><span class="flag">play</span>
+<pre>play 是一個輕量級的 開源(Apache 2 License) java/scala web framework
+
+官網<a href="https://www.playframework.com/" target="_blank">https://www.playframework.com/</a>
+</pre>
+	</div>
+
+	<div class="note"><a name="evi"></a>
+		<p><span class="flag">環境配置</span>
+<pre>1 安裝 jdk 1.6或以後的 java環境
+
+2 安裝sbt(play 使用sbt編輯 java代碼) <a href="http://www.scala-sbt.org/download.html" target="_blank">http://www.scala-sbt.org/download.html</a>
+
+3 從play官網下載 最新支持 腳本 typesafe-activator-1.2.12-minimal.zip 解壓 並且加入 PATH 環境
+
+4 執行 activator -help (自動下載其他需要的 包 如果已經下載 顯示 幫助信息)
+
+
+<span class="care">3 4 可簡化為 下載 Offline Distribution(包含所有 包依賴) 版本 並解壓 
+在解壓目錄 運行 activator -help
+將目錄 加入 path 環境 </span>
+</pre>
+	</div>
+
+	<div class="note"><a name="command"></a>
+		<p><span class="flag">常用命令</span>
+<pre>//創建一個java項目
+activator new my-first-app play-java
+
+//創建項目 使用 play ui
+activator ui
+
+//運行 web
+activator run
+//在80端口運行
+activator <span class="care">"</span>run 80<span class="care">"</span>
+
+//以debug方式 運行 web
+activator test
+
+//為 項目 創建 play ui
+activator ui
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>創建項目時 或從 play官網下載模板
+在 優越的社會主義bitch國家 是必須設置代理才能訪問的
+
+編輯
+C:\Users\Administrator\.activator\activatorconfig.txt
+或者
+~/.activator/activatorconfig.txt
+增加如下代理設置
+
+# This are the proxy settings we use for activator
+-Dhttp.proxyHost=PUT YOUR PROXY HOST HERE
+-Dhttp.proxyPort=PUT YOUR PROXY PORT HERE
+# Here we configure the hosts which should not go through the proxy.  You should include your private network, if applicable.
+-Dhttp.nonProxyHosts="localhost|127.0.0.1"
+# These are commented out, but if you need to use authentication for your proxy, please fill these out.
+#-Dhttp.proxyUser=PUT YOUR PROXY USER HERE
+#-Dhttp.proxyPassword=PUT YOUR PROXY PASSWORD HERE
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+

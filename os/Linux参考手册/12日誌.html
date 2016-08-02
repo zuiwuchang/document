@@ -1,0 +1,143 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>日誌</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1>
+    	<p><font color="#FF0000">12日誌</font><br />  	
+		</p>
+        
+        <a href="#log">日誌服務</a> <br />
+        <a href="#rotate">日誌文件輪替</a> <br />
+      
+    </h1></p>
+    
+    <div class="div_box"><a name='log'><h3>
+    	<p><font color="#FF0000">日誌服務</font><br />
+      	centos6開始 日誌服務商 rsyslog(以前是syslogd)<br />
+        配置文件是 /etc/rsyslog.conf (以前是 /etc/syslog.conf)
+        </p>
+        
+        <p><font color="#FF0000">常見日誌文件名</font><br />
+<pre>/var/log/cron							//crontab的執行日誌
+/var/log/dmesg							//系統開機過程產生的各項信息
+/var/log/lastlog						//最近一次系統登錄相關信息
+/var/log/maillog 或 /var/log/mail/*				//記錄sendmail（SMTP 郵件發信協議）與dovecot(POP3 郵件接收協議)信息
+<font color="#FF0000">/var/log/messages						//幾乎系統發生的所有錯誤信息
+/var/log/secure							//基本上包含所有需要輸入帳號密碼的軟件
+/var/log/wtmp  /var/log/faillog					//系統正確登錄和錯誤登錄信息 last命令便是分析的此二文件</font>
+/var/log/httpd/* /var/log/news/* /var/log/samba/*		//針對不同的網絡服務
+</pre>
+        </p>
+        
+        <p><font color="#FF0000">日誌一般格式</font><br />
+        何時<br />
+        何地<br />
+        誰(服務名稱 或 進程 等)<br />
+        何事
+        <p><font color="#FF0000">example</font><br />
+        <img src="image/12日誌/log.PNG" /><br />
+        其最後一條日誌內容是<br /> 
+        8月16日 20:08:02<br />
+        在本機(localhost )<br />
+        執行su命令(在pam_unix模塊中)<br />
+        用戶dark獲取到root權限
+        </p>
+        </p>
+        
+         <p><font color="#FF0000">日誌配置  /etc/rsyslog.conf </font><br />
+         編輯  /etc/rsyslog.conf  可以修改rsyslog記錄的日誌保存位置<br />
+         其格式為<font color="#FF0000">服務名[.=!]信息等級 位置</font><br />
+         <font color="#FF0000">example</font> mail.info /var/log/mylog (將mail服務產生的大於info等級的信息記錄到mylog) 
+         	<p>syslog支持服務
+            <table border="2">
+            <tr><td>服務名</td><td>描述</td></tr>
+            <tr><td>auth(authpriv)</td><td>與認證有關如 login ssh su 等</td></tr>
+            <tr><td>cron</td><td>cron/at等</td></tr>
+            <tr><td>deamon</td><td>各個deamon有關信息</td></tr>
+            <tr><td>ken</td><td>內核(kernel)產生信息</td></tr>
+            <tr><td>lpr</td><td>打印信息</td></tr>
+            <tr><td>mail</td><td>郵件收發</td></tr>
+            <tr><td>news</td><td>與新聞組服務器有關</td></tr>
+            <tr><td>syslog</td><td>syslog日誌</td></tr>
+            <tr><td>user uucp local0~local7</td><td>與unix like本身有關的一些信息</td></tr>
+            </table>
+            </p>
+            
+            <p>記錄條件<br />
+            .		//大於指定等級記錄<br />
+            .=		//等於指定等級記錄<br />
+            .!		//不等於指定等級記錄
+            </p>
+            <p>信息等級
+            <table border="2">
+            <tr><td>等級</td><td>等級名稱</td><td>說明</td></tr>
+            <tr><td>0</td><td>*</td><td>全部信息</td></tr>
+            <tr><td>1</td><td>info</td><td>基本信息</td></tr>
+            <tr><td>2</td><td>notice</td><td>除info外還需要注意到</td></tr>
+            <tr><td>3</td><td>warning(warn)</td><td>警告 可能存在問題 但還不至於影響deamon運行</td></tr>
+            <tr><td>4</td><td>err(error)</td><td>重大錯誤</td></tr>
+            <tr><td>5</td><td>crit</td><td>比err更加嚴重</td></tr>
+            <tr><td>6</td><td>alert</td><td>已經很有問題</td></tr>
+            <tr><td>7</td><td>emerg(panic)</td><td>系統幾乎要死機(一般是硬件出問題)</td></tr>
+            </table>
+         </p>
+  	</h3></a></div>
+    <div class="div_box"><a name='rotate'><h3>
+    	<p><font color="#FF0000">日誌文件輪替</font><br />
+        logrotate可以實現日誌輪替	將其加入cron中便可以自動輪替日誌<br />
+        其每次執行將log保存為log-時間 ... 超過個刪除最早<br />
+        <font color="#FF0000">logrotate [-vf] logfile(輪替配置文件)	//執行日誌輪替<br /></font>
+        -v	顯示這些過程<br />
+        -f	無論是否符合/etc/logrotate.conf配置 強制輪替<br />
+       <font color="#FF0000"> logrotate -v /etc/logrotate.conf</font>
+  		</p>
+        
+        <p><font color="#FF0000">/etc/logrotate.conf</font><br />
+        此文件指定了需要輪替的日誌配置 <br />
+        其中 include /etc/logrotate.d 指示了將 include /etc/logrotate.d目錄下的文件都作為<br />配置
+        <font color="#FF0000">(一般都為要輪替的日誌新建個配置文件在此 而非 直接編輯/etc/logrotate.d)</font>
+        </p>
+        
+        <p><font color="#FF0000">日誌輪替配置文件 主要參數(不設置按照默認)</font><br />
+<pre>要輪替文件名 多個以換行(或空格 隔開)
+{
+weekly		//時間默認每週
+rotate	4	//保留幾個輪替文件默認4
+create		//指示新建文件權限 用戶/用戶組
+#compress	//是否壓縮
+}
+
+<font color="#FF0000">example</font>
+/var/log/wtmp {
+    monthly						//每月一次輪替
+    create 0664 root utmp		//新建文件權限 用戶 用戶組
+        minsize 1M				//容量大於1M才輪替 而非每月一定輪替
+    rotate 1					//保留一個輪替文件
+}
+
+
+/var/log/cron
+/var/log/maillog
+/var/log/messages
+/var/log/secure
+/var/log/spooler
+{
+<font color="#FF0000">    sharedscripts
+    postrotate	(在這些完輪替後執行指定命令 prerotate 在這些輪替前執行指定命令)
+    </font>
+        /bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true
+        ...
+ <font color="#FF0000">   endscript</font>
+}
+
+</pre>
+        </p>
+   	</h3></a></div>
+</td></tr></table>
+</body>
+</html>

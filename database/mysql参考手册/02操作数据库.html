@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>操作数据库</title>
+</head>
+<body>
+<table align="center"><tr><td>
+	<p>
+	<h3>
+   	<table border="2">
+    <tr><td>作用</td><td>语句</td></tr>
+    <tr><td>显示存在的数据库</td><td>show databases;</td></tr>
+    <tr><td>创建数据库</td><td>create database 数据库名 <br />[DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci];</td></tr>
+    <tr><td>删除数据库</td><td>drop database 数据库名;</td></tr>
+    </table>
+    设置数据库字符编码<br />
+    于my.cnf中设置 [mysqld]和[client]选项default-character-set=utf8
+    </h3>
+	</p>
+    
+    <p>
+    <h3>
+    <br />数据库引擎
+    <br />查看可用引擎  show variables like 'have%'; show engines;
+    <table border="2">
+    <tr><td>引擎名</td><td>特点</td></tr>
+    <tr><td>MyISAM</td><td>速度快占用空间小但不支持事务和回滚</td></tr>
+    <tr><td>InnoDB</td><td>支持事务和回滚</td></tr>
+    <tr><td>MEMORY</td><td>数据库保存在内存中故速度快但不安全</td></tr>
+   	<tr><td>其他非余<br />常用故未<br />列出</td></tr>
+    </table>
+    设置默认存储引擎<br />于my.cnf中设置 [mysqld]选项default-storage-engine=innodb（innodb是引擎名）
+    </h3>
+    </p>
+</td></tr></table>
+</body>
+</html>

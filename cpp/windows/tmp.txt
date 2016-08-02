@@ -1,0 +1,21 @@
+进程
+内核对象	操作系统用以管理进程 以及统计应用计算
+地址空间	包含所有可执行文件或模块的代码和数据
+
+进程依靠线程在自己地址空间执行代码
+每个线程都有自己的一组 cpu寄存器 堆栈
+
+
+加载到每个进程的 exe dll 都被赋予一个独一无二的实例句柄 HINSTANCE 
+WinMain的HINSTANCE 实际上是一个内存基地址 系统可执行文件的映像加载到进程地址空间的这个位置
+HINSTANCE hInstance=GetModuleHandleW(L"Win32Test.exe"); //没找到模块返回NULL 获取加载模块HINSTANCE 基地址
+HINSTANCE hInstance=GetModuleHandleW(NULL); //获取主调进程 基地址
+
+GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,(LPCWSTR)_tmain//当前函数地址
+,&hInstance)//获取主调进程 基地址
+
+
+std::wstring wcs=GetCommandLineW(); //获取程序完整命令如 d:\a.exe s d
+int total;
+LPWSTR* lp=CommandLineToArgvW(wcs.c_str(),&total);//分解参数 如 lp[0] 为 d:\a.exe lp[1] 为 s ... lp[total]
+

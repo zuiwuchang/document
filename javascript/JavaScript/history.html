@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>历史对象和地址对象</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#history">history对象</a>
+		<a href="#location">location对象</a>
+	</div>
+	<div class="note"><a name="history"></a>
+		<p><span class="flag">history对象</span>
+<pre>history是window对象的一个属性
+其保存了最近访问信息
+
+<table>
+	<tr><td>属性和方法</td><td>描述</td></tr>
+	<tr><td>length</td><td></td></tr>
+	<tr><td>next</td><td>ie不支持</td></tr>
+	<tr><td>current</td>ie不支持<td></td></tr>
+	<tr><td>previous</td><td>ie不支持</td></tr>
+	<tr><td>back()</td><td>到上一页</td></tr>
+	<tr><td>forward()</td><td>到下一页</td></tr>
+	<tr><td>go(n)</td><td>go(0)当前页<br />go(-1)上一页...go(n)n小于0上|n|页<br />go(1)下一页</td></tr>
+	<tr><td>go(str)</td><td>返回历史记录中包含字符串str的最近页</td></tr>
+	<tr><td>...</td><td></td></tr>
+</table>
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="location"></a>
+		<p><span class="flag">location对象</span>
+<pre>location是window对象和document对象的一个属性
+其保存当前url信息
+
+<table>
+	<tr><td>属性和方法</td><td>描述</td></tr>
+	<tr><td>href</td><td>设置或返回当前url</td></tr>
+	<tr><td>protocol</td><td>返回协议名 如 http: file:</td></tr>
+	<tr><td>hostname</td>返回主机名<td></td></tr>
+	<tr><td>host</td><td>主机和端口号</td></tr>
+	<tr><td>pathname</td><td>文档路径</td></tr>
+	<tr><td>assign(url)</td><td>加载新文档</td></tr>
+	<tr><td>replace(url)</td><td>加载文档新url不加入历史记录中</td></tr>
+	<tr><td>reload()</td><td></td></tr>
+	<tr><td>...</td><td></td></tr>
+</table>
+</pre>
+		</p>
+		<p><span class="flag">刷新页面方法</span>
+<pre>	history.go(0);
+	location.reload();
+	location=location;
+	location.replace(location);
+	window.navigate(location);
+</pre>
+		</p>
+		<p><span class="flag">获取get参数</span>
+<pre>var url=location.href;
+var pos=url.indexOf('?');
+
+if(-1==pos){
+	alert('无参');
+}else{
+	var str=url.substr(pos+1,url.length);
+	if('#'==str[str.length-1]){
+		str=str.substr(0,str.length-1);
+	}
+	var array=str.split('&');
+	var show='';
+	for(index in array){
+		pos=array[index].indexOf('=');
+		if(-1!=pos){
+			show+=array[index].substr(pos+1,array[index].length)+"\n";
+		}
+	}
+	alert(show);
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

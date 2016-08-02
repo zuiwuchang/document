@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>數據結構</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">數據結構</font>
+</p>
+
+<p>
+	<a href="#data">數據結構</a><br />
+    <a href="#wxString">wxString 字符串</a><br />
+   
+	
+</p>
+
+
+<div class="mydiv"><a name="data"></a>
+	<p><font color="#FF0000">數據結構</font>
+<pre>wxwidgets 定義了 許多數據結構 而非使用 標準的STL
+其主要原因 在於其開始發行時1992 一個穩定標準的STL還不存在
+</pre>    
+    </p>
+</div>
+    
+<div class="mydiv"><a name="wxString"></a>
+	<p><font color="#FF0000">wxString 字符串</font>
+<pre>wxString 用與 處理字符串 用法類似 std::string MFC::CString 
+wxString 許多函數 完成了 同樣的 功能 如 Len length size 其length size 是為了 同 STL 保持 相同簽名檔 接口 一般可首選之
+
+wxString 內部 使用 wxChar數組 保存字符串
+wxChar在 UNICODE版本中 為wchar_t  ANSI版本為 char 
+_() xwT() 宏 在 UNICODE版本中 被定義為 L ANSI版本為空 
+類似MFC 的 WCHAR 和 _T()宏
+
+wxString::operator!
+wxString::operator =
+wxString::operator +
+wxString::operator +=
+wxString::operator []
+wxString::operator ()
+wxString::operator &lt;&lt;
+wxString::operator &gt;&gt;
+wxString::operator const wxChar*	//最好在 隱式轉換的地方 明確調用.c_str()
+</pre>    
+    </p>
+    
+    <p><font color="#FF0000">wxString c指針</font>
+<pre>//返回一個 const char* 如果是 UNICODE 版本 返回一個被 轉換為 ANSI 字符串的 const char*
+const char* mb_str() const
+//... const wchar_t* ...ANSI ... UNICODE const wchar_t*
+const wchar_t* wc_str() const
+
+//返回 wxChar *
+const wxChar * c_str() const
+</pre>    
+    </p>
+    
+    <p><font color="#FF0000">格式化</font>
+<pre>//將字符串 轉化為 long base為進制 取值 [2,36] 和 0 0 代表按照字符串前綴取進制 0x(16) 0(8) 其他(10) 
+bool ToLong(long *val, int base = 10) const
+
+//同上不過 轉化為 unsigned long
+bool ToULong(unsigned long *val, int base = 10) const 
+
+//將字符串 轉化為 double
+bool ToDouble(double *val) const
+
+//使用 類似 sprintf 的方式 將參數 格式化到 字符串中 返回填充字符串長度
+int Printf(const wxChar* pszFormat, ...)
+
+//同上 不過將 字符串 作為返回值 返回
+static wxString Format(const wxChar *format, ...)
+</pre>    
+    </p>
+    
+    <p><font color="#FF0000">other class</font>
+<pre>wxStringTokenizer 用來 分割字符串
+wxRegEx 用來操作 正則表達式
+
+不過 餘更愛boost 故 未用過 以上兩類 皆用boost組件
+</pre>
+	</p>
+</div>    
+
+</td></tr></table>
+</body>
+</html>

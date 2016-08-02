@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Ajax</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#ajax">ajax</a>
+		<a href="#XMLHttpRequest">实例化 XMLHttpRequest 对象</a>
+		<a href="#Send">向服务器发送请求</a>
+		<a href="#fun">异步处理函数</a>
+		<a href="#example">example</a>
+	</div>
+	<div class="note"><a name="ajax"></a>
+		<p><span class="flag">ajax</span>
+<pre>ajax 就是使用 XMLHttpRequest对象和服务器通信
+使用javascript更新网页局部
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="XMLHttpRequest"></a>
+		<p><span class="flag">实例化 XMLHttpRequest 对象</span>
+<pre>所有现代浏览器
+(IE7+、Firefox、Chrome、Safari 以及 Opera)
+均内建 XMLHttpRequest 对象
+
+xmlhttp = new XMLHttpRequest();
+
+老版本的 Internet Explorer (IE5 和 IE6)使用 ActiveX 对象：
+xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+</pre>
+		</p>
+		<p><span class="flag">兼容方法</span>
+<pre>var xmlhttp;
+//检查是否内置XMLHttpRequest对象
+if (window.XMLHttpRequest){
+	// code for IE7+, Firefox, Chrome, Opera, Safari
+	xmlhttp = new XMLHttpRequest();
+}else{
+	// code for IE6, IE5
+	xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+}
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="Send"></a>
+		<p><span class="flag">GET</span>
+<pre>xmlhttp.open("GET"	//传输方式GET or POST
+	,"test.jsp?id=1"	//URL
+	,true	//是否异步
+);
+
+//发送
+xmlhttp.send();
+</pre>
+		</p>
+		<p><span class="flag">POST</span>
+<pre>xmlhttp.open("POST","ajax_test.asp",true);
+//添加http头
+xmlhttp.setRequestHeader(
+	"Content-type"	//规定头的名称
+	,"application/x-www-form-urlencoded"	//规定头的值
+);
+xmlhttp.send("id=1&x=2");
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="fun"></a>
+		<p><span class="flag">异步处理函数</span>
+<pre>xmlhttp.onreadystatechange=function(){
+	//status 200-ok 404-not found 
+	//readyState 0-请求未初始化 1-服务器连接已建立 2-请求已接收 
+	//readyState 3-请求处理中 4-请求已完成 且响应已就绪
+	if (xmlhttp.readyState==4 && xmlhttp.status==200){
+		document.getElementById("myDiv").innerHTML=xmlhttp.responseText;
+		//若返回为xml则responseText 改为responseXML
+	}
+}
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="example"></a>
+		<p><span class="flag">example</span>
+<pre>var xmlhttp;
+//检查是否内置XMLHttpRequest对象
+if (window.XMLHttpRequest){
+	// code for IE7+, Firefox, Chrome, Opera, Safari
+	xmlhttp=new XMLHttpRequest();
+}else{
+	// code for IE6, IE5
+	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+}
+
+xmlhttp.onreadystatechange=function(){
+	if (xmlhttp.readyState==4 && xmlhttp.status==200){
+		document.getElementById("myDiv").innerHTML=xmlhttp.responseText;
+	}
+}
+
+xmlhttp.open("GET","test1.txt",true);
+xmlhttp.send();
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

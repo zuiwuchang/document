@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>窗口</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#window">窗口</a>
+		<a href="#window_class">窗口類</a>
+		<a href="#base_window_class">基礎窗口類</a>
+		<a href="#top_window_class">頂層窗口類</a>
+		<a href="#container_window_class">容器窗口類</a>
+		<a href="#unstatic_ui_class">非靜態控件</a>
+		<a href="#static_ui_class">靜態控件</a>
+		<a href="#wxMenu">菜單</a>
+		<a href="#tools">控制條</a>
+	</div>
+
+	<div class="note"><a name="window"></a>
+		<p><span class="flag">窗口</span>
+<pre>窗口可以 改變大小 刷新 顯示隱藏 包含其他窗口
+通常wxWidgets的窗口都和 一個wxWindow類及其子類對應
+</pre>
+		</p>
+		<p><span class="flag">客戶區 非客戶區</span>
+<pre>窗口大小 通常 包括了客戶區 非客戶區
+一般 客戶區 是指那些能夠被 繪製 以及 放置 子窗口的 區域
+... 非客戶區 是指 用戶修飾的 邊框 標題欄 滾動條等
+</pre>
+		</p>
+		<p><span class="flag">滾動條</span>
+<pre>通常 擁有 wxHSCROLL wxVSCROLL 類型的 窗口才會自動生成 滾動條
+</pre>
+		</p>
+		<p><span class="flag">光標 指針</span>
+<pre>通常 一個窗口 可以擁有一個 光標(wxCaret 顯示文本輸入)
+和 一個鼠標指針(wxCursor 顯示鼠標當前位置)
+</pre>
+		</p>
+		<p><span class="flag">頂層窗口</span>
+<pre>wxFrame wxDialog wxPopup
+</pre>
+		</p>
+		<p><span class="flag">坐標系</span>
+<pre>窗口坐標系 通常以左上角為原點(0,0) 單位像素
+</pre>
+		</p>
+		<p><span class="flag">窗口繪製</span>
+<pre class="care">窗口需要繪製時 將 收到
+wxEVT_ERASE_BACKGROUND 繪製背景
+wxEVT_PAINT 繪製前景
+
+要創建自己的控件 需要處理這兩個事件
+(獲取窗口變動區域 自重繪變動區域是個 好主意)
+</pre>
+		</p>
+		<p><span class="flag">顏色 字體</span>
+<pre>每個窗口 都有一個 前景色 背景色 字體設置
+默認 背景擦除函數 使用 背景色 擦除窗口背景
+</pre>
+		</p>
+		<p><span class="flag">窗口變體</span>
+<pre>apple mac 上的玩意 其他平台無 
+正常人 可以忽略掉這貨
+</pre>
+		</p>
+		<p><span class="flag">改變大小</span>
+<pre>當窗口 改變大小 將收到 wxEVT_SIZE 事件
+</pre>
+		</p>
+		<p><span class="flag">輸入</span>
+<pre>窗口 在任何時候 都可以收到 鼠標事件
+在活動狀態 可以獲得鍵盤事件
+
+窗口獲取焦點 收到 wxEVT_SET_FOCUS event
+...失去... wxEVT_KILL_FOCUS event
+</pre>
+		</p>
+		<p><span class="flag">空閒事件 界面更新</span>
+<pre>除非特殊聲明 窗口 都將在 所有事件處理完畢後 收到 wxEVT_IDLE 以處理 空閒時間
+
+用戶可以 自定義一個 特殊的空間時間 處理 函數 
+以週期性 的在空閒時間 更新 窗口 狀態
+EVT_UPDATE_UI(id,func)
+</pre>
+		</p>
+		<p><span class="flag">窗口 創建 刪除</span>
+<pre>大多數 窗口 可以使用 2中方式 創建
+方式1 在構造時 傳入必要參數
+	wxButton* button = new wxButton(parent,wxID_OK);
+方式2 先new () 在調用 create函數(在此之前窗口收到wxEVT_CREATE event) 傳入 必要參數
+	wxButton* button = new wxButton()
+	button->create(parent,wxID_OK);
+
+<span class="care">處理頂層 窗口 其他窗口 必須傳入 一個 非空的 父窗口指針
+當 父窗口被釋放時 所有子窗口 將被自動釋放</span>
+
+
+
+窗口通過調用 Destroy(頂層窗口) 或 delete(子窗口 不應該調用 子窗口 由系統自動釋放) 來釋放
+窗口被釋放前 收到 wxEVT_DESTROY event
+</pre>
+		</p>
+		<p><span class="flag">窗口 風格</span>
+<pre>窗口 擁有一個 風格 和 擴展風格 用以指示 窗口的 
+一些特性
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="window_class"></a>
+		<p><span class="flag">窗口類</span>
+<pre>窗口類 實現了一些 基本的功能
+
+wxWindow 是所有窗口類的 基類
+wxControl 是所有控件的基類
+wxControlWithItems 是所有擁有多個子項目 控件的基類
+</pre>
+		</p>
+		<p><span class="flag">頂層窗口類</span>
+<pre>頂層窗口類 用於在桌面顯示
+
+wxFrame	可以包含其他窗口 改變大小的 窗口類
+wxMDIParentFrame	可以管理其他frame類的類
+wxMDIChildFrame	可以被其他父窗口管理的frame類
+wxDialog	可改變大小 用於給用戶提供選擇的 窗口類
+wxPopupWindow	一種暫態的只有少量修飾的頂層窗口
+</pre>
+		</p>
+		<p><span class="flag">容器窗口類</span>
+<pre>容器窗口類 可以管理其他窗口
+
+wxPanel	為其他窗口提供佈局
+wxNotebook	可以使用tab頁切換窗口
+wxScrolledWindow 可以有滾動條的窗口
+wxSpliterWindow	可以分割窗口
+</pre>
+		</p>
+		<p><span class="flag">非靜態窗口類</span>
+<pre>提供用戶操作的控件
+
+wxButton	擁有一個標籤的按鈕
+wxBitmapButton	擁有圖片 標籤 的按鈕
+wxChoice	下拉列表選擇空間
+wxComboBox	擁有一組選項的 可編輯選擇控件
+wxCheckBox	複選框
+wxListBox	字符串 列錶框
+wxRadioBox	擁有一組選項的單選框
+wxRadioButton	單選框
+wxScrollBar	滾動條
+wxSpinButton	擁有增加減小兩個選項的 按鈕
+wxSpinCtrl	同wxSpinButton不過多個文本框
+wxSlider	用於在一個固定範圍內選擇一個整數
+wxTextCtrl	單行/多行 文本框
+wxToggleButton	兩態按鈕
+</pre>
+		</p>
+		<p><span class="flag">靜態窗口類</span>
+<pre>提供線索 靜態信息的 控件
+
+wxGauge	顯示數量的控件
+wxStaticText	文字標籤
+wxStaticBitmap	顯示圖片
+wxStaticLine	顯示 一行信息
+wxStaticBox	在別的控件外顯示一個 方框
+</pre>
+		</p>
+		<p><span class="flag">菜單</span>
+<pre>wxMenu	主菜單或彈出菜單
+</pre>
+		</p>
+		<p><span class="flag">控件條</span>
+<pre>wxMenuBar	wxFrame上的菜單條
+wxToolBar	工具條
+wxStatusBar	狀態欄
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="base_window_class"></a>
+		<p><span class="flag">基礎窗口類</span>
+<pre>基礎窗口類 通常不被直接使用 然其為許多其他窗口的基類
+其定義了 許多 窗口的 基本特性
+
+<a href="#wxWindow">wxWindow</a>
+<a href="#wxControl">wxControl</a>
+<a href="#wxControlWithItems">wxControlWithItems</a>
+
+</pre>
+		</p>
+
+		<div class="note"><a name="wxWindow"></a>
+		<p><span class="flag">wxWindow</span>
+<pre>wxWindow 是所有窗口的基類
+</pre>
+		</p>
+		<p><span class="flag">窗口風格</span>
+<pre>wxBORDER_DEFAULT:
+	The window class will decide the kind of border to show, if any.
+
+wxBORDER_SIMPLE:
+	在窗口周圍顯示一個瘦邊框
+	(同老版本中的 wxSIMPLE_BORDER)
+
+wxBORDER_SUNKEN:
+	顯示一個凹陷邊框
+	(... wxSUNKEN_BORDER)
+
+wxBORDER_RAISED:
+	顯示一個凸起邊框
+	(... wxRAISED_BORDER)
+	
+wxBORDER_STATIC:
+	顯示一個適合 靜態控件的 邊框
+	(... wxSTATIC_BORDER)
+	<span class="care">3.0.1 僅支持 wxMSW</span>
+
+wxBORDER_THEME:
+	顯示一個 合適的本地化邊框 給 控件
+
+wxBORDER_NONE:
+	無邊框(同老版本中的 wxNO_BORDER)
+
+wxBORDER_DOUBLE:
+	此風格已經過時 不應該再使用
+
+wxTRANSPARENT_WINDOW:
+	透明窗口(不接受paint事件)
+
+wxTAB_TRAVERSAL:
+	允許非Dialog窗口支持 tab 遍歷
+
+wxWANTS_CHARS:
+	運行窗口 接受 tab 回車 在內的 所有鍵盤事件
+
+wxNO_FULL_REPAINT_ON_RESIZE:
+	此風格已經過時 且其行為是默認的 故不應該再使用
+
+wxVSCROLL:
+	顯示垂直滾動條
+
+wxHSCROLL:
+	顯示水平滾動條
+
+wxALWAYS_SHOW_SB:
+	圖個窗口有滾動條 在不需要滾動條時 
+	禁用滾動條 而不是 隱藏
+	<span class="care">3.0.1 僅支持 wxMSW wxGTK wxUniversal</span>
+
+wxCLIP_CHILDREN:
+	用於消除擦除子窗口 引起的窗口閃爍
+	<span class="care">3.0.1 僅支持 wxMSW</span>
+
+wxFULL_REPAINT_ON_RESIZE:
+	在默認情況下 窗口改變大小 不會重繪 整個 客戶區
+	設置wxNO_FULL_REPAINT_ON_RESIZE將 重繪 整個 客戶區
+	<span class="care">3.0.1 僅支持 Window平台 GTK+2 其他平台始終 完全重繪</span>
+</pre>
+		</p>
+		<p><span class="flag">窗口擴展風格</span>
+<pre>wxWS_EX_VALIDATE_RECURSIVELY:
+	默認情況下
+	wxWindow::Validate()
+	wxWindow::TransferDataTo()
+	wxWindow::TransferDataFromWindow()
+	只能在窗口 直接子類中使用
+	此標準 使它們遞歸到可以在 各子窗口中使用
+
+wxWS_EX_BLOCK_EVENTS:
+	wxCommandEvents 在當前事件表中 無處理函數時 會在父窗口中匹配
+	此標準 阻止這種行為
+
+wxWS_EX_TRANSIENT:
+	不要將此窗口作為其他窗口的 父窗口
+	如果將其作為 frame dialog 的父窗口 
+	則 當父窗口在子窗口 之前釋放 可能導致 系統崩潰
+
+wxWS_EX_CONTEXTHELP:
+	Under Windows, puts a query button on the caption. When pressed, Windows will go into a context-sensitive help mode and wxWidgets will send a wxEVT_HELP event if the user clicked on an application window. This style cannot be used (because of the underlying native behaviour) together with wxMAXIMIZE_BOX or wxMINIMIZE_BOX, so these two styles are automatically turned off if this one is used.
+
+wxWS_EX_PROCESS_IDLE:
+	窗口應該處理所有 idle events 
+	包括 通過 wxIdleEvent::SetMode 設置了 wxIDLE_PROCESS_SPECIFIED 的events
+
+wxWS_EX_PROCESS_UI_UPDATES:
+	窗口應該處理 所有 UI update events
+	包括 通過 wxUpdateUIEvent::SetMode 設置了 wxUPDATE_UI_PROCESS_SPECIFIED 的events
+</pre>
+		</p>
+		<p><span class="flag">窗口事件</span>
+<pre>EVT_ACTIVATE(id, func):
+	Process a wxEVT_ACTIVATE event. See wxActivateEvent.
+
+EVT_CHILD_FOCUS(func):
+	Process a wxEVT_CHILD_FOCUS event. See wxChildFocusEvent.
+
+EVT_CONTEXT_MENU(func):
+	A right click (or other context menu command depending on platform) has been detected. See wxContextMenuEvent.
+
+EVT_HELP(id, func):
+	Process a wxEVT_HELP event. See wxHelpEvent.
+
+EVT_HELP_RANGE(id1, id2, func):
+	Process a wxEVT_HELP event for a range of ids. See wxHelpEvent.
+
+EVT_DROP_FILES(func):
+	Process a wxEVT_DROP_FILES event. See wxDropFilesEvent.
+
+EVT_ERASE_BACKGROUND(func):
+	Process a wxEVT_ERASE_BACKGROUND event. See wxEraseEvent.
+
+EVT_SET_FOCUS(func):
+	Process a wxEVT_SET_FOCUS event. See wxFocusEvent.
+
+EVT_KILL_FOCUS(func):
+	Process a wxEVT_KILL_FOCUS event. See wxFocusEvent.
+
+EVT_IDLE(func):
+	Process a wxEVT_IDLE event. See wxIdleEvent.
+
+EVT_JOY_*(func):
+	Processes joystick events. See wxJoystickEvent.
+
+EVT_KEY_DOWN(func):
+	Process a wxEVT_KEY_DOWN event (any key has been pressed). See wxKeyEvent.
+
+EVT_KEY_UP(func):
+	Process a wxEVT_KEY_UP event (any key has been released). See wxKeyEvent.
+
+EVT_CHAR(func):
+	Process a wxEVT_CHAR event. See wxKeyEvent.
+
+EVT_CHAR_HOOK(func):
+	Process a wxEVT_CHAR_HOOK event. See wxKeyEvent.
+
+EVT_MOUSE_CAPTURE_LOST(func):
+	Process a wxEVT_MOUSE_CAPTURE_LOST event. See wxMouseCaptureLostEvent.
+
+EVT_MOUSE_CAPTURE_CHANGED(func):
+	Process a wxEVT_MOUSE_CAPTURE_CHANGED event. See wxMouseCaptureChangedEvent.
+
+EVT_MOUSE_*(func):
+	See wxMouseEvent.
+
+EVT_PAINT(func):
+	Process a wxEVT_PAINT event. See wxPaintEvent.
+
+EVT_POWER_*(func):
+	The system power state changed. See wxPowerEvent.
+
+EVT_SCROLLWIN_*(func):
+	Process scroll events. See wxScrollWinEvent.
+
+EVT_SET_CURSOR(func):
+	Process a wxEVT_SET_CURSOR event. See wxSetCursorEvent.
+
+EVT_SIZE(func):
+	Process a wxEVT_SIZE event. See wxSizeEvent.
+
+EVT_SYS_COLOUR_CHANGED(func):
+	Process a wxEVT_SYS_COLOUR_CHANGED event. See wxSysColourChangedEvent.
+</pre>
+		</p>
+		<p><span class="flag">成員函數</span>
+<pre>//捕獲所有鼠標輸入
+void 	CaptureMouse ()
+
+//釋放對鼠標的捕獲
+void 	ReleaseMouse ()
+
+//返回正在使用 鼠標 捕獲 的設備
+static wxWindow * 	GetCapture ()
+
+//返回當前窗口是否正在使用 捕獲
+virtual bool 	HasCapture () const
+
+
+
+//使用 窗口 父窗口(如果沒有父窗口 則相對 屏幕) 居中
+void 	Center (int dir=wxBOTH)	
+void 	CenterOnParent (int dir=wxBOTH)
+
+//... 屏幕 ...
+void wxTopLevelWindow::CentreOnScreen	(	int 	dir = wxBOTH	)	
+
+	<span class="care">dir 取值
+	 wxHORIZONTAL	wxVERTICAL	wxBOTH</span>
+
+
+
+//使用 當前背景色 清除背景
+virtual void 	ClearBackground ()	 
+
+//客戶區坐標 轉 屏幕坐標
+void 	ClientToScreen (int *x, int *y) const
+wxPoint 	ClientToScreen (const wxPoint &pt) const
+
+//屏幕坐標 轉 客戶區坐標
+void 	ScreenToClient (int *x, int *y) const
+wxPoint 	ScreenToClient (const wxPoint &pt) const
+
+//參數一個 wxCloseEvent 事件
+bool 	Close (bool force=false)
+
+//對話框單位 像素 之間轉換
+wxPoint 	ConvertDialogToPixels (const wxPoint &pt) const
+wxSize 	ConvertDialogToPixels (const wxSize &sz) const
+wxPoint 	ConvertPixelsToDialog (const wxPoint &pt) const
+wxSize 	ConvertPixelsToDialog (const wxSize &sz) const
+
+//安全的銷毀窗口 (將會等待窗口 處理完 所有事件才銷毀)
+virtual bool 	Destroy ()
+
+//true 啟用窗口 false 禁用窗口
+virtual bool 	Enable (bool enable=true)
+
+//同 Enable(false)
+bool 	Disable ()
+
+
+
+//放回當前 焦點窗口
+static wxWindow * 	FindFocus ()
+
+//在 當前窗口關係網中 通過 名字 或id 窗口窗口
+wxWindow * 	FindWindow (long id) const
+wxWindow * 	FindWindow (const wxString &name) const
+	<span>//wxDynamicCast 轉換窗口類型 失敗返回 NULL
+	MyWindow* window = wxDynamicCast(FindWindow(ID_MYWINDOW),MyWindow);</span>
+
+
+
+
+//自動改變窗口大小 使其剛好 容納所有子窗口(被用於基與sizer的佈局時)
+virtual void 	Fit ()
+
+//同 Fit 不過其使用虛擬大小(應用在包括滾動條的窗口)
+virtual void 	FitInside ()
+
+
+
+<span class="care">在此兩個函數之間進行 刷新界面的優化 以避免閃爍</span>
+//凍結窗口 使其不被重繪
+void 	Freeze ()
+
+//重新啟用窗口更新
+void 	Thaw ()
+
+
+
+//設置/獲取 窗口加速鍵
+virtual void 	SetAcceleratorTable (const wxAcceleratorTable &accel)
+wxAcceleratorTable * 	GetAcceleratorTable ()
+
+
+
+//設置/獲取 窗口背景色
+wxColour 	GetBackgroundColour () const
+virtual bool 	SetBackgroundColour (const wxColour &colour)
+
+//設置窗口背景色 不過不改變其子窗口 背景色
+void 	SetOwnBackgroundColour (const wxColour &colour)
+
+//刷新窗口
+void 	RefreshRect (const wxRect &rect, bool eraseBackground=true)
+virtual void 	Refresh (bool eraseBackground=true, const wxRect *rect=NULL)
+
+//使用背景色 填充背景
+virtual void 	ClearBackground ()
+
+//設置/獲取背景類型
+virtual wxBackgroundStyle 	GetBackgroundStyle () const
+virtual bool 	SetBackgroundStyle (wxBackgroundStyle style)
+	設置wxBG_STYLE_CUSTOM自己繪製背景
+
+
+
+
+//返回窗口大小 單位 像素
+wxSize 	GetBestSize () const
+
+//設置/返回 窗口 客戶區
+void 	SetClientSize (int width, int height)
+void 	SetClientSize (const wxSize &size)
+void 	SetClientSize (const wxRect &rect)
+void 	GetClientSize (int *width, int *height) const
+wxSize 	GetClientSize () const
+
+//設置/返回 窗口插入符
+wxCaret * 	GetCaret () const
+void 	SetCaret (wxCaret *caret)
+
+//設置/返回 窗口鼠標指針
+virtual bool 	SetCursor (const wxCursor &cursor)
+const wxCursor & 	GetCursor () const
+
+
+
+//設置/返回 窗口關聯的 wxDropTarget對象
+//(wxDropTarget 用於控制 窗口拖放操作)
+virtual void 	SetDropTarget (wxDropTarget *target)
+virtual wxDropTarget * 	GetDropTarget () const
+
+
+
+
+//設置/返回 窗口關聯的 第一事件表
+void 	SetEventHandler (wxEvtHandler *handler)
+wxEvtHandler * 	GetEventHandler () const
+
+//壓入表
+void PushEventHandler( wxEvtHandler *handler );
+//彈出表
+void PopEventHandler( wxEvtHandler *handler );
+
+//返回下一個表
+wxEvtHandler* GetNextHandler()
+//返回上一個表
+wxEvtHandler* GetPreviousHandler()
+
+
+
+//設置/返回 窗口擴展 風格
+virtual void 	SetExtraStyle (long exStyle)
+long 	GetExtraStyle () const
+
+//設置/返回 窗口關聯字體
+virtual bool 	SetFont (const wxFont &font)
+wxFont 	GetFont () const
+
+//同 SetFont 不過 其子窗口 不會被設置
+void 	SetOwnFont (const wxFont &font)
+
+//設置/返回 窗口前景色
+virtual bool 	SetForegroundColour (const wxColour &colour)
+wxColour 	GetForegroundColour () const
+
+//...
+void 	SetOwnForegroundColour (const wxColour &colour)
+
+
+//返回/設置 關聯的上下文 幫助
+void 	SetHelpText (const wxString &helpText)
+wxString 	GetHelpText () const
+
+//返回深圳 窗口 標識符
+wxWindowID 	GetId () const
+void 	SetId (wxWindowID winid)
+
+//返回窗口關聯的 label
+virtual wxString 	GetLabel () const
+
+//返回/設置 窗口名(可不唯一) 僅在 Motif 系統用於出口資源名
+virtual void 	SetName (const wxString &name)
+virtual wxString 	GetName () const
+
+//返回父窗口
+wxWindow * 	GetParent () const
+
+//返回窗口 相對父窗口坐標
+void 	GetPosition (int *x, int *y) const
+
+//返回窗口 大小 坐標
+wxRect 	GetRect () const
+
+//設置/返回 窗口大小
+void 	SetSize (int x, int y, int width, int height, int sizeFlags=wxSIZE_AUTO)
+void 	SetSize (const wxRect &rect)
+void 	SetSize (const wxSize &size)
+void 	SetSize (int width, int height)
+void 	GetSize (int *width, int *height) const
+wxSize 	GetSize () const
+
+//設置/返回 窗口佈局對象
+void 	SetSizer (wxSizer *sizer, bool deleteOld=true)
+wxSizer * 	GetSizer () const
+
+//返回當前 字體下 字符串 尺寸
+void 	GetTextExtent (const wxString &string, int *w, int *h, int *descent=NULL, int *externalLeading=NULL, const wxFont *font=NULL) const
+wxSize 	GetTextExtent (const wxString &string) const
+
+//返回/設置 wxToolTip對象
+wxToolTip * 	GetToolTip () const
+void 	SetToolTip (wxToolTip *tip)
+
+<span class="care">//返回窗口 自上次 Paint事件以來需要 刷新的 區域
+const wxRegion & 	GetUpdateRegion () const</span>
+
+
+
+
+//
+virtual wxValidator * 	GetValidator ()
+virtual void 	SetValidator (const wxValidator &validator)
+
+
+
+//返回 窗口 虛擬大小
+wxSize 	GetVirtualSize () const
+void 	GetVirtualSize (int *width, int *height) const
+
+//設置/返回 窗口 風格
+long 	GetWindowStyle () const
+void 	SetWindowStyle (long style)
+
+//發送一個 wxEVT_INIT_DIALOG  event 開始 對話框 數據傳送
+virtual void 	InitDialog ()
+
+//返回窗口是否 可用
+bool 	IsEnabled () const
+
+//返回 區域/點 是否需要 重繪
+bool 	IsExposed (int x, int y) const
+bool 	IsExposed (wxPoint &pt) const
+bool 	IsExposed (int x, int y, int w, int h) const
+bool 	IsExposed (wxRect &rect) const
+
+//返回窗口 是否 可見
+virtual bool 	IsShown () const
+
+//返回 窗口是否是 頂層窗口
+virtual bool 	IsTopLevel () const
+
+//將窗口 移到 z 底部
+virtual void 	Lower ()
+
+//移動窗口
+void 	Move (int x, int y, int flags=wxSIZE_USE_EXISTING)
+void 	Move (const wxPoint &pt, int flags=wxSIZE_USE_EXISTING)
+
+//更改tab順序到指定窗口之 後/前
+void 	MoveAfterInTabOrder (wxWindow *win)
+void 	MoveBeforeInTabOrder (wxWindow *win)
+
+//刷新 窗口
+virtual void 	Refresh (bool eraseBackground=true, const wxRect *rect=NULL)
+void 	RefreshRect (const wxRect &rect, bool eraseBackground=true)
+
+//獲取焦點
+virtual void 	SetFocus ()
+
+//設置端口 內置滾動條 屬性
+virtual void 	SetScrollbar (int orientation, int position, int thumbSize, int range, bool refresh=true)
+
+//調整 窗口 最大最小尺寸
+virtual void 	SetSizeHints (const wxSize &minSize, const wxSize &maxSize=wxDefaultSize, const wxSize &incSize=wxDefaultSize)
+virtual void 	SetSizeHints (int minW, int minH, int maxW=-1, int maxH=-1, int incW=-1, int incH=-1)
+
+//顯示/隱藏 窗口
+virtual bool 	Show (bool show=true)
+
+//同 Show(false)
+bool 	Hide ()
+
+//獲取/設置 數據到窗口
+virtual bool 	TransferDataFromWindow ()
+virtual bool 	TransferDataToWindow ()
+
+//立刻 重繪 過去的 窗口區域
+virtual void 	Update ()
+
+//發送 wxUpdateUIEvents event 到窗口 以便 更新窗口元素
+virtual void 	UpdateWindowUI (long flags=wxUPDATE_UI_NONE)
+
+...
+</pre>
+		</p>
+		</div>
+
+		<div class="note"><a name="wxControl"></a>
+		<p><span class="flag">wxControl</span>
+<pre>wxControl 是一個 虛類 用來 作為 控件的 基類
+</pre>
+		</p>
+		</div>
+
+		<div class="note"><a name="wxControlWithItems"></a>
+		<p><span class="flag">wxControlWithItems</span>
+<pre>wxControlWithItems 是一個 虛類 用來 
+作為 含有子項控件的 基類
+
+wxControlWithItems 的數據是一個字符串 和 可選的綁定客戶數據
+
+客戶數據 可以說 void* 或者 wxClientData*
+wxClientData*數據 在控件 被釋放時 自動被 釋放
+</pre>
+		</p>
+		</div>
+	</div>
+
+	<div class="note"><a name="top_window_class"></a>
+		<p><span class="flag">頂層窗口類</span>
+<pre>頂層窗口類 是直接存在於桌面 之上的 窗口
+wxFrame
+wxDialog
+wxPopupWindow
+
+wxFrame wxDialog 都派生自 wxTopLevelWindow 
+只不過 wxFrame 通常是 非模式的 wxDialog兩種皆可
+wxPopupWindow 直接派生自wxWindow
+</pre>
+		</p>
+		
+		<a href="#wxFrame">wxFrame</a>
+
+		<div class="note"><a name="wxFrame"></a>
+		<p><span class="flag">wxFrame</span>
+<pre>在某些 平台上 不允許直接繪製 wxFrame
+故需要 增加一個 wxPanel作為容器 放置子窗口
+</pre>
+		</p>
+		<p><span class="flag">窗口風格</span>
+<pre>wxDEFAULT_FRAME_STYLE:
+	wxMINIMIZE_BOX | wxMAXIMIZE_BOX | wxRESIZE_BORDER | wxSYSTEM_MENU |
+	wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN
+
+wxICONIZE:
+	以最小化顯示窗口
+	<span class="care">Windows only</span>
+
+wxCAPTION:
+	在窗口上顯示標題
+
+wxMINIMIZE:
+	同 wxICONIZE
+
+wxMINIMIZE_BOX:
+	顯示最小化框
+
+wxMAXIMIZE:
+	以最大化顯示窗口
+	<span class="care">Windows and GTK+ only</span>
+
+wxMAXIMIZE_BOX:
+	顯示最大化框
+
+wxCLOSE_BOX:
+	顯示關閉框
+
+wxSTAY_ON_TOP:
+	始終置頂窗口 
+
+wxSYSTEM_MENU:
+	顯示系統菜單
+
+wxRESIZE_BORDER:
+	可改變大小
+
+wxFRAME_TOOL_WINDOW:
+	窗口標題 比正常小
+	且 在 Windows or GTK+ 下窗口不顯示在任務欄中
+
+wxFRAME_NO_TASKBAR:
+	同上wxFRAME_TOOL_WINDOW 不過 其最小化時 會在任務欄中 顯示
+
+wxFRAME_FLOAT_ON_PARENT:
+	始終顯示 在父窗口的 上層
+
+wxFRAME_SHAPED:
+	此窗口 可使用 SetShape讓窗口顯示 不規則外貌
+</pre>
+		</p>
+		<p><span class="flag">窗口擴展風格</span>
+<pre>wxFRAME_EX_CONTEXTHELP:
+	在window下 標題欄 會多一個 幫助 點擊 發送一個 wxEVT_HELP
+
+wxFRAME_EX_METAL:
+	Mac OS X 下窗口會使用 金屬外觀
+</pre>
+		</p>
+		<p><span class="flag">窗口事件</span>
+<pre>EVT_CLOSE(func):
+	Process a wxEVT_CLOSE_WINDOW event when the frame is being closed by the user or programmatically (see wxWindow::Close). The user may generate this event clicking the close button (typically the 'X' on the top-right of the title bar) if it's present (see the wxCLOSE_BOX style). See wxCloseEvent.
+
+EVT_ICONIZE(func):
+	Process a wxEVT_ICONIZE event. See wxIconizeEvent.
+
+EVT_MENU_OPEN(func):
+	A menu is about to be opened. See wxMenuEvent.
+
+EVT_MENU_CLOSE(func):
+	A menu has been just closed. See wxMenuEvent.
+
+EVT_MENU_HIGHLIGHT(id, func):
+	The menu item with the specified id has been highlighted: used to show help prompts in the status bar by wxFrame. See wxMenuEvent.
+
+EVT_MENU_HIGHLIGHT_ALL(func):
+	A menu item has been highlighted, i.e. the currently selected menu item has changed. See wxMenuEvent.
+</pre>
+		</p>
+		<p><span class="flag">成員函數</span>
+<pre>//在窗口底部創建一個 擁有多個域的狀態欄
+virtual wxStatusBar * 	CreateStatusBar (int number=1, long style=wxSTB_DEFAULT_STYLE, wxWindowID id=0, const wxString &name=wxStatusBarNameStr)
+
+//設置狀態欄 字符串
+virtual void 	SetStatusText (const wxString &text, int number=0)
+
+//設置狀態欄域寬度
+virtual void 	SetStatusWidths (int n, const int *widths_field)
+
+//創建一個工具欄
+virtual wxToolBar * 	CreateToolBar (long style=wxTB_DEFAULT_STYLE, wxWindowID id=wxID_ANY, const wxString &name=wxToolBarNameStr)
+
+//設置一個已經存在的工具欄
+virtual void 	SetToolBar (wxToolBar *toolBar)
+
+//設置/返回 菜單
+virtual void 	SetMenuBar (wxMenuBar *menuBar)
+virtual wxMenuBar * 	GetMenuBar () const
+
+
+//設置 顯示 特點區域
+bool wxNonOwnedWindow::SetShape	(	const wxRegion & 	region	)	
+...
+</pre>
+		</p>
+		</div>
+	</div>
+
+	<div class="note"><a name="container_window_class"></a>
+		<p><span class="flag">容器窗口類</span>
+<pre><a href="#wxPanel">wxPanel</a>
+<a href="#wxNotebook">wxNotebook</a>
+<a href="#wxScrolledWindow">wxScrolledWindow</a>
+<a href="#wxSplitterWindow">wxSplitterWindow</a>
+<a href="#wxSashWindow">wxSashWindow</a>
+</pre>
+		</p>
+			<div class="note"><a name="wxPanel"></a>
+			<p><span class="flag">wxPanel</span>
+<pre>wxPanel 是最基本的容器窗口 用於 擺放 
+對話框 或者 除了frame窗口外的 其他 控件窗口
+wxPanel 也作為 wxNotebook 的 頁面
+
+同 對話框 一樣 可以使用InitDialog 產生一個 wxInitDialogEvent 事件
+</pre>
+			</p>
+			</div>
+			<div class="note"><a name="wxNotebook"></a>
+			<p><span class="flag">wxNotebook</span>
+<pre>wxNotebook 是一個 tab 導航頁
+每個頁 都是一個 wxPanel 或其 子類
+
+wxNotebook 的tab按鈕 可以包含一個 圖片和 文本
+圖片由 wxImageList 提供
+
+wxListbook 和 wxNotebook 類似 只是 其使用一個 ListCtrl控件管理頁面
+控件 可以 在 多個方向
+
+wxChoicebook 則 使用一個 下拉列表 管理頁面
+</pre>
+			</p>
+			<p><span class="flag">example</span>
+<pre>#include &lt;wx/notebook.h&gt;
+	...
+	//佈局
+	wxBoxSizer* top_sizer   =   new wxBoxSizer(wxVERTICAL);
+		//tab page
+		wxNotebook* book    =   new wxNotebook(this,wxID_ANY,wxDefaultPosition,wxSize(300,200));
+
+		//panel
+		wxPanel* page0  =   new wxPanel(book,wxID_ANY);
+		wxPanel* page1  =   new wxPanel(book,wxID_ANY);
+		wxPanel* page2  =   new wxPanel(book,wxID_ANY);
+
+		book->AddPage(page0,_("0"),true);
+		book->AddPage(page1,_("1"));
+		book->AddPage(page2,_("2"));
+
+
+		top_sizer->Add(book,1,wxEXPAND|wxALL,5);
+
+	SetSizer(top_sizer);
+	top_sizer->SetSizeHints(this);
+	...
+</pre>
+			</p>
+			<p><span class="flag">注意</span>
+<pre>wxNotebook 會自動釋放 子頁面 故不需要 自己delete 子頁
+若要刪除 子頁 應該使用 DeletePage
+
+在創建時 指定 wxDefaultSize 且每個 wxPanel 都使用了 佈局
+則 每個頁面 都會自動 佈局
+</pre>
+			</p>
+			</div>
+			<div class="note"><a name="wxScrolledWindow"></a>
+			<p><span class="flag">wxScrolledWindow</span>
+<pre>wxScrolledWindow 為窗口 提供了 一個 有固定 滾動單位的 滾動條
+
+之需要為 wxScrolledWindow 提供 窗口 虛擬 大小 以及每次 滾動的 邏輯大小 
+其它則 由wxScrolledWindow 自動完成
+</pre>
+			</p>
+			</div>
+			<div class="note"><a name="wxSplitterWindow"></a>
+			<p><span class="flag">wxSplitterWindow</span>
+<pre>wxSplitterWindow 是一個 可以 水平/垂直 分割 兩個window的 分割條
+
+
+
+//初始化 分割窗口
+splite_ = new wxSplitterWindow(this,
+                               wxID_ANY,
+                               wxDefaultPosition,
+                               wxDefaultSize,
+                               wxSP_LIVE_UPDATE);
+wxPanel* left_panel = new darkLeftPanel(splite_);
+wxPanel* right_panel = new darkRightPanle(splite_);
+
+//設置 最小分割 值 以 禁止 隱藏 窗口
+splite_->SetMinimumPaneSize(20);
+
+//分割
+splite_->SplitVertically(left_panel,right_panel);
+</pre>
+			</p>
+			</div>
+			<div class="note"><a name="wxSashWindow"></a>
+			<p><span class="flag">wxSashWindow</span>
+<pre>
+</pre>
+			</p>
+			</div>
+	</div>
+
+	<div class="note"><a name="unstatic_ui_class"></a>
+		<p><span class="flag">非靜態控件</span>
+<pre><a href="#wxButton">wxButton</a>
+<a href="#wxBitmapButton">wxBitmapButton</a>
+<a href="#wxChoice">wxChoice</a>
+<a href="#wxComboBox">wxComboBox</a>
+<a href="#wxCheckBox">wxCheckBox</a>
+<a href="#wxCalendarCtrl">wxCalendarCtrl</a>
+<a href="#wxListBox">wxListBox wxCheckListBox</a>
+<a href="#wxRadioBox">wxRadioBox</a>
+<a href="#wxRadioButton">wxRadioButton</a>
+<a href="#wxScrollBar">wxScrollBar</a>
+<a href="#wxSpinButton">wxSpinButton</a>
+<a href="#wxSpinCtrl">wxSpinCtrl</a>
+<a href="#wxSlider">wxSlider</a>
+<a href="#wxTextCtrl">wxTextCtrl</a>
+<a href="#wxToggleButton">wxToggleButton</a>
+</pre>
+		</p>
+	
+		<div class="note"><a name="wxButton"></a>
+		<p><span class="flag">wxButton</span>
+<pre>wxButton 是一個 帶標籤的按鈕
+</pre>
+		</p>
+		</div>
+		<div class="note"><a name="wxBitmapButton"></a>
+		<p><span class="flag">wxBitmapButton</span>
+<pre>wxBitmapButton 是一個以圖片為背景 的按鈕
+</pre>
+		</p>
+		</div>
+		<div class="note"><a name="wxChoice"></a>
+		<p><span class="flag">wxChoice</span>
+<pre>wxChoice 是一個只讀文本選擇域 當指導文本時 選項 或以下拉列表 顯示
+和 wxComboBox 類似
+</pre>
+		</p>
+		</div>
+		<div class="note"><a name="wxComboBox"></a>
+		<p><span class="flag">wxComboBox</span>
+<pre>wxComboBox 是一個 可編輯的 下拉選擇列表
+</pre>
+		</p>
+		</div>
+		<div class="note"><a name="wxCheckBox"></a>
+		<p><span class="flag">wxCheckBox</span>
+<pre>wxCheckBox 是一個 複選框
+</pre>
+		</p>
+		</div>
+		<div class="note"><a name="wxCalendarCtrl"></a>
+		<p><span class="flag">wxCalendarCtrl</span>
+<pre>wxCalendarCtrl 是一個 日期选择框
+</pre>
+		</p>
+		</div>
+		<div class="note"><a name="wxListBox"></a>
+		<p><span class="flag">wxListBox wxCheckListBox</span>
+<pre>wxListBox 是一個 字符串 列表選擇框
+wxCheckListBox 同wxListBox 只是字符串 前面 多了個複選框
+</pre>
+		</p>
+		</div>
+		<div class="note"><a name="wxRadioBox"></a>
+		<p><span class="flag">wxRadioBox</span>
+<pre>wxRadioBox 是一個 單選 按鈕組
+</pre>
+		</p>
+		</div>
+		<div class="note"><a name="wxRadioButton"></a>
+		<p><span class="flag">wxRadioButton</span>
+<pre>wxRadioButton 是一個 單選 按鈕
+</pre>
+		</p>
+		</div>
+		<div class="note"><a name="wxScrollBar"></a>
+		<p><span class="flag">wxScrollBar</span>
+<pre>wxScrollBar 是一個 滾動條
+</pre>
+		</p>
+		</div>
+		<div class="note"><a name="wxSpinButton"></a>
+		<p><span class="flag">wxSpinButton</span>
+<pre>wxSpinButton 是用於兩個按鈕 表示 上/下 或 左/右 的控件
+</pre>
+		</p>
+		</div>
+		<div class="note"><a name="wxSpinButton"></a>
+		<p><span class="flag">wxSpinCtrl</span>
+<pre>wxSpinCtrl 是wxSpinButton 和 wxTextCtrl 的組合
+當 點擊 是wxSpinButton時 自動改變 wxTextCtrl
+</pre>
+		</p>
+		</div>
+		<div class="note"><a name="wxSlider"></a>
+		<p><span class="flag">wxSlider</span>
+<pre>wxSlider 是 一個滑動條
+</pre>
+		</p>
+		</div>
+		<div class="note"><a name="wxTextCtrl"></a>
+		<p><span class="flag">wxTextCtrl</span>
+<pre>wxTextCtrl 是 一個 文本編輯框
+</pre>
+		</p>
+		</div>
+		<div class="note"><a name="wxToggleButton"></a>
+		<p><span class="flag">wxToggleButton</span>
+<pre>wxToggleButton 是 一個 外表像 按鈕 的wxCheckBox
+</pre>
+		</p>
+		</div>
+
+	</div>
+
+	<div class="note"><a name="static_ui_class"></a>
+		<p><span class="flag">靜態控件</span>
+<pre><a href="#wxGauge">wxGauge</a>
+<a href="#wxStaticText">wxStaticText</a>
+<a href="#wxStaticBitmap">wxStaticBitmap</a>
+<a href="#wxStaticLine">wxStaticLine</a>
+<a href="#wxStaticBox">wxStaticBox</a>
+</pre>
+		</p>
+
+		<div class="note"><a name="wxGauge"></a>
+		<p><span class="flag">wxGauge</span>
+<pre>wxGauge 是一個 進度條
+</pre>
+		</p>
+		</div>
+		<div class="note"><a name="wxStaticText"></a>
+		<p><span class="flag">wxStaticText</span>
+<pre>wxStaticText 是一個 靜態文本標籤
+</pre>
+		</p>
+		</div>
+		<div class="note"><a name="wxStaticBitmap"></a>
+		<p><span class="flag">wxStaticBitmap</span>
+<pre>wxStaticBitmap 是一個 圖片顯示控件
+</pre>
+		</p>
+		</div>
+		<div class="note"><a name="wxStaticBitmap"></a>
+		<p><span class="flag">wxStaticLine</span>
+<pre>wxStaticLine 是一個 水平或垂直的 分割線
+</pre>
+		</p>
+		</div>
+		<div class="note"><a name="wxStaticBox"></a>
+		<p><span class="flag">wxStaticBox</span>
+<pre>wxStaticBox 是一個 分組方框
+</pre>
+		</p>
+		</div>
+
+	</div>
+
+	<div class="note"><a name="wxMenu"></a>
+		<p><span class="flag">菜單</span>
+<pre>wxMenu 用於處理 菜單
+菜單項 可以是一個 文本 單選框 複選框 或者 另外一個 wxMenu 指針
+</pre>		
+		</p>
+
+		<p><span class="flag">成員函數</span>
+<pre>//插入菜單 使用 自定義字體 圖標
+wxMenuItem * 	Append (wxMenuItem *menuItem)
+wxMenuItem * 	Insert (size_t pos, wxMenuItem *menuItem)
+	<span class="care">wxBitmap bmpEnabled, bmpDisabled;
+	wxFont fontLarge;
+	wxMenuItem* pItem = new wxMenuItem(menu, wxID_OPEN, wxT(”&Open...”));
+	pItem−>SetBitmaps(bmpEnabled, bmpDisabled);
+	pItem−>SetFont(fontLarge);
+	menu−>Append(pItem);</span>
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>BEGIN_EVENT_TABLE(wxtFrame, wxFrame)
+	...
+	EVT_RIGHT_DOWN(wxtFrame::OnRButtonDown)
+	EVT_MENU(id_menu_check_all, wxtFrame::OnCheckAll)
+	EVT_MENU(id_menu_enabled, wxtFrame::OnEnabledMenu)
+END_EVENT_TABLE()
+
+void wxtFrame::OnRButtonDown(wxMouseEvent& event)
+{
+    //創建菜單
+   if(!menu)
+    {
+        //創建主菜單
+        menu = new wxMenu;
+
+        //增加菜單項
+        menu->Append(id_menu_enabled,_("&enabled"));
+        menu->Append(id_menu_check_all,_("&check ?"));
+
+        //增加分隔符
+        menu->AppendSeparator();
+
+        //增加子菜單
+        {
+            //複選菜單
+            wxMenu* checkitem = new wxMenu;
+            for(int i=0;i&lt;3;++i)
+            {
+                wxString str = wxString::Format(_("&Checkitem %d"),i);
+                checkitem->AppendCheckItem(id_menu_checkitem_base + i,str);
+            }
+            menu->Append(wxID_ANY,_("&Checkitem"),checkitem);
+
+            //單選菜單
+            wxMenu* radioitem = new wxMenu;
+            for(int i=0;i&lt;3;++i)
+            {
+                wxString str = wxString::Format(_("&Radioitem %d"),i);
+                radioitem->AppendRadioItem(wxID_ANY,str);
+            }
+            menu->Append(wxID_ANY,_("&Radioitem"),radioitem);
+        }
+
+    }
+    //顯示菜單
+    PopupMenu(menu,event.GetPosition());
+}
+void wxtFrame::OnCheckAll(wxCommandEvent& event)
+{
+    wxString str;
+    for(int i=0;i&lt;3;++i)
+    {
+        int id = id_menu_checkitem_base + i;
+        if(menu->IsChecked(id))
+        {
+            //GetLabel 包括了 & ...
+            //str += menu->GetLabel(id) + _(" is checked\n");
+            str += menu->GetLabelText(id) + _(" is checked\n");
+        }
+    }
+    wxMessageBox(str, _("OnCheckAll"));
+
+}
+void wxtFrame::OnEnabledMenu(wxCommandEvent& event)
+{
+    if(menu->IsEnabled(id_menu_check_all))
+    {
+        menu->Enable(id_menu_check_all,false);
+    }
+    else
+    {
+        menu->Enable(id_menu_check_all,true);
+    }
+}
+</pre>
+		</p>
+	</div>
+	
+	<div class="note"><a name="tools"></a>
+		<p><span class="flag">控制條</span>
+<pre><a href="#wxMenuBar">wxMenuBar</a>
+<a href="#wxToolBar">wxToolBar</a>
+<a href="#wxStatusBar">wxStatusBar</a>
+
+</pre>		
+		</p>
+		<div class="note"><a name="wxMenuBar"></a>
+		<p><span class="flag">wxMenuBar</span>
+<pre>wxMenuBar 是一個 主菜單
+
+wxMenuBar 使用和 wxMenu 類似
+菜單項 為 wxMenu
+
+使用 SetMenuBar 設置窗口 窗口主菜單
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>	wxMenuBar* bar = new wxMenuBar;
+		wxMenu* item = new wxMenu;
+		item->Append(wxID_OPEN,_("&Open"));
+		item->Append(wxID_EXIT,_("&Exit"));
+	bar->Append(item,_("title"));
+	SetMenuBar(bar);
+</pre>
+		</p>
+
+		</div>
+
+		<div class="note"><a name="wxToolBar"></a>
+		<p><span class="flag">wxToolBar</span>
+<pre>wxToolBar 是一個 工具條
+</pre>
+		</p>
+		</div>
+
+		<div class="note"><a name="wxStatusBar"></a>
+		<p><span class="flag">wxStatusBar</span>
+<pre>wxStatusBar 是一個 狀態欄
+</pre>
+		</p>
+		</div>
+	</div>
+</div>
+</body>
+</html>

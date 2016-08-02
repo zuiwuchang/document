@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>android</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#Intent">Intent</a>
+		<a href="#component">組件名</a>
+		<a href="#action">動作</a>
+		<a href="#data">數據</a>
+		<a href="#category">種類</a>
+		<a href="#extras">附加數據</a>
+		<a href="#flag">標記</a>
+		<a href="#cIntent">隱式Intent</a>
+	</div>
+
+	<div class="note"><a name="Intent"></a>
+		<p><span class="flag">Intent</span>
+<pre>android.content.Intent 是一個捆綁了信息的 對象 
+其描述了 要執行的 動作 執行此動作的組件 動作需要的數據
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="component"></a>
+		<p><span class="flag">組件名</span>
+<pre>組件名 指定要處理 此 Intent 對象的 組件
+
+//設置 當前組件對象的this指針 要打開的組件的class對象
+Intent(Context packageContext, Class&lt;?&gt; cls)
+setClass(Context packageContext, Class&lt;?&gt; cls)
+setClassName(Context packageContext, String className)
+
+setClassName(String packageName, String className)
+
+//設置/返回 組件名
+Intent setComponent (ComponentName component)
+ComponentName getComponent ()
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>Intent intent = new Intent(MainActivity.this,InfoActivity.class);
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="action"></a>
+		<p><span class="flag">動作</span>
+<pre>action 指定了組件 需要執行的 操作
+
+對於自定義action 應該 包含組件包前綴 如 "dark.cerberus.Fit"
+
+//設置/返回 action
+Intent setAction (String action)
+String getAction ()
+</pre>
+		</p>
+		
+		<p><span class="flag">預定義 action</span>
+<table><tr><th>action</th><th>xml值</th><th>node</th></tr>
+<tr><td><span class="care">標準 activity 動作</span></td><td></td><td></td></tr>
+<tr><td>ACTION_MAIN</td><td>android.intent.action.MAIN</td><td>作為初始的activity啟動 沒有數據輸入輸出</td></tr>
+<tr><td>ACTION_VIEW</td><td>...</td><td>將數據顯示給用戶</td></tr>
+<tr><td>ACTION_ATTACH_DATA</td><td>...</td><td>指示一些數據應該附屬與其他地方</td></tr>
+<tr><td>ACTION_EDIT</td><td>...</td><td>將數據顯示給用戶 用於編輯</td></tr>
+<tr><td>ACTION_PICK</td><td>...</td><td>從數據中選擇1項 並返回該項</td></tr>
+<tr><td>ACTION_CHOOSER</td><td>...</td><td>顯示activity選擇器 允許用戶在繼續前 安需選擇</td></tr>
+<tr><td>ACTION_GET_CONTENT</td><td>...</td><td>允許用戶選擇特定型別數據並返回數據</td></tr>
+<tr><td>ACTION_DIAL</td><td>...</td><td>使用提供的 數字撥打電話</td></tr>
+<tr><td>ACTION_CALL</td><td>...</td><td>使用提供的數據給某人 打電話</td></tr>
+<tr><td>ACTION_SEND</td><td>...</td><td>發送消息 接收者 未指定</td></tr>
+<tr><td>ACTION_SENDTO</td><td>...</td><td>發送消息 接收者 已指定</td></tr>
+<tr><td>ACTION_ANSWER</td><td>...</td><td>接聽電話</td></tr>
+<tr><td>ACTION_INSERT</td><td>...</td><td>在給定容器中 插入空白項</td></tr>
+<tr><td>ACTION_DELETE</td><td>...</td><td>從容器中刪除 給定數據</td></tr>
+<tr><td>ACTION_RUN</td><td>...</td><td>無條件 允許 數據</td></tr>
+<tr><td>ACTION_SYNC</td><td>...</td><td>執行數據同步</td></tr>
+<tr><td>ACTION_PICK_ACTIVITY</td><td>...</td><td>挑選給定的 activity 返回選擇的類</td></tr>
+<tr><td>ACTION_SEARCH</td><td>...</td><td>執行查詢</td></tr>
+<tr><td>ACTION_WEB_SEARCH</td><td>...</td><td>執行聯機查詢</td></tr>
+<tr><td>ACTION_FACTORY_TEST</td><td>...</td><td>工廠測試入口點</td></tr>
+<tr><td>...</td><td></td><td></td></tr>
+
+<tr><td><span class="care">標準 廣播 動作</span></td><td></td><td></td></tr>
+<tr><td>ACTION_TIME_TICK</td><td>...</td><td>每分鐘通知1次時間改變</td></tr>
+<tr><td>ACTION_TIME_CHANGED</td><td>...</td><td>通知時間被改變</td></tr>
+<tr><td>ACTION_TIMEZONE_CHANGED</td><td>...</td><td>通知時區被改變</td></tr>
+<tr><td>ACTION_BOOT_COMPLETED</td><td>...</td><td>在系統啟動完成後 發出1次通知</td></tr>
+<tr><td>ACTION_PACKAGE_ADDED</td><td>...</td><td>通知新應用程序包被安裝到設備</td></tr>
+<tr><td>ACTION_PACKAGE_CHANGED</td><td>...</td><td>通知安裝的應用程序包已被修改</td></tr>
+<tr><td>ACTION_PACKAGE_REMOVED</td><td>...</td><td>通知已從設備刪除 應用程序包</td></tr>
+<tr><td>ACTION_PACKAGE_RESTARTED</td><td>...</td><td>通知用戶已經重啟應用程序包</td></tr>
+<tr><td>ACTION_PACKAGE_DATA_CLEARED</td><td>...</td><td>通知用戶已清空應用程序包中的數據</td></tr>
+<tr><td>ACTION_UID_REMOVED</td><td>...</td><td>通知從系統中刪除用戶id</td></tr>
+<tr><td>ACTION_BATTERY_CHANGED</td><td>...</td><td>包含充電狀態 電池信息的廣播</td></tr>
+<tr><td>ACTION_POWER_CONNECTED</td><td>...</td><td>通知設備已連接外置電源</td></tr>
+<tr><td>ACTION_POWER_DISCONNECTED</td><td>...</td><td>通知設備已移除外置電源</td></tr>
+<tr><td>ACTION_SHUTDOWN</td><td>...</td><td>通知設備已關閉</td></tr>
+
+<tr><td>...</td><td></td><td></td></tr>
+</table>		
+
+		</p>
+		
+		<p><span class="flag">example</span>
+<pre>	Intent inten = new Intent();
+	inten.setAction(Intent.ACTION_TIME_TICK);
+</pre>
+		</p>
+	</div>
+	
+	<div class="note"><a name="data"></a>
+		<p><span class="flag">數據</span>
+<pre>數據 是作用於 Intent上的數據的 URI 和 MIME 型別
+
+//設置/獲取 數據/mime
+Intent setData (Uri data)
+Uri getData ()
+
+Intent setType (String type)
+String getType ()
+
+Intent setDataAndType (Uri data, String type)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="category"></a>
+		<p><span class="flag">種類</span>
+<pre>可以在Intent中 指定 組件的 附加信息
+
+//增加/移除/返回/驗證 種類
+Intent addCategory (String category)
+removeCategory (String category)
+Set&lt;String&gt; getCategories ()
+boolean hasCategory (String category)
+</pre>
+		</p>
+		<p><span class="flag">預定義種類</span>
+<table><tr><td>category</td><td>xml</td><td>note</td></tr>
+<tr><td>CATEGORY_DEFAULT</td><td>android.intent.category.DEFAULT</td><td>如果activity應該作為執行數據的默認動作的選項 設置之</td></tr>
+<tr><td>CATEGORY_BROWSABLE</td><td>...</td><td>如果activity可以安全的從瀏覽器中調用 設置之</td></tr>
+<tr><td>CATEGORY_TAB</td><td>...</td><td>如果需要作為TabActivity的選項卡 設置之</td></tr>
+<tr><td>CATEGORY_ALTERNATIVE</td><td>...</td><td>如果activity應該作為用戶正在查看數據的備用動作 設置之</td></tr>
+<tr><td>CATEGORY_SELECTED_ALTERNATIVE</td><td>...</td><td>如果activity應該作為用戶當前選擇數據的備用動作 設置之</td></tr>
+<tr><td>CATEGORY_LAUNCHER</td><td>...</td><td>如果應該在頂層啟動器中顯示 設置之</td></tr>
+<tr><td>CATEGORY_INFO</td><td>...</td><td>如果需要提供其所在包信息 設置之</td></tr>
+<tr><td>CATEGORY_HOME</td><td>...</td><td>如果是Home Activity 設置之</td></tr>
+<tr><td>CATEGORY_PREFERENCE</td><td>...</td><td>如果activity是1個偏好面板 設置之</td></tr>
+<tr><td>CATEGORY_TEST</td><td>...</td><td>如果用於測試 設置之</td></tr>
+<tr><td>CATEGORY_CAR_DOCK</td><td>...</td><td>如果設備插入到 car dock 時運行activity 設置之</td></tr>
+<tr><td>CATEGORY_DESK_DOCK</td><td>...</td><td>... desk ... 設置之</td></tr>
+<tr><td>CATEGORY_LE
+_DESK_DOCK</td><td>...</td><td>... 模擬dock(低端) ... 設置之</td></tr>
+<tr><td>CATEGORY_HE_DESK_DOCK</td><td>...</td><td>... 數字dock(高端) ... 設置之</td></tr>
+<tr><td>CATEGORY_CAR_MODE</td><td>...</td><td>如果activity可以用於汽車環境 設置之</td></tr>
+<tr><td>CATEGORY_APP_MARKET</td><td>...</td><td>如果activity允許用戶瀏覽和下載新應用 設置之</td></tr>
+
+<tr><td>...</td><td></td><td></td></tr>
+</table>
+		</p>
+	</div>
+
+
+	<div class="note"><a name="extras"></a>
+		<p><span class="flag">附加數據</span>
+<pre>Intent 提供了 多組重新的
+putXXX(k,v)
+getXXX(k)
+設置 獲取附加數據
+
+亦可將附加數據 寫入到一個 Bundle 使用
+putExtras
+getExtras
+讀寫附加數據
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="flag"></a>
+		<p><span class="flag">標記</span>
+<pre>標記 描述了如何 啟動 activity 以及啟動後 如何對待activity
+
+//設置/增加/獲取標記
+Intent setFlags (int flags)
+Intent addFlags (int flags)
+int getFlags ()
+</pre>
+		</p>
+		<p><span class="flag">預定義 標記</span>
+<table><tr><th>flag</th><th>note</th></tr>
+<tr><td>FLAG_GRANT_READ_URI_PERMISSION</td><td>有 讀 Intent數據的權限</td></tr>
+<tr><td>FLAG_ACTIVITY_CLEAR_TOP</td><td>有 寫 Intent數據的權限</td></tr>
+
+
+
+<tr><td>...</td><td></td></tr>
+</table>
+		</p>
+	</div>
+	<div class="note"><a name="cIntent"></a>
+		<p><span class="flag">隱式Intent</span>
+<pre>Intent 可不指定 組件 
+此時 android 會通過 Intent過濾器 比較 Intent的 動作 數據 種類 
+來調用 合適的(如果有多個匹配 將由用戶選擇) 組件
+
+在 AndroidManifest.xml 中 
+activity 標籤下 增加 intent-filter 標籤 
+為activity 設置 過濾器
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>...
+&lt;activity
+	...
+	&lt;intent-filter&gt;
+		&lt;action android:name = "com.example.project.TEST"/&gt;
+		&lt;category android:name = "android.intent.category.DEFAULT"/&gt;
+		&lt;data android:mimeType = "video/mpeg" android:scheme="http"/&gt;
+		...
+	&lt;/intent-filter&gt;
+&lt;/activity&gt;
+...
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

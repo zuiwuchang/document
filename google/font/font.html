@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>基本语法</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#font">noto (思源黑體)</a>
+		<a href="#install">install</a>
+	</div>
+
+	<div class="note"><a name="noto"></a>
+		<p><span class="flag">noto (思源黑體)</span>
+<pre>noto/Source Han Sans (思源黑體) 字體是 google 與 Adobe 
+推出的一個 支持
+中文 中文殘體 倭語 棒子語的
+開源(SIL Open Font License)字體
+
+
+
+官網 <a href="https://www.google.com/get/noto/" target="_blank">https://www.google.com/get/noto/</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="install"></a>
+		<p><span class="flag">install</span>
+<div class="view">
+<h1>How to install fonts</h1>
+<h2>Windows</h2>
+<ol>
+<li><a href="https://noto-website.storage.googleapis.com/pkgs/Noto-hinted.zip">Download</a> the font package (.zip)
+</li><li>Uncompress the package
+</li><li>Search for “fonts” in the Start Menu or go to Start → Control Panel → Appearance and Personalization → Fonts
+</li><li>Select all fonts and drag them into the Fonts folder</li></ol>
+<h2>OS X</h2>
+<ol>
+<li><a href="https://noto-website.storage.googleapis.com/pkgs/Noto-unhinted.zip">Download</a> the font package (.zip)
+</li><li>Double click on the package to uncompress it
+</li><li>Open Font Book (Go to Finder → Applications → Font Book)
+</li><li>Select all of the font files and drag them to the Font column (i.e., the second column) of Font Book</li></ol>
+<h2>Linux</h2>
+<ul>
+<li>Command-line:
+<pre class="blockcode"><code>cd ~/Downloads   # or wherever you downloaded a font pack.
+unzip .zip
+# for a single user
+mkdir -p ~/.fonts
+cp *otf *otc ~/.fonts
+fc-cache -f -v # optional
+# for all users
+sudo mkdir -p /usr/share/fonts/opentype/noto
+sudo cp *otf *otc /usr/share/fonts/opentype/noto
+sudo fc-cache -f -v # optional</code>
+</pre>
+</li><li>Gnome desktop for a single user
+<ol>
+<li><a href="https://noto-website.storage.googleapis.com/pkgs/Noto-hinted.zip">Download</a> and uncompress a font package
+</li><li>Make <code>.fonts</code> directory in your home directory if it's not present.
+</li><li>Make a folder named "<code>noto</code>" (optional)
+</li><li>Drag and drop fonts to either <code>.fonts</code> or <code>.fonts/noto</code></li></ol>
+</li><li>Gnome desktop for all users
+<ol>
+<li><a href="https://noto-website.storage.googleapis.com/pkgs/Noto-hinted.zip">Download</a> and uncompress a font package
+</li><li>Press Alt-F2 and type "<code>gksu nautilus /usr/share/fonts</code>"
+</li><li>Make a folder named "<code>opentype</code>" if not present and open it
+</li><li>Make a folder "<code>noto</code>" in "<code>opentype</code>" folder.
+</li><li>Drag and drop fonts obtained in step a to "<code>noto</code>" folder.</li></ol>
+</li><li>Using fonts
+<ol>
+<li>Some programs will recognize newly installed fonts as soon as font-cache is updated. It can take a while to update the fontcache in case of super-otc.
+</li><li>Other programs such as Chromre requires restart.
+</li><li>Chrome on Linux cannot recognize more than 2 weights. See <a href="http://crbug.com/368442">http://crbug.com/368442</a></li></ol></li></ul></div>
+		</p>
+	</div>
+</div>
+</body>
+</html>

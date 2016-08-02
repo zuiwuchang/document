@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>02WSAAsyncSelect(異步選擇)</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+
+    <p><h1><font color="#FF0000">WSAAsyncSelect(異步選擇)</font></h1></p>
+    
+    <h2>
+    <a href="#WSAAsyncSelect">WSAAsyncSelect</a><br />
+    
+    
+    </h2>
+    
+    <div class="div_box"><a name="WSAAsyncSelect"></a><p><h3>
+    	<p><h2><font color="#FF0000">WSAAsyncSelect</font></h2>
+        WSAAsyncSelect 模型 可以將socket 事件綁定到一個窗口<br />
+        對於所有調用 WSAAsyncSelect 的socket io模式將自動設置為異步 而當有socket事件發生 而需要調用函數時 窗口將收到自定義的消息
+        
+        </p>
+      	<p><h2><font color="#FF0000">相關API</font></h2>
+<pre>//綁定窗口與socket
+int WSAAsyncSelect(
+  __in  SOCKET s,		//要綁定的socket
+  __in  HWND hWnd,		//要綁定的窗口
+  __in  unsigned int wMsg,	//自定義消息
+  __in  long lEvent		//指示哪些事件完成時 窗口接到消息
+);
+lEvent 取值
+FD_ACCEPT
+FD_READ
+FD_CLOSE
+...
+<font color="#FF0000">對於server
+監聽socket一般只需要註冊FD_ACCEPT 與client通信的socket只需要FD_READ FD_CLOSE</font>
+
+對於 message 窗口消息函數
+wParam 為socket值
+lParam 高16位指示是否發生任何錯誤(沒有為0) 低16位指示發生的網絡事件 
+WSAGETSELECTERROR(lParam) 宏可用以判斷是否發生網絡錯誤
+<font color="#FF0000">example</font>
+if (WSAGETSELECTERROR(lParam)
+{
+return 0;
+}
+switch(lParam)
+	{
+		case FD_ACCEPT:
+        ...
+			break;
+		case FD_READ:
+		...
+            break;
+		case FD_CLOSE:		
+		...	
+            break;
+	}
+</pre>
+        </p>
+        
+        <p><h2><font color="#FF0000">注意</font></h2>
+        再次調用 WSAAsyncSelect 可以重設(lEvent)關係的網絡事件<br />
+        若lEvent=0則 取消所有事件的消息通知
+        </p>
+   	</h3></p></div>
+    
+    
+</td></tr></table>
+</body>
+</html>

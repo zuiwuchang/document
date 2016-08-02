@@ -1,0 +1,321 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>使用OpenGL</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="OpenGL"><tr><td>
+<p>
+	<font color="#FF0000">使用OpenGL</font>
+</p>
+
+<p>
+	<a href="#example">example</a><br />
+    <a href="#example1">example 動畫</a><br />
+    <a href="#care">care</a><br />
+    <a href="#fun">參考函數</a><br />
+</p>
+
+
+<div class="mydiv"><a name="example"></a>
+	<p><font color="#FF0000">example</font>
+<pre>//此示例顏色了 如何設置 視區 修剪區 以及繪製一個 矩形
+
+#include&lt;glut.h&gt;
+
+void init_opengl()
+{
+	glClearColor(0.0f,0.0f,0.0f,1.0f);
+}
+void render_scene()
+{
+	//清除緩衝區 圖像
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	//設置繪製 填充顏色
+	glColor3f(1.0f,0.0f,0.0f);
+
+	//繪製矩形
+	//glRectf(-0.5f, -0.5f, 0.5f, 0.5f);
+	glRectf(50,100,100,50);
+
+	
+	//將內存繪製 交換到 窗口(會自動調用 glFlush)
+	glutSwapBuffers();
+}
+
+//窗口大小改變 回調 一般再次 設置 視區 修剪區
+//繪製時 OpenGL 會把 修剪區 映射到 視區
+void change_size(GLsizei w,GLsizei h)
+{
+	if(h == 0)
+	{
+		h	=	1;
+	}
+
+	//設置視區 (既窗口用於繪製的 區域) (0,0) 左下角 
+	glViewport(0,0,w,h);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();	//每次glOrtho前 必須調用此函數 否則繪製效果可能出錯
+
+	if(w <= h)
+	{
+		//設置 修剪區 傳入 x y z 最大最小值
+		glOrtho(0.0f,250.0f,0.0f,250.0f*h/w,1.0,-1.0);
+	}
+	else
+	{
+		glOrtho(0.0f,250.0f*w/h,0.0f,250.0f,1.0,-1.0);
+	}
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+}
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//設置 窗口顯示 為雙緩衝
+	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
+	glutInitWindowSize(640, 480);
+	glutCreateWindow("hellow word");
+
+	glutDisplayFunc(render_scene);
+	//設置窗口大小改變 回調
+	glutReshapeFunc(change_size);
+
+	init_opengl();
+	
+    glutMainLoop();
+
+	return 0;
+}
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="example1"></a>
+	<p><font color="#FF0000">example 動畫</font>
+<pre>//一個動畫示例
+//顯示了 一個矩形 不斷移動的 動畫效果
+
+#define BOX_SIZE	30.0f
+#define MOVE_STEP	1.0f
+#define LOG_SIZE	100.0f
+GLfloat width;
+GLfloat height;
+GLfloat x	=	0;
+GLfloat y	=	BOX_SIZE;
+
+GLfloat	step_x	=	MOVE_STEP;
+GLfloat	step_y	=	MOVE_STEP;
+
+void init_opengl()
+{
+	glClearColor(0.0f,0.0f,0.0f,1.0f);
+
+	glColor3f(1.0f,0.0f,0.0f);
+
+}
+void render_scene()
+{
+	//清除緩衝區 圖像
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	//繪製矩形
+	
+	glRectf(x,y,x + BOX_SIZE , y - BOX_SIZE);
+	
+	//將內存繪製 交換到 窗口(會自動調用 glFlush)
+	glutSwapBuffers();
+}
+
+//窗口大小改變 回調 一般再次 設置 視區 修剪區
+//繪製時 OpenGL 會把 修剪區 映射到 視區
+void change_size(GLsizei w,GLsizei h)
+{
+	if(h == 0)
+	{
+		h	=	1;
+	}
+
+	//設置視區 (既窗口用於繪製的 區域) (0,0) 左下角 
+	glViewport(0,0,w,h);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();	//每次glOrtho前 必須調用此函數 否則繪製效果可能出錯
+
+	if(w <= h)
+	{
+		width	=	LOG_SIZE;
+		height	=	LOG_SIZE * h /w;
+	}
+	else
+	{
+		width	=	LOG_SIZE * w /h;
+		height	=	LOG_SIZE;
+	}
+	glOrtho(0.0f,width,0.0f,height,1.0,-1.0);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+}
+
+void timer_fun(int value)
+{
+	GLfloat tmp	=	x	+	step_x;
+	if(tmp < 0)
+	{
+		step_x	=	-step_x;
+		if(x == 0)
+		{
+			x	+=	step_x;
+		}
+		else
+		{
+			x	=	0;
+		}
+	}
+	else if(tmp + BOX_SIZE > width)
+	{
+		step_x	=	-step_x;
+		if(x + BOX_SIZE == width)
+		{
+			x	+=	step_x;
+		}
+		else
+		{
+			x	=	width - BOX_SIZE;
+		}
+	}	
+	else
+	{
+		x	=	tmp;
+	}
+	
+	tmp	=	y	+	step_y;
+	if(tmp < BOX_SIZE)
+	{
+		step_y	=	-step_y;
+		if(y == BOX_SIZE)
+		{
+			y	+=	step_y;
+		}
+		else
+		{
+			y	=	BOX_SIZE;
+		}
+	}
+	else if(tmp > height)
+	{
+		step_y	=	-step_y;
+		if(y == height)
+		{
+			y	+=	step_y;
+		}
+		else
+		{
+			y	=	height;
+		}
+	}	
+	else
+	{
+		y	=	tmp;
+	}
+
+	//重新繪製窗口
+	glutPostRedisplay();
+
+	glutTimerFunc(20,timer_fun,0);
+}
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//設置 窗口顯示 為雙緩衝
+	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
+	glutInitWindowSize(640, 480);
+	glutCreateWindow("hellow word");
+
+	glutDisplayFunc(render_scene);
+	//設置窗口大小改變 回調
+	glutReshapeFunc(change_size);
+	glutTimerFunc(20,timer_fun,0);
+
+	init_opengl();
+	
+    glutMainLoop();
+
+	return 0;
+}
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">注意</font>
+<pre>glutTimerFunc 支持的 定時器 只會執行一次
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="care"></a>
+	<p><font color="#FF0000">注意</font>
+<pre>OPenGL 繪圖傳入的時 邏輯坐標 既修剪區 坐標
+
+設置修剪區時  需要保證 橫縱比為1 否則 圖形可能會形變 特別是正方形
+
+OpenGL 以左下角為坐標原點
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="fun"></a>
+	<p><font color="#FF0000">參考函數</font>
+<pre>//設置 清除顏色 緩衝區時使用的 顏色
+void APIENTRY glClearColor (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
+
+//刷新 OpenGL 命令隊列 和 緩衝區
+void glFlush()
+
+//設置或 修改 修剪區
+void APIENTRY glOrtho (GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar);
+
+//設置窗口 繪製區域
+void APIENTRY glViewport (GLint x, GLint y, GLsizei width, GLsizei height);
+
+//繪製矩形
+glRectd
+glRectf
+glRecti
+glRects
+...
+
+//創建一個 OPenGL窗口
+int APIENTRY glutCreateWindow(const char *title);
+
+
+//設置窗口 回調函數
+//顯示
+void APIENTRY glutDisplayFunc(void (*func)(void));	
+//按下 鍵盤 ascii 按鍵 x,y 為鼠標位置 
+void APIENTRY glutKeyboardFunc(void (*func)(unsigned char key, int x, int y));
+//...非 ascii ...
+void APIENTRY glutSpecialFunc(void (*func)(int key, int x, int y));
+//鼠標事件 button值(GLUT_LEFT_BUTTON GLUT_MIDDLE_BUTTON GLUT_RIGHT_BUTTON) state值(GLUT_UP GLUT_DOWN)
+void APIENTRY glutMouseFunc(void (*func)(int button, int state, int x, int y));
+//窗口大小變化
+void APIENTRY glutReshapeFunc(void (*func)(int width, int height));
+
+//初始化 glut庫 以及設置 OpenGL窗口顯示模式
+void APIENTRY glutInitDisplayMode(unsigned int mode);
+<img src="image/using/mode.PNG" />
+
+//刷新窗口
+void glutPostRedisplay()
+
+...
+</pre>
+	</p>
+</div>
+    
+</td></tr></table>
+</body>
+</html>

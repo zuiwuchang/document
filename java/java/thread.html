@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>thread</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#thread">thread</a>
+		<a href="#control">線程控制</a>
+		<a href="#volatile">同步</a>
+		<a href="#ReentrantReadWriteLock">ReentrantReadWriteLock 讀寫鎖</a>
+	</div>
+
+	<div class="note"><a name="thread"></a>
+		<p><span class="flag">thread</span>
+<pre>java中要啟動一個線程 需要派生自 class child extends Thread 或實現 class no_child implements Runnable
+之後實現 public void run() 線程函數
+
+在實例化 線程對象 t = new child 或 t = new Thread(no_child)
+
+調用 t.start() 啟動線程
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>class ThreadTest implements Runnable
+{
+    @Override
+    public void run() {
+        System.out.println("new Thread input cmd");
+
+        String cmd = null;
+        Scanner scan = new Scanner(System.in);
+        while(true)
+        {
+            System.out.println("input cmd");
+            cmd =   scan.next();
+
+            if(cmd.equals("exit"))
+            {
+                break;
+            }
+        }
+    }
+
+
+}
+public class JavaApplication1 {
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        // TODO code application logic here
+       java.lang.Thread t = new java.lang.Thread(new ThreadTest());
+       t.start();
+        try {
+            t.join();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(JavaApplication1.class.getName()).log(Level.SEVERE, null, ex);
+        }
+       
+    }
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="control"></a>
+		<p><span class="flag">線程控制</span>
+<pre>Thread 提供了一些函數 用於控制線程
+</pre>
+		</p>
+		<p><span class="flag">成員函數</span>
+<pre>//中斷線程 (必須執行到特定中斷點才 會被中斷) (不會等待線程中斷)
+public void interrupt()	
+
+//返回線程是否被 interrupt
+public boolean isInterrupted()
+
+//等待線程中斷 可傳入超時時間
+public final void join()
+public final void join(long millis)
+public final void join(long millis,
+                       int nanos)
+
+//喚醒一個/全部 等待線程
+public final void notify()
+public final void notifyAll()
+
+//使線程放棄 執行時間片 進入 等待狀態 可傳入一個等待超時
+public final void wait()
+public final void wait(long timeout)
+public final void wait(long timeout,
+                       int nanos)
+
+//設置/獲取 線程執行 優先級 [0,10] 默認5
+public final void setPriority(int newPriority)
+public final int getPriority()
+
+//是當前進程 睡眠一段時間
+public static void sleep(long millis)
+public static void sleep(long millis,
+                         int nanos)
+
+//是當前進程 放棄本次 執行時間片
+public static void yield()
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="volatile"></a>
+		<p><span class="flag">同步</span>
+<pre>快速緩存 用於提高數據訪問 效率 然 某時 緩存值可能和 主存儲器值 不一致
+使用 volatile 關鍵字 可使跳過對緩存的訪問 而直接訪問 主存儲器
+(volatile int x= 0;	//volatile只能用於 基本型別)
+
+java使用 synchronized 傳入一個同步對象 Object 
+定義一個臨界區 臨界區中的 代碼 將自動 lock unlock
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>class ThreadTest implements Runnable
+{
+    private static final Object mutex = new Object();
+    private int value;
+    public ThreadTest(int value){
+        this.value  =   value;
+    }
+            
+    @Override
+    public void run() {
+
+        while(true)
+        {
+            synchronized(mutex)
+            {
+                for(int i=0;i&lt;10;++i)
+                {
+                    System.out.println(value);
+                }
+            }
+            Thread.yield();
+        }
+    }
+
+
+}
+public class JavaApplication1 {
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        // TODO code application logic here
+       Thread t = new Thread(new ThreadTest(0));
+       Thread t1 = new Thread(new ThreadTest(1));
+       t.start();
+       t1.start();
+        try {
+            t.join();
+            t1.join();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(JavaApplication1.class.getName()).log(Level.SEVERE, null, ex);
+        }
+       
+    }
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="ReentrantReadWriteLock"></a>
+		<p><span class="flag">ReentrantReadWriteLock 讀寫鎖</span>
+<pre>ReentrantReadWriteLock 是java提供的讀寫鎖
+
+其 readLock() 返回一個 ReadLock 實例 使用 實例的 lock unlock 進行 讀鎖定
+writeLock() ... 寫鎖定
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

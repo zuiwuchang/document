@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>MFCUI</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">MFCUI</font>
+</p>
+
+<p>
+	<a href="#MFCUI">MFCUI</a><br />
+	<a href="#ui_base">ui_base</a><br />
+   
+</p>
+
+<div class="mydiv"><a name="MFCUI"></a>
+	<p><font color="#FF0000">MFCUI</font>
+<pre>MFCUI 大多是餘自繪的一些 MFC UI
+為了不重複開發 餘將其整理到一起 作為 MFCUI庫
+
+MFCUI 使用GDI+進行繪製 若要使用 需要自己調用 初始化GDI+代碼
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">結構</font>
+<pre>class ui_base //ui_base.h
+ui_base 是所有 MFCUI中 自繪UI 的基類 
+其定義了基礎的 繪製功能
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">命名規則</font>
+<pre>所有自繪的UI 其類名都只是在原MFC 類名後加上了 Draw(从CStatic派生的类除外) 
+如 CButtonDraw 
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">使用方法</font>
+<pre>靜態創建
+1	創建控件
+2	關聯控件 MFCUI類
+3	像MFCUI的基類一樣使用 MFCUI類
+
+動態創建
+1	定義MFCUI類實例
+2	調用MFCUI類的 create方法
+3	像MFCUI的基類一樣使用 MFCUI類
+</pre>
+	</p>
+    
+</div>
+
+<div class="mydiv"><a name="ui_base"></a>
+	<p><font color="#FF0000">ui_base</font>
+<pre>//設置 獲取 指定繪製Bitmap
+inline void set_what(const int what,boost::shared_ptr&lt;Gdiplus::Bitmap&gt; bitmap_ptr)
+inline boost::shared_ptr&lt;Gdiplus::Bitmap&gt; get_what(const int what)const
+
+//what 取值
+#define MFCUI_BACKGROUND_INDEX	0
+#define	MFCUI_DEFAULT_INDEX		1
+#define MFCUI_DOWN_INDEX		2
+#define MFCUI_HOVER_INDEX		3
+#define MFCUI_FOCUS_INDEX		4
+#define MFCUI_DISABLED_INDEX	5
+
+//設置 獲取 UI風格
+inline void set_style(const UINT style)
+inline UINT get_style()const
+UINT modify_style(const UINT add,const UINT dec = 0);
+
+//設置 獲取 文本 字體 對齊 顏色
+inline boost::shared_ptr&lt;Gdiplus::Font&gt; get_font()const
+inline boost::shared_ptr&lt;Gdiplus::StringFormat&gt; get_string_format()const
+inline boost::shared_ptr&lt;Gdiplus::Brush&gt; get_text_brush()const
+inline boost::shared_ptr&lt;Gdiplus::Brush&gt; get_disabled_text_brush()
+inline void set_font(boost::shared_ptr&lt;Gdiplus::Font&gt; font_ptr)
+inline void set_string_format(boost::shared_ptr&lt;Gdiplus::StringFormat&gt; string_format_ptr)
+inline void set_text_brush(boost::shared_ptr&lt;Gdiplus::Brush&gt; text_brush_ptr)
+inline void set_disabled_text_brush(boost::shared_ptr&lt;Gdiplus::Brush&gt; text_disabled_brush_ptr) 
+</pre>
+</p>
+</div>
+
+</td></tr></table>
+</body>
+</html>

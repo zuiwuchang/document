@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>内存管理</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1><a href="#api">常用api</a></h1></p>
+    <p><h1><a href="#new">动态内存</a></h1></p>
+    <p><h1><a href="#read">内存是否可读写</a></h1></p>
+    <p><h1><a href="#care">注意</a></h1></p>
+    
+    <div class="div_box"><a name="api"></a><h2>
+    <p><font color="#FF0000">常用api</font><br />
+        <pre>//复制内存
+VOID 
+  RtlCopyMemory(
+    IN VOID UNALIGNED  *Destination,
+    IN CONST VOID UNALIGNED  *Source,
+    IN SIZE_T  Length
+    );
+//同上 可复制分块内存
+VOID 
+  RtlMoveMemory(
+    IN VOID UNALIGNED  *Destination,
+    IN CONST VOID UNALIGNED  *Source,
+    IN SIZE_T  Length
+    );
+//内存清0
+VOID 
+  RtlZeroMemory(
+    IN VOID UNALIGNED  *Destination,
+    IN SIZE_T  Length
+    );
+//填充内存
+VOID 
+  RtlFillMemory(
+    IN VOID UNALIGNED  *Destination,
+    IN SIZE_T  Length,
+    IN UCHAR  Fill
+    );
+//比较内存
+SIZE_T  //返回内存相等的数据的字节数 若返回值等于Length 自然相等
+  RtlCompareMemory(
+    IN CONST VOID  *Source1,
+    IN CONST VOID  *Source2,
+    IN SIZE_T  Length
+    );
+    </pre>
+    	     
+   	</p>
+   	</h2></div>
+    <div class="div_box"><a name="new"></a><h2>
+    <p><font color="#FF0000">动态内存</font><br />
+   
+    <pre>以	ExAllocatePool	申请
+以	ExFreePool	释放
+
+PVOID 
+  ExAllocatePool(
+    IN POOL_TYPE  PoolType,//内存类型 取值见下文
+    IN SIZE_T  NumberOfBytes //内存大小
+    );
+
+VOID 
+  ExFreePool(
+    IN PVOID  P
+    );
+</pre>    
+    </p>
+    <p><font color="#FF0000">PoolType 取值</font><br />
+    <pre>typedef enum _POOL_TYPE {
+  NonPagedPool,					<font color="#FF0000">非分页内存 一般为此值或PagedPool</font>
+  PagedPool,					<font color="#FF0000">分页内存</font>
+  NonPagedPoolMustSucceed,			指定分配 非分页内存，要求必须成功。
+  DontUseThisType,				未指定，留给系统使用
+  NonPagedPoolCacheAligned,			非分页内存，要求内存边界对齐。
+  PagedPoolCacheAligned,			分页内存，要求内存边界对齐。
+  NonPagedPoolCacheAlignedMustS			指定分配 非分页内存，要求内存边界对齐，要求必须成功。
+} POOL_TYPE;</pre>
+    </p>
+    </h2></div>
+   <div class="div_box"><a name="read"></a><h2>
+    	<p><font color="#FF0000">内存是否可读写</font><br />
+<pre>// 内存是否可读 不可抛出异常
+VOID 
+  ProbeForRead(
+    IN CONST VOID  *Address,	//起始地址
+    IN SIZE_T  Length,		//检查长度
+    IN ULONG  Alignment		//对齐
+    );
+    
+// 内存是否可写 不可抛出异常
+VOID 
+  ProbeForWrite(
+    IN CONST VOID  *Address,
+    IN SIZE_T  Length,
+    IN ULONG  Alignment
+    );
+</pre>
+    	</p>
+	</h2></div>
+   
+    <div class="div_box"><a name="care"></a><h2>
+    <p><font color="#FF0000">注意</font><br />
+    <pre>所有驱动共享高2G地址
+驱动入口函数运行在system进程中 其他irp运行在具体应用程序中
+驱动可以访问应用程序低2G地址的数据
+<font color="#FF0000">将用户层传入地址 映射到驱动层
+PVOID 
+  MmGetSystemAddressForMdlSafe(
+    __in PMDL  Mdl,
+    __in MM_PAGE_PRIORITY  Priority
+    );
+    
+    
+中断请求级在 DISPATCH_LEVEL以上 包括DISPATCH_LEVEL以上 程序只能使用非分页内存
+某个函数 加载到分页内存中 应该在代码第一句加上 PAGED_CODE();宏	
+此宏在发布版本才有效 它将检查函数是否运行低于 DISPATCH_LEVEL </font></pre>
+    </p>
+    </h2></div>
+</td></tr></table>
+</body>
+</html>

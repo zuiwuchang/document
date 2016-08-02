@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>SQLite</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#CAPI">CAPI</a>
+    <a href="#wxSQLite3">wxSQLite3 加密</a>
+		
+	</div>
+
+	<div class="note"><a name="CAPI"></a>
+		<p><span class="flag">CAPI</span>
+<pre>SQLite 提供了 一套 c api 以供c/c++程序員操作 SQLite
+
+<span class="care">一般操作步驟</span>
+1	調用 sqlite3_open 創建/打開 數據庫
+	defer 調用 sqlite3_close 關閉數據庫
+
+2	調用 sqlite3_exec 執行 sql 命令
+
+3	調用 sqlite3_exec(回調式查詢) 或 
+	sqlite3_get_table (defer sqlite3_free_table 釋放查詢結果)
+	執行查詢
+</pre>
+		</p>
+		<p><span class="flag">常用API</span>
+<pre>//sqlite3* 代表了一個 到數據庫的連接實例
+sqlite3*
+
+//連接到 數據庫
+int sqlite3_open(
+  const char *filename,   /* Database filename (UTF-8) */
+  sqlite3 **ppDb          /* OUT: SQLite db handle */
+);
+int sqlite3_open16(
+  const void *filename,   /* Database filename (UTF-16) */
+  sqlite3 **ppDb          /* OUT: SQLite db handle */
+);
+//類似 sqlite3_open 不過 後兩個參數 可以指定更多 非默認設置
+int sqlite3_open_v2(
+  const char *filename,   /* Database filename (UTF-8) */
+  sqlite3 **ppDb,         /* OUT: SQLite db handle */
+  int flags,              /* Flags */
+  const char *zVfs        /* Name of VFS module to use */
+);
+
+//關閉數據庫
+int sqlite3_close(sqlite3*);
+int sqlite3_close_v2(sqlite3*);
+
+
+
+//獲取 錯誤信息
+int sqlite3_errcode(sqlite3 *db);
+int sqlite3_extended_errcode(sqlite3 *db);
+const char *sqlite3_errmsg(sqlite3*);
+const void *sqlite3_errmsg16(sqlite3*);
+const char *sqlite3_errstr(int);
+
+
+
+//以回調方式 執行 sql命令 每條記錄都會被回調
+int sqlite3_exec(
+  sqlite3*,                                  /* An open database */
+  const char *sql,                           /* SQL to be evaluated */
+  int (*callback)(void*,int,char**,char**),  /* Callback function */
+  void *,                                    /* 1st argument to callback */
+  char **errmsg                              /* Error msg written here */
+);
+
+//以非回調方式 執行sql命令
+int sqlite3_get_table(
+  sqlite3 *db,          /* An open database */
+  const char *zSql,     /* SQL to be evaluated */
+  char ***pazResult,    /* Results of the query */
+  int *pnRow,           /* Number of result rows written here */
+  int *pnColumn,        /* Number of result columns written here */
+  char **pzErrmsg       /* Error msg written here */
+);
+	<span class="care">rows 沒包括 字段行 
+	而 返回值 第一行是 字段 故 實際上 返回數據 有 rows + 1 行</span>
+//釋放 查詢資源
+void sqlite3_free_table(char **result);
+
+
+
+//創建 預處理 sql ?
+int sqlite3_prepare(
+  sqlite3 *db,            /* Database handle */
+  const char *zSql,       /* SQL statement, UTF-8 encoded */
+  int nByte,              /* Maximum length of zSql in bytes. */
+  sqlite3_stmt **ppStmt,  /* OUT: Statement handle */
+  const char **pzTail     /* OUT: Pointer to unused portion of zSql */
+);
+int sqlite3_prepare_v2(
+  sqlite3 *db,            /* Database handle */
+  const char *zSql,       /* SQL statement, UTF-8 encoded */
+  int nByte,              /* Maximum length of zSql in bytes. */
+  sqlite3_stmt **ppStmt,  /* OUT: Statement handle */
+  const char **pzTail     /* OUT: Pointer to unused portion of zSql */
+);
+int sqlite3_prepare16(
+  sqlite3 *db,            /* Database handle */
+  const void *zSql,       /* SQL statement, UTF-16 encoded */
+  int nByte,              /* Maximum length of zSql in bytes. */
+  sqlite3_stmt **ppStmt,  /* OUT: Statement handle */
+  const void **pzTail     /* OUT: Pointer to unused portion of zSql */
+);
+int sqlite3_prepare16_v2(
+  sqlite3 *db,            /* Database handle */
+  const void *zSql,       /* SQL statement, UTF-16 encoded */
+  int nByte,              /* Maximum length of zSql in bytes. */
+  sqlite3_stmt **ppStmt,  /* OUT: Statement handle */
+  const void **pzTail     /* OUT: Pointer to unused portion of zSql */
+);
+
+//解析 ? 從 1開始計數
+sqlite3_bind_*
+int sqlite3_finalize(sqlite3_stmt *pStmt);
+
+//執行預處理命令
+int sqlite3_step(sqlite3_stmt*);
+	<span class="care">	SQLITE_BUSY 暫時無法執行
+	SQLITE_DONE 執行完畢
+	SQLITE_ROW 有數據返回
+	</span>
+
+//重置預處理 以便解析新的 參數
+int sqlite3_reset(sqlite3_stmt *pStmt);
+
+//釋放 預處理命令 資源
+int sqlite3_finalize(sqlite3_stmt *pStmt);
+
+//獲取預處理 查詢信息 iCol是字段列 從0開始計數
+const void *sqlite3_column_blob(sqlite3_stmt*, int iCol);
+int sqlite3_column_bytes(sqlite3_stmt*, int iCol);
+int sqlite3_column_bytes16(sqlite3_stmt*, int iCol);
+double sqlite3_column_double(sqlite3_stmt*, int iCol);
+int sqlite3_column_int(sqlite3_stmt*, int iCol);
+sqlite3_int64 sqlite3_column_int64(sqlite3_stmt*, int iCol);
+const unsigned char *sqlite3_column_text(sqlite3_stmt*, int iCol);
+const void *sqlite3_column_text16(sqlite3_stmt*, int iCol);
+int sqlite3_column_type(sqlite3_stmt*, int iCol);
+sqlite3_value *sqlite3_column_value(sqlite3_stmt*, int iCol);
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>#include &lt;iostream&gt;
+#include &lt;cstdio&gt;
+#include &lt;vector&gt;
+
+#include &lt;sqlite3.h&gt;
+bool exec_simple(sqlite3*	pDb);
+int callback(void* lParam
+             , int columns 			//數組長度
+             , char **values		//數據value	數組
+             , char **name			//字段名	數組
+            ) ;
+
+bool exec_stmt(sqlite3*	pDb);
+int main()
+{
+    //使用 utf8 操作示例
+
+    sqlite3*	pDb = NULL;
+    //打開數據庫
+    if (sqlite3_open("data.db", &pDb))
+    {
+        std::cout&lt;&lt;"打開失敗"&lt;&lt;sqlite3_errmsg(pDb)&lt;&lt;std::endl;
+        /*sqlite3_open 失敗 依然需要 sqlite3_close*/
+        sqlite3_close(pDb);
+        return 0;
+    }
+
+    exec_simple(pDb) &&
+    exec_stmt(pDb) ;
+
+    //關閉數據庫
+    sqlite3_close(pDb);
+    return 0;
+}
+
+bool exec_simple(sqlite3*	pDb)
+{
+    puts("/***********  exec_simple *************/");
+
+    char* errmsg = NULL;
+
+    puts("create");
+    std::string sql = "create table if not exists test(id integer primary key autoincrement,name varchar(20))";
+    if(SQLITE_OK	!=	sqlite3_exec(pDb, sql.c_str() , 0 , 0 , &errmsg))
+    {
+        std::cout&lt;&lt;errmsg&lt;&lt;std::endl;
+        return false;
+    }
+
+    puts("delete and insert");
+    sql = "delete from test";
+    if(SQLITE_OK	!=	sqlite3_exec(pDb, sql.c_str() , 0 , 0 , &errmsg))
+    {
+        std::cout&lt;&lt;errmsg&lt;&lt;std::endl;
+        return false;
+    }
+    sql = "insert into test (name) values ('illusive man'),('anita')";
+    if(SQLITE_OK	!=	sqlite3_exec(pDb, sql.c_str() , 0 , 0 , &errmsg))
+    {
+        std::cout&lt;&lt;errmsg&lt;&lt;std::endl;
+        return false;
+    }
+
+    puts("select call back");
+    sql = "select * from test";
+    if(SQLITE_OK	!=	sqlite3_exec(pDb, sql.c_str() , callback , 0 , &errmsg))
+    {
+        std::cout&lt;&lt;errmsg&lt;&lt;std::endl;
+        return false;
+    }
+
+
+    puts("select");
+    int rows, columns;
+    char **results;
+    if(SQLITE_OK	!=	sqlite3_get_table(pDb, sql.c_str() ,&results,&rows,&columns,&errmsg))
+    {
+        std::cout&lt;&lt;errmsg&lt;&lt;std::endl;
+        return false;
+    }
+
+    for (int i = 0; i &lt; rows + 1; i++)
+    {
+        for (int j = 0; j &lt; columns; j++)
+        {
+            std::cout&lt;&lt;results[i*columns+j]&lt;&lt;"\t";
+        }
+        std::cout&lt;&lt;"\n";
+    }
+    //釋放results
+    sqlite3_free_table(results);
+
+    return true;
+}
+int callback(void* lParam
+             , int columns 			//數組長度
+             , char **values		//數據value	數組
+             , char **name			//字段名	數組
+            )
+{
+
+    for(int i = 0 ; i &lt; columns ; i++)
+    {
+        std::cout &lt;&lt; name[i] &lt;&lt; " = " &lt;&lt; (values[i] ? values[i] : "NULL") &lt;&lt; ", " ;
+    }
+
+    std::cout&lt;&lt;"\n";
+    return 0;
+}
+bool exec_stmt(sqlite3*	pDb)
+{
+    puts("/***********  exec_stmt *************/");
+    sqlite3_stmt* pStmt;
+    std::string sql	=	"insert into test (name) values (?)";
+    puts("insert");
+    //解析一個 sq l到 sqlite3_stmt 的接口
+    if(SQLITE_OK	!=	sqlite3_prepare(pDb,sql.c_str(),
+                                        -1,     //sql語句長度 小於0 自動計算
+                                        &pStmt,
+                                        0))
+    {
+        std::cout&lt;&lt;sqlite3_errmsg(pDb)&lt;&lt;std::endl;
+        return false;
+    }
+    std::vector&lt;std::string&gt; names;
+    names.push_back("stmt illusive man");
+    names.push_back("stmt anita");
+    for(std::size_t i=0; i&lt;names.size(); ++i)
+    {
+        //解析參數
+        if(sqlite3_bind_text(pStmt
+                             ,1	//前面sql語句 ? 的索引
+                             ,names[i].c_str()
+                             ,names[i].size()
+                             ,0)//回調函數
+          )
+        {
+            sqlite3_finalize(pStmt);
+            std::cout&lt;&lt;sqlite3_errmsg(pDb)&lt;&lt;std::endl;
+            return false;
+        }
+
+        //執行預處理命令
+        if(SQLITE_DONE!=sqlite3_step(pStmt))
+        {
+            sqlite3_finalize(pStmt);
+            std::cout&lt;&lt;sqlite3_errmsg(pDb)&lt;&lt;std::endl;
+            return false;
+        }
+
+        //重置預處理
+        if (SQLITE_OK !=sqlite3_reset(pStmt))
+        {
+            sqlite3_finalize(pStmt);
+            std::cout&lt;&lt;sqlite3_errmsg(pDb)&lt;&lt;std::endl;
+            return false;
+        }
+    }
+    //釋放資源 預處理資源
+    sqlite3_finalize(pStmt);
+
+
+    puts("select");
+    sql = "select * from test";
+    if(SQLITE_OK !=	sqlite3_prepare(pDb,
+                                    sql.c_str(),
+                                    -1,
+                                    &pStmt,
+                                    0))
+    {
+        std::cout&lt;&lt;sqlite3_errmsg(pDb)&lt;&lt;std::endl;
+        return false;
+    }
+
+    //獲取字段名
+    int col_count = sqlite3_column_count(pStmt);    //字段數
+    for (int i = 0; i &lt; col_count; i++)
+    {
+        const  char* name = sqlite3_column_name(pStmt, i); //字段名
+        std::cout &lt;&lt; name &lt;&lt; " \t " ;
+    }
+     std::cout&lt;&lt;"\n";
+
+    //循環讀出所有記錄
+    while (SQLITE_ROW	==	sqlite3_step(pStmt))
+    {
+        int id = sqlite3_column_int(pStmt,0);
+        const  unsigned char* name = sqlite3_column_text(pStmt,1);
+
+        std::cout &lt;&lt; id &lt;&lt; " \t " &lt;&lt; name&lt;&lt; "\n" ;
+    }
+
+    //釋放資源 預處理資源
+    sqlite3_finalize(pStmt);
+    return true;
+}
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>若使用 sqlite3_get_table 查詢數據 
+再不使用數據時 需要手動調用 sqlite3_free_table 釋放 資源
+</pre>
+		</p>
+	</div>
+
+  <div class="note"><a name="wxSQLite3"></a>
+    <p><span class="flag">wxSQLite3 加密</span>
+<pre>SQLite 開源代碼中 之預留了 加密接口 而沒有實現
+故 若需要 加密 功能 需要 自己實現 相應接口
+
+wxSQLite3 是 wxWidgets 庫 的擴展組件 對wxWidgets的c++封裝 
+其實現了 SQLite 需要的 加密接口(256 bit AES)
+
+
+官網<a href="http://wxcode.sourceforge.net/components/wxsqlite3/" target="_blank">http://wxcode.sourceforge.net/components/wxsqlite3/</a>
+</pre>
+    </p>
+    <p><span class="flag">編譯</span>
+<pre>只需要 wxSQLite3 實現的 SQLite加密接口 
+故不需要 編譯 wxSQLite3
+
+只需要編譯 wxsqlite3-3.1.1\sqlite3\secure\src\ 中的代碼
+
+
+需要為 sqlite 定義 
+SQLITE_HAS_CODEC=1
+CODEC_TYPE=CODEC_TYPE_AES128
+SQLITE_CORE
+THREADSAFE
+SQLITE_SECURE_DELETE
+SQLITE_SOUNDEX
+SQLITE_ENABLE_COLUMN_METADATA
+以啟用 加密 
+</pre>
+    </p>
+
+    <p><span class="flag">example</span>
+<pre>int main()
+{
+  sqlite3*  pDb = NULL;
+    //打開數據庫
+    if (sqlite3_open("data.db", &pDb))
+    {
+       sqlite3_close(pDb);
+        return 0;
+    }
+
+    //設置密碼
+  sqlite3_key(pDb,"123",3);
+  //修改密碼
+  sqlite3_rekey(pDb,"456",3);
+
+  exec_simple(pDb);
+
+  sqlite3_close(pDb);
+
+  return 0;
+}</pre>
+    </p>
+    <p><span class="flag">vs編譯</span>
+<pre>1  新建 項目 將 wxsqlite3-3.1.1\sqlite3\secure\src\ 中文件複製到項目 
+並導入 sqlite3.def sqlite3secure.c 兩個文件
+
+2 設置 屬性 c/c++ 預處理命令 預處理器定義
+為其添加
+SQLITE_HAS_CODEC=1
+CODEC_TYPE=CODEC_TYPE_AES128
+SQLITE_CORE
+THREADSAFE
+SQLITE_SECURE_DELETE
+SQLITE_SOUNDEX
+SQLITE_ENABLE_COLUMN_METADATA
+
+3 編譯之
+</pre>
+    </p>
+  </div>
+</div>
+</body>
+</html>

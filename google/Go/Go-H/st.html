@@ -1,0 +1,322 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#value">值 指針 引用</a>
+		<a href="#array">數組</a>
+		<a href="#slice">切片</a>
+		<a href="#sort">排序查找</a>
+		<a href="#map">映射</a>
+	</div>
+
+	<div class="note"><a name="value"></a>
+		<p><span class="flag">值 指針 引用</span>
+<pre>對於 值和 引用 Go 基本同c/c++
+Go變量 通常是持有相應的值
+<span class="care">通道 函數 方法 映射 切片 是持有引用
+數組是持有值(Go一般不使用數組 使用切片)</span>
+</pre>
+		</p>
+		<p><span class="flag">指針</span>
+<pre>Go代碼 不需要去區分 內存是從 堆還是棧上申請
+只要 存在變量 持有 內存 此內存就不會被釋放
+<span class="care">故可以安全的 將一個本地變量的指針 作爲函數返回值</span>
+
+Go指針 不支持 運輸 且對於複合型別在解引用時 不需要顯示寫出 *
+對指針操作 Go將理解爲 對指針中的值操作
+
+Go使用 new創建一個 指針 或者 &amp; 
+使用&amp;的好處在於 可以使用{}進行初始化 而new不行
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+)
+
+type animal struct {
+	name string
+	age  int8
+}
+
+func main() {
+	cat := new(animal)
+	//無需要顯示解引用
+	cat.name = "tom"
+	cat.age = 1
+	fmt.Println(cat, *cat) //對於指針打印時會多個&amp;指明打印的是指針&amp;{tom 1} {tom 1}
+
+	//使用 &amp; 創建指針 並且使用 {} 初始化
+	//(好吧 其實只要獲取一個變量的指針 就創建了一個指針)
+	mouse := &animal{"jerry", 1}
+	fmt.Println(mouse) //&amp;{jerry 1}
+}
+
+</pre>
+		</p>
+
+	</div>
+	<div class="note"><a name="array"></a>
+		<p><span class="flag">數組</span>
+<pre>數組是一個定長序列 其中每個元素型別相同
+多維數組不過是其元素 爲另外一個數組罷
+
+使用如下語法創建數組
+[N]type
+[N]type{v1,v2...}
+[...]type{v1,v2,...}	//自動計算長度
+
+數組亦可被切片 不過其返回的將是切片 而非 數組
+數組可像切片一樣操作 不過 不可以 改變大小而
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	//未初始化的值將被自動 初始化
+	arrays := [5]int{1, 2, 3}
+	fmt.Println(arrays) [1 2 3 0 0]
+	//將數組切片
+	fmt.Println(arrays[3:])	//[0 0]
+}
+</pre>
+		</span>
+		<p><span class="flag">注意</span>
+<pre>Go數組 是值傳遞 而非引用
+Go中 應該儘量使用 切片 而非 數組
+</pre>
+		</span>
+	</div>
+	<div class="note"><a name="slice"></a>
+		<p><span class="flag">切片</span>
+<pre>切片  實際上不是是數組的一種 包裝手法 其 內部始終指向了一個數組
+(此數組的長度 既爲 切片容量)
+(不過Go程序員 無需關心這點 一切都由Go處理好了)
+
+使用如下語法 創建 切片
+make([]type,length,capacity)
+make([]type,length)
+[]type{}
+[]type{v1,v2,...}
+</pre>
+	</span>
+		</p>
+
+		<p><span class="flag">切片常用操作</span>
+			<table>
+			<tr><td>語法</td><td>含義</td></tr>
+			<tr><td>s[n]</td><td>同數組</td></tr>
+			<tr><td>s[n:m]</td><td>返回 [n,m) 切片</td></tr>
+			<tr><td>s[n:]</td><td>返回[n,+∞)切片</td></tr>
+			<tr><td>s[:m]</td><td>返回[0,m)切片</td></tr>
+			<tr><td>cap(s)</td><td>返回切片容量</td></tr>
+			<tr><td>len(s)</td><td>返回切片長度</td></tr>
+			</table>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	//創建切片
+	datas := make([]int, 0, 10)
+	fmt.Println(len(datas), cap(datas)) //0 10
+
+	//對切片 進行切片操作 不能超過 容量
+	tmp := datas[0:5]
+
+	//子切片 和 原切片 指向 同一個底層數組
+	for i := 0; i < 5; i++ {
+		tmp[i] = i
+	}
+	fmt.Println(datas) //[] len(datas)==0 故依然爲空
+	fmt.Println(tmp)   //[0 1 2 3 4]
+
+	//遍歷切片
+	for val := range tmp {
+		fmt.Print(val)
+	}
+}
+</pre>
+		</p>
+		
+		<p><span class="flag">修改切片</span>
+<pre>append 可以將多個值 或切片 追加到切片尾一增加其容量
+如果容量發生變化 返回新切片(原切片內容被清空)
+否則返回 原切片
+
+copy(dst,src) 將原切片(長度確定複雜長度)內容 複製到目標切片
+
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	old := make([]int, 3, 6)
+	fmt.Println(cap(old)) //6
+
+	//容量不變
+	new_s := append(old, 4, 5, 6)
+	fmt.Println(cap(new_s), new_s) //6 [0 0 0 4 5 6]
+
+	//增加切片 容量變化
+	new_s = append(new_s, new_s...)
+	fmt.Println(cap(new_s), new_s) //12
+
+	//copy
+	dst := make([]int, 6)
+	copy(dst, new_s[:6])
+	fmt.Println(dst)
+
+}
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="sort"></a>
+		<p><span class="flag">排序查找</span>
+<pre>sort 包 提供了對 切片 進行排序和查找的功能
+
+//將float切片 按升序排列
+func Float64s(a []float64)
+//如果 切片有序 返回 true
+func Float64sAreSorted(a []float64) bool
+//在有序切片中使用二分查找 x 返回其索引 不存在返回的(不存在返回len(a))
+func SearchFloat64s(a []float64, x float64) int
+
+//同上 不過是針對int罷
+func Ints(a []int)
+func IntsAreSorted(a []int) bool
+func SearchInts(a []int, x int) int
+
+//... string
+func Strings(a []string)
+func StringsAreSorted(a []string) bool
+func SearchStrings(a []string, x string) int
+
+//... 實現了Interface接口的 容器
+func Sort(data Interface)
+func IsSorted(data Interface) bool
+func Search(n int, f func(int) bool) int
+
+type Interface interface {
+    // Len is the number of elements in the collection.
+    Len() int
+    // Less reports whether the element with
+    // index i should sort before the element with index j.
+    Less(i, j int) bool
+    // Swap swaps the elements with indexes i and j.
+    Swap(i, j int)
+}
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+	"sort"
+)
+
+type animal struct {
+	name string
+	age  int32
+}
+type animals []animal
+
+//實現 sort.Interface 接口
+func (a animals) Len() int {
+	return len(a)
+}
+func (a animals) Less(i, j int) bool {
+	return a[i].age < a[j].age
+}
+func (a animals) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
+}
+func main() {
+	a := []animal{{"tom", 3}, {"jerry", 2}, {"butch", 1}}
+	fmt.Println(sort.IsSorted(animals(a))) //false Go之當升序是有序的
+
+	sort.Sort(animals(a))
+	fmt.Println(a) //1 2 3
+
+	//查找 傳入切片長度 和判別式(只能使用閉包函數)
+	find := sort.Search(len(a), func(i int) bool {
+		if a[i].name == "jerry" {
+			return true
+		}
+		return false
+	})
+	fmt.Println(find)
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="map"></a>
+		<p><span class="flag">映射</span>
+<pre>映射 是一個 散列表map
+Go 的映射 將自動 擴容 其key只要滿足 可比較 == != 即可
+
+使用如下 語法 創建 映射
+make(map[KeyType]ValueType,initalCapacity)
+make(map[KeyType]ValueType)
+map[KeyType]ValueType{}
+map[KeyType]ValueType{k1:v1,ke2:v2...}
+
+//操作 插入 key
+m[k]
+
+//從map中刪除 key
+delete(m,k)
+
+//如果存在key ok=true v=鍵值 否則 ok=false
+v,ok := m[k]
+
+//返回 key數量
+len(m)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	m := map[string]int{"tom": 3, "jerry": 2, "butch": 1}
+	fmt.Println(len(m)) //3
+
+	for name, age := range m {
+		fmt.Println(name, age)
+	}
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

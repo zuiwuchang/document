@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>android</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#ui">ui</a>
+		<a href="#TextView">TextView</a>
+		<a href="#EditText">EditText</a>
+		<a href="#Button">Button</a>
+		<a href="#ImageButton">ImageButton</a>
+		<a href="#ImageView">ImageView</a>
+		<a href="#RadioButton">RadioButton</a>
+		<a href="#CheckBox">CheckBox</a>
+		<a href="#AutoCompleteTextView">AutoCompleteTextView</a>
+		<a href="#ProgressBar">ProgressBar</a>
+		<a href="#SeekBar">SeekBar</a>
+		<a href="#RatingBar">RatingBar</a>
+		<a href="#ScrollView">ScrollView</a>
+		<a href="#Spinner">Spinner</a>
+		<a href="#ListView">ListView</a>
+		<a href="#ListActivity">ListActivity</a>
+	</div>
+
+	<div class="note"><a name="ui"></a>
+		<p><span class="flag">ui</span>
+<pre>android 提供了許多 預定義的 ui 位於 android.widget包中
+
+通常這些 ui 都 派生自 android.view.View
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="TextView"></a>
+		<p><span class="flag">TextView</span>
+<pre>TextView 是一個 文本顯示框 可顯示 單/多行 文本
+同時 支持 在文本 上/下/左/右 顯示一個 指定的 圖片
+</pre>
+		</p>
+		<p><span class="flag">常用方法 xml屬性</span>
+	<table>
+<tr><td>xml attr</td><td>function</td><td>note</td></tr>
+<tr><td>android:autoLink<br>
+<span class="care">none	0x00<br>
+web	0x01<br>
+email	0x02<br>
+phone	0x04<br>
+map	0x08<br>
+all	0x0f</span></td><td>setAutoLinkMask(int)</td><td>將文本轉化為 可單擊的 url 鏈接</td></tr>
+
+<tr><td>android:drawableBottom</td><td>setCompoundDrawablesWithIntrinsicBounds(int,int,int,int)</td><td>在文本下方繪製指定 圖像</td></tr>
+<tr><td>android:drawableTop</td><td>setCompoundDrawablesWithIntrinsicBounds(int,int,int,int)</td><td>在文本上方繪製指定 圖像</td></tr>
+<tr><td>android:drawableLeft</td><td>setCompoundDrawablesWithIntrinsicBounds(int,int,int,int)</td><td>在文本左方繪製指定 圖像</td></tr>
+<tr><td>android:drawableRight</td><td>setCompoundDrawablesWithIntrinsicBounds(int,int,int,int)</td><td>在文本右方繪製指定 圖像</td></tr>
+
+<tr><td>android:singleLine<br><span class="care">true<br>false</span></td><td>setTransformationMethod(TransformationMethod)</td><td>是否只顯示單行</td></tr>
+
+<tr><td>android:inputType<br></td><td>setRawInputType(int)</td><td>文本顯示 方式 如 textPassword... 多個值用 | 分隔</td></tr>
+
+<tr><td>android:hint<br></td><td>setHint(int)</td><td>文本為空時 顯示的 內容</td></tr>
+
+<tr><td>...</td><td></td><td></td></tr>
+</table>
+		</p>
+		<p><span class="flag">example</span>
+<pre><img src="images/ui/TextView.PNG">
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.dark.myfirstapp.MainActivity"
+    android:orientation="vertical"
+    &gt;
+    
+   	&lt;TextView android:text="zuiwuchang@gmail.com"
+   	    android:autoLink="email"
+   	    android:layout_width="wrap_content"
+   	    android:layout_height="wrap_content"/&gt;
+   	
+   	&lt;TextView android:text="Cerberus it's an idea"
+   	    android:layout_width="wrap_content"
+   	    android:layout_height="wrap_content"
+   	    android:drawableBottom="@drawable/cerberus"
+   	    /&lt;
+   	
+
+&lt;/LinearLayout&gt;
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="EditText"></a>
+		<p><span class="flag">EditText</span>
+<pre>EditText 是一個 可輸入 單/多行文本的 文本輸入框
+
+EditText 是 TextView 的子類
+</pre>
+		</p>
+		<p><span class="flag">常用方法 xml屬性</span>
+	<table>
+<tr><td>xml attr</td><td>function</td><td>note</td></tr>
+
+<tr><td>...</td><td></td><td></td></tr>
+</table>
+		</p>
+		<p><span class="flag">example</span>
+<pre><img src="images/ui/EditText.PNG">
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.dark.myfirstapp.MainActivity"
+    android:orientation="vertical"
+    &gt;
+    
+    &lt;EditText android:text="zuiwuchang@gmail.com"
+   	    android:inputType="textEmailAddress"
+   	    android:layout_width="wrap_content"
+   	    android:layout_height="wrap_content"/&gt;
+
+&lt;/LinearLayout&gt;
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Button"></a>
+		<p><span class="flag">Button</span>
+<pre>Button 是一個 按鈕
+</pre>
+		</p>
+		<p><span class="flag">常用方法 xml屬性</span>
+	<table>
+<tr><td>xml attr</td><td>function</td><td>note</td></tr>
+
+<tr><td>...</td><td></td><td></td></tr>
+</table>
+		</p>
+		<p><span class="flag">example</span>
+<pre><img style="width:100%;" src="images/ui/Button.PNG">
+<span class="care">xml</span>
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.dark.myfirstapp.MainActivity"
+    android:orientation="vertical"
+    &gt;
+    
+   
+    &lt;Button android:text="button 0"
+   	    android:id="@+id/button0"
+   	    android:layout_width="wrap_content"
+   	    android:layout_height="wrap_content"/&gt;
+   	&lt;Button android:text="button 1"
+   	    android:onClick="onButton1Click"
+   	    android:layout_width="wrap_content"
+   	    android:layout_height="wrap_content"/&gt;
+
+&lt;/LinearLayout&gt;
+
+
+<span class="care">java</span>
+...
+@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		
+		Button b = (Button)findViewById(R.id.button0);
+		b.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v){
+				Log.i("button", "click 0");
+			}
+		});
+		
+	}
+	public void onButton1Click(View v){
+		Log.i("button", "click 1");
+	}
+...
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="ImageButton"></a>
+		<p><span class="flag">ImageButton</span>
+<pre>ImageButton 是一個 可以使用指定圖片 顯示 3態的 按鈕
+</pre>
+		</p>
+		<p><span class="flag">常用方法 xml屬性</span>
+	<table>
+<tr><td>xml attr</td><td>function</td><td>note</td></tr>
+<tr><td>android:src</td><td>setImageResource(int)</td><td>設置3態顯示 圖片</td></tr>
+
+<tr><td>...</td><td></td><td></td></tr>
+</table>
+		</p>
+		<p><span class="flag">example</span>
+<pre><img src="images/ui/ImageButton.PNG">
+<span class="care">button.xml
+若要3態 顯示 不同的 圖片 要在 res/drawable 下創建 xml文件
+之後 在 ImageButton 的android:src 指定為此xml</span>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;selector xmlns:android="http://schemas.android.com/apk/res/android"&gt;
+     &lt;item android:state_pressed="true"
+           android:drawable="@drawable/c" /&gt; &lt;!-- pressed --&gt;
+     &lt;item android:state_focused="true"
+           android:drawable="@drawable/d" /&gt; &lt;!-- focused --&gt;
+     &lt;item android:drawable="@drawable/f" /&gt; &lt;!-- default --&gt;
+&lt;/selector&gt;
+
+
+<span class="care">xml</span>
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.dark.myfirstapp.MainActivity"
+    android:orientation="vertical"
+    &gt;
+    
+   
+    &lt;ImageButton android:text="button 0"
+   	    android:src="@drawable/d"
+   	    
+   	    android:layout_width="wrap_content"
+   	    android:layout_height="wrap_content"/&gt;
+   	
+   	&lt;ImageButton android:text="button 2"
+   	    android:src="@drawable/button"
+   	    
+   	    android:layout_width="wrap_content"
+   	    android:layout_height="wrap_content"/&gt;
+
+&lt;/LinearLayout&gt;
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="ImageView"></a>
+		<p><span class="flag">ImageView</span>
+<pre>ImageView 用來 顯示任意一個 Drawable 對象 通常是一副 圖片
+</pre>
+		</p>
+		<p><span class="flag">常用方法 xml屬性</span>
+	<table>
+<tr><td>xml attr</td><td>function</td><td>note</td></tr>
+<tr><td>android:src</td><td>setImageResource(int)</td><td>設置 要繪製的 對象</td></tr>
+
+<tr><td>android:adjustViewBounds</td><td>setAdjustViewBounds(boolean)</td><td>是否要調整 ImageView 的邊界以 保持要顯示對象的 長寬比</td></tr>
+<tr><td>android:maxHeight</td><td>setMaxHeight(int)</td><td>設置ImageView 最大高度(必須adjustViewBounds 為true 才生效)</td></tr>
+<tr><td>android:maxWidth</td><td>setMaxWidth(int)</td><td>設置ImageView 最大寬度(必須adjustViewBounds 為true 才生效)</td></tr>
+
+<tr><td>android:scaleType<br>
+<span class="care">matrix	0<br>
+fitXY	1(縮放圖片 使之完全適應 ImageView)<br>
+fitStart	2(保存 比例縮放圖片 使之完全顯示到 ImageView中 之後 放在ImageView左上角)<br>
+fitCenter	3(... 中間)<br>
+fitEnd	4(.. 右下角)<br>
+center	5(不縮放 將圖片放到 ImageView中間)<br>
+centerCrop	6(保存比例縮放 使圖片能完全覆蓋 ImageView)<br>
+centerInside	7(... 能夠完全顯示到 ImageView)</span></td><td>setScaleType(ImageView.ScaleType)</td><td>設置如何 縮放 對象</td></tr>
+
+<tr><td>...</td><td></td><td></td></tr>
+</table>
+		</p>
+		<p><span class="flag">example</span>
+<pre><img src="images/ui/ImageView.PNG">
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.dark.myfirstapp.MainActivity"
+    android:orientation="vertical"
+    &gt;
+    
+    &lt;ImageView android:src="@drawable/cerberus"
+   	    
+   	    android:layout_width="wrap_content"
+   	    android:layout_height="wrap_content"/&gt;
+
+&lt;/LinearLayout&gt;
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="RadioButton"></a>
+		<p><span class="flag">RadioButton</span>
+<pre>RadioButton 是單選按鈕 需要被放置在 RadioGroup 中
+</pre>
+		</p>
+		<p><span class="flag">常用方法 xml屬性</span>
+	<table>
+<tr><td>xml attr</td><td>function</td><td>note</td></tr>
+
+<tr><td>...</td><td></td><td></td></tr>
+</table>
+		</p>
+		<p><span class="flag">example</span>
+<pre><img src="images/ui/RadioButton.PNG">
+<span class="care">xml</span>
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.dark.myfirstapp.MainActivity"
+    android:orientation="vertical"
+    &gt;
+    
+    &lt;RadioGroup android:id="@+id/radio_group"
+   	    android:layout_width="wrap_content"
+   	    android:layout_height="wrap_content"&gt;
+   	    &lt;RadioButton android:text="cerberus"
+   	        android:id="@+id/radio_c"
+   	        android:checked="true"
+   	        android:layout_width="wrap_content"
+	   	    android:layout_height="wrap_content"/&gt;
+   	    &lt;RadioButton android:text="human is first"
+   	        android:id="@+id/radio_h"
+   	        android:layout_width="wrap_content"
+	   	    android:layout_height="wrap_content"/&gt;
+   	&lt;/RadioGroup&gt;
+    
+   	&lt;Button android:text="get radio"
+   	    android:id="@+id/button_get"
+   	    android:layout_width="wrap_content"
+	   	android:layout_height="wrap_content"/&gt;
+
+&lt;/LinearLayout&gt;
+
+
+
+<span class="care">java</span>
+...
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		
+		Button b = (Button)findViewById(R.id.button_get);
+		b.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v){
+				RadioGroup g = (RadioGroup)findViewById(R.id.radio_group);
+				int id = g.getCheckedRadioButtonId();
+				if(id == -1){
+					Log.i("get radio", "un check");
+				}else{
+					RadioButton r = (RadioButton)findViewById(id);
+					Log.i("get radio", r.getText().toString());
+				}
+				
+			}
+		});
+		
+	}
+...
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="CheckBox"></a>
+		<p><span class="flag">CheckBox</span>
+<pre>CheckBox 是複選按鈕
+</pre>
+		</p>
+		<p><span class="flag">常用方法 xml屬性</span>
+	<table>
+<tr><td>xml attr</td><td>function</td><td>note</td></tr>
+
+<tr><td>...</td><td></td><td></td></tr>
+</table>
+		</p>
+		<p><span class="flag">example</span>
+<pre><img src="images/ui/CheckBox.PNG">
+<span class="care">xml</span>
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:paddingBottom="@dimen/activity_vertical_margin"
+	android:paddingLeft="@dimen/activity_horizontal_margin"
+	android:paddingRight="@dimen/activity_horizontal_margin"
+	android:paddingTop="@dimen/activity_vertical_margin"
+	tools:context="com.dark.myfirstapp.MainActivity"
+	android:orientation="vertical"
+	&gt;
+
+	&lt;CheckBox android:text="cerberus"
+		android:id="@+id/check_c"
+		android:checked="true"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"/&gt;
+	&lt;CheckBox android:text="human is first"
+		android:id="@+id/check_h"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"/&gt;
+
+
+	&lt;Button android:text="get check"
+		android:id="@+id/button_get"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"/&gt;
+
+&lt;/LinearLayout&gt;
+
+
+
+<span class="care">java</span>
+...
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		
+		Button b = (Button)findViewById(R.id.button_get);
+		b.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v){
+				String str = "";
+				CheckBox c = (CheckBox)findViewById(R.id.check_c);
+				if(c.isChecked()){
+				  str += "(" + c.getText().toString() + ")";
+				}
+				c = (CheckBox)findViewById(R.id.check_h);
+				if(c.isChecked()){
+				  str += "(" + c.getText().toString() + ")";
+				}
+				Log.i("get radio", str);	
+				
+			}
+		});
+		
+	}
+...
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="AutoCompleteTextView"></a>
+		<p><span class="flag">AutoCompleteTextView</span>
+<pre>AutoCompleteTextView 是一個 自動完成 文本框
+派生自 EditText
+</pre>
+		</p>
+		<p><span class="flag">常用方法 xml屬性</span>
+	<table>
+<tr><td>xml attr</td><td>function</td><td>note</td></tr>
+<tr><td>android:completionThreshold</td><td>setThreshold(int)</td><td>至少輸入n個字符後 開始提示</td></tr>
+
+<tr><td>android:completionHint</td><td>setCompletionHint(CharSequence)</td><td>提示的下拉框 標題</td></tr>
+
+<tr><td>android:popupBackground</td><td>setThreshold(int)</td><td>提示的下拉框 背景</td></tr>
+
+<tr><td>...</td><td></td><td></td></tr>
+</table>
+		</p>
+		<p><span class="flag">example</span>
+<pre><img src="images/ui/AutoCompleteTextView.PNG">
+<span class="care">xml</span>
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:paddingBottom="@dimen/activity_vertical_margin"
+	android:paddingLeft="@dimen/activity_horizontal_margin"
+	android:paddingRight="@dimen/activity_horizontal_margin"
+	android:paddingTop="@dimen/activity_vertical_margin"
+	tools:context="com.dark.myfirstapp.MainActivity"
+	android:orientation="vertical"
+	&gt;
+
+	&lt;AutoCompleteTextView android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/auto0"
+        android:completionThreshold="2"
+        android:completionHint="what's cerberus?"
+        /&gt;
+
+&lt;/LinearLayout&gt;
+
+
+
+<span class="care">java</span>
+...
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		
+		//為自動完成 創建 關聯適配器(提示字符串)
+		ArrayAdapter&lt;String&gt; adapter = new ArrayAdapter&lt;String&gt;(this,
+				android.R.layout.simple_dropdown_item_1line,
+				new String[]{"cerberus it's an idea","human is first"});
+		
+		AutoCompleteTextView autoview = (AutoCompleteTextView)findViewById(R.id.auto0);
+		//關聯 view 適配器
+		autoview.setAdapter(adapter);
+		
+	}
+...
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="ProgressBar"></a>
+		<p><span class="flag">ProgressBar</span>
+<pre>ProgressBar 是一個 進度條
+</pre>
+		</p>
+		<p><span class="flag">常用方法 xml屬性</span>
+	<table>
+<tr><td>xml attr</td><td>function</td><td>note</td></tr>
+<tr><td>android:max</td><td></td><td>設置進度條 最大值</td></tr>
+<tr><td>android:progress</td><td></td><td>設置進度條 進度值</td></tr>
+<tr><td>style<br>
+<span class="care">?android:attr/progressBarStyleHorizontal (細長水平進度條)<br>
+?android:attr/progressBarStyleLarge (大圓形進度條)<br>
+?android:attr/progressBarStyleSmall (小圓形進度條)
+@android:style/Widget.ProgressBar.Large (大跳躍 旋轉畫面 進度條)<br>
+@android:style/Widget.ProgressBar.Small
+ (小跳躍 旋轉畫面 進度條)<br>
+@android:style/Widget.ProgressBar.Horizontal (粗水平 進度條)<br></span></td><td></td><td>設置進度條 風格</td></tr>
+
+<tr><td>...</td><td></td><td></td></tr>
+</table>
+
+<pre>//設置進度條 當前值
+void setProgress (int progress)
+
+//改變進度條 進度 正(+) 負(-)
+void incrementProgressBy (int diff)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><img src="images/ui/ProgressBar.PNG">
+&lt;LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.dark.myfirstapp.MainActivity"
+    android:orientation="vertical"
+    &gt;
+    
+   &lt;ProgressBar android:max="100"
+       android:progress="50" 
+       style="@android:style/Widget.ProgressBar.Horizontal"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"/&gt;
+   
+   &lt;ProgressBar android:max="100"
+       android:progress="50" 
+       style="?android:attr/progressBarStyleLarge"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"/&gt;
+ 
+
+&lt;/LinearLayout &gt;
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="SeekBar"></a>
+		<p><span class="flag">SeekBar</span>
+<pre>SeekBar 是一個 拖動條 
+是ProgressBar的子孫類
+</pre>
+		</p>
+		<p><span class="flag">常用方法 xml屬性</span>
+	<table>
+<tr><td>xml attr</td><td>function</td><td>note</td></tr>
+
+
+<tr><td>...</td><td></td><td></td></tr>
+</table>
+		</p>
+		<p><span class="flag">example</span>
+<pre><img src="images/ui/SeekBar.PNG">
+&lt;LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.dark.myfirstapp.MainActivity"
+    android:orientation="vertical"
+    &gt;
+    
+    &lt;SeekBar android:max="100"
+        android:progress="50" 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+	/&gt;
+
+&lt;/LinearLayout &gt;
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="RatingBar"></a>
+		<p><span class="flag">RatingBar</span>
+<pre>RatingBar 是一個 星級評分條
+是ProgressBar的子孫類
+</pre>
+		</p>
+		<p><span class="flag">常用方法 xml屬性</span>
+	<table>
+<tr><td>xml attr</td><td>function</td><td>note</td></tr>
+<tr><td>android:isIndicator</td><td>setIsIndicator(boolean)</td><td>是否可被用戶改變 默認 false(可改變)</td></tr>
+
+<tr><td>android:numStars</td><td></td><td>總共星數</td></tr>
+<tr><td>android:rating</td><td></td><td>默認星數</td></tr>
+<tr><td>android:stepSize</td><td></td><td>最小改變星數(默認0.5)</td></tr>
+
+<tr><td>...</td><td></td><td></td></tr>
+</table>
+<pre>//返回星數
+float getRating ()
+
+//返回 最小改變 星數
+float getStepSize ()
+
+//返回進度 getRating () * getStepSize ()
+int getProgress ()
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><img src="images/ui/RatingBar.PNG">
+&lt;LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:paddingBottom="@dimen/activity_vertical_margin"
+	android:paddingLeft="@dimen/activity_horizontal_margin"
+	android:paddingRight="@dimen/activity_horizontal_margin"
+	android:paddingTop="@dimen/activity_vertical_margin"
+	tools:context="com.dark.myfirstapp.MainActivity"
+	android:orientation="vertical"
+	&gt;
+
+	&lt;RatingBar android:numStars="5"
+		android:rating = "3.5"
+		android:stepSize="0.5"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"/&gt;
+
+&lt;/LinearLayout &gt;
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="ScrollView"></a>
+		<p><span class="flag">ScrollView</span>
+<pre>ScrollView 是一個滾動條
+當顯示 內容 超過 屏幕 android 不會為其 產生 滾動條 
+除非使用 了ScrollView
+
+只需要將 要滾動 的內容 包裹在 ScrollView 標籤內 即可
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><img src="images/ui/ScrollView.PNG">
+&lt;LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:paddingBottom="@dimen/activity_vertical_margin"
+	android:paddingLeft="@dimen/activity_horizontal_margin"
+	android:paddingRight="@dimen/activity_horizontal_margin"
+	android:paddingTop="@dimen/activity_vertical_margin"
+	tools:context="com.dark.myfirstapp.MainActivity"
+	android:orientation="vertical"
+	&gt;
+    
+   
+   &lt;ScrollView android:layout_width="match_parent"
+       android:layout_height="wrap_content"&gt;
+       
+       &lt;LinearLayout  android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			
+			android:orientation="vertical"
+			&gt;
+			&lt;Button android:text="button 0"
+		   	    android:layout_width="wrap_content"
+		   	    android:layout_height="wrap_content"/&gt;
+			&lt;Button android:text="button 1"
+		   	    android:layout_width="wrap_content"
+		   	    android:layout_height="wrap_content"/&gt;
+			
+			...
+
+			&lt;Button android:text="button 12"
+		   	    android:layout_width="wrap_content"
+		   	    android:layout_height="wrap_content"/&gt;
+	&lt;/LinearLayout &gt;
+	&lt;/ScrollView&gt;
+&lt;/LinearLayout &gt;
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>ScrollView 內的直接 子元素 只能有 一個 若需要多個
+需要在 ScrollView 內嵌入 佈局 管理器 在管理器中 佈局 其他元素
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Spinner"></a>
+		<p><span class="flag">Spinner</span>
+<pre>Spinner 是一個 列表選擇框 (類似 網頁的 下拉列表框)
+
+android:entrise 指定 選項數組
+如果 不設置此屬性 可以 通過 java 設置 適配器 設置選項
+
+android:prompt 設置 標題
+	<span class="care">Theme.Holo 主題 看不見 標題
+	Theme.Black 主題 方可看見</span>
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><img src="images/ui/Spinner.PNG">
+<span class="care">res/values/arrays.xml</span>
+&lt;resources&gt;
+	&lt;string-array name="wtype"&gt;
+	    &lt;item&gt;戰士&lt;/item&gt;
+	    &lt;item&gt;滲透者&lt;/item&gt;
+	    &lt;item&gt;先鋒&lt;/item&gt;
+	    &lt;item&gt;異能&lt;/item&gt;
+	    &lt;item&gt;工程師&lt;/item&gt;
+	&lt;/string-array&gt;
+&lt;/resources&gt;
+
+
+
+<span class="care">res/layout/activity_main.xml</span>
+&lt;LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:paddingBottom="@dimen/activity_vertical_margin"
+	android:paddingLeft="@dimen/activity_horizontal_margin"
+	android:paddingRight="@dimen/activity_horizontal_margin"
+	android:paddingTop="@dimen/activity_vertical_margin"
+	tools:context="com.dark.myfirstapp.MainActivity"
+	android:orientation="vertical"
+	&gt;
+    
+			&lt;Spinner android:entries="@array/wtype"
+		   	    android:layout_width="wrap_content"
+		   	    android:layout_height="wrap_content"/&gt;
+			
+			&lt;Spinner android:id="@+id/spinner_1"
+		   	    android:layout_width="wrap_content"
+		   	    android:layout_height="wrap_content"/&gt;
+&lt;/LinearLayout &gt;
+
+
+
+<span class="care">*.java</span>
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		
+		//使用 java 設置 選項
+		//通知 字符串 創建 適配器
+		String[] strs = new String[]{"cerberus","青天白日滿地紅","洪門"};
+		ArrayAdapter&lt;String&gt; adapter= new ArrayAdapter&lt;String&gt;(this,android.R.layout.simple_spinner_item,strs);
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		//通過 資源文件 創建 適配器
+		//ArrayAdapter&lt;CharSequence&gt; adapter = ArrayAdapter.createFromResource(this, R.array.wtype, android.R.layout.simple_spinner_dropdown_item);
+				
+		//設置 適配器
+		Spinner spinner = (Spinner)findViewById(R.id.spinner_1);
+		spinner.setAdapter(adapter);
+	}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="ListView"></a>
+		<p><span class="flag">ListView</span>
+<pre>ListView 是一個 列表視圖 用戶 基本 同 Spinner
+</pre>
+		</p>
+		<p><span class="flag">常用方法 xml屬性</span>
+	<table>
+<tr><td>xml attr</td><td>function</td><td>note</td></tr>
+<tr><td>android:divider</td><td></td><td>設置分割線顏色 亦可為 drawable 資源</td></tr>
+<tr><td>android:dividerHeight</td><td></td><td>設置分割線高度</td></tr>
+<tr><td>android:entries</td><td></td><td>數組資源 設置 列表項</td></tr>
+<tr><td>android:footerDividersEnabled</td><td></td><td>設置 是否在 footer view前 繪製分割線</td></tr>
+<tr><td>android:headerDividersEnabled</td><td></td><td>... header view 後 ...</td></tr>
+<tr><td>...</td><td></td><td></td></tr>
+</table>
+		</p>
+		<p><span class="flag">example entries</span>
+<pre><img src="images/ui/ListView.PNG">
+
+&lt;ListView android:entries="@array/wtype"
+		   	    android:layout_width="wrap_content"
+		   	    android:layout_height="wrap_content"/&gt;
+</pre>
+		</p>
+		<p><span class="flag">example no entries</span>
+<pre>public class MainActivity extends Activity {
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		
+		ArrayAdapter&lt;CharSequence&gt; adapter = ArrayAdapter.createFromResource(this, R.array.wtype, android.R.layout.simple_list_item_1);
+			<span class="care">/*simple_list_item_1	每個列表項 一個 文本
+			simple_list_item_2	同simple_list_item_1 不過 字體略大
+			simple_list_item_checked	... 已夠選定列表項
+			simple_list_item_multiple_choice	... 帶多選框 文本
+			simple_list_item_choice	... 帶單選框 文本
+			*/</span>
+		//設置 適配器
+		ListView listview = (ListView)findViewById(R.id.list_view);
+		listview.setAdapter(adapter);
+		
+		listview.setOnItemClickListener(new OnItemClickListener(){
+
+			@Override
+			public void onItemClick(AdapterView&lt;?&gt; parent, View view, int position, long id) {
+				//獲取 單擊項
+				String result = parent.getItemAtPosition(position).toString();
+				Toast.makeText(MainActivity.this,result, Toast.LENGTH_SHORT).show();
+			}
+			
+		});
+	}
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="ListActivity"></a>
+		<p><span class="flag">ListActivity</span>
+<pre>如果 只需要顯示 列表框 而無需 其他 可以 直接 從 ListActivity 派生
+之後 使用 setListAdapter 為其設置 適配器
+</pre>
+		</p>
+		<p><span class="flag">ListActivity</span>
+<pre>public class MainActivity extends ListActivity {
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		
+		ArrayAdapter&lt;CharSequence&gt; adapter = ArrayAdapter.createFromResource(this, R.array.wtype, android.R.layout.simple_list_item_1);
+		setListAdapter(adapter);
+			
+	}
+...</pre>
+		</p>
+	</div>
+
+	
+</div>
+</body>
+</html>

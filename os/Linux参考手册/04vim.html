@@ -1,0 +1,196 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>vim</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1>
+    	<p><font color="#FF0000">vim</font><br />
+        	vi是linux默认文本编辑器，vim是vi的增强版 vim的用法和vi一样 只是做了一些增强
+		</p>
+        <a href="#work">vi工作模式</a> <br />
+    	<a href="#normal">vi一般模式按键说明</a> <br />
+        <a href="#insert">vi进入编辑模式</a> <br />
+    	<a href="#com">vi命令</a> <br />
+        <a href="#vim">vim增强</a> <br />
+    </h1></p>
+    
+    <div class="div_box"><a name='work'><h3>
+    	<p><font color="#FF0000">vi工作模式</font><br />
+          vi有三种工作模式<br />
+          一般模式		用于光标的移动 数据的删除 粘贴<br />
+          编辑模式		输入文本内容<br />
+          命令行模式		读取 保存 查找 设置编辑环境
+          
+      	</p>
+        
+        
+   	</h3></a></div> 
+   
+   <div class="div_box"><a name='normal'><h3>
+    	<p><font color="#FF0000">vi一般模式按键说明</font><br />
+          <table border="2">
+          <tr><td>command</td><td>note</td><td>example</td></tr>
+          <tr><td></td><td><font color="#FF0000"><h1>移动光标</h1></font></td><td></td></tr>
+          <tr><td>h 或 左箭头</td><td>光标左移一个字符</td><td><font color="#FF0000">30h 左移30个字符</font></td></tr>
+          <tr><td>j 或 下箭头</td><td>光标下移一个字符</td><td></td></tr>
+          <tr><td>k 或 上箭头</td><td>光标上移一个字符</td><td></td></tr>
+          <tr><td>l 或 右箭头</td><td>光标右移一个字符</td><td></td></tr>
+          <tr><td>h 或 左箭头</td><td>光标左移一个字符</td><td></td></tr>
+          <tr><td>...</td><td></td><td></td></tr>
+          <tr><td><font color="#FF0000">[ctrl]+f 或[Page Down]</font></td><td><font color="#FF0000">下翻一页</font></td><td></td></tr>
+          <tr><td><font color="#FF0000">[ctrl]+b 或[Page Up]</font></td><td><font color="#FF0000">上翻一页</font></td><td></td></tr>
+          <tr><td>[ctrl]+d</td><td>下翻半页</td><td></td></tr>
+          <tr><td>[ctrl]+u</td><td>上翻半页</td><td></td></tr>
+          <tr><td>+</td><td>光标移到非空字符的下一行</td><td></td></tr>
+          <tr><td>-</td><td>光标移到非空字符的上一行</td><td></td></tr>
+          <tr>
+            <td>n&lt;space&gt;</td>
+            <td>上翻半页</td>光标右移动n个字符 通过nl<td></td></tr>
+          <tr><td><font color="#FF0000">0 或 [Home]</font></td><td><font color="#FF0000">光标移到本行最前</font></td><td></td></tr>
+          <tr><td><font color="#FF0000">$ 或 [End]</font></td><td><font color="#FF0000">光标移到本行最后</font></td><td></td></tr>
+          <tr><td>H</td><td>光标移到屏幕最上方第一个字符</td><td></td></tr>
+          <tr><td>M</td><td>光标移到屏幕中间那行第一个字符</td><td></td></tr>
+          <tr><td>L</td><td>光标移到屏幕最下方那行第一个字符</td><td></td></tr>
+          <tr><td><font color="#FF0000">G</font></td><td><font color="#FF0000">光标移到最后一行</font></td><td></td></tr>
+          <tr><td><font color="#FF0000">nG</font></td><td><font color="#FF0000">光标移到第n行</font></td><td></td></tr>
+          <tr><td><font color="#FF0000">gg</font></td><td><font color="#FF0000">同1G</font></td><td></td></tr>
+          <tr><td><font color="#FF0000">n[Enter]</font></td><td><font color="#FF0000">光标下移n行</font></td><td></td></tr>
+          <tr><td>...</td><td></td><td></td></tr>
+          <tr><td></td><td><font color="#FF0000"><h1>查找 替换</h1></font></td><td></td></tr>
+          <tr><td>/work</td><td>向下查找</td><td></td></tr>
+          <tr><td>?work</td><td>向上查找</td><td></td></tr>
+          <tr><td>n</td><td>重复上次查找</td><td></td></tr>
+          <tr><td>N</td><td>重复上次查找 但查找方向和上次相反</td><td></td></tr>
+          <tr><td><font color="#FF0000">:n1,n2s/word1/word2/g</font></td><td><font color="#FF0000">在[n1,n2]行间 用word2替换word1</font> </td><td><font color="#FF0000">：1,$s/abc/123/gc<br />把第一行到最后一行($)的abc替换为123<br />gc代表替换时询问是否替换</font></td></tr>
+          <tr><td></td><td><font color="#FF0000"><h1>删除 复制 粘贴</h1></font></td><td></td></tr>
+          <tr><td>x,X</td><td>x向后删除一个字符<br />X向前删除一个字符</td><td></td></tr>
+          <tr><td>nx,nX</td><td>删除n个字符</td><td></td></tr>
+          <tr><td><font color="#FF0000">dd</font></td><td><font color="#FF0000">删除整行</font></td><td></td></tr>
+          <tr><td><font color="#FF0000">dnG</font></td><td><font color="#FF0000">删除光标到第n行</font></td><td></td></tr>
+          <tr><td>d0</td><td>删除光标到本行第一个字符</td><td></td></tr>
+          <tr><td>d$</td><td>删除光标到本行结尾</td><td></td></tr>
+          <tr><td>...</td><td></td><td></td></tr>
+          <tr><td>yy</td><td>复制本行</td><td></td></tr>
+          <tr><td>nyy</td><td>参加dd</td><td></td></tr>
+          <tr><td>ynG</td><td>...</td><td></td></tr>
+          <tr><td>y0</td><td>...</td><td></td></tr>
+          <tr><td>y1</td><td>...</td><td></td></tr>
+          <tr><td>...</td><td></td><td></td></tr>
+          <tr><td>p,P</td><td>p复制到光标下一行<br />P复制到光标上一行</td><td></td></tr>
+          <tr><td>...</td><td></td><td></td></tr>
+          <tr><td></td><td><font color="#FF0000"><h1>other</h1></font></td><td></td></tr>
+       	  <tr><td><font color="#FF0000">. 或 [ctrl]+r</font></td><td><font color="#FF0000">重复上个操作</font></td><td></td></tr>
+          <tr><td><font color="#FF0000">u</font></td><td><font color="#FF0000">复原上个操作</font></td><td></td></tr>
+          <tr><td><font color="#FF0000">J</font></td><td><font color="#FF0000">将光标和其下一行合并为一行</font></td><td></td></tr>
+          <tr><td>c</td><td>暂时不解<br /> 10cj向下删除10行</td><td></td></tr>
+          
+          </table>
+          </p>
+        
+        
+   	</h3></a></div> 
+   	<div class="div_box"><a name='insert'><h3>
+    	<p><font color="#FF0000">vi进入编辑模式</font><br />
+    	<table border="2">
+        <tr><td>command</td><td>note</td></tr>
+        <tr><td>i,I</td><td>i从目前光标位置插入<br />I从目前光标所在行第一个非空字符出插入</td></tr>
+        <tr><td>a,A</td><td>a从目前光标位置下一个位置插入<br />A目前光标所在行最后一个字符出插入</td></tr>
+        <tr><td>o,O</td><td>o光标下一行插入<br />O光标上一行插入</td></tr>
+        <tr><td>r,R</td><td>进入替换模式<br />r仅替换一次<br />R一直替换</td></tr>
+        </table>
+        </p>
+    </h3></a></div>
+   	<div class="div_box"><a name='com'><h3>
+    	<p><font color="#FF0000">vi命令</font><br />
+    	<table border="2">
+        <tr><td>command</td><td>note</td></tr>
+        <tr><td>:w</td><td>保存</td></tr>
+        <tr><td>:w!</td><td>强制保存</td></tr>
+        <tr><td>:q</td><td>退出</td></tr>
+        <tr><td>:q!</td><td>...</td></tr>
+        <tr><td>:wq</td><td>保存并退出</td></tr>
+        <tr><td>ZZ</td><td>若文件未改动离开 若文件改动了保存后离开</td></tr>
+        <tr><td>:w [filename]</td><td>另存为</td></tr>
+        <tr><td>:r [filename]</td><td>将filename文件内容 插入到光标后面</td></tr>
+        <tr><td>:n1,n2 w [filename]</td><td>将[n1,n2]行数据 保存为filename</td></tr>
+        <tr><td>:! command</td><td>执行bash指令</td></tr>
+        <tr><td>:set nu</td><td>显示行号</td></tr>
+        <tr><td>:set nonu</td><td>隐藏行号</td></tr>
+        
+        </table>
+        </p>
+    </h3></a></div>
+
+	<div class="div_box"><a name='vim'><h3>
+    	<p><font color="#FF0000">vim增强</font><br />
+    	</p>
+        <p><font color="#FF0000">块选择</font><br />
+        <table border="2">
+        <tr><td>command</td><td>note</td></tr>
+        <tr><td>v</td><td>以反白选择光标经过多字符</td></tr>
+        <tr><td>V</td><td>以反白选择行</td></tr>
+        <tr><td>[ctrl]+v</td><td>以反白选择长方形的块</td></tr>
+        <tr><td>y</td><td>复制反白选区</td></tr>
+        <tr><td>d</td><td>删除反白选区</td></tr>
+        </table>
+    	</p>
+        
+        <p><font color="#FF0000">多文档编辑</font><br />
+        通过 vim file1 file2 编辑多文档
+       
+        </p>
+        <p>
+        <table border="2">
+        <tr><td>command</td><td>note</td></tr>
+        <tr><td>:n</td><td>编辑下一个文件</td></tr>
+        <tr><td>:N</td><td>编辑上一个文件</td></tr>
+        <tr><td>:files</td><td>列出当前vim打开的文件</td></tr>
+        </table>
+        </p>
+        
+        <p><font color="#FF0000"><h1>分割窗口</h1></font><br />
+        在一个窗口显示多个文档 也可用此方法编辑多个文档<br />
+        :sp //分割出一个窗口 显示当前文件<br />
+        :sp file 	//分割出一个窗口 显示 file<br />
+        [ctrl]+w+下箭头[或j]	//编辑下方窗口<br />
+        [ctrl]+w+上箭头[或k]	//编辑上方窗口
+        </p>
+        
+        <p><font color="#FF0000">环境设置</font><br />
+        vim中通过 :set ... 设置vim环境 <br />
+        在~/下建立.vimrc文件 可可设置vim环境<br />
+        <table border="2"><br />
+		<tr><td>set</td><td>note</td></tr>
+        <tr><td>:set nu<br />:set nonu</td><td>是否显示行号</td></tr>
+        <tr><td>:set hlsearch<br />:set nohlsearch</td><td>搜索内容是否高光</td></tr>
+        <tr><td>:set autoindent<br />:set noautoindent</td><td>是否自动缩排</td></tr>
+        <tr><td>:set backup</td><td>是否备份文件 默认noback<br />若备份 文件被改写时 会被备份为 file~</td></tr>
+        <tr><td>:set ruler</td><td>是否显示状态栏</td></tr>
+        <tr><td>:set showmode</td><td>是否显示--INSERT--等信息</td></tr>
+        <tr><td>:set backspace=(012)</td><td>一些版本linux不允许在编辑模式下用backspace删除<br /> 此设置为2 可以删除<br />0或1 仅可删除刚才输入的字符</td></tr>
+        <tr><td>:set all</td><td>显示全部可设置的参数</td></tr>
+        <tr><td>:set</td><td>显示与默认值不同的设置</td></tr>
+        <tr><td>:syntax on<br />:syntax off</td><td>是否根据文档类型以不同颜色显示其内容</td></tr>
+        <tr><td>:set bg=dark<br />:set bg=light</td><td>可以显示不同颜色的色调</td></tr>
+        </table>
+        
+        </p>
+        
+        <p><font color="#FF0000">other</font><br />
+        vim 会在编辑文件时为文件创建 .file.swp文件用于文档异常退出时 恢复<br />若要恢复 重新打开文件 在出现的选择选 (R)ecover<br />
+        vim或为使用它的用户创建 ~/.viminfo 其中记录了其所有的vim操作<br />
+        <br />
+        
+        dos2UNIX [-kn] file [newfile]	//将dos格式文件转化为unix文件<br />
+        UNIX2dos [-kn] file [newfile]	//...<br />
+        k 不改变原文及的mtine<br />
+        n 保留原文件 将转换后的文件保存到 newfile
+        </p>
+    </h3></a></div>
+</td></tr></table>
+</body>
+</html>

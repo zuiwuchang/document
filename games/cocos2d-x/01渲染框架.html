@@ -1,0 +1,577 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>cocos2d-x</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#draw">渲染框架</a>
+		<a href="#CCNode">CCNode</a>
+		<a href="#frame">框架結構</a>
+		<a href="#CCSprite">CCSprite</a>
+		<a href="#CCSpriteBatchNote">CCSpriteBatchNote</a>
+		
+		<br>
+		<a href="#CCLabelTTF">CCLabelTTF</a>
+		<a href="#CCLabelBMFont">CCLabelBMFont</a>
+
+		<br>
+		<a href="#button">菜單按鈕</a>
+	</div>
+
+	<div class="note"><a name="draw"></a>
+		<p><span class="flag">渲染框架</span>
+<pre>cocos2d 中 CCobject為所有class的 基類 代表了世界的根源
+
+CCNode 是大部分 渲染相關的 基類 (其主要派生類如下
+CCScene			場景
+CCLayer			層
+CCSprite		精靈
+CCSpriteBatchNode	精靈集合
+)
+
+CCNode 定義了常用屬性方法
+cocos2d 對於屬性 一般 使用 getXxx setXxx 風格操作
+</pre>
+		</p>
+
+		<p><span class="flag">CCNode 常用屬性</span>
+			<table>
+				<tr><td>屬性</td><td>描述</td><td>默認值</td></tr>
+				<tr><td>position</td><td>位置</td><td>0,0</td></tr>
+				<tr><td>scale(x,y)</td><td>縮放尺寸</td><td>1，1</td></tr>
+				<tr><td>rotation(degrees,clockwise)</td><td>旋轉角度</td><td>0</td></tr>
+				<tr><td>CCCamera</td><td>攝像機朝向</td><td></td></tr>
+				<tr><td>CCGridBase</td><td>網格模型</td><td></td></tr>
+				<tr><td>anchor point</td><td>錨點</td><td>0，0</td></tr>
+				<tr><td>size</td><td>尺寸</td><td>1，1</td></tr>
+				<tr><td>visible</td><td>是否可見</td><td>true</td></tr>
+				<tr><td>z-order</td><td>z坐標</td><td>0</td></tr>
+				<tr><td>openGL z position</td><td>openGL z坐標</td><td>0</td></tr>
+			</table>
+		</p>
+	</div>
+
+	<div class="note"><a name="CCNode"></a>
+		<p><span class="flag">CCNode</span>
+<pre>CCNode 主要用於 繪製 CCNode和其子類 一般有如下三個特性
+1	CCNode 可以包含其他 CCNode對象作為子節點 (addChild getChilgByTag removeChild ...)
+2	每個CCNode對象 以及其子節點 都可以使用 定時器 (schedule unschedule ...)
+3	CCNode 可以自行 動作 runAction stopAction
+
+
+通常 CCNode的子類需要重新 如下三個部分
+1	初始化方式
+2	編寫時間回調函數
+3	重載繪製函數
+</pre>
+		</p>
+
+		<div class="note">
+			<p><span class="flag">CCNode 子節點操作</span>
+<pre>//添加子節點 z坐標為0
+virtual void addChild(CCNode* child);
+//... 不過可以指定z坐標
+virtual void addChild(CCNode* child,int zOrder);
+//... 不過可以為其指定一個 tag 標記
+virtual void addChild(CCNode* child,int zOrder,int tag);
+
+
+
+//將當前節點 從父節點中 刪除 並且設置是否清除
+void removeFromParentAndCleanup(bool cleanup)
+//刪除子節點 並設置是否清除
+virtual void removeChild(CCNode* child,bool cleanup);
+//同上 不過是 通過 tag標記
+void removeChildByTag(int tag,bool cleanup);
+//刪除全部子節點 並設置是否清除
+virtual void removeAllChildrenWidthCleanup(bool cleanup);
+
+
+
+//根據tag標記 獲取子節點(不存在返回 NULL)
+CCNode* getChildByTag(int tag)
+//重設z坐標
+virtual void reorderChild(CCNode* child,int zOrder)
+//排序子節點 以提供渲染效率(不應該隨便使用 除非需要在當前幀移除 新加入到子節點)
+virtual void sortAllChildren()
+//返回子節點的 數組
+virtual CCArray* getChildren()
+//獲取子節點數目
+unsigned int getChildrenCount()
+</pre>
+			</p>
+
+			<p><span class="flag">example</span>
+<pre>//生成子節點
+CCNode* child = CCNode::note();
+//添加子節點
+father->addChild(child,0,100);
+//獲取子節點
+father->getChilgByTag(100);
+//刪除子節點
+father->removeChildByTag(100,true);
+</pre>
+			</p>
+
+			<p><span class="flag">注意</span>
+<pre>在添加子節點時 若當前節點 處於 運行狀態 將立刻 調用 onEnter onEnterTransitionDidFinish
+
+添加 帶tag的子節點時 cocos2d 不會 檢查tag唯一性 會為此tag 存儲多個 子節點
+getChildByTag而返回時 之返回最後一個使用此 tag的子節點
+removeChildByTag 卻會刪除 所有此tag的 子節點
+</pre>
+			</p>
+		</div>
+
+	<div class="note">
+		<p><span class="flag">CCNode 定時器</span>
+<pre>//檢查函數句柄 是否為定時器回調
+bool isScheduled(SEL_SCHEDULE selector)
+//啟動定時器(更新)回調函數
+void scheduleUpdate()
+//根據傳入 優先級 控制回調函數
+void scheduleUpdateWidthPriority(int priority)
+//取消回調(更新)函數
+void unscheduleUpdate()
+
+
+//啟動定時器 傳入 回調函數
+void schedule(SEL_SCHEDULE selector)
+//... 不過可以知道時間間隔 毫秒
+void schedule(SEL_SCHEDULE selector,float interval)
+//... 不過可以知道 循環 次數 和 延遲時間(單位秒)
+void schedule(SEL_SCHEDULE selector,float interval,unsigned int repeat,float delay)
+//啟動一次 定時器 可傳入 延遲時間(單位秒)
+void schedule(SEL_SCHEDULE selector,float delay)
+//取消指定 定時器
+void schedule(SEL_SCHEDULE selector)
+//取消所有定時器 包括回調(更新)函數
+void unscheduleAllSelectors()
+//恢復所有定時器以及動作
+void resumeSchedulerAndActions()
+//暫停所有定時器以及動作
+void pauseSchedulerAndActions()
+
+
+
+CCNode 存在一個默認 定時器 其優先級為0 最高
+typedef void (CCObject::*SEL_SCHEDULE)(float);
+使用 宏 schedule_selector 將一個成員函數 專為 SEL_SCHEDULE
+</pre>
+			</p>
+
+			<p><span class="flag">example</span>
+<pre>void HelloWorld::call_test(float f)
+{
+	std::cout&lt;&lt;f&lt;&lt;"\n";
+}
+CCScene* HelloWorld::scene()
+{
+	...
+	scene->schedule(schedule_selector(HelloWorld::call_test));
+	...
+}
+</pre>
+			</p>
+			<p><span class="flag">注意</span>
+<pre>當多個定時器 在同一時間觸發 優先級 高度將 先被調用
+
+定時器不設置時間間隔 將在每幀 調用
+</pre>
+		</p>
+	</div>
+
+	<div class="note">
+		<p><span class="flag">CCNode 動作</span>
+<pre>//執行動作 返回執行的動作
+CCAction* runAction(CCAction* action)
+
+//停止所有動作
+void stopActions()
+
+//停止指定動作
+void stopAction(CCAction* action)
+
+//... 不過一tag指定動作
+void stopActionByTag(int tag)
+
+//返回指定 tag
+CCAction* getActionByTag(int tag)
+
+//獲取動作數目
+unsigned int numberOfRunningActions()
+</pre>
+			</p>
+			<p><span class="flag">注意</span>
+<pre>銷毀對象時 cocos2d 會先停止其所有 動作 以及 定時器
+</pre>
+		</p>
+	</div>
+
+	<div class="note">
+		<p><span class="flag">other 回調函數</span>
+<pre>//當對象進入場景時 被自動調用
+virtual void onEnter()
+
+//當場景轉換完成時 被自動調用
+virtual void onEnterTransitionDidFinish()
+
+//當對象對出場景時 被自動調用
+virtual void onExit()
+
+//當場景轉換 開始時 被自動調用
+virtual void onExitTransitionDidStart()
+</pre>
+			</p>
+		</div>
+	</div>
+
+	<div class="note"><a name="frame"></a>
+		<p><span class="flag">框架結構</span>
+<pre>由一個 CCDirector 導演 管理 各個不同的 CCScene 場景 
+CCScene 由 多個 CCLaye 圖層 構成 場景
+CCLaye 包含  CCSprite 精靈 等對象
+</pre>
+		</p>
+		<p><span class="flag">CCCamera</span>
+<pre>CCCamera 是攝像機 可以利用它作一些 特殊3維效果 不過 一般 2D遊戲 不建議修改 攝像機
+(一些 依據世界坐標系的 對象 不受攝像機 影響)
+</pre>
+		</p>
+		<p><span class="flag">CCDirector</span>
+<pre>CCDirector 是一個導演單例 
+CCDirector::sharedDirector() 返回實例
+
+導演負責創建對象 管理窗口 場景
+
+導演方法
+//運行一個場景
+void runWidthScene(CCScene* pScene)
+
+//壓入當前場景
+void pushScene(CCScene* pScene)
+
+//彈出場景
+void popScene()
+
+//彈出除根本場景外 所有場景
+void popToRootScene()
+
+//替換場景
+void replaceScene(CCScene* pScene)
+
+//結束執行 釋放當前場景
+void end()
+
+//暫停場景
+void pause()
+
+//恢復場景
+void resume()
+
+//繪製場景內容
+void drawScene()
+</pre>
+		</p>
+
+		<p><span class="flag">CCScene</span>
+<pre>CCScene 是場景類
+CCScene 是一個包含遊戲內容的層次 一般只作為一個 容器 而不包含 邏輯等
+
+一般需要 從CCScene 派生 自己的場景 來容納 遊戲內容
+
+cocos2d-x 為場景切換 提供了一些特效 參加 TransitionsTest
+<table>
+	<tr><td>class</td><td>Effects</td></tr>
+	<tr><td>CCTransitionFade</td><td>淡入淡出</td></tr>
+	<tr><td>CCTransitionFadeBL</td><td>從右上開始的圖塊反轉</td></tr>
+	<tr><td>CCTransitionFadeTR</td><td>...左...</td></tr>
+	<tr><td>CCTransitionOffTiles</td><td>圖塊關閉</td></tr>
+	<tr><td>CCTransitionJumpZoom</td><td>跳出縮小</td></tr>
+	<tr><td>CCTransitionMoveInL</td><td>從左側移除</td></tr>
+	<tr><td>CCTransitionPageTurn</td><td>翻頁</td></tr>
+	<tr><td>CCTransitionRadialTurn</td><td>雷達轉針(逆時針)</td></tr>
+	<tr><td>CCTransitionRotoZoom</td><td>旋轉縮小</td></tr>
+	<tr><td>CCTransitionShrinkGrow</td><td>變大</td></tr>
+	<tr><td>CCTransitionSlideInL</td><td>從左側推動</td></tr>
+	<tr><td>CCTransitionCrossFade</td><td>交叉淡入淡出</td></tr>
+	<tr><td>CCTransitionRadialCW</td><td>雷達轉針(順時針)</td></tr>
+	<tr><td>CCTransitionPageForward</td><td>前翻頁</td></tr>
+	<tr><td>CCTransitionPageBackward</td><td>後翻頁</td></tr>
+</table>
+<span class="care">使用特效時 內存中 會同時 保存2個場景 故需要當心內存佔用</span>
+</pre>
+		</p>
+
+		<p><span class="flag">CCLayer</span>
+<pre>CCLayer 圖層類 用來 劃分 遊戲顯示內容 其提供了如下功能
+1	接受用戶輸入 觸屏 重力感應 ...
+2	遊戲顯示 如畫面 精靈 文字 ...
+3	填充遊戲背景
+
+<span class="care">默認 圖層 不接受 用戶 操作 若需要 手動調用 setXXX</span>
+
+為了 更合理 區分層次 cocos2d 劃分了3個圖層類 供用戶使用
+CCLayerColor 	主要用作背景 
+CCMenu			主要用作存放UI
+CCMultiplexLayer	主要用作遊戲內容
+
+class CC_DLL CCLayer : public CCNode, public CCTouchDelegate, public CCAccelerometerDelegate, public CCKeypadDelegate
+{
+public:
+	CCLayer();
+	virtual ~CCLayer();
+	//初始化函數
+	virtual bool init();
+    
+	//創建圖層
+	static CCLayer *create(void);
+
+	//進入圖層 回調
+	virtual void onEnter();
+	//退出圖層 回調
+	virtual void onExit();
+
+    virtual void onEnterTransitionDidFinish();
+
+
+	//用戶操作 單點觸碰
+	virtual bool ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent);//開始
+	virtual void ccTouchMoved(CCTouch *pTouch, CCEvent *pEvent);//移動
+	virtual void ccTouchEnded(CCTouch *pTouch, CCEvent *pEvent);//結束
+	virtual void ccTouchCancelled(CCTouch *pTouch, CCEvent *pEvent);//取消
+
+	//用戶操作 多點觸碰
+	virtual void ccTouchesBegan(CCSet *pTouches, CCEvent *pEvent);
+	virtual void ccTouchesMoved(CCSet *pTouches, CCEvent *pEvent);
+	virtual void ccTouchesEnded(CCSet *pTouches, CCEvent *pEvent);
+	virtual void ccTouchesCancelled(CCSet *pTouches, CCEvent *pEvent);
+	/**
+	 * @js NA
+	 * @lua NA
+	*/
+	virtual void didAccelerate(CCAcceleration* pAccelerationValue);//加速度計信息
+	void registerScriptAccelerateHandler(int nHandler);
+	void unregisterScriptAccelerateHandler(void);
+
+	//註冊觸碰事件
+	virtual void registerWithTouchDispatcher(void);
+
+	//註冊腳本觸碰事件
+	virtual void registerScriptTouchHandler(int nHandler, bool bIsMultiTouches = false, int nPriority = INT_MIN, bool bSwallowsTouches = false);
+	//註銷...
+	virtual void unregisterScriptTouchHandler(void);
+
+	//返回/設置 是否接受 觸碰
+	virtual bool isTouchEnabled();
+	virtual void setTouchEnabled(bool value);
+	
+	//... 觸碰方式
+	virtual void setTouchMode(ccTouchesMode mode);
+	virtual int getTouchMode();
+	
+	//... 優先級
+	/** priority of the touch events. Default is 0 */
+	virtual void setTouchPriority(int priority);
+	virtual int getTouchPriority();
+
+	//... 是否接受 加速度
+	virtual bool isAccelerometerEnabled();
+	virtual void setAccelerometerEnabled(bool value);
+	//設置 加速度 時間間隔
+	virtual void setAccelerometerInterval(double interval);
+
+	//... 鍵盤
+    virtual bool isKeypadEnabled();
+    virtual void setKeypadEnabled(bool value);
+
+    /** Register keypad events handler */
+    void registerScriptKeypadHandler(int nHandler);
+    /** Unregister keypad events handler */
+    void unregisterScriptKeypadHandler(void);
+
+    virtual void keyBackClicked(void);
+    virtual void keyMenuClicked(void);
+    
+    inline CCTouchScriptHandlerEntry* getScriptTouchHandlerEntry() { return m_pScriptTouchHandlerEntry; };
+    inline CCScriptHandlerEntry* getScriptKeypadHandlerEntry() { return m_pScriptKeypadHandlerEntry; };
+    inline CCScriptHandlerEntry* getScriptAccelerateHandlerEntry() { return m_pScriptAccelerateHandlerEntry; };
+
+    ...
+
+};
+</pre>
+		</p>
+		<p><span class="flag">CCSprite</span>
+<pre>CCSprite 是精靈
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="CCSprite"></a>
+		<p><span class="flag">CCSprite</span>
+<pre>CCSprite 精靈 是遊戲的主要 內容
+其包括 一般 屬性 此外 還可以 為其增加 物理特性 邏輯 等
+</pre>
+		</p>
+		<p><span class="flag">CCSprite 常用屬性</span>
+<pre>//是否 x y 翻轉
+bool m_bFlipX
+bool m_bFlipY
+
+...
+</pre>
+		</p>
+
+		<p><span class="flag">創建CCSprite</span>
+<pre>static CCSprite* create();
+
+//以圖片文件創建
+static CCSprite* create(const char *pszFileName);
+//...中的區域...
+static CCSprite* create(const char *pszFileName, const CCRect& rect);
+
+//...精靈針...
+static CCSprite* createWithSpriteFrame(CCSpriteFrame *pSpriteFrame);
+//...精靈針名字...
+static CCSprite* createWithSpriteFrameName(const char *pszSpriteFrameName);
+
+//以紋理圖片[中的區域]創建
+static CCSprite* createWithTexture(CCTexture2D *pTexture);
+static CCSprite* createWithTexture(CCTexture2D *pTexture, const CCRect& rect);
+</pre>
+		</p>
+	</div>
+	
+	<div class="note"><a name="CCSpriteBatchNote"></a>
+		<p><span class="flag">CCSpriteBatchNote</span>
+<pre>CCSpriteBatchNote 精靈集合類 主要用於提高 效率
+CCSpriteBatchNote 包含了許多 CCSprite 
+這些CCSprite使用 同一張紋理圖 然 每個CCSprite可以使用 紋理不同區域
+
+CCSpriteBatchNote存在兩個子類 CCLabelBMFont CCTMXLayer 分別用於 字體 地圖
+
+
+//根據 紋理/圖片 創建CCSpriteBatchNote capacity指定默認包含子節點數
+static CCSpriteBatchNote* create(CCTexture2D *pTexture,unsigned int capacity=29)
+static CCSpriteBatchNote* create(const char *fileImage,unsigned int capacity=29)
+</pre>
+		</p>
+
+		<p><span class="flag">精靈幀緩存函數</span>
+<pre>//從 plist文件中 加載多個 精靈幀
+void addSpriteFramesWithFile(const char *pszPlist)
+
+//同上 不過多了一個紋理作為 參數
+void addSpriteFramesWithFile(const char *pszPlist,const char* textrueFilename)
+void addSpriteFramesWithFile(const char *pszPlist,CCTexture2D* pobTexture)
+
+//按照參數名字 增加一個精靈幀
+void addSpriteFrame(CCSpriteFrame* pobFrame,const char*pszFrameName)
+
+
+
+//清除緩衝 所有的精靈幀將 消失
+void removeSpriteFrames()
+
+//清除未使用的 精靈幀
+void removeUnusedSpriteFrames()
+
+//通過名字 刪除精靈幀
+void removeSpriteFrameByName(const char* pszName)
+
+//按照plist文件 清除精靈幀
+void removeSpriteFrameFromFile(const char* plist)
+
+//按照紋理對象 清除精靈幀
+void removeSpriteFrameFromTexture(CCTexture2D* pobTexture)
+</pre>
+		</p>
+
+
+		<p><span class="flag">注意</span>
+<pre>精靈集合中 所有精靈 必須 位於同一 層次
+
+系統通常會限制紋理圖 尺寸 
+cocos2d-x 使用 OpenGLES渲染
+OpenGLES渲染 2^N 尺寸的 圖片 效率和 內存 佔用 會更佳
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="CCLabelTTF"></a>
+		<p><span class="flag">CCLabelTTF</span>
+<pre>CCLabelTTF 用於支持 ttf 字體
+
+//創建 TTF標籤 string 為顯示文本
+static CCLabelTTF*create(const char* string,const char*fortName,float fontSize)
+
+//同上 dimensions為標籤 尺寸 hAligment為水平對齊方式
+static CCLabelTTF*create(const char* string,const char*fortName,float fontSize,const CCSize& dimensions,CCTextAlignment hAligment)
+
+//同上 vAlignment為垂直對齊方式
+static CCLabelTTF*create(const char* string,const char*fortName,float fontSize,const CCSize& dimensions,CCTextAlignment hAligment,CCVerticalTextAlignment vAlignment)
+
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>CCLabelTTF* pLabel = CCLabelTTF::create("Hellow Word", "Arial", 24);
+    
+    // position the label on the center of the screen
+    pLabel->setPosition(ccp(origin.x + visibleSize.width/2,
+                            origin.y + visibleSize.height - pLabel->getContentSize().height));
+
+    // add the label as a child to this layer
+    this->addChild(pLabel, 1);
+</pre>
+		</p>
+
+
+		<p><span class="flag">注意</span>
+<pre>在創建 ttf對象時 會較慢 因為 ttf字體 類似活字印刷術 其包含了 所有 字符輪廓
+故創建 對象時 需要包含 過多信息
+
+CCLabelTTF 是CCSprite的子類 故可以把其當作一個精靈
+
+setString 可以改變 CCLabelTTF的內容 不過 最好不要用 因為 CCLabelTTF是一個 精靈紋理 
+改變 需要重新創建新的 紋理 這相當耗時
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="CCLabelBMFont"></a>
+		<p><span class="flag">CCLabelBMFont</span>
+<pre>CCLabelBMFont 是cocos2d-x最快 但最麻煩的字體
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="button"></a>
+		<p><span class="flag">菜單按鈕</span>
+<pre>cscso2d-x 為了跨平台 只提供了 一些簡單的 UI 菜單按鈕 是其中之一
+
+CCMenuItem 是所有 按鈕的基類 其定義了 按鈕的一般特性
+	按鈕三態(正常 選中 無效)
+	當按鈕被點擊 執行回調
+</pre>
+		</p>
+		<p><span class="flag">MenuItemLabel</span>
+<pre>MenuItemLabel 在按鈕中 提供了一個文本標籤顯示
+
+//創建按鈕
+static MenuItemLabel* create(CCNote* label,CCObject *target,SEL_MenuHandler selector)
+	//
+</pre>
+		</p>
+
+	</div>
+
+</div>
+</body>
+</html>

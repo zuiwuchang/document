@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>载入Quake3Map</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1>
+    	<p><font color="#FF0000">描述</font><br />
+        	演示如何载入Quake3地图
+		</p>
+   		
+        <a href="#map">载入地图</a> <br />
+            </h1></p>
+    
+    <div class="div_box"><a name='map'><h3>
+    	<font color="#FF0000">载入地图</font>
+        <p><font color="#FF0000">example</font><br />
+        	<pre>
+             //创建驱动设备句柄
+	irr::IrrlichtDevice *device=irr::createDevice(irr::video::EDT_DIRECT3D9, core::dimension2d&lt;u32&gt;(640, 480));
+	if (!device)
+		return 1;
+
+	if (device == 0)
+		return 1; // could not create selected driver.
+
+	video::IVideoDriver* driver = device->getVideoDriver();
+	scene::ISceneManager* smgr = device->getSceneManager();
+
+	//加载地图
+	device->getFileSystem()->addFileArchive("media/map-20kdm2.pk3");
+
+	//读取到mesh
+	scene::IAnimatedMesh* mesh = smgr->getMesh("20kdm2.bsp");
+	scene::ISceneNode* node = 0;
+
+	if (mesh)
+	{
+		//创建一个八叉树节点(既仅渲染摄像机所见场景)
+		node = smgr->addOctreeSceneNode(mesh->getMesh(0), 0, -1, 1024/*256*/);
+	}
+	if (node)
+	{
+		//移动矩阵中心点
+		node->setPosition(core::vector3df(-1300,-144,-1249));
+	}
+	//设置一个标准FPS摄像机
+	smgr->addCameraSceneNodeFPS();
+
+	//隐藏鼠标
+	device->getCursorControl()->setVisible(false);
+
+	int lastFPS = -1;
+	while(device->run())
+	{
+		if (device->isWindowActive())
+		{
+			driver->beginScene(true, true, video::SColor(255,200,200,200));
+			smgr->drawAll();
+			driver->endScene();
+
+			//显示FPS
+			int fps = driver->getFPS();
+			if (lastFPS != fps)
+			{
+				core::stringw str = L"Irrlicht Engine - Quake 3 Map example [";
+				str += driver->getName();
+				str += "] FPS:";
+				str += fps;
+
+				device->setWindowCaption(str.c_str());
+				lastFPS = fps;
+			}
+		}
+		else
+			device->yield();
+	}
+	device->drop();</pre>
+        <p>
+  	</h3></a></div>
+   
+</td></tr></table>
+</body>
+</html>

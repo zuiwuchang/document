@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>zip</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#zip">zip</a><br />
+	</div>
+
+	<div class="note"><a name="zip"></a>
+		<p><span class="flag">zip</span>
+			Poco zip 包提供了 使用 zip 壓縮 解壓 功能
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;fstream&gt;
+#include&lt;Poco/Zip/Compress.h&gt;
+#include&lt;Poco/Zip/Decompress.h&gt;
+
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	std::wstring unicode	=	L"草泥馬\\123.png";
+	std::string utf8;
+	dark::StringConvert::toUTF8(unicode,utf8);	//使用 utf8 路徑 否則 解壓後 非ascill字符 將出現問題
+
+
+	//創建二進制 輸出流
+	std::ofstream out("test.zip", std::ios::binary);
+
+	Poco::Zip::Compress compress(out,true);
+	//增加一個文件
+	Poco::Path aFile("123.png");
+	compress.addFile(aFile
+		//,"草泥馬\\123.png"	//文件在zip包中 路徑 (文件夾將自動創建)
+		,utf8
+		);
+
+	//增加一個空文件夾
+	Poco::Path directory("a\\directory");	//自己創建路徑
+	directory.makeDirectory();				//必須調用此函數
+	compress.addDirectory(directory,Poco::DateTime());
+	
+	compress.close();
+	out.close();
+
+	//解壓全部文件
+	std::ifstream in("test.zip", std::ios::binary);
+	if(in.is_open())
+	{
+		try
+		{
+			Poco::Zip::Decompress dec(in
+				,Poco::Path()				//解壓到當前路徑
+				//,Poco::Path("b\\")		//解壓到指定路徑
+				); 
+			dec.decompressAllFiles();
+			
+		} 
+		catch(const Poco::FileException&)
+		{
+		}
+		in.close();
+	}
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

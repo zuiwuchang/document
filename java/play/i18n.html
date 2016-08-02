@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>i18n</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#i18n">i18n</a>
+		
+	</div>
+
+	<div class="note"><a name="i18n"></a>
+		<p><span class="flag">i18n</span>
+<pre>play 使用 message文件 支持i18n
+
+編輯 翻譯文件 /conf/messages.zh-TW (正體中文)
+原字符串=翻譯字符串
+
+編輯 /conf/application.conf 設置使用的語言
+# <span class="care"># 用於註釋此行</span>
+application.langs="zh-TW"
+
+在模板中使用 @import play.i18n._ 導入語言
+使用 @Messages.get("key") 獲取翻譯
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+

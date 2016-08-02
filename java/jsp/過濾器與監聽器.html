@@ -1,0 +1,230 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>web</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">過濾器與監聽器</font>
+</p>
+
+<p>
+	<a href="#ServletConfig">ServletConfig</a><br />
+    <a href="#ServletContext">ServletContext</a><br />
+    <a href="#listen">事件監聽器</a><br />
+    <a href="#Filter">過濾器</a><br /><br />
+    
+  	<a href="#text">過濾器 字符過濾 example</a><br />
+    <a href="#charset">字符編碼過濾 example</a><br />
+</p>
+
+
+<div class="mydiv"><a name="ServletConfig"></a>
+	<p><font color="#FF0000">ServletConfig</font>
+<pre>Web容器 會為 每個 Servlet 創建一個 ServletConfig 以記錄其 啟動設置信息
+使用 getServletConfig() 可以返回 此ServletConfig
+
+使用getInitParameter返回指定初始化參數值
+String ServletConfig.getInitParameter(String)	
+
+使用getInitParameterNames 返回所有初始化 參數名
+Enumeration&lt;String&gt; getInitParameterNames()
+
+在@WebServlet中 設置參數
+</pre>
+	</p>
+    <p><font color="#FF0000">example</font>
+<pre>@WebServlet(value="/ServletTest",
+	initParams = {
+	   @WebInitParam(name="param1", value="Hello "),
+	   @WebInitParam(name="param2", value=" World!")
+	}
+
+public class ServletTest extends HttpServlet {
+	//...
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		response.setCharacterEncoding("UTF-8");
+		response.setContentType("text/html;charset=UTF-8");
+
+		//獲取配置參數
+		ServletConfig cnf = this.getServletConfig();
+		String v1	=	cnf.getInitParameter("param1");
+		String v2	=	cnf.getInitParameter("param2");
+				
+	}    
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="ServletContext"></a>
+	<p><font color="#FF0000">ServletContext</font>
+<pre>ServletContext存在於整個應用週期 可以使用讀取 程序初始化參數(同ServletConfig)
+(初始化參數 在 web.xml 中設置)
+
+此外可以用其設置屬性 以在多個 servlet間 共享數據
+ServletContext.setAttribute(string,Object)		//設置屬性
+ServletContext.getAttribute(String)				//獲取屬性
+ServletContext.removeAttribute(String)			//移除屬性
+</pre>
+	</p>
+  
+	<p><font color="#FF0000">web.xml</font>
+<pre>&lt;context-param&gt;
+	&lt;param-name&gt;name&lt;/param-name&gt;
+	&lt;param-value&gt;value&lt;/param-value&gt;    
+&lt;/context-param&gt;
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="listen"></a>
+	<p><font color="#FF0000">事件監聽器</font>
+<pre>Servlet 可以註冊監聽器 當發生 監聽事件時 調用 對於函數
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">生命週期監聽器ServletContextListener</font>
+<pre>啟動應用程序調用 contextInitialized		//一般初始化資源
+結束前調用 contextDestroyed		//一般釋放資源
+</pre>
+	</p>
+    <p><font color="#FF0000">ServletContextAttributeListener</font>
+<pre>增加 移除 替換 ServletContext 後
+</pre>
+	</p>
+    
+    
+    <p><font color="#FF0000">HttpSessionListener</font>
+<pre>HttpSession 初始化後 HttpSession結束前
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">HttpSessionAttributeListener</font>
+<pre>增加 替換 移除 HttpSession 屬性 後
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">HttpSessionBindingListener</font>
+<pre>增加 移除 HttpSession 屬性 前
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">HttpSessionActivationListener</font>
+<pre>HttpSession從一個 JVM虛擬機 到另外一個 JVM時
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">ServletRequestListener</font>
+<pre>HttpServletRequest 生成後 以及結束前
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">ServletRequestAttributeListener</font>
+<pre>HttpServletRequest 增加 移除 替換 屬性後
+</pre>
+	</p>
+    
+</div>
+
+<div class="mydiv"><a name="Filter"></a>
+	<p><font color="#FF0000">過濾器</font>
+<pre>Servlet 可以註冊多個 過濾器 當收到 瀏覽器請求而調用service進行 do*前
+會調用註冊的 過濾器 的 void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)方法
+
+調用chain.doFilter(request, response); 會調用下個 過濾器 沒有則調用 service
+當響應結束 會以堆棧順序 返回到 chain.doFilter(request, response); 之後繼續執行
+
+多個filter 執行順序 根據@WebFilter指定的名稱 決定@WebFilter(filterName="filter0",  urlPatterns="/*")  
+(urlPatterns 指定對那些Servlet響應 過濾 /* 代表所有)
+
+若定義在 web.xml 中 以web.xml 中出現順序為 執行順序
+</pre>
+	</p>
+    <p><font color="#FF0000">web.xml</font>
+<pre>&lt;filter&gt; 
+	&lt;filter-name&gt;filter1&lt;/filter-name&gt; 
+	&lt;filter-class&gt;filter0&lt;/filter-class&gt; 
+&lt;/filter&gt;
+
+&lt;filter-mapping&gt;
+	&lt;filter-name&gt;filter0&lt;/filter-name&gt; 
+	&lt;url-pattern&gt;/*&lt;/url-pattern&gt; 
+&lt;/filter-mapping&gt; 
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="text"></a>
+	<p><font color="#FF0000">過濾器 字符過濾 example</font>
+<pre>HttpServletRequestWrapper 實現了 所有HttpServletRequest接口
+故 只需要 從 HttpServletRequestWrapper 派生(派生類 必須以 HttpServletRequest 傳入父類構造) 之後 自定義 getParam 返回 替換後的參數 即可 返回過濾後的 參數
+當然 在此之前 需要定義一個 過濾器 並將 request 由自定義 類 替換
+
+//request 定義
+public class FilterRequest extends HttpServletRequestWrapper {
+
+	public FilterRequest(HttpServletRequest request) {
+		super(request);
+	}
+	@Override
+	public String getParameter(String name){
+		String rs	=	getRequest().getParameter(name);	//獲取參數
+		if(rs	!=	null)
+		{
+			rs	=	"1" + rs;	//為參數 連接1
+		}
+		return rs;	
+	}
+}
+
+//filter
+@WebFilter(filterName = "/RequestFilter"	,	urlPatterns = "/*")
+public class RequestFilter implements Filter {
+	...
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+		FilterRequest	 filter_request	=	new FilterRequest((HttpServletRequest) request);	//過濾request
+		chain.doFilter(filter_request, response);
+	}
+	...
+}
+</pre>
+</p>
+	</div>
+<div class="mydiv"><a name="charset"></a>
+	<p><font color="#FF0000">字符編碼過濾 example</font>
+<pre>利用 過濾器 可以為所有請求 轉換字符編碼 設置方式 同 字符過濾
+
+//filter 定義
+public class FilterRequest extends HttpServletRequestWrapper {
+
+	public FilterRequest(HttpServletRequest request) {
+		super(request);
+	}
+	
+	@Override
+	public String getParameter(String name){
+		String rs	=	getRequest().getParameter(name);	//獲取參數
+		if(rs	!=	null)
+		{
+			byte[] b;
+			try {
+				b = rs.getBytes("ISO-8859-1");
+				rs	=	new String(b,"UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}	
+		}
+		return rs;
+	}
+} 
+</pre>
+	</p>
+</div>
+             
+</td></tr></table>
+</body>
+</html>

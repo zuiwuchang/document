@@ -1,0 +1,237 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>顏色</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="DirectX"><tr><td>
+<p>
+	<font color="#FF0000">顏色</font>
+</p>
+
+<p>
+	<a href="#color">顏色表示</a><br />
+    <a href="#Vertex">頂點顏色</a><br />
+    <a href="#SHADEMODE">着色</a><br />
+    
+</p>
+
+
+<div class="mydiv"><a name="color"></a>
+	<p><font color="#FF0000">顏色表示</font>
+<pre>Direct3D 使用
+typedef DWORD D3DCOLOR;
+表示顏色
+其為一個32位數據 以8位分別表示一個 alpha r g b 分量
+
+宏 D3DCOLOR_ARGB(a,r,g,b) 構造一個 D3DCOLOR
+宏 D3DCOLOR_XRGB(r,g,b) 構造一個 alpha=0xff 的D3DCOLOR
+
+
+struct D3DCOLORVALUE {
+  FLOAT r;		//[0.0,1.0]
+  FLOAT g;
+  FLOAT b;
+  FLOAT a;
+};
+和
+typedef struct D3DXCOLOR
+{
+#ifdef __cplusplus
+public:
+    D3DXCOLOR() {}
+    D3DXCOLOR( DWORD argb );
+    D3DXCOLOR( CONST FLOAT * );
+    D3DXCOLOR( CONST D3DXFLOAT16 * );
+    D3DXCOLOR( CONST D3DCOLORVALUE& );
+    D3DXCOLOR( FLOAT r, FLOAT g, FLOAT b, FLOAT a );
+
+    // casting
+    operator DWORD () const;
+
+    operator FLOAT* ();
+    operator CONST FLOAT* () const;
+
+    operator D3DCOLORVALUE* ();
+    operator CONST D3DCOLORVALUE* () const;
+
+    operator D3DCOLORVALUE& ();
+    operator CONST D3DCOLORVALUE& () const;
+
+    // assignment operators
+    D3DXCOLOR& operator += ( CONST D3DXCOLOR& );
+    D3DXCOLOR& operator -= ( CONST D3DXCOLOR& );
+    D3DXCOLOR& operator *= ( FLOAT );
+    D3DXCOLOR& operator /= ( FLOAT );
+
+    // unary operators
+    D3DXCOLOR operator + () const;
+    D3DXCOLOR operator - () const;
+
+    // binary operators
+    D3DXCOLOR operator + ( CONST D3DXCOLOR& ) const;
+    D3DXCOLOR operator - ( CONST D3DXCOLOR& ) const;
+    D3DXCOLOR operator * ( FLOAT ) const;
+    D3DXCOLOR operator / ( FLOAT ) const;
+
+    friend D3DXCOLOR operator * ( FLOAT, CONST D3DXCOLOR& );
+
+    BOOL operator == ( CONST D3DXCOLOR& ) const;
+    BOOL operator != ( CONST D3DXCOLOR& ) const;
+
+#endif //__cplusplus
+    FLOAT r, g, b, a;
+} D3DXCOLOR, *LPD3DXCOLOR;
+是一樣的 亦可用於 表示顏色 
+不過D3DXCOLOR 重載了多種 運算操作符
+
+D3DXCOLOR 的operator* 將每個分量進行 *
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="Vertex"></a>
+	<p><font color="#FF0000">頂點顏色</font>
+<pre>圖元由 點組成 點除了位置 亦可含有其他屬性 如 顏色
+
+struct ColorVertex
+{
+	float x_;
+	float y_;
+	float z_;
+	D3DCOLOR color_;
+
+	static const DWORD FVF;
+	ColorVertex()
+	{
+		x_	=	y_	=	z_	=	0.0f;
+		
+		color_	=	0;
+	}
+	ColorVertex(const float x,const float y,const float z,const D3DCOLOR color)
+	{
+		x_		=	x;
+		y_		=	y;
+		z_		=	z;
+		
+		color_	=	color;
+	}
+};
+const DWORD ColorVertex::FVF	=	D3DFVF_XYZ | D3DFVF_DIFFUSE;
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="SHADEMODE"></a>
+	<p><font color="#FF0000">着色</font>
+<pre>在光柵化過程中 需要對多邊形 着色
+Direct3D 提供了兩種着色方式 D3DSHADE_FLAT(平面着色) D3DSHADE_GOURAUD（着色 默認）
+
+使用
+HRESULT SetRenderState(
+  [in]  D3DRENDERSTATETYPE State,	//D3DRS_SHADEMODE
+  [in]  DWORD Value					//D3DSHADE_FLAT D3DSHADE_GOURAUD
+);
+設置 着色模式
+</pre>
+	</p>
+    <p><font color="#FF0000">D3DSHADE_FLAT</font>
+<pre>將三角形 設置為第一個點點顏色
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">D3DSHADE_GOURAUD</font>
+<pre>由各個點 經線性插值 得到
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre><img src="image/color/color.PNG" />
+
+IDirect3DVertexBuffer9 *pVertex_buffer	=	0;
+D3DXMATRIX matrix1;
+D3DXMATRIX matrix2;
+
+void d3dx::Initialization(IDirect3DDevice9* pDevice,int nWidth,int nHeight)
+{
+	
+	//創建頂點緩存 索引緩存
+	pDevice->CreateVertexBuffer(3 * sizeof(ColorVertex)
+		,D3DUSAGE_WRITEONLY
+		,ColorVertex::FVF
+		,D3DPOOL_MANAGED
+		,&amp;pVertex_buffer
+		,0
+		);
+	
+	//建模
+	ColorVertex* pVertex;
+	pVertex_buffer->Lock(0
+		,0
+		,(void**)&amp;pVertex
+		,0);
+
+	pVertex[0]	=	ColorVertex(-1,0,0,D3DCOLOR_XRGB(255,0,0));
+	pVertex[1]	=	ColorVertex(0,1,0,D3DCOLOR_XRGB(0,255,0));
+	pVertex[2]	=	ColorVertex(1,0,0,D3DCOLOR_XRGB(0,0,255));
+
+	pVertex_buffer->Unlock();
+	
+	//計算模型位置
+	D3DXMatrixTranslation(&matrix1,-2,0,0);
+	D3DXMatrixTranslation(&matrix2,2,0,0);
+
+	//設置攝像機
+	D3DXMATRIX matrix;
+	D3DXMatrixLookAtLH(&matrix,&camera_position,&target_position,&world_direction);
+	pDevice->SetTransform(D3DTS_VIEW,&matrix);
+
+	//投影矩陣
+	D3DXMATRIX proj;
+	D3DXMatrixPerspectiveFovLH(&proj
+		,D3DX_PI * 0.5f
+		,(float)nWidth/(float)(nHeight)
+		,1.0f
+		,1000.0f
+		);
+	pDevice->SetTransform(D3DTS_PROJECTION,&proj);
+	
+	//禁用光照
+	pDevice->SetRenderState(D3DRS_LIGHTING,FALSE);
+}
+
+void d3dx::Draw_scene(IDirect3DDevice9* pDevice,float time)
+{
+	//繪製場景
+	pDevice->Clear(0,0,D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,0xffffffff,1.0f,0);
+
+	pDevice->BeginScene();
+
+	pDevice->SetStreamSource(0,pVertex_buffer,0,sizeof(ColorVertex));
+	pDevice->SetFVF(ColorVertex::FVF);
+
+	//以 D3DSHADE_FLAT 着色
+	pDevice->SetTransform(D3DTS_WORLD, &amp;matrix1);
+	pDevice->SetRenderState(D3DRS_SHADEMODE,D3DSHADE_FLAT);
+	pDevice->DrawPrimitive(D3DPT_TRIANGLELIST,0,1);
+
+	//以 D3DSHADE_GOURAUD 着色
+	pDevice->SetTransform(D3DTS_WORLD, &amp;matrix2);
+	pDevice->SetRenderState(D3DRS_SHADEMODE,D3DSHADE_GOURAUD);
+	pDevice->DrawPrimitive(D3DPT_TRIANGLELIST,0,1);
+
+
+	pDevice->EndScene();
+
+	pDevice->Present(0,0,0,0);
+
+}
+</pre>
+	</p>
+</div>
+
+</td></tr></table>
+</body>
+</html>

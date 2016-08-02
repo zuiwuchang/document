@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>DK4PK</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#weiya">威壓</a>
+		
+	</div>
+	<div class="note"><a name="weiya"></a>
+		<p><span class="flag">威壓</span>
+<pre>使其他勢力成為 下屬勢力
+</pre>
+		</p>
+		<p><span class="flag">條件</span>
+<pre>獲取 此地 霸者之證
+副官說服力 [200,+∞)
+
+此海域勢力 &gt;= 對方總勢力 * [ 8.6 - (副官說服力 - 200) * 0.008 - 友好度 * 0.04]
+
+
+
+<span class="care">lua</span>
+local dist = 700
+local adjutant = 300
+local friendly = 50
+
+local std = dist * 8.6
+local friendly_offset = dist * friendly * 0.04
+local adjutant_offset = dist * (adjutant - 200) * 0.008
+local min = std - adjutant_offset - friendly_offset
+
+
+print("臨界值為	：	" , min)
+print("目標勢力	：	" , dist)
+print("標準值		：	" , std)
+print("副官影響	：	" , dist * 0.008,"*",adjutant - 200,"=",adjutant_offset)
+print("友好影響	：	" , dist * 0.04 , "*",friendly,"=",friendly_offset)
+</pre>
+		</p>
+	</div>
+
+
+</div>
+</body>
+</html>

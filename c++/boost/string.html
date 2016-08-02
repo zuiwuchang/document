@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>字符串處理</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#conver">字符串 數值 轉換</a>
+		<a href="#format">格式化字符串</a>
+		<a href="#algorithm">字符串處理</a>
+	</div>
+
+	<div class="note"><a name="conver"></a>
+		<p><span class="flag">字符串 數值 轉換</span>
+<pre>#include&lt;boost\lexical_cast.hpp&gt;
+c中以 atoi atof 等提供把 字符串轉換為 數值 但未提供 數字 到 字符串 的轉換 除非用不安全的 printf
+一些編譯器 提供了 _itoa 等 非標準函數
+boost::lexical_cast 提供了統一的轉換操作
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include&lt;boost\lexical_cast.hpp&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+
+	std::cout&lt;&lt;"字符串 到 整型\t\t"&lt;&lt;boost::lexical_cast&lt;int&gt;("100")
+		&lt;&lt;"\n字符串 到 長整型\t"&lt;&lt;boost::lexical_cast&lt;long&gt;("1000")
+		&lt;&lt;"\n字符串 到 浮點\t\t"&lt;&lt;boost::lexical_cast&lt;float&gt;("1.1")
+		&lt;&lt;"\n字符串 到 雙精度浮點\t"&lt;&lt;boost::lexical_cast&lt;double&gt;("1.11")
+
+		&lt;&lt;"\n\n整型    到 字符串\t"&lt;&lt;boost::lexical_cast&lt;std::string&gt;(100)
+		&lt;&lt;"\n長整型  到 字符串\t"&lt;&lt;boost::lexical_cast&lt;std::string&gt;(1000)
+		&lt;&lt;"\n浮點    到 字符串\t"&lt;&lt;boost::lexical_cast&lt;std::string&gt;(1.1)
+		
+
+		&lt;&lt;std::endl;
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>boost::lexical_cast 在 字符串 轉換為 數值時 <span class="care">字符串不能是 "0x12" "12H" 等形式</span>
+若無法轉換 throw boost::bad_lexical_cast
+</pre>
+		</p>
+		<p><span class="flag">自定義型別</span>
+<pre>operator&lt;&lt; 罷
+
+轉換起點 operator&lt;&lt;
+轉換終點 operator&gt;&gt;
+轉換終點 必須是可缺省構造 和 可拷貝構造
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="format"></a>
+		<p><span class="flag">格式化字符串</span>
+<pre>#include&lt;boost\format.hpp&gt;
+c的printf sprintf是不安全的 雖然如此的應用廣泛且語法簡單
+c++以operator&lt;&lt;和控制器 格式化 強大但書寫過於麻煩
+boost::format boost::wformat 提供了類似printf語法 以operator&lt;&lt;實現任意長度參數以保證安全
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include&lt;boost\format.hpp&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	int x=1;
+	int y=x+x;
+	
+	std::cout&lt;&lt;boost::format("%d+%d")%2%3&lt;&lt;std::endl;
+
+	//%n% 類似 C#的 指定第n個格式參數
+	boost::format fmt("%1%+%1%=%2%");
+	fmt%x%y;
+	std::cout&lt;&lt;fmt&lt;&lt;std::endl;
+
+	//清空緩衝區 並重新設置格式方式
+	fmt.parse("%d+%d=%|d|");
+	fmt%x%x%y;
+	std::cout&lt;&lt;fmt&lt;&lt;std::endl;
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>parse	清空緩衝區 並重新設置格式方式
+clear	清空緩衝區 既重新輸入格式參數
+.str()	返回格式化好後的字符串
+.size()	返回格式化好後的字符串長度
+
+<span class="care">需要先傳入全部待格式化的參數後 
+才能進行輸出 返回等操作 否則拋出異常</span>
+format 要進行許多安全檢測 故 效率比 printf 低2到5倍 
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="algorithm"></a>
+		<p><span class="flag">字符串處理</span>
+<pre>#include&lt;boost\algorithm\string.hpp&gt;
+
+算法都以容器為對象 故不必一定是 string 或 wstring 算法皆可用 然最好只用於 string wstring
+
+算法一般都有 帶後綴 前綴 或不帶版本 含義同STL 如下
+無後綴的函數 將直接修改傳入參數
+_if 類似STL 提供一個修改判別式
+_copy 不修改參數 將結果返回
+i前綴 忽略大小寫(如 iequals)
+</pre>
+		</p>
+		<p><span class="flag">全局函數</span>
+<pre>//大小寫轉換
+void to_upper(T&amp; t)			//轉大寫
+void to_lower(T&amp; t)			//轉小寫
+
+//去空格
+trim_left
+trim_right
+trim
+
+//判斷式
+bool starts_with(str,"begin")		//是否含有 "begin" 前綴
+ends_with				//...後綴
+contains(str1,str2)			//str2 是否是 str1 的子集
+equal					//兩字符串是否相等
+lexicographical_compare(str1,str2)	//str1是否小於str2
+
+all(str,fun())		//str每個字符是否都滿足 判別式fun (STL 算法傳入都不需要加上 ()  boost的判別式都需要加上() )
+boost::all("AB",boost::is_upper());
+
+和all配合的boost判別式
+is_space		空格
+is_alnum		字母 數值
+is_alpha		字母
+is_lower		小寫字符
+is_upper		大寫
+is_digit		十進制數值
+is_xdigit		十六進制數值
+
+is_cntrl		控制字符
+is_graph		圖形字符
+is_print		打印字符
+is_punct		標點字符
+is_any_of		是否是參數字符中的任意字符
+if_from_range	字符位於指定區間內
+
+//other
+is_equal		比較兩個對象是否相等
+is_less			比較 是否 對象1 &lt; 對象2
+is_not_greater		比較 是否 對象1 &lt;= 對象2
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>boost判別式 如is_equal 需要如此調用 is_equal()(str1,str2)
+第一個() 是產生此類的臨時對象 第二個()是調用 operator()
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

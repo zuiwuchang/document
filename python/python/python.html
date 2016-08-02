@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>asio</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#python">python</a>
+		<a href="#element">python 要素</a>
+	</div>
+
+	<div class="note"><a name="python"></a>
+		<p><span class="flag">python</span>
+<pre>1989 研發 1991年開始發布的 一個 跨平台 弱型別 自動內存 腳本語言
+目前出現 2.X 3.X 版本分裂
+
+官網 <a href="https://www.python.org/" target="_blank">https://www.python.org/</a>
+</pre>
+		</p>
+		
+		<p><span class="flag">example</span>
+<pre>#!/usr/bin/env python3
+# python3.5 hellow word
+
+import sys
+print(sys.stdout.encoding)
+print(sys.getdefaultencoding())
+
+print("hellow word")
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>3.X 以前python使用 ascii編碼 
+3.X開始 使用 unicode (4 字節編碼)編碼
+
+
+
+python 使用 # 註釋單行
+python 沒有多行註釋
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="element"></a>
+		<p><span class="flag">python 要素</span>
+<pre>python 包含 如下 8個 關鍵要素
+
+
+數據型別
+	int
+		-973
+		1234567890
+		(phton 整數大小 只受限於 內存)
+
+	str
+		"可用雙引號"
+		'可用單引號'
+		(可以使用 [] 獲取 字符 但無法修改
+		python中 字符串 是 const 型別
+		實際上 python 沒有 字符 字符是 長度為1的 字符串)
+
+	(型別 轉化 寫法 同 go[好吧其實是 go 借鑒的 python語法]
+	int("  123 "))
+
+
+
+對象引用
+	(python 作用 對象引用 將 變量 與 內存對象 聯繫
+	使用 引用計數 自動管理 內存
+
+	python 包括 int 也是 一個 到 內存 int的 引用
+	只不過 其和 字符串一樣 是 const 型別
+	x=1
+	print(type(x)))
+
+
+
+組合數據
+	元組(boost::tuple) 使用 () 定義
+	列表(std::vector) 使用 [] 定義
+		(
+			t = (1,2,3)
+			print(t,t[0],len(t),type(t))
+
+			l = [1,2,3]
+			l.append(4)
+			print(l,l[0],len(l),type(l))
+		)
+	...
+
+
+
+邏輯運算符
+	is
+	is not
+		(返回 兩個 變量 是否 指向同1 對象
+		x = (1,2,3)
+		y = (1,2,3)
+		print(x is y) #False)
+
+	!=
+	==
+	...
+		(比較 對象的值)
+
+	in
+	not in
+		(x=[1,2,3]
+		print(2 in x) #True
+		)
+
+	and
+	or
+	not
+		(and or 不返回 true/false 而是決定 結果的操作數)
+
+
+
+控制語句
+	if
+	(
+		if bool :
+			...
+		elif bool :
+			...
+		else:
+			...
+	)
+	while
+	(
+		while bool:
+			...
+	)
+	for
+	(
+	for v in iterable:
+		...
+	)
+
+	try
+	(
+		try
+			...
+		except e1 [as v1]:
+			...
+		...
+		except eN [as vN]:
+			...
+	)
+
+
+
+算術運算
+	+
+	-
+	*
+	/
+	//
+	...=
+	...
+
+
+
+輸入/輸出
+	(
+		while True:
+			line = input("$")
+			if line == "q":
+				break
+
+			try:
+				number = int(line)
+				print("you input number : ",number)
+			except ValueError:
+				print("you input string : ",line)
+	)
+
+
+函數的 創建/調用
+	def funName(args ...)
+	(
+		def Min(l,r):
+			if l > r:
+				return r
+			return l
+		print(Min(1,2))
+	)
+	(每個函數 有1個 返回值 默認 None
+	函數可返回 多個值 會被包裝到 tuple 中)
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

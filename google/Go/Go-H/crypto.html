@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#crypto">加密解密</a>
+		<a href="#aes">aes example</a>
+		
+		
+	</div>
+
+	<div class="note"><a name="crypto"></a>
+		<p><span class="flag">加密解密</span>
+<pre>crypto包下的子包 實現了常用的 加密解密
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"crypto/sha512"
+	"encoding/hex"
+	"fmt"
+)
+
+func main() {
+	sha := sha512.New()
+	sha.Write([]byte("any byte"))
+	fmt.Println(hex.EncodeToString(sha.Sum(nil)))
+
+	sha.Reset()
+	sha.Write([]byte("new hash"))
+	fmt.Println(hex.EncodeToString(sha.Sum(nil)))
+
+}
+</pre>
+		</p>
+	</div>
+
+	
+	<div class="note"><a name="aes"></a>
+		<p><span class="flag">aes example</span>
+<pre><span class="care">封裝</span>
+package crypto
+
+import (
+	"crypto/aes"
+	"crypto/cipher"
+	"encoding/hex"
+	"crypto/md5"
+)
+func Md5Byte(source []byte) []byte {
+	md := md5.New()
+	md.Write(source)
+	return md.Sum(nil)
+}
+func Md5(str string) string {
+	md := md5.New()
+	md.Write([]byte(str))
+	return hex.EncodeToString(md.Sum(nil))
+}
+
+func Encrypt(key, iv, source string) (string, error) {
+	//產生 加密工廠
+	block, err := aes.NewCipher([]byte(Md5(key)))
+	if err != nil {
+		return "", err
+	}
+
+	//使用 cfb nopadding
+	stream := cipher.NewCFBEncrypter(block, Md5Byte([]byte(iv)))
+	plaintext := []byte(source)
+	ciphertext := make([]byte, len(plaintext))
+	stream.XORKeyStream(ciphertext, plaintext)
+
+	return hex.EncodeToString(ciphertext), nil
+}
+func Decrypt(key, iv, source string) (string, error) {
+	ciphertext, err := hex.DecodeString(source)
+	if err != nil {
+		return "", err
+	}
+	//產生 加密工廠
+	block, err := aes.NewCipher([]byte(Md5(key)))
+	if err != nil {
+		return "", err
+	}
+
+	//使用 cfb nopadding
+	stream := cipher.NewCFBDecrypter(block, Md5Byte([]byte(iv)))
+	// XORKeyStream can work in-place if the two arguments are the same.
+	stream.XORKeyStream(ciphertext, ciphertext)
+	return string(ciphertext), nil
+}
+
+
+
+<span class="care">調用</span>
+package main
+
+import (
+	"fmt"
+	"myapp/app/models/crypto"
+)
+
+func main() {
+	key := "12345678901"
+	iv := "this is iv"
+	str := "123草7890123草"
+
+	fmt.Println(key, iv, str)
+	enc, err := crypto.Encrypt(key, iv, str)
+	fmt.Println(enc, err)
+	fmt.Println(crypto.Decrypt(key, iv, enc))
+
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

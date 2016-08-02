@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>方法和接口</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#Methods">方法</a>
+		<a href="#interfaces">接口</a>
+		<a href="#error">错误</a>
+	</div>
+
+	<div class="note"><a name="Methods"></a>
+		<p><span class="flag">方法</span>
+<pre>//Go沒有class 但依然可以為struct 定義方法
+type Point struct {
+	X, Y float64
+}
+func (p *Point) Abs() float64 {
+	return math.Sqrt(p.X*p.X + p.Y*p.Y)
+}
+
+func main() {
+	point := Point{3, 4}
+	fmt.Println(point.Abs())
+}
+</pre>
+		</p>
+		<p><span class="flag">實際上可以對包內任意型別 定義方法(不可為其他包型別 或基礎型別定義)</span>
+<pre>>type MyFloat float64
+
+func (f MyFloat) Abs() float64 {
+	if f < 0 {
+		return float64(-f)
+	}
+	return float64(f)
+}
+
+func main() {
+	f := MyFloat(-math.Sqrt2)
+	fmt.Println(f.Abs())
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="interfaces"></a>
+		<p><span class="flag">接口</span>
+<pre>//接口是一組方法定義的集合
+//接口型別 可以存放 實現這些方法的 任意值
+package main
+
+import (
+	"fmt"
+	"math"
+)
+
+type Abser interface {
+	Abs() float64
+}
+
+func main() {
+	var a Abser
+	f := MyFloat(-math.Sqrt2)
+	v := Vertex{3, 4}
+
+	a = f  // a MyFloat 实现了 Abser
+	a = &v // a *Vertex 实现了 Abser
+
+	// 下面一行，v 是一个 Vertex（而不是 *Vertex）
+	// 所以没有实现 Abser。
+	a = v
+
+	fmt.Println(a.Abs())
+}
+
+type MyFloat float64
+
+func (f MyFloat) Abs() float64 {
+	if f < 0 {
+		return float64(-f)
+	}
+	return float64(f)
+}
+
+type Vertex struct {
+	X, Y float64
+}
+
+func (v *Vertex) Abs() float64 {
+	return math.Sqrt(v.X*v.X + v.Y*v.Y)
+}
+</pre>
+		</p>
+		<p><span class="flag">隐式接口</span>
+<pre>package main
+
+import (
+	"fmt"
+	"os"
+)
+
+type Reader interface {
+	Read(b []byte) (n int, err error)
+}
+
+type Writer interface {
+	Write(b []byte) (n int, err error)
+}
+
+type ReadWriter interface {
+	Reader
+	Writer
+}
+
+func main() {
+	var w Writer
+
+	// os.Stdout 实现了 Writer
+	w = os.Stdout
+
+	fmt.Fprintf(w, "hello, writer\n")
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="error"></a>
+		<p><span class="flag">错误</span>
+<pre>//错误是可以用字符串描述自己的任何东西。主要思路是由预定义的内建接口类型 `error`，和方法 `Error`，返回字符串：
+
+type error interface {
+    Error() string
+}
+当用 fmt 包的多种不同的打印函数输出一个 error 时，会自动的调用该方法。
+
+
+
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+type MyError struct {
+	When time.Time
+	What string
+}
+
+func (e *MyError) Error() string {
+	return fmt.Sprintf("at %v, %s",
+		e.When, e.What)
+}
+
+func run() error {
+	return &MyError{
+		time.Now(),
+		"it didn't work",
+	}
+}
+
+func main() {
+	if err := run(); err != nil {
+		fmt.Println(err)
+	}
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

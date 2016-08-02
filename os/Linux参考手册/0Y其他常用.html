@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>其他常用</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1>
+    	
+    	<a href="#Tarball">其他常用</a> <br />
+            </h1></p>
+    
+<div class="div_box"><a name='Tarball'></a>
+	<p><font color="#FF0000">符號連接</font>
+<pre>ln -s 路徑 符號名(不需要先創建 符號目錄)
+
+ln -s /etc etc_s
+
+//刪除符號(rm -rf 不會刪除符號指向的內容 )
+rm -rf etc_s
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">掛接光盤</font>
+<pre>sudo mount /dev/cdroom /mnt/cdroom
+(光驅設備名 也可能是dvd)
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">Gateway 網關地址</font>
+<pre>netstat -rn
+<img src="image/Gateway.PNG" />
+10.0.2.2
+</pre>    
+    </p>
+    
+    <p><font color="#FF0000">virtualbox tools</font>
+<pre>sudo yum -y install kernel-devel
+sudo yum -y install gcc
+sudo shutdown -r now
+
+//install tools
+</pre>           
+	</p>
+    
+    <p><font color="#FF0000">mariadb源</font>
+<pre>
+vim /etc/yum.repos.d/MariaDB.repo
+
+[mariadb]
+name = MariaDB
+baseurl = http://yum.mariadb.org/10.0/centos6-x86
+gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+gpgcheck=1
+</pre>    
+    </p>    
+	
+    <p><font color="#FF0000">修改字符終端分辨率</font>
+<pre>vi /etc/grub.conf
+愛kerenel最後增加vga=0x315
+<img src="image/vga.PNG" />
+</pre>
+	</p>
+</div>    
+    
+</td></tr></table>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Irrlicht</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">基本步驟</font>
+</p>
+
+<p>
+	<a href="#createDevice">createDevice 創建設備</a><br />
+    <a href="#get">增加場景</a><br />
+    <a href="#draw">繪製</a><br />
+    <a href="#example">example</a><br />
+    
+</p>
+
+
+<div class="mydiv"><a name="createDevice"></a>
+	<p><font color="#FF0000">createDevice 創建設備</font>
+<pre>Irrlicht 程序 從一個 createDevice函數開始 其將創建3D繪製設備接口並反回其指針 和用於繪製的窗口
+
+//創建設備(失敗返回NULL)
+IRRLICHT_API IrrlichtDevice* IRRCALLCONV irr::createDevice	(	
+video::E_DRIVER_TYPE 	deviceType = video::EDT_SOFTWARE,					//使用的驅動設備
+const core::dimension2d&lt; u32 &gt; &amp; 	windowSize = (core::dimension2d&lt; u32 &gt;(640, 480)),	//窗口分辨率
+u32 	bits = 16,										//窗口色深
+bool 	fullscreen = false,									//是否全屏
+bool 	stencilbuffer = false,									//繪製陰影時 是否使用模板緩存
+bool 	vsync = false,										//是否開啟垂直同步(僅全屏有效)
+IEventReceiver * 	receiver = 0 								//IEventReceiver類實例指針 用於事件響應
+)	
+
+在不再需要此設備時 應該調用其 drop方法 釋放資源(不需要 delete)
+
+//銷毀設備
+IrrlichtDevice::drop()
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="get"></a>
+	<p><font color="#FF0000">增加場景</font>
+<pre>在 createDevice 成功之後 便需要調用其接口 返回 
+視頻設備
+場景管理器
+gui設備
+...
+並增加相應 需要的 元素
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="draw"></a>
+	<p><font color="#FF0000">繪製</font>
+<pre>在所有 需要的 模型 gui 攝像機 等設置好後
+就可以 使用視頻設備 在beginScene endScene 之間 渲染3D效果
+
+
+bool irr::video::IVideoDriver::beginScene	(	
+bool backBuffer = true,					//是否清空 後台緩衝區
+bool zBuffer = true,					//是否清空 深度緩衝區
+SColor color = SColor(255, 0, 0, 0),	//用何種顏色清空 後台緩衝區
+const SExposedVideoData &amp; videoData = SExposedVideoData(), //是否在其他窗口渲染
+core::rect&lt;s32&gt;* sourceRect = 0 	//渲染矩形區域 0 全部
+)	
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="example"></a>
+	<p><font color="#FF0000">example</font>
+<pre>#include &lt;irrlicht.h&gt;
+
+#ifdef _IRR_WINDOWS_
+#pragma comment(lib, "Irrlicht.lib")
+#endif
+
+int main()
+{
+	//創建設備
+	irr::IrrlichtDevice* device_ptr	=	irr::createDevice(irr::video::EDT_OPENGL);
+	if (!device_ptr)
+		return 1;
+
+	device_ptr-&gt;setWindowCaption(L"Hello World! - Irrlicht Engine Demo");
+
+	//返回 視頻 場景 gui 設備 
+	irr::video::IVideoDriver* driver_ptr	=	device_ptr-&gt;getVideoDriver();
+	irr::scene::ISceneManager* smgr_ptr		=	device_ptr-&gt;getSceneManager();
+	irr::gui::IGUIEnvironment* gui_ptr		=	device_ptr-&gt;getGUIEnvironment();
+
+	//增加gui
+	gui_ptr-&gt;addStaticText(L"Hello World! This is the Irrlicht Software renderer!",
+		irr::core::rect&lt;irr::s32&gt;(10,10,260,22),true);
+
+	//加載一個 3D模型
+	irr::scene::IAnimatedMesh* mesh = smgr_ptr-&gt;getMesh("../../media/sydney.md2");
+	if (!mesh)
+	{
+		device_ptr-&gt;drop();
+		return 1;
+	}
+	//將模型加載到 場景 並返回其模型節點
+	irr::scene::IAnimatedMeshSceneNode* node_ptr = smgr_ptr-&gt;addAnimatedMeshSceneNode( mesh );
+	if (node_ptr)
+	{
+		//關閉模型光照
+		node_ptr-&gt;setMaterialFlag(irr::video::EMF_LIGHTING, false);
+		//設置幀循環
+		node_ptr-&gt;setMD2Animation(irr::scene::EMAT_STAND);
+		//設置紋理
+		node_ptr-&gt;setMaterialTexture( 0, driver_ptr-&gt;getTexture("../../media/sydney.bmp") );
+	}
+
+	//設置攝像機
+	irr::scene::ICameraSceneNode* camera_ptr	=	smgr_ptr-&gt;addCameraSceneNode(0, irr::core::vector3df(0,30,-40), irr::core::vector3df(0,5,0));
+	
+	//繪製
+	while(device_ptr-&gt;run())
+	{
+		//窗口激活才繪製
+		if(device_ptr->isWindowActive())
+		{    
+			driver_ptr-&gt;beginScene(true, true, irr::video::SColor(255,100,101,140));
+		
+			smgr_ptr-&gt;drawAll();
+			gui_ptr-&gt;drawAll();
+
+			driver_ptr-&gt;endScene();
+		}
+		else
+		{
+			device_ptr->yield();
+		}
+	}
+
+	//銷毀設備
+	device_ptr-&gt;drop();
+
+	return 0;
+}
+</pre>
+	</p>
+</div>
+
+</td></tr></table>
+</body>
+</html>

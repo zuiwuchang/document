@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Siege</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#Siege">Siege</a>
+	</div>
+
+	<div class="note"><a name="Siege"></a>
+		<p><span class="flag">Siege</span>
+<pre>Siege 一個開源的 web 壓力測試 工具
+
+官網 <a href="https://www.joedog.org/" target="_blank">https://www.joedog.org/</a>
+
+
+
+//對 url.txt 中的地址(每行一個) 隨機訪問 100次 每次 並發 300個訪問
+siege -c 300 -r 100 -f url.txt
+	-C	顯示 當前 配置
+	-v	運行時 顯示 詳細信息
+	<span class="care">-c	並發量</span>
+	-i	隨機訪問
+	-d	每個 uri之間的 延遲
+	<span class="care">-r	重逢次數 不能 與 -t 一起使用
+	-t	持續時間 單位分 (3600S = 60M = 1H) 不能和 -r 一起使用</span>
+	-l	指定 運行結束 日誌 保存 位置 
+	-R	指定 配置文件 位置siege
+	<span class="care">-f	多個url地址 文件	
+	-u	測試url</span>
+
+
+
+返回信息 如下
+dark@dark-Mint ~ $ siege -c 300 -r 100 -f url.txt 
+** SIEGE 3.0.5
+** Preparing 300 concurrent users for battle.
+The server is now under siege..      done.
+
+Transactions:		       30000 hits	//總 訪問 次數
+Availability:		      100.00 %		//成功率
+Elapsed time:		       64.26 secs	//總用時
+Data transferred:	     2650.25 MB		//共傳輸 數據
+Response time:		        0.01 secs	//響應時間
+Transaction rate:	      466.85 trans/sec	//每秒 完成 請求 次數
+Throughput:		       41.24 MB/sec	//平均每秒 傳輸數據
+Concurrency:		        5.24		//實際最高 並發連接數
+Successful transactions:       30000		//成功 處理 次數
+Failed transactions:	           0		//失敗 次數
+Longest transaction:	        0.26		//每次 傳輸 最長時間
+Shortest transaction:	        0.00		//每次 傳輸 最短時間
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>cocos2d-js</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#localStorage">cc.sys.localStorage</a>
+		<a href="#JSON">JSON 解析</a>
+		
+		
+	</div>
+
+	<div class="note"><a name="cc.sys.localStorage"></a>
+		<p><span class="flag">localStorage</span>
+<pre>cc.sys.localStorage 以將簡單數據(數字 字符串)持久化到 磁盤
+以記錄遊戲存檔
+
+//返回/設置/移除 key 不存在 返回 空字符串
+cc.sys.localStorage.getItem(key);
+cc.sys.localStorage.setItem(key, value);
+cc.sys.localStorage.removeItem(key);
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="JSON"></a>
+		<p><span class="flag">JSON 解析</span>
+<pre>cocos2d-js 使用firefox的 SpiderMonkey 作為js解析器
+其支持 的js 基本同 firefox
+
+js可以使用 eval 動態 加載 js數據 
+或者 JSON.parse(str) 將 json 字符串 返回為json對象
+(JSON.parse 會 比 eval 更高效 且 其只解析json 而不會執行其他腳本)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>	var txt = '{"id":123,"datas":["a0","a1"]}';
+	var j = JSON.parse(txt);
+	cc.log(j.id);
+
+	var str = JSON.stringify(j);
+	cc.log(str);
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>在使用 JSON對象 轉化 字符串 json 時
+需要用 " 標記字符串而非 ' 
+同時 字段名的 "" 不能 省略 或使用 '' 替代
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

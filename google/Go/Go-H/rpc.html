@@ -1,0 +1,179 @@
+﻿<!DOCTYPE html >
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#rpc">rpc</a>
+		<a href="#jsonrpc">jsonrpc</a>
+	</div>
+
+	<div class="note"><a name="rpc"></a>
+		<p><span class="flag">rpc</span>
+<pre>net/rpc 包提供了 rpc 功能
+
+對於rpc函數 go要求是 如下簽名
+	func (t *T)MethodName(args T1,reply *T2)error
+	T為導出對象 T1 T2 為任意Go 型別
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre><span class="care">server</span>
+package main
+
+import (
+	"log"
+	"net"
+	"net/http"
+	"net/rpc"
+)
+
+type Pair struct {
+	First, Second int
+}
+
+type MyNumber struct {
+}
+
+func (n *MyNumber) Add(pair *Pair, sum *int) error {
+	*sum = pair.First + pair.Second
+	log.Printf("%v=%v+%v\n", *sum, pair.First, pair.Second)
+	return nil
+}
+func main() {
+	//註冊rpc函數
+	my := &MyNumber{}
+	rpc.Register(my)
+	//rpc.RegisterName("RpcFunctionName",my) error
+
+	//使用 tcp 協議 開啟rpc 服務器
+	rpc.HandleHTTP()
+	l, e := net.Listen("tcp", ":9090")
+	if e != nil {
+		log.Fatal(e)
+	}
+	log.Println("work at 9090")
+	http.Serve(l, nil)
+}
+
+<span class="care">client</span>
+package main
+
+import (
+	"log"
+	"net/rpc"
+)
+
+type Pair struct {
+	First, Second int
+}
+
+func main() {
+	//使用 tcp http 連接 到 rpc服務器
+	client, e := rpc.DialHTTP("tcp", "127.0.0.1:9090")
+	if e != nil {
+		log.Fatal(e)
+	}
+
+	pair := &Pair{1, 2}
+	var sum int
+
+	//使用 Call 進行同步調用
+	e = client.Call("MyNumber.Add", pair, &sum)
+	if e != nil {
+		log.Fatal(e)
+	}
+	log.Printf("%v=%v+%v\n", sum, pair.First, pair.Second)
+
+	//使用 Go 進行異步調用
+	call := client.Go("MyNumber.Add", pair, &sum, nil)
+	replyCall := <-call.Done
+	log.Println(replyCall.Error)
+	log.Printf("%v=%v+%v\n", sum, pair.First, pair.Second)
+}
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>rpc 使用默認的 gob 編碼 若其它語言 需要使用 必須指定 其它的 編碼
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="jsonrpc"></a>
+		<p><span class="flag">jsonrpc</span>
+<pre>net/rpc/jsonrpc 提供了 以 json 編碼的 rpc
+
+请求格式
+{"method":"MyNumber.Add","params":[{"First":1,"Second":2}],"id":0}
+
+响应格式
+{"id":0,"result":{"First":3,"Second":-1,"C":[]},"error":null}
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><span class="care">server</span>
+package main
+
+import (
+	"log"
+	"net"
+	"net/rpc"
+	"net/rpc/jsonrpc"
+)
+
+type Pair struct {
+	First, Second int
+}
+
+type MyNumber struct {
+}
+
+func (n *MyNumber) Add(pair *Pair, sum *int) error {
+	*sum = pair.First + pair.Second
+	log.Printf("%v=%v+%v\n", *sum, pair.First, pair.Second)
+	return nil
+}
+func main() {
+	//監聽端口
+	srv, e := net.Listen("tcp", ":9090")
+	if e != nil {
+		log.Fatal(e)
+	}
+
+	//新的rpc
+	srv_rpc := rpc.NewServer()
+
+	//註冊rpc函數
+	my := &MyNumber{}
+	srv_rpc.Register(my)
+
+	//路由rpc
+	for {
+		conn, e := srv.Accept()
+		if e != nil {
+			log.Fatal(e)
+		}
+		//響應rpc請求
+		go srv_rpc.ServeCodec(jsonrpc.NewServerCodec(conn))
+	}
+}
+
+<span class="care">client</span>
+	...
+	//使用 tcp http 連接 到 rpc服務器
+	client, e := jsonrpc.Dial("tcp", "127.0.0.1:9090")
+	...
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+

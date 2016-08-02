@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>MariaDB</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">MariaDB</font>
+</p>
+
+<p>
+	<a href="#MariaDB">MariaDB</a><br />
+	<a href="#Centos">Centos</a><br />
+   
+</p>
+
+
+<div class="mydiv"><a name="MariaDB"></a>
+	<p><font color="#FF0000">MariaDB</font>
+<pre>MariaDB 是MySQL創始人 Michael Widenius 在Oracle收購SUN(此時MySQL被 SUN收購)後 開發的社區 維護版MySQL分支
+其語法API完全 兼容 MySQL 故事有MySql的連接接口 可用在 MariaDB
+且 文件名 配置完全同MySQL 故可直接 替代 MySQL 
+
+官網<a href="https://mariadb.org/">https://mariadb.org/</a>
+</pre>
+    </p>
+</div>
+     
+     <div class="mydiv"><a name="MariaDB"></a>
+	<p><font color="#FF0000">MariaDB</font>
+<pre>vi /etc/yum.repos.d/MariaDB.repo
+
+[mariadb]
+name = MariaDB
+baseurl = http://yum.mariadb.org/5.5/centos5-x86
+gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+gpgcheck=1
+
+yum install MariaDB-server MariaDB-client
+
+cp /usr/share/mysql/my-small.cnf  /etc/my.cnf
+</pre>
+	</p>
+	</div>
+</td></tr></table>
+</body>
+</html>

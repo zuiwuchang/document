@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>lua</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#lua">執行lua腳本</a>
+		<a href="#language">語法</a>
+		<a href="#morphology">詞法規範</a>
+		
+	</div>
+
+	<div class="note"><a name="lua"></a>
+		<p><span class="flag">執行lua腳本</span>
+<pre>//即刻 執行 指定lua腳本
+lua	*.lua
+
+//進入交換模式 可以輸入lua語句 沒輸入的語句 將立刻執行
+//(以換行 分隔語句 若一行不足與組成合法lua程序塊 將等待繼續輸入）
+lua
+
+//執行 指定 lua 腳本 執行完成後 進入交換模式
+lua -i *.lua
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="language"></a>
+		<p><span class="flag">語法</span>
+<pre>lua 語句間 不需要分隔符號
+(亦可加上一個 ; 換行 ... 使之看上去和 c/c++ 一樣優美)
+
+//退出lua腳本
+os.exit()
+
+lua 區分大小寫
+
+//註釋代碼 
+--		(相當於c的 //)
+--[[	(... /*)
+]]		(... */)
+
+全局變量可直接使用 其默認值為 nil
+將全局變量 賦值為 nil 可以 釋放其內存
+(print(b);	--輸出 nil
+b = nil;	--釋放變量)
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>lua 開頭以 # 開始的一行代碼 將被 忽略
+這是為了 在 *inux 系統下 將lua直接作為 腳本調用 而不需要顯示調用lua
+如 #!/usr/local/bin/lua [其他lua參數]
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="morphology"></a>
+		<p><span class="flag">詞法規範</span>
+<pre>lua 標識符 可以是 
+任意 字母 數字 下劃線 (不能以字母開頭)
+<span class="care">(應該避免像 _VERSION 以下劃線開始後接大寫字母的 標識符 lua將這類標識符作特殊用途)</span>
+
+保留字
+and	break	do	else	elseif 
+end	false	for	function	if
+in	local	nil	not	or
+repeat	return	then	true	until
+while
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+

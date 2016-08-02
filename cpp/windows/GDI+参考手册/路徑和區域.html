@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>路徑和區域</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p>
+	<a href="#path">路徑</a><br />
+    <a href="#path1">區域</a><br />
+    
+    </p>
+    
+    <div class="div_box"><a name="path"></a>
+    <p><font color="#FF0000">路徑</font>
+<pre>路徑表示一系列相互連接的直線 曲線 形狀
+程序通過使用路徑實現 繪製輪廓 填充形狀內部 創建剪輯區域等
+路徑可由任意子路徑組成
+
+GDI+ 使用 <font color="#FF0000">GraphicsPath</font>表示路徑
+</pre>    
+    </p>
+   	
+    <p><font color="#FF0000">構造路徑</font><br />
+<pre>//構造函數
+GraphicsPath(          FillMode fillMode	
+);
+GraphicsPath(          const Point *points,		//組成路徑的點
+    const BYTE *types,					//每個點的 類型
+    INT count,						//points數組長度
+    FillMode fillMode					//填充模式
+);
+
+GraphicsPath(          const PointF *points,
+    const BYTE *types,
+    INT count,
+    FillMode fillMode
+);
+
+<font color="#FF0000">fillMode 取值</font>
+typedef enum {
+    FillModeAlternate,	
+    FillModeWinding
+} FillMode;
+
+<font color="#FF0000">BYTE 取值</font>
+typedef enum {
+    PathPointTypeStart = 0,		//子路徑起點
+   <font color="#FF0000"> PathPointTypeLine = 1,		//直線起點或終點</font>
+    PathPointTypeBezier = 3,		//貝塞爾曲線的端點 或 控制點
+    PathPointTypePathTypeMask = 0x7,	//路徑點類型掩碼
+    PathPointTypePathDashMode = 0x10,	
+    PathPointTypePathMarker = 0x20,	//標記點		
+    PathPointTypeCloseSubpath = 0x80,	//封閉子路徑點最後一點
+    PathPointTypeBezier3 = 3		//貝瑟曲線的 端點 或 控制點
+} PathPointType;
+
+
+<font color="#FF0000">//定義貝塞爾曲線</font>
+Gdiplus::Point points[]={Gdiplus::Point(40,140)		//起點
+		,Gdiplus::Point(275,200)		//控制點
+		,Gdiplus::Point(105,225)		//控制點
+		,Gdiplus::Point(190,300)		//終點
+	};
+	BYTE types[]={Gdiplus::PathPointTypeStart
+		,Gdiplus::PathPointTypeBezier
+		,Gdiplus::PathPointTypeBezier
+		,Gdiplus::PathPointTypeBezier
+	};
+</pre>   	
+    </p>
+    
+    <p><font color="#FF0000">添加幾何圖形</font>
+<pre>除了在構造時 設置外 以下函數(參數參見 Draw...) 將一個幾何圖形 添加到路徑
+
+//... 貝塞爾曲線
+AddBezier
+AddBeziers
+
+//... 封閉曲線
+AddClosedCurve
+//... 曲線
+AddCurve
+//
+
+//... 直線
+AddLine
+AddLines
+
+//添加一個 圓弧
+AddArc
+
+//... 橢圓
+AddEllipse
+
+//... 扇形
+AddPie
+
+//... 多邊形
+AddPolygon
+
+//... 矩形
+AddRectangle
+AddRectangles
+
+//.. 字符串
+AddString
+
+//... 另外一個 GraphicsPath
+AddPath
+
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">其他API</font>
+<pre>//將繪製的 未封閉圖形(起點 終點) 封閉
+Status CloseFigure(VOID);
+
+//將所有未封閉 圖形 封閉
+Status CloseAllFigures(VOID);
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">子路徑管理</font>
+<pre>GraphicsPath 可以由多個子路徑 組成
+
+在添加路徑時 使用 CloseFigure 或 StartFigure 便完成此路徑的 定義
+之後 再添加的路徑信息 將記錄到 新的子路徑
+CloseFigure StartFigure 的區別在於 CloseFigure會封閉當前路徑 而StartFigure不會
+</pre>
+	</p>
+    
+    
+	<p><font color="#FF0000">example</font>
+<pre>	Gdiplus::GraphicsPath path;
+	path.AddArc(10,10,100,100,0,90);
+	
+	path.AddRectangle(Gdiplus::Rect(10,140,100,100));
+	path.AddArc(20,20,100,100,0,90);
+	
+	graphics.DrawPath(&amp;Gdiplus::Pen(Gdiplus::Color(255,0,0)),&amp;path);
+</pre>
+	</p>
+
+    <p><font color="#FF0000">注意</font>
+<pre>在GraphicsPath中連續添加線段 前一個的終點 和後一個的起點 會被連接
+其被視為同一個 封閉圖形
+若其中 被其他 添加 封閉圖形的函數打斷(如 CloseFigure AddRectangle) 則不會 連接
+
+DrawPath不會主動封閉 開放圖像
+FillPath會主動將 圖像封閉(相當於調用 CloseAllFigures)  
+</pre>
+	</p>
+    </div>
+
+
+	<div class="div_box"><a name="path1"></a>
+    <p><font color="#FF0000">區域</font>
+<pre>區域是由曲線定義的區間 是輸出設備顯示區域的一部分
+區域可以由於 矩形 路徑 等創建 也可合併 剪輯現有區域
+
+GDI+使用Region表示區域
+</pre>
+    </p>
+   
+   <p><font color="#FF0000">構造區域</font>
+<pre>Region::Region(Rect&amp;)		//創建矩形區域
+Region::Region()
+Region::Region(BYTE*,INT)
+Region::Region(GraphicsPath*)	//使用 路徑 構造區域
+Region::Region(HRGN)		//使用GDI句柄 CRgn對象構造
+Region::Region(RectF&amp;)</pre>   
+   </p>
+   
+   <p><font color="#FF0000">區域計算</font>
+<pre>rA.Exclude(&amp;rB);
+Intersect		//求區域交集
+Union			//求區域並集
+Xor			//區域並集 減去區域交集
+Complement		//求區域B中 不包含區域A的 區域
+Exclude			//求區域A中 不包含區域B的 區域
+</pre>
+   </p>
+   
+   <p><font color="#FF0000">可用成員函數</font><br />
+<pre>Clone	否則區域
+Equals	計算兩個區域是否相等
+<font color="#FF0000">GetBounds	獲取區域所佔矩形控制</font>
+GetData	獲取區域邊界數據
+GetDataSize	獲取區域邊界數據大小
+<font color="#FF0000">GetHRGN	獲取GDI區域句柄</font>
+GetRegionScans	獲取組成區域的矩形集
+GetRegionScansCount	獲取組成區域的矩形數量
+<font color="#FF0000">isEmpty	測試區域是否為空</font>
+isInfinite	測試區域是否無線大
+<font color="#FF0000">IsVisible	參數目標是否在區域內
+MakeEmpty	清空區域
+Makeinfinite	無線擴大區域
+Transform	區域坐標變換
+Translate(-10,10)	移動區域(水平左10 垂直下10)</font>
+</pre>
+   </p>
+   
+   <p><font color="#FF0000">IsVisible</font><br />
+   IsVisible 測試 點 區域 等 是否在區域內
+   </p>
+   </div>
+
+</td></tr></table>
+</body>
+</html>

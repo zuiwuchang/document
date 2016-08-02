@@ -1,0 +1,257 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>WinPE基本结构</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+    <p><h1><font color="#FF0000">WinPE基本结构</font></h1></p>
+    
+    <h2>
+    <a href="#pestruct">PE 结构</a><br />
+    <a href="#dos">DOS MZ 头</a><br />
+    <a href="#pe">PE 头</a><br />
+    <a href="#IMAGE_DATA_DIRECTORY">IMAGE_DATA_DIRECTORY</a><br />
+    <a href="#IMAGE_SECTION_HEADER">IMAGE_SECTION_HEADER 节表属性</a><br />
+    <a href="#cover">RVA to FOA</a><br />
+    <a href="#check">校验和算法</a><br />
+    
+    
+    </h2>
+    <div class="div_boxex"><a name="pestruct"></a><p><h3>
+    	<p><h2><font color="#FF0000">PE 结构</font></h2><br />
+        	<div class="my_titleex">
+            	<span class="my_titlle">PE</span>
+                
+                <div class="div_box">
+                <p class="my_titlle">DOS MZ 头(64字节)</p>
+                <p>
+                <font color="#FF0000">IMAGE_DOS_HEADER<br />
+                IMAGE_DOS_HEADER.e_lfanew 指向PE头偏移 其他结构win32以上系统无用</font><br />
+                e_lfanew相对DOS头偏移 3C 
+                </p>
+                </div>
+                
+                <div class="div_boxex">
+                <p class="my_titlle">DOS Stub</p>
+                <p>对于win32以上 无用 用于在16位dos 输出一个提示显示 程序必须运行在win32以上</p>
+                </div>
+                
+                <div class="div_boxex">
+                <p class="my_titlle">PE 头 (248字节)</p>
+                <p>IMAGE_NT_HEADERS
+                	<div class="div_boxex">
+                    <p class="my_titlle">Signature (4字节)</p>
+                    <p>DWORD<br />
+                    PE..  50 45 00 00
+                    
+                    </p>
+                    </div>
+                    
+                    <div class="div_boxex">
+                    <p class="my_titlle">FileHeader (20字节)</p>
+                    <p>IMAGE_FILE_HEADER
+                    
+                    </p>
+                    </div>
+                    
+                    <div class="div_boxex">
+                    <p class="my_titlle">IMAGE_OPTIONAL_HEADER32 (224字节)</p>
+                    <p>IMAGE_OPTIONAL_HEADER32<br />
+                    ...<br />
+                    相对PE头偏移 +0x78 是 IMAGE_OPTIONAL_HEADER32.DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES] 描述16种pe数据<br />
+                    IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];//每个元素 8字节
+                    </p>
+                    </div> 
+                </p>
+                </div>
+                
+                <div class="div_boxex">
+                <p class="my_titlle">节表头	(大小不定)</p>
+                以<font color="#FF0000"> IMAGE_SECTION_HEADER</font>(40字节) 结构排列的数组 每个元素代表一个节<br />
+                以一个空 既全0 IMAGE_SECTION_HEADER 显示 <font color="#FF0000">节表头结束</font>
+                </div>
+                
+                <div class="div_boxex">
+                <p class="my_titlle">节内容 (大小不定)</p>
+                </div>
+                
+            </div>
+        </p>
+   	</h3></p></div>
+    
+    <div class="div_box"><a name="dos"></a><p><h3>
+    	<p><h2><font color="#FF0000">DOS MZ 头</font></h2><br />
+        DOS MZ 头 和 DOS Stub 用于在16位程序中运行 对32系统来说是冗余数据 可全部删除<br />
+        <font color="#FF0000">但 DOS MZ头的 e_lfanew记录了 PE头的 偏移 必须保留 MZ标识也必须保留</font><br />
+        <img src="img/WinPE基本结构/dos.PNG" />
+        </p>
+        <p><h2><font color="#FF0000">DOS MZ 头 结构</font></h2><br />
+        IMAGE_DOS_HEADER STRUCT
+        <table border="2">
+        <tr><td>结构名</td><td>大小</td><td>偏移</td><td>含义</td></tr>
+        <tr><td>e_magic</td><td>WORD</td><td>0000h</td><td>可执行文件标志"MZ"</td></tr>
+        <tr><td>e_cblp</td><td>...</td><td>0002h</td><td>最后部分页中的字节数</td></tr>
+        <tr><td>e_cb</td><td>...</td><td>0004h</td><td>文件中全部和部分也数</td></tr>
+        <tr><td>e_crlc</td><td>...</td><td>0006h</td><td>重定位表中的指针</td></tr>
+        <tr><td>e_cparhdr</td><td>...</td><td>0008h</td><td>头部尺寸 以段落为单位</td></tr>
+        <tr><td>e_minalloc</td><td>...</td><td>000ah</td><td>所需的最小附加段</td></tr>
+        <tr><td>e_maxalloc</td><td>...</td><td>000ch</td><td>所需要最大附加段</td></tr>
+        <tr><td>e_ss</td><td>...</td><td>000eh</td><td>初始的SS值 (相对偏移量)</td></tr>
+        <tr><td>e_sp</td><td>...</td><td>0010h</td><td>初始的SP值</td></tr>
+        <tr><td>e_csum</td><td>...</td><td>0012h</td><td>补码校验值</td></tr>
+        <tr><td>e_ip</td><td>...</td><td>0014h</td><td>初始的IP值</td></tr>
+        <tr><td>e_cs</td><td>...</td><td>0016h</td><td>初始的CS值</td></tr>
+        <tr><td>e_lfarlc</td><td>...</td><td>0018h</td><td>重定位表达字节偏移量</td></tr>
+        <tr><td>e_ovno</td><td>...</td><td>001ah</td><td>覆盖符号</td></tr>
+        <tr><td><font color="#FF0000">下为32位程序中才定义的数据</font></td><td></td><td></td><td></td></tr>
+        <tr><td>e_res</td><td>WORD</td><td>001ch</td><td>保留字</td></tr>
+        <tr><td>e_oemid</td><td>...</td><td>0024h</td><td>OEM标识符</td></tr>
+        <tr><td>e_oeminfo</td><td>...</td><td>0026h</td><td>OEM信息</td></tr>
+        <tr><td>e_res2</td><td>...</td><td>0028h</td><td>保留字</td></tr>
+        <tr><td><font color="#FF0000">e_lfanew</font></td><td>DWORD</td><td>003ch</td><td>PE头 相对DOS头偏移</td></tr>
+        </table>
+        </p>
+	</h3></p></div>
+  	<div class="div_box"><a name="pe"></a><p><h3>
+    	<p><h2><font color="#FF0000">PE 头</font></h2><br />
+        <font color="#FF0000">下图中 数据目录上一层 占88字节 应该为96字节</font><br />
+        <img src="img/WinPE基本结构/pe.PNG" /><br />
+<font color="#FF0000">        下文中所有偏移都是相对 IMAGE_NT_HADER而言（包括IMAGE_NT_HADER子结构中的成员）</font>
+        <pre>	PE 头
+	<font color="#FF0000">IMAGE_NT_HEADERS STRUCT</font>
+	Signature		+0000h	4字节 50450000 既 PE
+	FileHeader		+0004h	指向IMAGE_FILE_HEADER结构
+	OptionalHeader		+0018h	指向IMAGE_OPTIONAL_HEADER32结构
+</pre>
+        </p>
+        <p><h2><font color="#FF0000">IMAGE_FILE_HEADER</font></h2>
+        <pre>Machine			+0004h	指定PE文件运行的平台
+NumberOfSections	+0006h	存在节总数[1,96] 可以没有节但此值不能为0 此值必须等于内存中实际存在节数
+TimeDateStamp		+0008h	编译器创建此文件的时间戳 低32位存自1970-01-01 00：00至今秒数
+PointerToSymbolTable	+000ch	COFF符号表文件偏移 若不存在为0 映像文件为0 微软已经不赞成在PE中使用COFF调试信息
+NumberOfSysmbols	+0010h	符号表中元素数目为0原因同上
+SizeOfOptionalHeader	+0014h	IMAGE_OPTIONAL_HEADER 的长度
+Characteristics		+0016h	文件属性字段
+</pre>
+		<p><font color="#FF0000">Machine取值</font><br /><img src="img/WinPE基本结构/Machine.PNG" /></p>
+        <p><font color="#FF0000">Characteristics每位取值</font><br /><img src="img/WinPE基本结构/Characteristics.PNG" /></p>
+        
+        </p>
+       
+       <p><h2><font color="#FF0000">IMAGE_OPTIONAL_HEADER</font></h2>
+       <pre>Magic			+0018	说明文件类型	010B(PE32文件) 0107(ROM映像) 020B(PE32+ 既64位PE文件)
+MajorLinkerVersion	+001A	链接器版本主版本号
+MinorLinkerVersion	+001B	链接器版本次版本号
+SizeOfCode		+001c	所有代码节总和(以字节为单位) 文件对齐后大小
+SizeOfInitializedData	+0020	所有包含已经初始化的数据的节的总大小
+SizeOfUninitializedData	+0024	...未初始化...
+AddressOfEntryPoint	+0028	oep的偏移
+BaseOfCode		+002c	代码节起始RVA	通常名.text
+BaseOfData		+0030	数据节起始RVA 通常名.data
+ImageBase		+0034	PE映像优先装入地址 <font color="#FF0000">取值必须64kb的整数倍</font>
+SectionAlignment	+0038	内存对齐 win32页面对齐最小说4KB 既01000h SectionAlignment小于页面大小时 必须等于 FileAlignment
+FileAlignment		+003c	文件对齐 一般为512(一个物理扇区大小) 既200h
+
+//+0040	操作系统版本号
+MajorOperatingSystemVersion    
+MinorOperatingSystemVersion
+//+0044 PE文件映像版本号
+MajorImageVersion
+MinorImageVersion 
+//+0048	运行所需的子系统的版本号
+MajorSubsystemVersion
+MinorSubsystemVersion
+
+Win32VersionValue	+004c	子系统版本值必须为0 暂未使用
+SizeOfImage		+0050	内存中PE文件尺寸 可以比实际值大 但不能小于 且必须是 SectionAlignment的整数倍
+SizeOfHeaders		+0054	所有头+节表文件对齐后代大小
+CheckSun		+0058	校验和 对大多数PE应该为0 一些内核驱动和系统dll此值必须正确
+Subsysem		+005c	界面子系统
+DllCharacteristics	+005e	DLL文件属性(针对所有PE 不只dll)
+SizeOfStackReserve	+0060	初始化时保留栈的大小
+SizeOfStackCommit	+0064	初始化时实际提交的栈大小
+SizeOfHeapReserve	+0068	初始化时保留的堆大小
+SizeOfHeapCommit	+006c	初始化时实际提交的堆大小
+LoaderFlags		+0070	加载标志
+NumberOfRvaAndSize	+0074	定义数据目录结构数量 一般10h既然16个 可取[2,16]
+DataDirectory		+0078	由16个IMAGE_DATA_DIRECTORY结构线性排列而成 用于定义PE中16种不同类别数据所在位置和大小
+<p><img src="img/WinPE基本结构/subsystem.PNG" /></p>
+       </pre>
+       </p>
+  	</h3></p></div>
+    <div class="div_box"><a name="IMAGE_DATA_DIRECTORY"></a><p><h3>
+    	<p><h2><font color="#FF0000">IMAGE_DATA_DIRECTORY</font></h2><br />
+        IMAGE_OPTIONAL_HEADER的最后一个结构 数组 中的数据 用以描述 16中不同PE数据
+        <pre>
+        IMAGE_DATA_DIRECTORY STRUCT
+        DWORD	0000h	VirtualAddress	数据起始RVA
+        DWORD	0004h	isize		数据块长度
+        </pre>
+        </p>
+        <p><h2><font color="#FF0000">16种数据说明</font></h2>
+        <pre>0	导出表所在节		通常命名为 .edata
+1	导入表所在节		通常命名为 .idata
+2	资源表所在的节	通常命名为 .pdata
+3	异常表所在的节		通常命名为 .rsrc
+4	属性证书		该数据不会作为映像被加载到内存
+5	基址重定位所在节	通常命名为 .reloc
+6	调试数据所在节		通常命名为 .debug	指向IMAGE_DEBUG_DIRECTORY结构数组
+7	预留必须为0
+8	Global Ptr 数据描述的是被存储在全局指针寄存器中的一个值
+9	线程本地存储数据所在节	通常命名为 .tls
+10	加载配置信息	用于包含保留的SEH技术
+11	绑定导入数据
+12	IAT导入地址表(既导入函数地址表地址和大小)
+13	延迟导入数据
+14	CLR数据所在节		通常命名为.cormeta	.NET框架程序常用	
+15	系统预留	未定义
+</pre>
+        </p>
+  	</h3></p></div>
+     <div class="div_box"><a name="IMAGE_SECTION_HEADER"></a><p><h3>
+    	<p><h2><font color="#FF0000">IMAGE_SECTION_HEADER 节表属性</font></h2><br />以一个空的IMAGE_SECTION_HEADER结构代表节表头结束<pre>IMAGE_SECTION_HEADER STRUCT
+<font color="#FF0000">Name			+0000h	8字节字符串 一般以\0结尾 ascii码 如果不以\0结尾 系统取8字节</font>
+Misc			+0008h	节的数据在没对齐前端真实尺寸 (但许多PE此值不准确)
+<font color="#FF0000">VirtualAddress		+000ch	节区的RVA</font>
+SizeOfRawData		+0010h	节在文件中对齐后代尺寸
+<font color="#FF0000">PointerToRawData	+0014h	节起始数据在文件中的偏移</font>
+PointerToRelocations	+0018h	在 .obj 文件中使用 指向重定位表的指针
+PointerToLinenumbers	+001ch	行号表达位置(供调试用)
+NumberOfRelocations	+0020h	重定位表达个数(在 OBJ 文件中使用)
+NumberOfLinenumbers	+0022h	行号表中行号的数量
+<font color="#FF0000">Characyeristics	+0024h	节属性</font> 代码节一般 60000020h 数据节 C0000040h
+<p><font color="#FF0000">Characyeristics取值</font><br /><img src="img/WinPE基本结构/node.PNG" /></p>
+</pre>
+        </p>
+  	</h3></p></div>
+     <div class="div_box"><a name="cover"></a><p><h3>
+    	<p><h2><font color="#FF0000">RVA to FOA</font></h2><br />
+        得到 RVA 计算其所在节 获取节起始RVA0<br />
+        得到相对节偏移 offset=RVA-RVA0<br />
+        得到节在文件中偏移  FOA<br />
+        得到RVA对于文件FOA  FOA=FOA+offset
+        </p>
+        
+        <p><h2><font color="#FF0000">注意</font></h2><br />
+        RVA 是PE 加载到内存后 相对基址偏移<br />
+        VA 是PE 加载到内存后 实际内存地址<br /><br />
+        FOA	是文件地址<br />
+        
+        内存中 地址相对节偏移 <font color="#FF0000">等于</font> 文件中 地址相对皆偏移
+        </p>
+   	</h3></p></div>
+    <div class="div_box"><a name="check"></a><p><h3>
+    	<p><h2><font color="#FF0000">校验和算法</font></h2><br />
+        1 将IMAGE_OPTIONAL_HEADER32.CheckSum 清0<br />
+        2 以WORD为单位 对数据块进行带进位的累加 (超过范围数据自动溢出 adc)<br />
+        3 将第二部得到的WORD加上文件长度DWORD 得到校验和 DWORD
+        
+        </p>
+        
+    </h3></p></div>
+</td></tr></table>
+</body>
+</html>

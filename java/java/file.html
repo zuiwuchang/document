@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>文件和數據流</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#File">File</a>
+		<a href="#PrintWriter">文本文件</a>
+		<a href="#DataOutputStream">二進制文件</a>
+		<a href="#Serializable">序列化</a>
+		<a href="#RandomAccessFile">隨機文件</a>
+		<a href="#zip">壓縮文件</a>
+		
+	</div>
+
+	<div class="note"><a name="File"></a>
+		<p><span class="flag">File</span>
+<pre>java.io.File 是專門的文件對象
+提供了各種文件操作
+</pre>
+		</p>
+
+        <p><span class="flag">成員函數</span>
+<pre>//構造文件對象
+File(String path)
+File(String path,String file)
+File(URI uri)
+
+//是否 可執行 讀 寫 存在
+boolean canExecute()
+boolean canRead()
+boolean canWrite()
+boolean exists()
+
+//是否是 文件 文件夾 隱藏
+boolean isDirectory() 
+boolean isFile() 
+boolean isHidden()
+
+
+//返回 文件名 上級路徑 路徑 字節長度
+String getName()
+String getParent()
+String getPath()
+long length()
+
+//創建 新的空白文件 文件夾
+boolean createNewFile()
+boolean mkdir()
+
+//創建文件夾 自動創建需要的 父文件夾
+boolean mkdirs()
+
+//返回當前目錄下所有 文件
+String[] list()
+String[] list(FilenameFilter filter)
+File[] listFiles()
+File[] listFiles(FileFilter filter)
+
+//刪除 文件 文件夾
+boolean delete() 
+
+//重命名 文件 文件夾
+boolean renameTo(File dest)
+
+//返回系統根目錄
+static File[] listRoots()
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>import java.io.File;
+import java.io.FileFilter;
+
+
+
+File file = new File("d:/");
+File[] files = file.listFiles(new FileFilter() {
+
+	@Override
+	public boolean accept(File pathname) {
+		return pathname.isFile() && pathname.getName().endsWith(".exe");
+	}
+});
+for(File f:files){
+	System.out.println(f.getName());
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="PrintWriter"></a>
+		<p><span class="flag">文本文件</span>
+<pre><span class="care">輸出</span>
+
+//帶各種格式的 文本輸出 對象
+PrintWriter(File file)
+PrintWriter(Writer out)
+
+//文本輸出 緩衝對象
+BufferedWriter(Writer out) 
+
+//文本輸出 對象
+FileWriter(File file) 
+FileWriter(String fileName, boolean append/*true 添加到文件尾*/) 
+
+
+
+PrintWriter
+	-&gt;BufferedWriter
+		-&gt;FileWriter
+
+
+
+<span class="care">輸入</span>
+//文本輸入 緩衝區
+BufferedReader(Reader in)
+
+//文本輸入 對象
+FileReader(File file)
+
+
+
+BufferedReader
+	-&gt;FileReader
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+
+
+/**
+ *
+ * @author Administrator
+ */
+public class JavaApplication3 {
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        try {
+            PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("test.txt")));
+            for(int i=0;i&lt;10;++i){
+                out.println(i);
+            }
+            out.close();
+            
+            
+            BufferedReader in = new BufferedReader(new FileReader("test.txt"));
+            while(true){
+                String line = in.readLine();
+                if(line == null){
+                    break;
+                }else{
+                    System.out.println(line);
+                }
+            }
+            in.close();
+        } catch (IOException ex) {
+            Logger.getLogger(JavaApplication3.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+    
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="DataOutputStream"></a>
+		<p><span class="flag">二進制文件</span>
+<pre><span class="care">輸出</span>
+
+//帶序列化的 二進制輸出對象
+DataOutputStream(OutputStream out)
+
+//二進制輸出 緩衝區
+BufferedOutputStream(OutputStream out)
+
+//二進制輸出對象
+FileOutputStream(File file)
+FileOutputStream(File file, boolean append)
+
+
+
+DataOutputStream
+	-&gt;BufferedOutputStream
+		-&gt;FileOutputStream
+
+
+
+<span class="care">輸入</span>
+
+//帶序列化的 二進制輸入對象
+DataInputStream(InputStream in)
+
+//二進制輸入 緩衝區
+BufferedInputStream(InputStream in)
+
+//二進制輸入對象
+FileInputStream(File file)
+
+
+
+DataInputStream
+	-&gt;BufferedInputStream
+		-&gt;FileInputStream
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+
+
+/**
+ *
+ * @author Administrator
+ */
+public class JavaApplication3 {
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        try {
+            DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream("test")));
+            for(int i=0;i&lt;10;++i){
+                out.writeInt(i);
+            }
+            out.close();
+            
+            DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream("test")));
+            while(in.available() > 0){
+                int i = in.readInt();
+                System.out.println(i);
+            }
+            in.close();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(JavaApplication3.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(JavaApplication3.class.getName()).log(Level.SEVERE, null, ex);
+        }
+       
+        
+    }
+    
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Serializable"></a>
+		<p><span class="flag">序列化</span>
+<pre>1	實現 java.io.Serializable 接口 (此接口 無需完善任何 方法)
+
+2	對 class 實現 get* set* 方法
+
+3	創建 輸出 輸入 對象
+
+4	使用 writeObject readObject 操作對象
+
+//帶序列化的 輸出流
+ObjectOutputStream(OutputStream out)
+
+//二進制輸出對象
+FileOutputStream(File file)
+FileOutputStream(File file, boolean append) 
+
+
+
+//帶序列入的 輸出流
+ObjectInputStream(InputStream in)
+
+//二進制輸入對象
+FileInputStream(File file) 
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>package javaapplication3;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+
+/**
+ *
+ * @author Administrator
+ */
+public class JavaApplication3 {
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        try {
+            User user = new User();
+            user.setLv(1);
+            user.setName("illusive man");
+            
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("test"));
+            out.writeObject(user);
+            out.close();
+            
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream("test"));
+            try{   
+                while(true){
+                    user = (User) in.readObject();
+                    System.out.println(user.getLv());
+                    System.out.println(user.getName());
+                }
+            }catch (IOException ex){
+            }
+            in.close();
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(JavaApplication3.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(JavaApplication3.class.getName()).log(Level.SEVERE, null, ex);
+        } 
+       
+       
+    }
+    
+}
+class User implements Serializable{
+    private String name;
+    private int lv;
+
+    public String getName(){
+        return name;
+    }
+    public int getLv(){
+        return lv;
+    }
+
+    public void setName(String val){
+        name = val;
+    }
+    public void setLv(int val){
+        lv = val;
+    }
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="RandomAccessFile"></a>
+		<p><span class="flag">隨機文件</span>
+<pre>class java.io.RandomAccessFile 提供了 隨機文件的I/O方法
+
+//創建隨機文件訪問對象
+RandomAccessFile(File file, String mode) 
+	"r" 以只读方式打开。调用结果对象的任何 write 方法都将导致抛出 IOException。  
+	"rw" 打开以便读取和写入。如果该文件尚不存在，则尝试创建该文件。  
+	"rws" 打开以便读取和写入，对于 "rw"，还要求对文件的内容或元数据的每个更新都同步写入到底层存储设备。  
+	"rwd"   打开以便读取和写入，对于 "rw"，还要求对文件内容的每个更新都同步写入到底层存储设备 
+
+//讀寫
+write*
+read*
+
+//設置 相對文件開始 讀寫位置
+void seek(long pos)
+//設置相對當前 讀寫位置
+int skipBytes(int n)
+
+//設置文件大小 設置為0 文件內容將被清空
+void setLength(long newLength)
+
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="zip"></a>
+		<p><span class="flag">壓縮文件</span>
+<pre>java.util.zip 包中 提供了對 zip gzip的支持
+
+//gzip 輸入 輸出 流對象
+GZIPInputStream(InputStream in)
+GZIPOutputStream(OutputStream out)
+
+//zip 輸入 輸出 流對象
+ZipInputStream(InputStream in)
+ZipOutputStream(OutputStream out)
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
+try {
+    //定義緩衝區
+    byte[] buffer = new byte[1024];
+    int len = 0;
+    //創建輸出流
+    GZIPOutputStream gzOut = new GZIPOutputStream(new FileOutputStream("test.gz"));
+    
+    //壓縮文件a
+    {
+        FileInputStream in = new FileInputStream("a.txt");
+        while((len = in.read(buffer)) > 0){
+            gzOut.write(buffer,0,len);
+        }
+        in.close();
+    }
+    
+    //壓縮文件b
+    {
+        FileInputStream in = new FileInputStream("b.txt");
+        while((len = in.read(buffer)) > 0){
+            gzOut.write(buffer,0,len);
+        }
+        in.close();
+    }
+    
+    //結束 壓縮處理
+    gzOut.finish();
+    //關閉流對象
+    gzOut.close();
+    
+    
+    
+    //解壓
+    GZIPInputStream gzIn = new GZIPInputStream(new FileInputStream("test.gz"));
+    String str = "";
+    while((len = gzIn.read(buffer))>0){
+        str += new String(buffer,0,len);
+    }
+    gzIn.close();
+    System.out.println(str);
+} catch (FileNotFoundException ex) {
+    Logger.getLogger(JavaApplication3.class.getName()).log(Level.SEVERE, null, ex);
+} catch (IOException ex) {
+    Logger.getLogger(JavaApplication3.class.getName()).log(Level.SEVERE, null, ex);
+}
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

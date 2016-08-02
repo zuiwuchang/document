@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>傳奇私服</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">wil_wix</font>
+</p>
+
+<p>
+	<a href="#wil_wix">wil_wix</a><br />
+   	<a href="#bitmap_16_565">bitmap_16_565</a><br />
+    <a href="#bitmap_256">bitmap_256</a><br />
+    <a href="#map">map</a><br />
+</p>
+
+
+<div class="mydiv"><a name="wil_wix"></a>
+	<p><font color="#FF0000">wil_wix</font>
+<pre>wil 為客戶的 圖片庫文件
+wix 為圖片索引文件 記錄了 wil中圖片索引信息
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">wix</font>
+<pre>wix 由文件頭 和 索引數據組成
+索引數據為 DWORD 數組 數組每個值 記錄了 對應索引圖片 在 wil中的 文件偏移
+
+	typedef struct _WIX_HEADER_
+	{
+		char	title[44];	//標題
+		DWORD	count;		//包含圖片數量
+
+	}WIX_HEADER,*PWIX_HEADER;
+</pre>
+	</p>    
+    
+    <p><font color="#FF0000">wil</font>
+<pre>wil 由文件頭 圖像數據組成
+
+	typedef struct _WIL_HEADER_
+	{
+		char	title[44];		//標題
+		DWORD	count;			//包含圖片數量
+		DWORD	color_depth;	//色深
+		DWORD	palette_size;	//調色板字節數
+		DWORD	palette[256];	//調色板
+	}WIL_HEADER,*PWIL_HEADER;
+    
+	圖像數據 由圖像頭 和像素 數據組成
+	typedef struct _WIL_PIXEL_HEADER_
+	{
+		WORD	width;		//圖像寬 像素
+		WORD	height;		//圖像高 像素
+		DWORD	sign;		//標記  像素信息是否平移
+
+	}WIL_PIXEL_HEADER,*PWIL_PIXEL_HEADER;
+</pre>
+	</p>
+</div> 
+
+<div class="mydiv"><a name="bitmap_16_565"></a>
+	<p><font color="#FF0000">bitmap_16_565</font>
+<pre>當 WIL_HEADER::color_depth == 65536
+圖像數據使用 16位位圖 565格式存儲
+</pre>
+	</p>
+</div>   
+
+<div class="mydiv"><a name="bitmap_256"></a>
+	<p><font color="#FF0000">bitmap_256</font>
+<pre>當 WIL_HEADER::color_depth == 256
+圖像數據使用 256色位圖
+</pre>
+	</p>
+</div>   
+
+<div class="mydiv"><a name="map"></a>
+	<p><font color="#FF0000">map</font>
+<pre>地图信息 传奇为格子游戏 每个 由48*32个像素组成
+地图由于 地图头 和点信息组成
+
+
+	//地图头
+	#pragma pack(push)
+	#pragma pack(1)	
+	//52字节
+	typedef struct _MAP_HEADER_
+	{
+		WORD	width;			//寬
+		WORD	height;			//高
+		char	title[16];		//標題		若为 0xd Legend of mir 则每点由12字节组成 否则由14字节组成
+		DWORD64	date;			//更新時間
+		char	reserve[24];	//保留
+
+	}MAP_HEADER,*PMAP_HEADER;
+
+	#pragma pack(pop)
+
+	//点信息 12/14字节
+	typedef struct _POINT_INFO_
+	{
+		WORD	back;			//地表索引	最高位=1不能通過/站立
+		WORD	middle;			//中間索引	若back未鋪滿 使用此值鋪墊 最高位不使用
+		WORD	front;			//表層索引	最高位=1不能從空中通過
+		BYTE	door;			//門索引	最高位=1有門 0沒有
+		BYTE	door_offset;	//門偏移	最高位=1門打開 0門關閉
+		BYTE	frame;			//幀數		當為動畫時指定了組成動畫的圖片數	最高位=1為動畫
+		BYTE	interval;		//播放動畫時間間隔
+		BYTE	source_index;	//資源索引 指示圖片來自 哪個Object*.wil文件 
+		BYTE	light;			//亮度	0/1/4/...
+	//	WORD	unknow;			//14字节信息存在此值 用处暂时不知
+	}POINT_INFO,*PPOINT_INFO;
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">注意</font>
+<pre>点信息是 安列存储的 而非行 既先存(0,0) (1,0) (2,0) ... (0,1) (1,1) ....
+
+绘制地图时 要先绘制back middle 最后单独绘制front
+</pre>
+	</p>
+</div>    
+</td></tr></table>
+</body>
+</html>

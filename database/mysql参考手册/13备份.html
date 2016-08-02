@@ -1,0 +1,120 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>备份还原和导入导出</title>
+</head>
+<body>
+<table align="center"><tr><td>
+    <p>
+    <h2>
+	<a href="#mysqldump">mysqldump</a><br />
+    <a href="#into">into outfile</a><br />
+    <a href="#load">load data</a><br />
+    
+    </h2>
+	</p>	
+    
+    
+    <a name="mysqldump">
+    <p>
+    <h3>
+    <font color="#FF0000">mysqldump</font>
+    <table border="2">
+    <tr><td>描述</td><td>sql</td></tr>
+    <tr><td>备份指定数据库的指定表</td><td>mysqldump -u use_name -p database_name table_name >save_name</td></tr>
+    <tr><td>备份数据库中所有表</td><td>mysqldump -u use_name -p database_name table_name >save_name</td></tr>
+    <tr><td>备份多个数据库</td><td>mysqldump -u use_name -p --databases database_name database_name>save_name</td></tr>
+    <tr><td>备份所有数据库的指定表</td><td>mysqldump -u use_name -p --all-databases >save_name</td></tr>
+    <tr><td><font color="#FF0000">example </font></td><td>mysqldump -u root -p history kings_ming >/media/sf_Virtualbox_Directory_Linux/history.sql</td></tr>
+    </table>
+    备份时不会备份数据库名 所以还原是必须保证此数据库存在 --all-database 会保存数据库名
+     </h3>
+     </p>
+     </a>
+     <br />
+   
+	<a name="into">
+    <h3>
+    <p>
+    <p><font color="#FF0000">导出</font></p>
+    
+    	<p>
+    	select [字段名] from table_name [where] into outfile 'filename' [option];<br />
+    	option取值
+        <table border="2">
+        <tr><td>取值</td><td>描述</td></tr>
+        <tr><td>fields terminated by '字符串'</td><td>设置字符串为字段分隔符 默认分隔符为'\t'</td></tr>
+        <tr><td>fields enclosed by '字符'</td><td>使用字符括上字段 默认不使用符合括</td></tr>
+        <tr><td>fields optionally enclosed by '字符'</td><td>设置字符括上varchar char text等字段 默认不括</td></tr>
+        <tr><td>fields escaped by '字符'</td><td>设置转义字符 默认为\</td></tr>
+        <tr><td>lines starting by '字符串'</td><td>设置每行开头的字符串 默认无</td></tr>
+        <tr><td>lines terminated by '字符串'</td><td>设置每行结束符 默认为\n</td></tr>
+        </table>
+        </p>
+        
+        <p>
+        mysqldump -u root -p -T目标目录 database_name table_name [option];
+        option取值
+        <table border="2">
+        <tr><td>取值</td><td>描述</td></tr>
+        <tr><td>--fields-terminated-by=字符串</td><td>设置字符串为字段分隔符 默认分隔符为'\t'</td></tr>
+        <tr><td>--fields-enclosed-by=字符</td><td>使用字符括上字段 默认不使用符合括</td></tr>
+        <tr><td>--fields-optionally-enclosed=by=字符</td><td>设置字符括上varchar char text等字段 默认不括</td></tr>
+        <tr><td>--fields-escaped-by=字符</td><td>设置转义字符 默认为\</td></tr>
+        <tr><td>--lines-terminated-by=字符串</td><td>设置每行结束符 默认为\n</td></tr>
+        </table>
+        </p>
+        
+        <p>
+        mysql -u root -p -e 'sql...' database_name>out.txt;<br />
+        </p>
+        
+    </h3>
+    </p>
+    </a>
+    
+    <a name="load">
+    <h3>
+    <p>
+    <p><font color="#FF0000">导入</font></p>
+    	<P>
+        load data  infile file into table table_name [option];
+        <br />
+        option取值
+        <table border="2">
+        <tr><td>取值</td><td>描述</td></tr>
+        <tr><td>fields terminated by '字符串'</td><td>设置字符串为字段分隔符 默认分隔符为'\t'</td></tr>
+        <tr><td>fields enclosed by '字符'</td><td>使用字符括上字段 默认不使用符合括</td></tr>
+        <tr><td>fields optionally enclosed by '字符'</td><td>设置字符括上varchar char text等字段 默认不括</td></tr>
+        <tr><td>fields escaped by '字符'</td><td>设置转义字符 默认为\</td></tr>
+        <tr><td>lines starting by '字符串'</td><td>设置每行开头的字符串 默认无</td></tr>
+        <tr><td>lines terminated by '字符串'</td><td>设置每行结束符 默认为\n</td></tr>
+        <tr><td>ignore n lines</td><td>忽略前n行记录</td></tr>
+        <tr><td>(字段列表)</td><td>根据字段列表中的字段和顺序加载记录</td></tr>
+        <tr><td>set column expr</td><td>将指定列使用expr表达式进行转换</td></tr>
+        </table>
+        
+        </P>
+        <p>
+        mysqlimport -u root -p database_name file_name[option];
+        <br />
+        option取值
+        <table border="2">
+        <tr><td>取值</td><td>描述</td></tr>
+        <tr><td>--fields-terminated-by=字符串</td><td>设置字符串为字段分隔符 默认分隔符为'\t'</td></tr>
+        <tr><td>--fields-enclosed-by=字符</td><td>使用字符括上字段 默认不使用符合括</td></tr>
+        <tr><td>--fields-optionally-enclosed=by=字符</td><td>设置字符括上varchar char text等字段 默认不括</td></tr>
+        <tr><td>--fields-escaped-by=字符</td><td>设置转义字符 默认为\</td></tr>
+        <tr><td>--lines-terminated-by=字符串</td><td>设置每行结束符 默认为\n</td></tr>
+        <tr><td>--ignore-lines=n</td><td>忽略前n行</td></tr>
+        </table>
+        
+        </p>
+    </p>
+    </h3>
+    </a>
+
+</td></tr></table>
+</body>
+</html>

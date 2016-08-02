@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>lua</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#class">类</a>
+	</div>
+
+	<div class="note"><a name="class"></a>
+		<p><span class="flag">类</span>
+<pre>lua 沒有 所謂的 类 其
+只能类似 javascript 使用語言特性 模擬類
+(更多模擬類的技巧 參見 javascript)
+
+可以 直接把 table 當作 一種對象  
+
+
+
+面向對象 最重要的便是 一個 this 指針 代表了對象實例 
+this貫穿了 類成員 直接 好吧成員方法 只不過 是一天帶有this參數 的普通函數 
+只不過 大多語言 編譯器 隱藏了 這些細節 而不需要 說些出 this參數 罷
+
+
+
+lua中 的self 就是 c++ class 中 的this
+同時 使用 : 定義/調用 函數 而非 . lua会自动为函數 定義/傳入一個 self參數
+(不過 在函數中 對 成員的訪問 都需要加上 self.)
+
+
+
+其實 類亦可 說是一種原型的 實例化 或繼續 只是讓實例 獲取到原型的 方法 成員
+lua 的 元方法 __index 可以很好的 模擬 原型
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>--定義一個 class
+Role	=	{
+	name	=	"未命名"
+	,x	=	0
+	,y	=	0
+	}
+
+function Role:Display()
+	print(self.name .. "\n" ..
+	" x = " .. self.x ..
+	" y = " .. self.y
+	)
+end
+
+
+--模擬 new構造
+function Role:new(name)
+	local rs	=	{}
+	setmetatable(rs,{__index = self})
+	rs.name	=	name
+	return rs
+end
+
+a	=	Role:new("illusive man")
+b	=	Role:new("Cerberus")
+
+a.x	=	1
+a.y	=	1
+b.x	=	2
+b.y	=	2
+
+a:Display()
+b:Display()
+--[[
+illusive man
+ x = 1 y = 1
+Cerberus
+ x = 2 y = 2
+]]
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>無法 模擬一個 delete 操作 lua自動 管理內存
+若想一個 函數參入 自身 即使是 self 也不過是對引用計數 +1 在函數中 為self=nil 不過是引用計數 -1
+故 無法 寫一個 函數 刪除 實例化的對象(lua 應該是 一個 變量[從基類獲取原型的 變量]) 
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

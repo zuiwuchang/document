@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cnf>
+	<server>
+		<port>9090</port>
+		<log>1</log>
+		<loglv>0</loglv>
+		<logfile>
+			<log>0</log>
+			<directory>./log</directory>
+			<maxsize>10240</maxsize>
+			<maxcount>180</maxcount>
+		</logfile>
+		<maxlive>30000</maxlive>
+		<interval>10</interval>
+	</server>
+	
+	<router>
+		<static>
+			<url>/images/</url>
+			<url>/css/</url>
+			<url>/javascript/</url>
+		</static>
+		<controller>
+			<note>
+				<url>/hellow</url>
+				<name>hellow word</name>
+				<method>ALL</method>
+			</note>
+			<note>
+				<url>/param/:id([0-9]+)/:name([a-z]+)</url>
+				<name>param</name>
+				<method>GET</method>
+			</note>
+		</controller>
+
+		<listener>
+			<note>
+				<url>/</url>
+				<name>mylistener</name>
+				<method>BEFORE</method>
+			</note>
+		</listener>
+	</router>
+</cnf>

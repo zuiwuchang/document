@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>標準對話框</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#wxFileDialog">wxFileDialog</a>
+		<a href="#wxDirDialog">wxDirDialog</a>
+		<a href="#wxFontDialog">wxFontDialog</a>
+	</div>
+
+	<div class="note"><a name="wxFileDialog"></a>
+		<p><span class="flag">wxFileDialog</span>
+<pre>wxFileDialog 是一個文件選擇對話框
+提供用戶 選擇 1個/多個 文件
+或 保存/打開 文件 的功能
+</pre>
+		</p>
+		<p><span class="flag">常用接口</span>
+<pre>//構造函數
+wxFileDialog	(	wxWindow * 	parent,	//父窗口
+	const wxString & 	message = wxFileSelectorPromptStr,	//標題
+	const wxString & 	defaultDir = wxEmptyString,	//默認文件路徑
+	const wxString & 	defaultFile = wxEmptyString,	//默認文件名
+	const wxString & 	wildcard = wxFileSelectorDefaultWildcardStr,	//文件過濾器
+	long 	style = wxFD_DEFAULT_STYLE,
+	const wxPoint & 	pos = wxDefaultPosition,
+	const wxSize & 	size = wxDefaultSize,
+	const wxString & 	name = wxFileDialogNameStr 
+)	
+
+//顯示 對話框 用戶確認操作 返回wxID_OK 
+int ShowModal	(		)	
+
+//返回 選擇的 文件名
+wxString 	GetFilename () const
+
+//返回 選擇的 文件名 全路徑
+virtual wxString 	GetPath () const
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="wxDirDialog"></a>
+		<p><span class="flag">wxDirDialog</span>
+<pre>wxDirDialog 是一個 文件夾 選擇窗口
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>void darkDialogBack::OnButtonDirectory(wxCommandEvent& event)
+{
+    wxDirDialog dlg(this);
+    if(dlg.ShowModal() == wxID_OK)
+    {
+        wxString path = dlg.GetPath();
+        wxMessageBox(path);
+    }
+
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="wxFontDialog"></a>
+		<p><span class="flag">wxFontDialog</span>
+<pre>wxFontDialog 是一個 字體選擇框
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>	wxFontDialog dlg(this);
+    if(dlg.ShowModal() == wxID_OK)
+    {
+        wxFontData& data = dlg.GetFontData();
+        wxFont font = data.GetChosenFont();
+        text_command_->SetFont(font);
+        singleton_configure::get_mutable_instance().font(font);
+    }
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

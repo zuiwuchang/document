@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>傳奇私服</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">定時器</font>
+</p>
+
+<p>
+	<a href="#OnTimer">OnTimer</a><br />
+    <a href="#Robot">Robot</a><br />
+   
+   
+</p>
+
+
+<div class="mydiv"><a name="OnTimer"></a>
+	<p><font color="#FF0000">OnTimer</font>
+<pre>編輯 MirServer\Mir200\Envir\MapQuest_def\QManage.txt (此為登錄腳本)
+可在裡面 增加 定時器 處理代碼段
+[@OnTimer0]
+代碼段 名稱為 [@OnTimer*] *取值為 [0,255]
+
+//開啟定時器 0為定時器編號 1為定時器執行時間間隔(秒) 2為執行次數(不寫為一直執行)
+SetOnTimer 0 1 2
+
+//停止定時器	0 為定時器 編號
+SetOffTimer 0
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">注意</font>
+<pre>定時器處理代碼段 名稱中的 數字 為定時器編號
+代表了 此段 為 哪個定時器 的處理代碼
+</pre>
+	</p>
+</div>    
+
+<div class="mydiv"><a name="Robot"></a>
+	<p><font color="#FF0000">Robot</font>
+<pre>编辑MirServer\Mir200\Envir\Robot.txt 可以设置机器人(机器人 可以定时调用 指定代码段)
+;机器人名称 脚本名称
+机器人 AutoRunRobot
+
+
+機器人執行腳本為 MirServer\Mir200\Envir\Robot_def\腳本名稱.txt
+#AutoRun NPC RUNONWEEK 1:19:30 @攻沙30		//設置 每週一 19:30 調用MirServer\Mir200\Envir\Robot_def\RobotManage.txt 中 的([@攻沙30] 代碼段)
+
+脚本格式:
+;AutoRunRobot.txt 
+#AutoRun NPC SEC 10 @SendRedMsg
+SEC：按秒运行
+MIN：按分运行
+HOUR：按小时运行
+DAY：按天运行
+RUNONWEEK：按星期几及时间运行
+</pre>
+	</p>
+</div>
+
+</td></tr></table>
+</body>
+</html>

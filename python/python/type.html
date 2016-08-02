@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>asio</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#dir">標識符</a>
+		<a href="#int">整數</a>
+		<a href="#float">浮點</a>
+		<a href="#str">字符串</a>
+	</div>
+
+	<div class="note"><a name="dir"></a>
+		<p><span class="flag">標識符</span>
+<pre>內置函數 dir() 返回 對象 的 所有 屬性
+不帶參數 返回 python 內置 屬性表 
+dir(__builtins__) 返回 屬性模塊
+
+
+python 變量名 應該避免 以 _ 開頭 結尾 因為 
+python 定義了各種 特殊方法/變量 使用 此方式 命名
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="int"></a>
+		<p><span class="flag">整數</span>
+<pre>python 提供了兩種 內置的 Integral 型別 int bool
+在 bool 表達式中 9 False 為 假其他為真
+在數值表達式中 True 為1 False為0
+(i += True 等同 i += 1)
+
+
+
+python 整數 只受限於 內存 默認使用 10進制
+0b...	二進制
+0x...	十六進制
+0o...	八進制
+(亦可使用 大寫 前置引導 如 0X)
+</pre>
+		</p>
+		<p><span class="flag">常規操作</span>
+<pre>x + y
+x - y
+x * y
+x / y	<span class="care">python / 與其他語言不同 /　始終　產生一個浮點　而非取其整</span>
+x // y  <span class="care">同其他語言的  /</span>
+x % y
+x ** y	<span>x的y此冪 pow(x,y)</span>
+-x
++x
+divmod(x,y)	<span class="care">以 tuple 返回 商 餘數</span>
+pow(x,y)
+pow(x,y,z)	<span class="care"> (x ** y) % z</span>
+round(x,n)	<span class="care">返回 浮點 四捨五入 後的 數 n 默認0 指定 保留小數位數</span>
+
++=
+-=
+...
+
+
+
+//返回 二進制 十六進制 八進制
+bin(i)
+hex(i)
+oct(i)
+
+//轉型為int 可能拋出 TypeError異常
+int(x)
+int(s,base)	//base(指定字符串s的進制) 為2到36間的 整數
+
+
+
+|
+^	//xor
+&amp;
+&lt;;&lt;;	//不帶益處檢查
+&gt;;&gt;;	//不帶益處檢查
+~	//取反每1位
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="float"></a>
+		<p><span class="flag">浮點</span>
+<pre>python 提供3中 浮點 float complex 標準庫的 decimal.Decimal
+
+float 存放雙進度浮點 具體取值範圍 依賴構建python的 編譯器
+
+decimal.Decimal 可以處理高精度的 浮點 默認(小數後28位) 
+並且沒有 計算機處理浮點時的 丟精問題 當然 速度肯定慢很多
+
+int 和 float 計算 產生 float
+float ... complex ... complex
+
+decimal.Decimal 只能和 decimal.Decimal/intS 計算
+
+不兼容的 型別 計算 會 產生 TypeError 異常
+
+
+
+sys.float_info	//存放了 浮點相關 信息 
+		.epsilon 存放了機器可以區分的最小浮點數 區別
+	(
+	import sys
+	def eqal_float(a,b):
+			return abs(a-b) <= sys.float_info.epsilon
+	print(eqal_float(1.1,1.2))
+	)
+
+
+//將浮點 取整/四捨五入/向上取整/向下取整
+int()
+round()
+math.floor()
+math.ceil()
+
+//浮點 十六進制 轉化
+float.hex()
+float.formhex()
+
+
+
+
+math.acos(x)	//(弧度)飯餘弦
+math.acosh(x)	//反正切
+
+math.asin(x)	//飯正弦
+math.asinh(x)	//反雙曲正弦
+
+math.atan(x)	//反正切
+math.atan2(y,x)	//y/x的反正切
+math.atanh(x)	//反雙曲正切
+
+math.ceil(x)	//向上取整
+math.copysign(x,y)	//將x的符號設置為y的符號
+
+math.cos(x)		//餘弦
+math.cosh(x)	//餘弦(角度)
+
+math.degress(r)	//弧度轉角度
+
+math.e	//常數e 2.7182818284590451...
+math.exp(x)	//math.e ** x
+math.fabs(x)	//絕對值
+
+math.factorial(x)	//返回x!
+
+math.floor(x)	//向下取整
+math.fmod(x,y)	//求餘 比 % 產生 更好的 結果
+math.frexp(x)	//返回 二元 tuple 分別為 x的 整數 與 浮點數
+math.fsum(i)	//對iterable i中的 值 求和
+math.hypot(x,y)	//對x*x + y*y 開方
+
+math.isinf(x)	//如果 x是 +- inf(+-∞) 返回True
+math.isnan(x) 	//x 不是一個 數字 返回 True
+
+math.ldexp(m,e)	//m * (2**e) 反轉了math.frexp()
+
+math.log(x,b)	//b默認為 math.e
+math.log10(x)
+math.log1p(x)
+
+math.modf(x)	//以 tuple 返回 x的 小數與 整數部分
+
+math.pi	//3.141592653589793
+math.pow(x,y)
+
+math.radians(d)	//角度轉弧度
+
+math.sin(x)
+math.sinh(x)
+
+math.sqrt(x)	//返回平方根
+math.sum(i)	//對iterable i中的 值求和
+
+math.tan(x)
+math.tanh(x)
+
+math.trunc(x)	//同 int(x)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="str"></a>
+		<p><span class="flag">字符串</span>
+<pre>python3.0 開始 使用 Unicode(4 字節編碼) 存放 字符串
+字符串可以使用 '/"/""" 創建
+r"創建原始字符串 裡面內容 無需要 轉義"
+	(
+		print(r"12\3")
+
+		在3.5 版本下 似乎存在 bug 比如 當 \在結尾
+		print(r"123\")		
+	)
+//將 數據 轉化為 字符串
+str(s,c)	//c指定 編碼格式可選
+
+
+
+s="unicode"
+#返回 unicode 編碼
+print(hex(ord(s[0])))
+
+#將 unicode 轉 字符
+s = chr(0x75)
+print(s)
+
+
+
+python 可使用 負數索引(-1 最後一個元素) 逆向 取 數組
+同時 可以 使用 同 go 一樣的 切片 [m:n] 操作(好吧 其實是go借鑒的python)
+x="str test"
+print(x[:3])	#str
+print(x[4:])	#test
+print(x[::2])	#srts
+
+
+
+s.capitalize()	//返回字符串 首字母大寫的副本
+s.center(width,char)	//返回 字符串 中間部分(width 長)的子串 並用 空格或字符char填充
+s.count(t,start,end)	//返回s[start:end] 出現次數
+s.encode(encoding,err)	//返回bytes對象 該對象 使用 默認/指定編碼格式 表示字符串
+
+s.endswith(x,start,end)	//s[start:end] 以x 結尾 返回 True
+s.startswith(...)
+
+s.expandtabs(size)	//返回s副本 其中 製表符 使用 8個/size個空格 替換
+
+s.find(t,start,end)	//在 s[start:end] 中 尋找地一個 t 未找到 返回 -1
+s.rfing(...)		//..最後
+
+s.format(...)	//按指定參數 格式化 字符串 副本 並返回
+	<span class="care">print("{0} is {1}'s head . {0}".format("illusive man","cerberus"))</span>
+	
+s.index(t,start,end)	//同find 不過 未找到 產生 ValueError異常 
+s.rindex(...)
+
+s.isalnum()	//字符串 非空 且 每個字母都為數字 返回 True
+s.isalpha()	//... 字母
+s.isdecimal()	//... unicode的基數為10的數字
+s.isdigit()	//... ascill 數字
+s.isidentifier()	//... 有效標識符
+s.islower()	//... 小寫
+s.isupper()	//... 大寫
+
+s.isnumeric()	//... unicode 字符
+s.isprintable()	//... 可打印
+s.isspace()	//... 空格
+s.istitle()	//... 首字母大寫的字符串
+
+s.join(seq)	//每個項都連接起來 並以s為分隔
+s.ljust(width,char)
+
+s.lower()	//轉小寫
+s.upper()
+s.maketrans()
+s.partition(t)
+
+s.replace(t,u,n)	//將字符串中 t用u替換最多n次
+s.split(t,n)	//使用t分割s最多n次
+
+s.splitlines(f)
+s.strip(chars)
+s.swapcase()
+s.title()
+s.translate()
+
+s.zfill(w)	//返回s副本 如果長度 biw短 在開始出 添加0填充
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>cocos2d-js</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#cocos2d-js">cocos2d-js</a>
+		<a href="#evi">環境配置</a>
+		<a href="#command">常用命令</a>
+		
+	</div>
+
+	<div class="note"><a name="cocos2d-js"></a>
+		<p><span class="flag">cocos2d-js</span>
+<pre>cocos2d-js 就是 cocos2d-x 的html5版本 
+
+官網 <a href="http://cocos2d-x.org" target="_blank">http://cocos2d-x.org</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="evi"></a>
+		<p><span class="flag">環境配置</span>
+<pre>1	安裝 java jdk 1.6+
+2	安裝 python 2.7.x
+3	如果需要打包到 android 先配置 android 環境
+	從<a href="http://developer.android.com/sdk/index.html" target="_blank">http://developer.android.com/sdk/index.html</a> 下載安裝 sdk ndk
+	從<a href="http://ant.apache.org/" target="_blank">http://ant.apache.org/</a> 下載安裝 ant
+	配置環境變量 
+4	從 cocos2d-js 官網下載 最新 js 版 源碼 解壓 
+	並運行 install setup.py 安裝
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="command"></a>
+		<p><span class="flag">常用命令</span>
+<pre>//運行以及創建的項目
+cocos run -p web
+
+//創建一個同時包含 Cocos2d-html5和Cocos2d-x JSB的項目
+cocos new -l js
+
+//創建僅包含Cocos2d-html5的項目
+cocos new -l js --no-native
+
+//同上 不過指定了工程名 和 位置
+cocos new projectName -l js -d ./Projects
+
+//編譯打包到 android apk
+cocos compile -p android
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

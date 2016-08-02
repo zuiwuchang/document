@@ -1,0 +1,71 @@
+<!DOCTYPE html">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>thread</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#wxTimer">wxTimer</a>
+	</div>
+
+	<div class="note"><a name="wxTimer"></a>
+		<p><span class="flag">wxTimer</span>
+<pre>wxTimer 是一個定時器 可以用來 替代線程(以 避免那些煩人的 同步處理)
+
+使用 wxTimer 需要 在構造時 傳入 一個wxEvtHandler(關聯窗口) 和一個 id標識符
+或者使用 默認構造 之後 調用 void 	SetOwner (wxEvtHandler *owner, int id=-1)
+
+EVT_TIMER 宏 關聯 事件處理 函數
+</pre>
+		</p>
+
+		<p><span class="flag">常用 函數</span>
+<pre>//啟動 定時器 
+virtual bool 	Start (int milliseconds=-1, bool oneShot=wxTIMER_CONTINUOUS)
+bool 	StartOnce (int milliseconds=-1)
+
+//停止定時器
+virtual void 	Stop ()
+
+//定時器 是否啟動
+bool 	IsRunning () const
+
+//到時間被回調的 函數 (如果不想通過 事件方式 使用定時器 可以重載此函數)
+virtual void 	Notify ()
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre><span class="care">//.h</span>
+class depotFrame
+{
+	wxTimer timer_;
+	...
+};
+<span class="care">//.cpp</span>
+BEGIN_EVENT_TABLE(depotFrame, wxFrame)
+	...
+	EVT_TIMER(idTimer, depotFrame::OnTimer)
+END_EVENT_TABLE()
+
+void depotFrame::InitPanel()
+{
+	...
+    timer_.SetOwner(this,idTimer);
+    timer_.Start(1000);
+
+}
+void depotFrame::OnTimer(wxTimerEvent& event)
+{
+    wxMessageBox(_T("ok"));
+}
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

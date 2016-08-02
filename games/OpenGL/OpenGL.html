@@ -1,0 +1,113 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>OpenGL</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="OpenGL"><tr><td>
+<p>
+	<font color="#FF0000">OpenGL</font>
+</p>
+
+<p>
+	<a href="#OpenGL">OpenGL</a><br />
+    <a href="#win32">環境配置win32</a><br />
+    <a href="#name">函數 命名</a><br />
+    <a href="#hellow">hellow word</a><br />
+</p>
+
+
+<div class="mydiv"><a name="OpenGL"></a>
+	<p><font color="#FF0000">OpenGL</font>
+<pre>OpenGL 一個開源 高效 跨平台的 圖像接口 被廣泛用於 遊戲 圖像處理
+官網<a href="http://www.opengl.org/">http://www.opengl.org/</a>
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="win32"></a>
+	<p><font color="#FF0000">環境配置win32</font>
+<pre>OpenGL 一般已經被包含在 支持OpenGL的環境中 無需配置
+然 GLUT 工具包需要 自行配置
+GLUT 是一個 為示例程序 提供 簡易的 交互接口 提供了基本的 窗口管理 io 接口
+
+從 官網 下載 GLUT 壓縮包 glutdlls37beta.zip 並解壓
+<a href="http://www.opengl.org/resources/libraries/glut/glutdlls37beta.zip">http://www.opengl.org/resources/libraries/glut/glutdlls37beta.zip</a>
+
+將 dll 加入 執行路徑
+將 lib 加入 鏈接庫目錄
+將 *.h 加入 include目錄
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">注意</font>
+<pre>GLUT 是可選工具包 可以不用安裝
+
+只建議使用 GLUT 創建 示例程序 更複雜的功能 應該使用 平台API 或其他接口
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="name"></a>
+	<p><font color="#FF0000">函數 命名</font>
+<pre>OpenGL函數 命名通常 由4部分組成
+如glColor3f
+gl 是前綴 代表 函數位於 gl庫
+Color 是命令標識
+3	代表函數需要3個參數
+f	代表 參數型別為 float
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="hellow"></a>
+	<p><font color="#FF0000">hellow word</font>
+<pre>#include&lt;glut.h&gt;
+
+void render_scene()
+{
+	//清除緩衝區 圖像
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	glFlush();
+}
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//設置 窗口顯示 模式 GLUT_SINGLE(單緩衝) GLUT_RGB(RGB顏色模式)
+	glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE);
+	
+	//創建 窗口
+    glutCreateWindow("hellow word");
+
+	//設置顯示回調函數
+    glutDisplayFunc(render_scene);
+	
+	//初始化 OpenGL 顏色分量取值 [0.0 1.0]
+	glClearColor(0.0f,0.0f,0.0f,1.0f);	//設置背景清除顏色
+	//...其他初始化操作
+
+	//運行 glut 框架 直到結束程序
+    glutMainLoop();
+
+	return 0;
+}
+
+<img src="image/OpenGL/color.PNG" />
+</pre>    
+    </p>
+    
+    <p><font color="#FF0000">注意</font>
+<pre>一般 還應該 
+#include&lt;gl\GL.h&gt;
+#include&lt;gl\GLU.h&gt;
+
+然其已經被 include 在 glut.h 中
+</pre>
+	</p>
+</div>
+    
+</td></tr></table>
+</body>
+</html>

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>容器</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#all">所有容器的方法</a>
+		<a href="#vector">vector</a>
+		<a href="#deque">deque</a>
+		<a href="#list">list</a>
+		<a href="#set">set multiset</a>
+		<a href="#map">map multimap</a>
+		<a href="#run">运行时机</a>
+	</div>
+
+	<div class="note"><a name="all"></a>
+		<p><span class="flag">所有容器的方法</span>
+<pre>所有容器都包含一个default构造和 copy构造 和 析构 函数
+
+
+
+begin()
+返回一个迭代器，指向起点（第一个元素）
+end()
+返回一个迭代器，指向结束点（最后一个元素的后面）
+++
+!=
+
+contype c	产生一个空容器
+contype c(c1)	产生一个同型容器
+contype	c(beg,end)	产生容器初始值为[beg,end)区间元素
+c.~contype()	删除所有元素释放内存
+c.size()	返回容器元素数量
+c.empty()	判断容器是否为空
+c.max_size()	返回元素最大可能数量
+c1==c2
+c1!=c2
+c1&lt;c2
+c1&gt;c2
+c1&lt;=c2
+c1&gt;=c2
+c1=c2	将c2所有元素赋值给c1
+c1.swap(c2)	交换c1 c2
+swap(c1,c2)	交换c1 c2
+c.begin()	返回迭代器 指向第一个元素
+c.end()	返回迭代器 指向最后一个元素的下一个位置
+c.rbegin()
+c.rend()
+c.insert(pos,elem)	将elem的副本安插于pos处
+e.erase(beg,end)	移除区间内元素[beg,end)
+c.clear()	移除所有元素
+c.get_allocator()	返回容器内存模型
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>= 操作 将会把右值容器数据全部删除 且效率比 swap 慢(swap只交换内部一些指针罢)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="vector"></a>
+		<p><span class="flag">vector</span>
+<pre>#include &lt;vector&gt;
+以动态模拟一个向量数组
+提供随机访问 迭代器支持+n -n
+
+<img src="image/容器/vector.PNG" />
+</pre>
+		</p>
+		<p><span class="flag">方法</span>
+<pre>vector&lt;Elem&gt; c 构造一个空 vector
+vector&lt;Elem&gt; c1(c2) 产生一个c2的副本
+vector&lt;Elem&gt; c(n) 用default构造函数产生一个大小为n的vector
+vector&lt;Elem&gt; c(n,elem) 产生一个大小为n的vector 每个元素值=elem
+vcetor&lt;Elem&gt; c(begin,end) 产生一个vector 初值为区间[begin,end)
+c.~vector&lt;Elem&gt;() 销毁所有元素 释放内存
+
+c.size()
+c.empty()
+c.max_size()
+c.capacity() 返回重新肥胖空间前可容纳元素最大值 
+c.reserve(n) 增大空间到可容纳n给元素 不能缩小
+==
+!=  !(=)
+&lt;
+&gt;
+&lt;=  !(<)
+&gt;=  !(>)
+c1=c2
+c.assign(n,elem) 将容器内容替换为n个elem
+c.assign(begin,end) ....[begin,end)
+c1.swap(c2)
+swap(c1,c2) //全局函数
+
+c.at(index) //或检查索引有效值
+c[index]
+c.front()	//也不会检查元素是否存在 其他容器也是
+c.back()	//同上
+
+c.begin()
+c.end()
+c.rbegin()
+c.rend()
+
+c.insert(pos,elem)
+c.insert(pos,n,elem)
+c.insert(pos,begin,end)
+c.push_back(elem)
+c.pop_back() //也不会检查元素是否存在 其他容器也是
+c.erase(pos)
+c.erase(begin,end)
+c.resize(n)  //将元素实力改为n 后面的删除 多出的元素以default构造
+c.resize(n,elem) //同上 多出元素是elem的副本
+c.clear()
+</pre>
+		</p>
+		<p><span class="flag">特例 bool</span>
+<pre>STL对 std::vector&lt;bool&gt; 进行了特例化 其每个元素以bit表示 且提供了对位的取反操作
+相当于动态大小的bit 若需要静态大小bit应该使用bitset
+</pre>
+		</p>
+		<p><span class="flag">特例方法</span>
+<pre>c.flip() 所有bool取反
+c[index].flip() 指定为取反
+c[index]=val
+c[i]=c[j]
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="deque"></a>
+		<p><span class="flag">deque</span>
+<pre>#include &lt;deque&gt;
+以动态模拟一个数组 接口基本同vector 但头尾都开放
+提供随机访问 迭代器支持+n -n
+
+逻辑结构
+<img src="image/容器/deque.PNG" />
+内存结构(位于不同内存块)
+<img src="image/容器/deque1.PNG" />
+</pre>
+		</p>
+		<p><span class="flag">方法</span>
+<pre>c.push_front(elem)
+c.pop_front()
+其他同vector
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="list"></a>
+		<p><span class="flag">list</span>
+<pre>#include &lt;list&gt;
+
+一个双向链表
+<img src="image/容器/list.PNG" />
+</pre>
+		</p>
+		<p><span class="flag">方法</span>
+<pre>list&lt;Elem&gt; c
+list&lt;Elem&gt; c1(c2)
+list&lt;Elem&gt; c(n)
+list&lt;Elem&gt; c(n,elem)
+list&lt;Elem&gt; c(begin,end)
+c.!list&lt;Elem&gt;()
+
+c.size()
+c.empty()
+c.max_size()
+==
+!=
+&lt;
+&gt;
+&lt;=
+&gt;=
+
+c1=c2
+c.assign(n,elem)
+c.assign(beg,end)
+c1.swap(c2)
+swap(c1,c2)
+
+c.front()
+c.back()
+
+c.begin()
+c.end()
+c.rbegin()
+c.rend()
+
+c.insert(iter,elem)
+c.insert(iter,n,elem)
+c.insert(iter,begin,end)
+
+c.push_back()
+c.pop_back()
+c.push_front(elem)
+c.pop_front()
+c.remove(val) <span class="care">//移除所有值为val的元素</span>
+c.remove_if(op) <span class="care">//移除造成 op(elem)结果为true的元素</span>
+c.erase(iter)
+c.erase(begin,end)
+c.resize(n)
+c.resize(n,elem)
+c.clear()
+
+c.unique() //存在若干相邻元素值相等 移除之 只保留一个
+c.unique(op) //存在若干相邻元素 使op(elem) 返回true 移除之 只保留一个
+c1.splice(iter,c2) //将容器c2 安插到c1
+c1.splice(iter,c2,c2iter) //容器c2内c2iter所指元素（1个）安插到c1 
+c.sort() <span class="care">//以operator&lt;排序</span>
+c.sort(op) <span class="care">//以bool op(elem1,elem2)排序</span>
+cl.merger(c2) //在c1 c2都已排序情况下 将c2安插到c1 并保证已序
+c1.merge(c2,op) //同上 不过以bool op(elem1,emem2) 排序
+c.reverse() 所有元素反序
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="set"></a>
+		<p><span class="flag">set multiset</span>
+<pre>#include &lt;set&gt;
+set multiset或根据排序准则将元素自动排序(以平衡叉树实现)
+set不允许按入重复值 multiset允许
+
+
+
+<img src="image/容器/set.PNG" />
+
+内存结构
+<img src="image/容器/set1.PNG" />
+</pre>
+		</p>
+		<p><span class="flag">声明</span>
+<pre>template&lt;class T, 
+class Compare=less&lt;T&gt;, 
+class Allocator=allocator&lt;T&gt; &gt;
+class set;
+
+<span class="care">less&lt;T&gt; 是默认排序准则 一个仿函数 以 operator&lt; 比较</span>
+</pre>
+		</p>
+		<p><span class="flag">排序准则</span>
+<pre>1	反对称
+	若x&lt;y为真 则y&lt;x必须为假
+	若op(x,y)为真 则op(y,x)必须为假
+2	可传递
+	若 x&lt;y y&lt;z 为真 则x&lt;z为真
+	...op...
+3	非自反
+	x&lt;x 必为假
+	...op...
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>因为元素有序列 故不提供直接修改元素之的方法(修改可能打破有序) 若要修改需先删除再插入
+</pre>
+		</p>
+		<p><span class="flag">方法</span>
+<pre>set c
+set c(op)  //暂时不解其用法 似乎是vs下未支持 以op为排序准则
+set c1(c2)
+set c(begin,end)
+set c(begin,end,op) //...
+c.~set()
+
+c.size()
+c.empty()
+c.max_size()
+c1==c2
+c1!=c2
+c1&lt;c2
+c1&gt;c2
+c1&lt;=c2
+c1&gt;c2
+
+c.count(elem) //返回元素值为 elem 的元素个数
+c.find(elem) //返回找到的第一个值为elem的元素 iter 未找到 返回 c.end()
+c.lower_bound(elem) //返回第一个可安插位置 既 元素值 &gt;=elem 的第一个元素位置
+c.upper_bound(elem) //...最后一个...&gt;
+equal_range(elem) //返回eem可安插的第一个和最后一个位置 既 元素值==elem 的元素区间
+
+c.begin()
+c.end()
+c.rbegin()
+c.rend()
+
+c.insert(elem)
+c.insert(iter,elem)
+c.insert(begin,end)
+c.erase(elem)
+c.erase(iter)
+c.erase(begin,end)
+c.clear()
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>insert 传入的安插位置只是一个 为提升性能的位置提示 其不影响安插位置（因为是序列容器）
+对于multiset 不能用erase(elem)删除重复的第一个元素 应该
+
+iterator iter=s.find(elem);
+if(iter!=s.end())
+s.erase(iter);
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="map"></a>
+		<p><span class="flag">map multimap</span>
+<pre>#include &lt;map&gt;
+map multimap 以key value 的pair当元素 以key自动排序(以平衡叉树实现)
+map不允许按入重复值 multimap允许
+
+
+<img src="image/容器/map.PNG" /><br /><br />
+内存结构<br />
+<img src="image/容器/map1.PNG" />
+</pre>
+		</p>
+		<p><span class="flag">声明</span>
+<pre>template&lt;class Key,class T, 
+class Compare=less&lt;Key&gt;, 
+class Allocator=allocator&lt;pair&lt;const Key,T&gt; &gt; &gt;
+class map;
+
+<span class="care">less&lt;Key&gt; 同set的默认</span>
+</pre>
+		</p>
+		<p><span class="flag">排序准则</span>
+			同set
+		</p>
+		<p><span class="flag">注意</span>
+<pre>set 可看作特殊的 map (key/value相同) 故map有set的全部操作函数 和 能力
+</pre>
+		</p>
+		<p><span class="flag">方法</span>
+<pre>map c
+map c(op)
+map c1(c2)
+map c(begin,end)
+map c(begin,end,op)
+
+c.size()
+c.empty()
+c.max_size()
+c1==c2
+c1!=c2
+c1&lt;c2
+c1&gt;c2
+c1&lt;=c2
+c1&gt;=c2
+
+c.count(key)  //返回 键值 为 key 的元素个数
+c.find(key)  //... 的第一个元素 找不到返回c.end()
+c.lower_bound(key) //参加set
+c.upper_bound(key) //...
+c.equal_range(key) //...    
+
+c1=c2
+c1.swap(c2)
+swap(c1,c2)
+
+c.begin()
+c.end()
+c.rbegin()
+c.rend()  
+
+c.insert(elem)
+c.insert(iter,elem)
+c.insert(begin,end)
+c.erase(key)  //删除键值为key的元素
+c.erase(iter)
+c.erase(begin,end)
+c.clear()	
+
+c[key]= //直接操作 元素键值为key 的实值 不存在此key则插入此key
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="run"></a>
+		<p><span class="flag">运行时机</span>
+<pre><img src="image/容器/run.PNG" />
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

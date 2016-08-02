@@ -1,0 +1,432 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>bash</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1>
+    	<p><font color="#FF0000">bash</font><br />
+        	bash是linux默认的操作接口
+		</p>
+        <a href="#bash">bash</a> <br />
+        <a href="#variable">变量</a> <br />
+        <a href="#export">环境变量</a> <br />
+        <a href="#LANG">语系</a> <br />
+        <a href="#read">变量 读取 数组 声明</a> <br />
+        <a href="#ulimit">文件系统 进程 限制 ulimit</a> <br />
+        <a href="#move">变量内容的 删除 替换 替代</a> <br />
+        <a href="#alias">别名 历史命令</a> <br />
+        <a href="#issue">bash 环境设置</a> <br />
+        <a href="#cmd">一次执行多个命令</a> <br />
+        <a href="#cut">数据筛选</a> <br />
+        <a href="#char">字符替换</a> <br />
+        <a href="#split">split xargs -</a> <br />
+    	
+    </h1></p>
+    
+    <div class="div_box"><a name='bash'><h3>
+    	<p><font color="#FF0000">bash</font><br />
+         \[Enter] 用于将命令转换书写<br /><br />
+         
+         type [-tpa] name //查看命令类型 <br />
+         -t	以file(外部命令) alias(别名) builtin(bash内置)等字符显示name类型<br />
+         -p	name为外部命令时才显示完整文件名<br />
+         -a 由PATH变量的路径中 将所有name命令都找出来
+          
+      	</p>
+        <p><font color="#FF0000">bash 执行顺序</font><br />
+        1 绝对/相当路径<br />
+        2 alias<br />
+        3 bash内置<br />
+        4 PATH
+        </p>
+        
+   	</h3></a></div> 
+   	
+    <div class="div_box"><a name='variable'><h3>
+    	<p><font color="#FF0000">变量</font><br />     
+      	echo $PATH	//显示PATH变量的值<br />
+        
+        </p>
+        <p><font color="#FF0000">设置变量</font><br /> 
+        mytest="this is a test"		//设置变量 mytest<br /><br />
+        <font color="#FF0000">变量规则如下</font><br />    
+        <font color="#FF0000">1</font> 变量与内容以 <font color="#0000FF">=</font> 连接<br />
+        <font color="#FF0000">2</font> 变量名只能是英文或数字 且不能以数字开头<br />
+      	
+        <font color="#FF0000">3</font> 等号两边不能直接接空格 若要空格以 <font color="#0000FF">"</font> 或 <font color="#0000FF">'</font> 连接<br />
+        <font color="#FF0000">4 </font> <font color="#0000FF">"</font>内 $ 等特殊符号保存其原本特性 <font color="#0000FF">'</font>内一切为一般字符<br />
+        <font color="#FF0000">test="$PATH"	//获取环境变量PATH的值</font><br />
+      	<font color="#FF0000">5</font> <font color="#0000FF">`</font> 或 <font color="#0000FF">$()</font> 内的为命令结果<br />
+        <font color="#FF0000">test=$(uname -r)	//获取内核版本亦可在 " z中如此</font><br />
+        <font color="#FF0000">6</font>用export PATH 导入为环境变量<br />
+        <font color="#FF0000">7</font>环境变量一般全大写 自定义小写<br />
+        <font color="#FF0000">8</font>test="$test"add //为变量增加内容 若原test为 12 现在为 12add
+        
+        
+        </p>
+        
+   	</h3></a></div> 
+  	
+    <div class="div_box"><a name='export'><h3>
+    	<p><font color="#FF0000">环境变量</font><br />
+    	</p>
+        
+        <p><font color="#FF0000">查看 环境变量</font><br />
+    		env 或 export 查看环境变量<br />
+            <br />
+            HOME	代表当前用户主文件夹<br />
+            SHELL	目前环境使用的SHELL<br />
+            HISTSIZE	记录命令的条数<br />
+            MAIL	mail命令读取的邮件信箱文件<br />
+            PATH	文件执行路径<br />
+            LANG	语系<br />
+            RANDOM	0~32767的伪随机<br />
+            ...
+        </p>
+        <p><font color="#FF0000">set 显示所有和此shell操作有关的变量</font><br />
+        set<br />
+        ...<br />
+        HISTFILE=/root/.bash_history	//命令历史记录文件位置<br />
+        MAILCHECK=60		//没60秒扫描一次邮箱<br />
+        PS1='[\u@\h \W]\$'	//命令提示符<br />
+        $	//目前shell的PID<br />
+        ?	//刚才命令的回传码 一般0为成功<br />
+        ...
+        <table border="2">
+        <tr><td>PS1可用取值</td><td>描述</td></tr>
+        <tr><td>\d</td><td>星期 月 日</td></tr>
+        <tr><td>\H</td><td>完整主机名</td></tr>
+        <tr><td>\h</td><td>主机名第一个小数点之前的字符串</td></tr>
+        <tr><td>\t</td><td>24时间 HH:MM:SS</td></tr>
+        <tr><td>\T</td><td>12时间 HH:MM:SS</td></tr>
+        <tr><td>\A</td><td>24时间 HH:MM</td></tr>
+        <tr><td>\@</td><td>12时间 am/pm</td></tr>
+        <tr><td>\u</td><td>目前用户名</td></tr>
+        <tr><td>\v</td><td>bash版本</td></tr>
+        <tr><td>\w</td><td>完整工作目录名</td></tr>
+        <tr><td>\W</td><td>工作目录的最后一个目录名</td></tr>
+        <tr><td>\#</td><td>执行的第几个命令</td></tr>
+        <tr><td>\$</td><td>如果为root提示符为#其他$</td></tr>
+        </table>
+        </p>
+    </h3></a></div>
+	
+     <div class="div_box"><a name='LANG'><h3>
+    	<p><font color="#FF0000">语系</font><br />
+        语系设置默认为 LANG(一般只设置此) 和 LC_ALL<br />
+        locale  列出可用语系<br /><br />
+        
+        对于red hat系 语系定义在 /etc/sysconfig/i18n 文件中<br /> 
+        对于ubuntu 在 etc/default/locale 中
+          
+      	</p>
+        
+        
+   	</h3></a></div>
+    
+      <div class="div_box"><a name='read'><h3>
+    	<p><font color="#FF0000">变量 读取 数组 声明</font><br />
+        </p>
+        
+        <p><font color="#FF0000">读取</font><br />
+        read [-pt] variable	<br />
+        -p 后接输入提示符<br />
+        -t 后接秒数 超过则跳过输入 进入下一步
+        </p>
+        
+         <p><font color="#FF0000"> 声明</font><br />
+         declare/typeset [-aixr] variable<br />
+         -a	//声明为数组 仅支持一维数组<br />
+         -i	//声明为整型(默认为字符串) bash不支持 float<br />
+         -x	//声明为环境变量<br />
+         -r	//声明为只读<br />
+        	<p><font color="#FF0000"> example</font><br />
+         	declare -a array	//此步骤可省略<br />
+            array[0]=1<br />
+            array[1]=2<br />
+            echo ${array[0]}	<font color="#FF0000">//读取数组要用${}</font>
+            </p>
+         </p>
+     </h3></a></div>
+     
+      <div class="div_box"><a name='ulimit'><h3>
+    	<p><font color="#FF0000">文件系统 进程 限制 ulimit</font><br />
+        ulimit [-SHacdfltu] [配额]<br />
+        -H	严格设置 必定不能超过设置<br />
+        -S	警告设置 可以超过但有警告<br />
+        -a	列出所有限制<br />
+        -c	内核排错文件大小<br />
+        -f	此shell可创建文件最大容量(单位 kb)<br />
+        -d	进程可使用最大断裂内存容量<br />
+        -l	可锁定的内存量<br />
+        -t	可使用的最大cpu时间(单位 秒)<br />
+        -u 单一用户可以使用的最大进程数量
+        </p>
+      </h3></a></div>
+      
+    <div class="div_box"><a name='move'><h3>
+    	<p><font color="#FF0000">变量内容的 删除 替换 替代</font><br />
+        调整变量表示的字符串的内容
+        <table border="2">
+        <tr><td>变量设置方式</td><td>含义</td></tr>
+        <tr><td>${变量#关键字}</td><td>变量从左到右 符合关键字 的 最短 数据删除</td></tr>
+        <tr><td>${变量##关键字}</td><td>变量从左到右 符合关键字 的 最长 数据删除</td></tr>
+        <tr><td>${变量%关键字}</td><td>变量从右到左 符合关键字 的 最短 数据删除</td></tr>
+        <tr><td>${变量%%关键字}</td><td>变量从右到左 符合关键字 的 最长 数据删除</td></tr>
+        <tr><td>${{变量/旧字符串/新字符串}</td><td>变量从左到右符合 第一个 旧字符串 用新字符串替换</td></tr>
+        <tr><td>${变量//旧字符串//新字符串}</td><td>变量中全部 旧字符串 用 新字符串替换</td></tr>
+        </table>
+        <font color="#FF0000">关键字可以使用通配符</font>
+        </p>
+        
+        <p><font color="#FF0000">变量设置</font>
+        <table border="2"><br />
+		<tr><td>变量设置方式</td><td>str没设置</td><td>str为空字符串</td><td>str为非空字符串</td></tr>
+		<tr><td>var=${str-expr}</td><td>var=expr</td><td>var=</td><td>var=$str</td></tr>
+        <tr><td>var=${str:-expr}</td><td>var=expr</td><td>var=expr</td><td>var=str</td></tr>
+        <tr><td>var=${str+expr}</td><td>var=</td><td>var=expr</td><td>var=expr</td></tr>
+        <tr><td>var=${str:+expr}</td><td>var=</td><td>var=</td><td>var=expr</td></tr>
+        <tr><td>var=${str=expr}</td><td>str=expr<br />var=expr</td><td>str=<br />var=</td><td>str不变<br />var=$str</td></tr>
+        <tr><td>var=${str:=expr}</td><td>str=expr<br />var=expr</td><td>str=expr<br />var=expr</td><td>str不变<br />var=$str</td></tr>
+        <tr><td>var=${str?expr}</td><td>expr输出至stderr</td><td>var=</td><td>var=$str</td></tr>
+        <tr><td>var=${str:?expr}</td><td>expr输出至stderr</td><td>expr输出至stderr</td><td>var=$str</td></tr>
+        </table>
+        </p>
+   	</h3></a></div>
+	<div class="div_box"><a name='alias'><h3>
+    	<p><font color="#FF0000">别名 历史命令</font><br />
+        </p>
+        
+        <p><font color="#FF0000">别名</font><br />
+        alias ll="ls -l | more" //指定别名 ll<br />
+        unalias ll	//删除别名 ll
+        </p>
+        
+        <p><font color="#FF0000">history</font><br />
+        history [n]<br />
+        history [-c]<br />
+        history [-raw] historyFiles<br />
+        n	//列出最近的n条命令<br />
+        -c	//将目前shell的所有history内容删除<br />
+        -a	//将新增的history命令增加到historyFiles，若未指定historyFiles默认写入 ~/.bash_history<br />
+        -r	//将historyFiles的内容读取到目前shell的history记录中<br />
+        -w	//将目前history记录内容写入historyFiles<br /><br />
+        
+        !66	//执行history记录中第66个命令<br />
+        !!	//执行上一个命令<br />
+        !al	//执行最近的以al开头的命令
+        </p>
+        
+ 	</h3></a></div>
+	<div class="div_box"><a name='issue'><h3>
+    	<p><font color="#FF0000">bash 环境设置</font><br />
+        </p>
+        
+        <p><font color="#FF0000">登录信息</font><br />
+        vi /etc/issue	//登录界面信息<br />
+        vi /etc/issue.net	//远程Telnet登录界面信息<br />
+        vi /etc/motd	//登录成功后信息<br />
+        tty1-tty6<br />
+        <table border="2">
+        <tr><td>代码</td><td>含义</td></tr>
+        <tr><td>\d</td><td>本地端时间日期</td></tr>
+        <tr><td>\l</td><td>显示第几个终端机接口</td></tr>
+        <tr><td>\m</td><td>硬件等级(i385,i486....)</td></tr>
+        <tr><td>\n</td><td>主机网络名</td></tr>
+        <tr><td>\o</td><td>显示domain name</td></tr>
+        <tr><td>\r</td><td>操作系统版本(相当于 uname-r)</td></tr>
+        <tr><td>\t</td><td>本地端时间</td></tr>
+        <tr><td>\s</td><td>操作系统名称</td></tr>
+        <tr><td>\v</td><td>操作系统版本</td></tr>
+        </table>
+       
+        </p>
+        
+        <p><font color="#FF0000">环境配置文件</font><br />
+        /etc/profile //系统整体设置 login shell才会读取<br />
+        ~/.bashrc	//用户自定义环境设置<br /><br />
+        source ~/.bashrc	//同 . ~/.bashrc 载入.bashrc中新定义的环境设置
+        </p>
+        
+        <p><font color="#FF0000">特殊符号</font><br />
+        <p>
+        <table border="2">
+        <tr><td>组合键</td><td>效果</td></tr>
+        <tr><td>[ctrl]+c</td><td>终止目前命令</td></tr>
+        <tr><td>[ctrl]+d</td><td>输入结束</td></tr>
+        <tr><td>[ctrl]+m</td><td>enter</td></tr>
+        <tr><td>[ctrl]+s</td><td>暂停屏幕输出</td></tr>
+        <tr><td>[ctrl]+q</td><td>恢复屏幕输出</td></tr>
+        <tr><td>[ctrl]+u</td><td>将整行命令删除</td></tr>
+        <tr><td>[ctrl]+z</td><td>暂停目前命令</td></tr>
+        </table>
+        </p>
+        <p>
+        <table border="2">
+        <tr><td>通配符</td><td>含义</td></tr>
+        <tr><td>*</td><td>0到任意个字符串</td></tr>
+        <tr><td>?</td><td>一定有一个字符</td></tr>
+        <tr><td>[]</td><td>一定有括号中的一个字符</td></tr>
+        <tr><td>[-]</td><td>连续编码顺序中的一个字符 [0-9]</td></tr>
+        <tr><td>[^]</td><td>一个有个字符 且其不为括号内的</td></tr>
+        </table>
+        </p>
+        <p>
+        <table border="2">
+        <tr><td>其他符号</td><td>含义</td></tr>
+        <tr><td>#</td><td>批注符</td></tr>
+        <tr><td>\</td><td>转义符</td></tr>
+        <tr><td>|</td><td>管道</td></tr>
+        <tr><td>;</td><td>连续命令分隔</td></tr>
+        <tr><td>~</td><td>用户主文件夹</td></tr>
+        <tr><td>$</td><td>使用变量前导符</td></tr>
+        <tr>
+          <td>&amp;</td>
+          <td>作业控制 将命令变为背景下执行</td></tr>
+        <tr><td>!</td><td>非</td></tr>
+        <tr><td>/</td><td>目录</td></tr>
+        <tr><td>>,>></td><td>输出数据流重定向</td></tr>
+        <tr>
+          <td>&lt;,&lt;&lt;</td>
+          <td>输入数据流重定向</td></tr>
+        <tr><td>'</td><td>不具备变量功能</td></tr>
+        <tr><td>"</td><td>具备变量功能</td></tr>
+        <tr><td>`</td><td>命令 同 $()</td></tr>
+        </table>
+        </p>
+        </p>
+        
+        <p><font color="#FF0000">数据流重定向</font><br />
+        stdin 代码0 &lt;或&lt;&lt;<br />
+        stdout 代码1 >或>><br />
+        stderr 代码2 2>或2>><br />
+        >	覆盖<br />
+        >>	累加
+        </p>
+        <p><font color="#FF0000">双重重定向</font><br />
+        tee [-a] file	//让数据重定向到文件 但同时输出到屏幕<br />
+        -a	以累加方式到文件
+        </p>
+    </h3></a></div>    
+     <div class="div_box"><a name='cmd'><h3>
+    	<p><font color="#FF0000">一次执行多个命令</font><br />
+        cmd1;cmd2;cmd3... //依次执行<br />
+        cmd1 && cmd2 ...	//前一个命令 $?=0(既成功) 才执行后一个<br />
+        cmd1 || cmd2 ...	//前一个命令 $?!=0(既失败) 才执行后一个
+        </p>
+	</h3></a></div>    
+	 <div class="div_box"><a name='cut'><h3>
+    	<p><font color="#FF0000">数据筛选</font><br />
+        cut -d '分隔字符' -f 索引	//把数据每行以 -d '分隔字符' 分隔 显示出 指定索引的数据(-f ) 索引从<font color="#FF0000">1</font>开始<br />
+        cut -c 20-	//显示出每行第20个字符和其后内容<br />
+        cut -c -20	//显示出每行前20个字符<br />
+        cut -c 20-30	//显示出每行地20到30的字符
+        </p>
+        
+        <p><font color="#FF0000">grep</font><br />
+        grep -[acinv][--color=auto] '查找字符'(或 filename) //将含有指定查找字符的行显示出来<br />
+        -a	//将binary文件以text文件方式查找<br />
+        -c	//计算找到次数<br />
+        -i	//忽略大小写<br />
+        -n	//输出行号<br />
+        -v	//反向查找 既没有指定字符在显示出来<br />
+        <font color="#FF0000">其他见 正则表达式</font>
+        </p>
+        
+        <p><font color="#FF0000">排序与统计</font><br />
+        	<p>sort [file or stdin]<br />
+            -f	//忽略大小写<br />
+            -b	//忽略前面空格<br />
+            -M	//以月份名字排序 JAN DEC ...<br />
+            -n	//使用纯数字排序<br />
+            -r	//反向排序<br />
+            -u	//相同数据 仅出现一行<br />
+            -t	//分隔符<br />
+            -k	//以指定区间排序<br />
+            <font color="#FF0000">cat /etc/passwd | sort -t ':' -k 3 //以 : 分隔每行数据 用其第三列 进行排序</font>
+            </p>
+            
+            <p>uniq [-ic] [file or stdin]	//消除重复行 可用于统计<br />
+            -i	//忽略大小写<br />
+            -c	//统计重复出现数据<br />
+            <font color="#FF0000">last | cut -d " " -f 1 | sort | uniq -c </font>
+            </p>
+            
+            <p> wc  [file or stdin] //统计文本数量<br />
+            -l	//列出多少行<br />
+            -w	//列出多少字(英文单字)<br />
+            -m	//列出多少字符
+            </p>
+        </p>
+	</h3></a></div>
+
+	<div class="div_box"><a name='char'><h3>
+    	<p><font color="#FF0000">字符替换</font><br />
+        	经常需要将 管道 或 文件中的字符 替换成其他字符
+        </p>
+        
+        <p><font color="#FF0000">tr</font><br />
+        cat /etc/passwd | tr -d ":"	//将字符 : 全部删除<br />
+        cat /etc/passwd | tr "[a-z]" "[A-Z]"	//将小写 转换为大写
+        </p>
+        
+        <p><font color="#FF0000">col</font><br />
+        -x	//将 tab 转换为 对等的空格
+        -b	//在文字内有 / 时 仅保留 / 最后面接到字符
+        </p>
+        
+        <p><font color="#FF0000">join file1 file2</font><br />
+        将两个文件中 指定数据相同的 写到一起<br />
+        -t	//后接指定分隔符 默认 空格<br />
+        -i	//忽略大小写<br />
+        -1	//后接第一个文件用于比较多字段索引默认从1开始<br />
+        -2	//...二...<br />
+        
+        </p>
+        
+        <p><font color="#FF0000">paste file1 file 2</font><br />
+        将两个文件对应行数据 写到一起<br />
+        -d //后接指定分隔符 默认 [tab]<br />
+        </p>
+        
+        <p><font color="#FF0000">expand -t [file]</font><br />
+        将[tab]转换为空格<br />
+        -t //后接转换为多少个空格 默认为8个
+        </p>
+        
+        
+	</h3></a></div>
+    
+	<div class="div_box"><a name='split'><h3>
+    	<p><font color="#FF0000">split xargs -</font><br />
+        </p>
+        
+        <p><font color="#FF0000">split 分隔文件</font><br />
+        split -[bl] file PREFIX<br />
+        -b //切割文件大小 单位可用 b k m ...<br />
+        -l //以行数进行切割<br />
+        PREFIX //切割文件前导符号
+        </p>
+        
+        <p><font color="#FF0000">-</font><br />
+        对于一些要求文件名为参数的 用 - 替代 代表stdout sdtin以用于管道<br />
+        tar -cvf - /home | tar -xvf -
+        </p>
+        
+        <p><font color="#FF0000">xargs</font><br />
+        xargs [-0epn] command	//将sdtin 用xargs(以 空格 断行 作为参数分隔符)分析 作为后面命令的参数 可用于不支持pipe的 使用pipe<br />
+        -0	//如果stdin含有特殊字符 ` , \ ...可将其还原为一般字符<br />
+        -e	//后接字符串 当xargs遇到此字符串停止工作<br />
+        -p	//在执行每个命令的参数时 询问用户<br />
+        -n	//要使用收到的几个参数<br />
+        find /sbin -perm +7000 | xargs ls -l
+        </p>
+	</h3></a></div>
+
+</td></tr></table>
+</body>
+</html>

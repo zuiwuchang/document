@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>opencv</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#OpenCV">OpenCV</a>
+		<a href="#modle">模塊</a>
+		<a href="#win32">環境配置win32</a>
+	</div>
+
+	<div class="note"><a name="OpenCV"></a>
+		<p><span class="flag">OpenCV</span>
+<pre>OpenCV(Open Source Computer Vision Library) 是一個 開源(BSD) 跨平台 的計算機視覺 庫
+
+可用於 人機交互 物體識別 圖像分區 人臉識別 動作識別 運動跟踪 機器人
+
+官網<a target="_blank" href="http://opencvlibrary.sourceforge.net/">http://opencvlibrary.sourceforge.net/</a>
+<a target="_blank" href="http://opencv.org/">http://opencv.org/</a>
+
+<a target="_blank" href="http://www.opencv.org.cn/">http://www.opencv.org.cn/</a> 是一個 OpenCV 中文 bbs
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="modle"></a>
+		<p><span class="flag">core模塊</span>
+<pre>OpenCV的基本數據結構 包括基本圖像的像素讀寫 及相關操作
+</pre>
+		</p>
+		<p><span class="flag">imgproc模塊</span>
+<pre>imgproc 包含了 常用的 圖像處理 (如 模糊 腐蝕...)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="win32"></a>
+		<p><span class="flag">環境配置win32</span>
+<pre>1	從官網下載對對應平台 api *.exe
+2	win32已經提供 編譯好的lib dll
+	設置 include lib bin 路徑到編譯環境	    
+3	在新項目中 包含必要 lib 頭文件(248 為版本號)
+#ifdef _DEBUG
+#pragma comment(lib,"opencv_core248d.lib")
+#pragma comment(lib,"opencv_imgproc248d.lib")
+#pragma comment(lib,"opencv_highgui248d.lib")
+#pragma comment(lib,"opencv_ml248d.lib")
+#pragma comment(lib,"opencv_video248d.lib")
+#else
+#pragma comment(lib,"opencv_core248.lib")
+#pragma comment(lib,"opencv_imgproc248.lib")
+#pragma comment(lib,"opencv_highgui248.lib")
+#pragma comment(lib,"opencv_ml248.lib")
+#pragma comment(lib,"opencv_video248.lib")
+#endif
+
+#include&lt;opencv2\imgproc\imgproc.hpp&gt;
+#include&lt;opencv2\core\core.hpp&gt;
+#include&lt;opencv2\highgui\highgui.hpp&gt;
+
+4	namespace cv
+</pre>
+		</p>
+		<p><span class="flag">staticlib</span>
+<pre>若要 使用 靜態庫 需要 將代碼生成 設置為 MT 或 MTD
+同時 鏈接 如下 庫
+#ifdef _DEBUG
+#pragma comment(lib,"vfw32.lib")
+#pragma comment(lib,"comctl32.lib")
+
+#pragma comment(lib,"IlmImfd.lib")
+#pragma comment(lib,"libjasperd.lib")
+#pragma comment(lib,"libjpegd.lib")
+#pragma comment(lib,"libpngd.lib")
+#pragma comment(lib,"libtiffd.lib")
+#pragma comment(lib,"zlibd.lib")
+
+
+#pragma comment(lib,"opencv_core2411d.lib")
+#pragma comment(lib,"opencv_imgproc2411d.lib")
+#pragma comment(lib,"opencv_highgui2411d.lib")
+#pragma comment(lib,"opencv_ml2411d.lib")
+#pragma comment(lib,"opencv_video2411d.lib")
+#else
+#pragma comment(lib,"vfw32.lib")
+#pragma comment(lib,"comctl32.lib")
+
+#pragma comment(lib,"IlmImf.lib")
+#pragma comment(lib,"libjasper.lib")
+#pragma comment(lib,"libjpeg.lib")
+#pragma comment(lib,"libpng.lib")
+#pragma comment(lib,"libtiff.lib")
+#pragma comment(lib,"zlib.lib")
+
+#pragma comment(lib,"opencv_core2411.lib")
+#pragma comment(lib,"opencv_imgproc2411.lib")
+#pragma comment(lib,"opencv_highgui2411.lib")
+#pragma comment(lib,"opencv_ml2411.lib")
+#pragma comment(lib,"opencv_video2411.lib")
+#endif
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

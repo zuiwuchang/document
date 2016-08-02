@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>dark</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#Seaweed-FS">Seaweed-FS</a>
+		<a href="#envi">環境 配置</a>
+		<a href="#http">http 訪問</a>
+	</div>
+
+	<div class="note"><a name="Seaweed-FS"></a>
+		<p><span class="flag">Seaweed-FS</span>
+<pre>Seaweed-FS 是一個 以go實現的 開源(Apache License, Version 2.0) 分佈式 文件系統
+
+Seaweed-FS 參照了 facebook 的圖片存儲系統論文 <a href="https://www.usenix.org/legacy/event/osdi10/tech/full_papers/Beaver.pdf" target="_blank">Facebook-Haystack</a>
+Seaweed-FS 被設計成 快速 處理 上億的 海量 小塊文件
+(Seaweed-FS 會使用 gzip 壓縮 文件)
+
+官網 <a href="https://bintray.com/chrislusf/Weed-FS/" target="_blank">https://bintray.com/chrislusf/Weed-FS/</a>
+github <a href="https://github.com/chrislusf/seaweedfs" target="_blank">https://github.com/chrislusf/seaweedfs</a>
+</pre>
+		</p>
+		
+	</div>
+
+	<div class="note"><a name="envi"></a>
+		<p><span class="flag">環境 配置</span>
+<pre>1	從官網下載 使用os的 最新穩定版本 並解壓 / 下載源碼 自行編譯
+
+2	啟動 master 服務
+	weed master -h
+	weed master -ip="localhost" -port=9333 -mdir="master_0"
+	(
+		-peers=""		其他master地址 多個以 , 分割 ip:port
+		-ip="localhost"		服務器域名/ip
+		-port=9333		http監聽端口
+		-mdir			數據存儲位置
+		-volumeSizeLimitMB=30000	單個volume 最大存儲容量
+		-defaultReplication="000"	數據備份規則
+			000: no replication	不備份
+			001: replicate once on the same rack
+			010: replicate once on a different rack, but same data center
+			100: replicate once on a different data center
+			200: replicate twice on two different data center
+			110: replicate once on a different rack, and once on a different data center
+		...
+	)
+
+3	啟動 volume 服務
+	weed volume -h
+	weed volume -dir="volume_0" -max=5 -ip="192.168.1.254"  -mserver="localhost:9333" -port=8080 &
+	weed volume -dir="volume_1" -max=10 -ip="192.168.1.254"  -mserver="localhost:9333" -port=8081 &
+	(
+		-dir		數據存儲位置
+		-max=7		此volume服務 最多能 管理 多少個 volume
+		-mserver="localhost:9333"	master服務器地址
+		-port=8080	http監聽端口
+		-ip=""		volume 地址/域名
+		-dataCenter=""	數據中心的名稱 如果不設置 master 根據 volume 的ip 和設置 生成名稱
+		-rack=""	rack名
+		...
+	)
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>多個 master volume 服務 可以 運行在不同 os
+要擴容 FS 只需要 啟動 新的 volume 即可
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="http"></a>
+		<p><span class="flag">http 訪問</span>
+<pre>Seaweed-FS 提供了 http接口 以方便 訪問FS
+</pre>
+		</p>
+
+
+		<p><span class="flag">上傳 文件</span>
+<pre>1	請求上傳 fid
+	向 master/dir/assign 發送 POST/PUT/GET 請求
+	curl  -X POST http://192.168.1.254:9333/dir/assign
+
+	{"fid":"7,14dcf25713","url":"192.168.1.254:8080","publicUrl":"192.168.1.254:8080","count":1}
+	
+2	上傳 文件
+	向 返回的 url/fid 發送 POST/PUT 請求
+	curl -X PUT -F file=@a.jpg http://192.168.1.254:8080/7,14dcf25713
+	{"name":"a.jpg","size":821022}
+
+3	更新文件
+	向 返回的 url/fid 重發 POST/PUT 請求
+	curl -X PUT -F file=@b.jpg http://192.168.1.254:8080/7,14dcf25713
+	{"name":"b.jpg","size":411932}
+
+3	刪除 文件
+	向 返回的 url/fid 發送 DELETE 請求
+	curl -X DELETE http://192.168.1.254:8080/7,14dcf25713
+	{"size":821080}
+
+</pre>
+		</p>
+
+		<p><span class="flag">fid</span>
+<pre>{"fid":"7,14dcf25713"}
+7	是uint32 標識了 volume id
+14	是 uint64 唯一的key d...3 是file cookie
+</pre>
+		</p>
+
+		<p><span class="flag">讀取數據</span>
+<pre>1	//獲取 指定 volume id 對應的 url
+	//向 master/dir/lookup 發送 帶 volumeId 參數 的 POST/GET 請求
+	curl http://localhost:9333/dir/lookup?volumeId=7
+	{"volumeId":"7","locations":[{"url":"192.168.1.254:8080","publicUrl":"192.168.1.254:8080"}]}
+
+2	//獲取 文件
+	http://volume地址/fid
+
+	http://192.168.1.254:8080/7,14dcf25713
+
+	//其他擴展地址 寫法
+	http://192.168.1.254:8080/7,14dcf25713.xxx
+
+	http://192.168.1.254:8080/7/14dcf25713
+	http://192.168.1.254:8080/7/14dcf25713.xxx
+
+
+
+
+上面兩步 也可以 用以下一步完成 但不支持 擴展 地址 寫法
+	http://master地址/fid
+	http://192.168.1.254:9333/7,14dcf25713
+
+
+如果文件為圖片 可以 加上 height width 參數 縮放 圖像
+http://192.168.1.254:8080/7,14dcf25713?height=200&width=200
+http://192.168.1.254:9333/7,14dcf25713?height=200&width=200
+</pre>
+		</p>
+
+		<p><span class="flag">修改備份 規則</span>
+<pre>curl -X POST http://localhost:9333/dir/assign?replication=001
+</pre>
+		</p>
+	</div>
+	
+</div>
+</body>
+</html>

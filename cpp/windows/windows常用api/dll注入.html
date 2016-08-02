@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>dll注入</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+    <p><h1><font color="#FF0000">dll注入</font></h1></p>
+    
+    <h2>
+    <a href="#RemoteThread">远程线程注入</a><br />
+    
+    <a href="#hWnd">注入后 hWnd hInstance 获取</a><br />
+    </h2>
+    
+    <div class="div_box"><a name="RemoteThread"></a><p><h3>
+    <p><h2><font color="#FF0000">远程线程注入</font></h2><br />
+    利用CreateRemoteThread函数 开启远程线程 线程函数传入LoadLibrary地址 线程函数参数传入LoadLibrary加载dll参数
+    </p>
+    
+    
+    <p><h2><font color="#FF0000">一般步骤</font></h2><br />
+    0 win7下线提升本进程权限 以有足够权限进行注入<br />
+    1 OpenProcess 获取欲注入进程之 HANDLE<br />
+    2 VirtualAllocEx 为远程进程申请写入内存<br />
+    3 GetProcAddress 获取 Kernel32中 LoadLibrary地址<br />
+    4 CreateRemoteThread注入
+    </p>
+    
+    <p><h2><font color="#FF0000">example</font></h2><br />
+    <pre>
+    //获取子进程句柄
+	HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION | PROCESS_VM_WRITE, FALSE, pid/*process_information.dwProcessId*/);
+	if ( !hProcess ) 
+	{
+		MessageBox(L"获取子进程句柄失败");
+		return ;
+	}
+
+
+	int cByte  = (dll.GetLength()+1)* sizeof(wchar_t);
+	LPVOID pAddr = VirtualAllocEx(hProcess, NULL, cByte, MEM_COMMIT, PAGE_READWRITE);
+	if ( !pAddr || !WriteProcessMemory(hProcess, pAddr, dll.GetBuffer(), cByte, NULL)) 
+	{
+		MessageBox(L"申请或写入远程内存失败");
+		return ;
+	}
+
+	//获取loadlibrary地址
+	PTHREAD_START_ROUTINE pfnStartAddr = (PTHREAD_START_ROUTINE)GetProcAddress(GetModuleHandle(_T("Kernel32")), "LoadLibraryW");
+	if ( !pfnStartAddr ) 
+	{
+		MessageBox(L"获取LoadLibraryW地址失败");
+		return ;
+	}
+
+	DWORD dwThreadID = 0;
+	//利用远程线程 注入dll
+	HANDLE hRemoteThread = CreateRemoteThread(hProcess, NULL, 0, pfnStartAddr, pAddr, 0, &dwThreadID);
+	if ( !hRemoteThread ) 
+	{
+		MessageBox(L"注入失败");
+		return ;
+
+	}
+	CloseHandle(hRemoteThread);
+	CloseHandle(hProcess);</pre>
+    </h3></p></div>
+  	
+    <div class="div_box"><a name="hWnd"></a><p><h3>
+    <p><h2><font color="#FF0000">注入后 hWnd hInstance 获取</font></h2>
+    	<p><h2><font color="#FF0000">hInstance (实例/或基地址) 获取</font></h2><br />
+    		HINSTANCE hInstance = GetModuleHandle(L"calc.exe");//传入模块名<br />
+			unsigned int baseAddr=(unsigned int)hInstance;
+   		</p>
+        
+        <p><h2><font color="#FF0000">hWnd 获取 /*SetTimer必须传入此值*/</font></h2>
+        <pre>EnumWindows(EnumWindowsProc,0);  //注册回调函数枚举當前所有窗口的hwnd 当回调函数返回FALSE 停止枚举 
+                                 //参数2用以传递一个自定义参数
+
+BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
+{
+
+	DWORD current_pid,hwnd_pid;
+	/*DWORD thread_id=*/GetWindowThreadProcessId(hwnd,&hwnd_pid);
+	
+	current_pid=GetCurrentProcessId();
+	
+	if(current_pid==hwnd_pid)
+	{
+		/*
+		//格局風格篩選
+		LONG mystyle=GetWindowLong(hwnd,GWL_STYLE);
+		if(mystyle!=(WS_CAPTION | WS_VISIBLE | WS_CLIPSIBLINGS | WS_SYSMENU | WS_OVERLAPPED | WS_MINIMIZEBOX))
+		{
+			return TRUE;
+		}
+        
+		//根據類名篩選		
+       	 wchar_t window_class_name[CLASS_NAME_LEN]={0};
+		GetClassName(hwnd,window_class_name,CLASS_NAME_LEN);
+		std::wstring tmp_str(window_class_name);
+		boost::trim<std::wstring>(tmp_str);
+		if(tmp_str != L"MainWnd class of ArkEngine")
+		{
+			return TRUE;
+		}
+        */
+        
+		LONG hInstance=GetWindowLong(hwnd,GWL_HINSTANCE);   //获取创建窗口的模块 实例地址
+		if(FunctionAddr::instance().baseAddr!=hInstance)    //和要查找模块实例地址比较
+		{
+			return TRUE;
+		}
+
+		std::cout&lt;&lt;"pid="&lt;&lt;current_pid&lt;&lt;std::endl;
+		if(SetTimer(hwnd,1,50,mainActionTimer))
+		{
+			FunctionAddr::instance().hwnd=hwnd;
+			std::cout&lt;&lt;"设置timer成功  hwnd="&lt;&lt;(int)(&hwnd)&lt;&lt;std::endl&lt;&lt;"$";
+		}
+		else
+		{
+			std::cout&lt;&lt;"error code "&lt;&lt; GetLastError()&lt;&lt;std::endl&lt;&lt;"$";
+		}
+		return FALSE;
+	}
+	
+	return TRUE;
+}</pre>
+        </p>
+        
+    </p>
+    
+    <p><h2><font color="#FF0000">注意</font></h2>
+    EnumWindows並非 異步函數 程序將等待 回調函數返回 FALSE 才繼續執行下面的代碼<br />
+    但是當 EnumWindows枚舉完當前所有窗口後 依然會返回
+    EnumWindows的返回值 由最後一次回調函數返回
+    </p>
+    </h3></p></div>
+</td></tr></table>
+</body>
+</html>

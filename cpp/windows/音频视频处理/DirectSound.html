@@ -1,0 +1,455 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>DirectSound</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+    <p><h1><font color="#FF0000">DirectSound</font></h1></p>
+    
+    <h2>
+    <a href="#setting">DirectSound</a><br />
+    <a href="#DirectSoundCreate8">DirectSound 設備對象</a><br />
+    <a href="#CreateSoundBuffer">CreateSoundBuffer 創建緩衝區</a><br />
+    <a href="#play">Play 播放等控制</a><br />
+    
+    <a href="#wave">wave文件格式</a><br />
+    </h2>
+    
+    <div class="div_box"><a name="setting"></a><p><h3>
+    	<p><h2><font color="#FF0000">DirectSound</font></h2><br />
+       	DirectSound 是DirectX用於處理聲音組件<br /><br />
+        安裝DirectX SDK<br />
+        設置 sdk 包含路徑Include 和 庫目錄 Lib<br /><br />
+        
+        包含必要頭文件 include mmsystem.h mmreg.h dsound.h <br />
+        增加鏈接庫 dxguid.lib dsound.lib 
+        
+        </p>
+        
+        <p><h2><font color="#FF0000">DirectSound 播放流程</font></h2>
+<pre>創建 DirectSound 設備對象
+設定設備的協調級別
+
+創建DirectSound緩衝區
+加載數據到緩衝區
+
+播放聲音
+停止播放
+退出程序
+</pre>
+        </p>
+        
+        <p><h2><font color="#FF0000">DirectSound常見對象</font></h2>
+        <table border="2">
+        <tr><td>對象</td><td>數量</td><td>作用</td><td>主要接口</td></tr>
+        <tr><td>設備對象</td><td>每個應用程序只有一個</td><td>管理設備 創建聲音緩衝區</td><td></td>IDirectSound8</tr>
+        <tr><td>次緩衝區對象</td><td>每個聲音對於一個次緩衝區</td><td>管理聲音 然後在主緩衝區中播放</td><td>IDirectSoundBuffer8<br />IDirectSound3DBuffer8<br />IDirectSoundNotify8</td></tr>
+        <tr><td>主緩衝區對象</td><td>一個應用程序只有一個主緩衝區</td><td>將次緩衝區數據混音 3D音效控制</td><td>IDirectSoundBuffer<br />IDirectSound3Dlistener8</td></tr>
+        <tr><td>音效對象</td><td>每個緩衝區有0到多個</td><td>對次緩衝區聲音進行轉換</td><td>8個IDirectSoundFXChorus8</td></tr>
+        </table>
+        </p>
+   	</h3></p></div>
+    
+    <div class="div_box"><a name="DirectSoundCreate8"></a><p><h3>
+    	<p><h2><font color="#FF0000">DirectSound 設備對象</font></h2><br />
+        DirectSound 設備對象 代表播放聲音的設備
+        </p>
+        <p><h2><font color="#FF0000">創建 DirectSound 設備對象</font></h2>
+<pre>try
+	{
+				LPDIRECTSOUND8  device;
+		if(DS_OK != DirectSoundCreate8(
+			NULL					//設備對象GUI NULL使用系統默認設備
+			,&device		//返回LPDIRECTSOUND8接口
+			,NULL					//系統保留 NULL
+			))
+		{
+			throw dark::debug::wexception(L"創建設備對象失敗");
+		}
+
+		//設置協作級別
+		if(DS_OK != device->SetCooperativeLevel(m_hWnd,DSSCL_PRIORITY))
+		{
+			throw dark::debug::wexception(L"設置協調級別失敗");
+		}
+		/*返回聲音設備的屬性
+		DSCAPS dscaps;
+		dscaps.dwSize=sizeof(DSCAPS);
+		device->GetCaps(&dscaps);
+		*/
+	}
+	catch(const dark::debug::wexception& e)
+	{
+		MessageBox(e.what().c_str());
+		EndDialog(FALSE);
+	}</pre>    
+        </p>
+        
+        <p><h2><font color="#FF0000">協作級別</font></h2>
+<pre>DSSCL_NORMAL
+	普通	應用程序不能設定主緩衝區格式 也不能對主緩衝區進行寫操作
+		此級別下應用程序都使用 22kHz 立體聲 採樣精度8位的主緩衝區
+DSSCL_EXCLUSIVE 同DSSCL_PRIORITY在  DirectX 8.0 以前設備會被設置為獨占
+  
+DSSCL_PRIORITY 
+	優先	應用程序可以優先使用硬件進行混音 並且可以設定主緩衝區格式(遊戲一般採用此協作級別)
+DSSCL_WRITEPRIMARY 
+	寫	應用程序可以直接訪問主緩衝區
+		此模式下應用程序必須直接操作主緩衝區
+		此模式下應用程序位於最前 其他程序的此緩衝區會停止 並且標準為丟失 當此程序轉到後面 主緩衝區會被標識為丟失            
+</pre>
+        </p>
+       <p><h2><font color="#FF0000">枚舉系統可用設備對象</font></h2>
+       DirectSoundEnumerate函數可註冊一個回調函數以 枚舉系統可用設備對象
+       
+<pre>BOOL CALLBACK MyDSEnumCallback(
+         LPGUID lpGuid,				//設備Guid
+         LPCSTR lpcstrDescription,	//設備名
+         LPCSTR lpcstrModule,		//設備驅動器
+         LPVOID lpContext			//調用者傳入參數
+)
+{
+	CListBox* lp=(CListBox*)lpContext;
+
+	CString wcs;
+	wcs.Format(L"guid=%d name=%s %s",lpGuid,lpcstrDescription,lpcstrModule);
+
+	lp->InsertString(0,wcs);
+	//return FALSE 可以停止枚舉 
+	return TRUE;
+}
+void CDirectxTestDlg::OnBnClickedButtonDevice()
+{
+	DirectSoundEnumerate( (LPDSENUMCALLBACK )MyDSEnumCallback,
+		&m_listbox//傳遞給回調函數的 最後一個參數
+		);
+}
+</pre>       
+       </p>
+   	</h3></p></div>
+    
+    <div class="div_box"><a name="CreateSoundBuffer"></a><p><h3>
+    	<p><h2><font color="#FF0000">CreateSoundBuffer 創建緩衝區</font></h2><br />
+        創建的設備對象IDirectSound8接口 的CreateSoundBuffer 創建緩衝區
+<pre>//創建緩衝區 成功返回DS_OK 或者DS_NO_VIRTUALIZATION(請求的3D算法不支持立體聲 立體聲被取代)
+HRESULT CreateSoundBuffer(
+         LPCDSBUFFERDESC pcDSBufferDesc,		//傳入緩衝區結構 以指示緩衝區屬性
+         LPDIRECTSOUNDBUFFER * ppDSBuffer,		//返回緩衝區指針 既IDirectSoundBuffer IDirectSoundBuffer8接口
+         LPUNKNOWN pUnkOuter					//系統保留 必須為0
+)
+
+//緩衝區結構
+typedef struct DSBUFFERDESC {
+    DWORD dwSize;				//結構大小
+    DWORD dwFlags;				//標識緩衝區用途
+    DWORD dwBufferBytes;			//緩衝區大小	(主緩衝區必須設置為0)
+    DWORD dwReserved;				//系統保留 0
+    LPWAVEFORMATEX lpwfxFormat;			//聲音格式屬性 (主緩衝區必須設置為0) WAVEFORMATEX 或 WAVEFORMATEXTENSIBLE結構指針
+    GUID guid3DAlgorithm;			//3D音效算法
+} DSBUFFERDESC;
+
+dwFlags取值
+DSBCAPS_CTRL3D			具有3D音效控制 不能餘DSBCAPS_CTRLFREQUENCY聯用
+<font color="#FF0000">DSBCAPS_CTRLFREQUENCY		緩衝區可設置採樣率</font>
+DSBCAPS_CTRLFX			緩衝區註冊特性處理(effect processing) 
+<font color="#FF0000">DSBCAPS_CTRLPAN			緩衝區可控制聲道
+DSBCAPS_CTRLVOLUME  		緩衝區可設置音量大小
+DSBCAPS_CTRLPOSITIONNOTIFY  	緩衝區具有播放位置通知能力 </font> 
+<font color="#FF0000">DSBCAPS_GETCURRENTPOSITION2	能獲取精確的播放位置 
+DSBCAPS_GLOBALFOCUS		緩衝區是全局資源 當切換到其他程序 仍然播放聲音</font>  	
+DSBCAPS_LOCDEFER  		緩衝區可綁定為硬件或軟件內存來播放聲音
+DSBCAPS_LOCHARDWARE 		緩衝區必須使用硬混聲器 如果硬件不支持 CreateSoundBuffer返回失敗
+DSBCAPS_LOCSOFTWARE   		緩衝區使用軟件內存或軟件混聲
+DSBCAPS_MUTE3DATMAXDISTANCE  	超過最大可聽距離 停止播放
+<font color="#FF0000">DSBCAPS_PRIMARYBUFFER  		說明創建的是主緩衝區 否則次緩衝區</font>
+DSBCAPS_STATIC 			自動使用硬件內存作為緩衝區 
+DSBCAPS_STICKYFOCUS 		當出現切換到其他不使用DirectSound的程序時 緩衝區仍然播放 但無法正常進行其他處理
+DSBCAPS_TRUEPLAYPOSITION  
+
+
+//聲音格式屬性
+typedef struct WAVEFORMATEX {
+    WORD wFormatTag;			//格式類型 表示壓縮算法
+    WORD nChannels;			//聲道數(通常1~2個)
+    DWORD nSamplesPerSec;		//採樣率
+    DWORD nAvgBytesPerSec;		//每秒採樣字節數
+    WORD nBlockAlign;			//塊對齊大小
+    WORD wBitsPerSample;		//採樣位數
+    WORD cbSize;			//附加段數據大小
+} WAVEFORMATEX;
+
+</pre>        
+        </p>
+        
+        <p><h2><font color="#FF0000">創建主緩衝區</font></h2>
+<pre>//創建主緩衝區
+		LPDIRECTSOUNDBUFFER  main_buffer;
+		if(DS_OK != device->CreateSoundBuffer(&dsbufferdesc,&main_buffer,0))
+		{
+			throw dark::debug::wexception(L"創建主要緩衝區失敗");
+		}
+		
+		//主緩衝區只能通過 SetFormat 設置 聲音格式屬性 且協作等級需要支持修改緩衝區格式
+		WAVEFORMATEX wave_format;
+		memset(&wave_format,0,sizeof(WAVEFORMATEX));
+		wave_format.wFormatTag			=	WAVE_FORMAT_PCM;
+		wave_format.nChannels			=	2;			//聲道數
+		wave_format.nSamplesPerSec		=	44100;		//採樣率為44.1Hz	22050(22.05Hz)
+		wave_format.wBitsPerSample		=	16;			//採樣位數
+		//採樣塊對齊大小
+		wave_format.nBlockAlign			=	(wave_format.wBitsPerSample/8)*wave_format.nChannels;
+		//計算平均每秒採樣字節數
+		wave_format.nAvgBytesPerSec		=	wave_format.nSamplesPerSec*wave_format.nBlockAlign;
+		
+		//設置緩衝區聲音屬性
+		if(DS_OK !=main_buffer->SetFormat(&wave_format))
+		{
+			throw dark::debug::wexception(L"設置主要緩聲音屬性失敗");
+		}</pre>
+        </p>
+       <p><h2><font color="#FF0000">創建次緩衝區</font></h2>
+<pre>//讀取要播放wav屬性
+		dark::sound::WaveFormat wave(L"爱是没余地.wav");
+
+		//設置聲音屬性
+		WAVEFORMATEX wave_format;
+		memset(&wave_format,0,sizeof(WAVEFORMATEX));
+		wave_format.wFormatTag			=	WAVE_FORMAT_PCM;
+		wave_format.nChannels			=	wave.wave_format.nChannels;				//單聲道
+		wave_format.nSamplesPerSec		=	wave.wave_format.nSamplesPerSec;		//採樣率為44.1Hz	22050(22.05Hz)
+		wave_format.wBitsPerSample		=	wave.wave_format.wBitsPerSample;		//採樣位數
+		//採樣塊對齊大小
+		wave_format.nBlockAlign			=	(wave_format.wBitsPerSample/8)*wave_format.nChannels;
+		//計算平均每秒採樣字節數
+		wave_format.nAvgBytesPerSec		=	wave_format.nSamplesPerSec*wave_format.nBlockAlign;
+
+		//設置緩衝區屬性
+		DSBUFFERDESC dsbufferdesc;
+		memset(&dsbufferdesc,0,sizeof(DSBUFFERDESC));
+		dsbufferdesc.dwSize			=	sizeof(DSBUFFERDESC);
+		dsbufferdesc.dwFlags		=	DSBCAPS_CTRLPAN | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPOSITIONNOTIFY | DSBCAPS_GLOBALFOCUS | DSBCAPS_GETCURRENTPOSITION2 ;
+		dsbufferdesc.dwBufferBytes	=	wave.wave_format.data_size;
+		dsbufferdesc.lpwfxFormat	=	&wave_format;
+		
+		//創建次緩衝區
+		if(DS_OK != device->CreateSoundBuffer(&dsbufferdesc,&sound_buffer,0))
+		{
+			throw dark::debug::wexception(L"創建次緩衝區失敗");
+		}
+
+		//由次緩衝區返回緩衝區接口對象 IDirectSoundBuffer8接口 
+		//LPDIRECTSOUNDBUFFER8 sound_buffer8;
+		if(S_OK != sound_buffer->QueryInterface(IID_IDirectSoundBuffer8,(LPVOID*)&sound_buffer8))
+		{
+			throw dark::debug::wexception(L"獲取次緩衝區接口失敗");
+		}</pre>       
+       </p>  
+       
+     	<p><h2><font color="#FF0000">加載數據到緩衝區</font></h2>
+<pre>//鎖定緩衝區
+		LPVOID ptr1,ptr2;
+		DWORD size1,size2;
+		if(S_OK != sound_buffer8->Lock(0,0,&amp;ptr1,&amp;size1,&amp;ptr2,&amp;size2,DSBLOCK_FROMWRITECURSOR | DSBLOCK_ENTIREBUFFER))
+		{
+			throw dark::debug::wexception(L"鎖定緩衝區失敗");
+		}
+
+		//加載數據到緩衝區
+		wave.fstream.seekg(wave.wave_format.data_foa,std::ios::beg);
+		wave.fstream.read((char*)ptr1,size1);
+		if(ptr2)
+		{
+			wave.fstream.read((char*)ptr2,size2);
+		}
+
+		//解鎖緩衝區
+		if(S_OK != sound_buffer8->Unlock(ptr1,size1,ptr2,size2))
+		{
+			throw dark::debug::wexception(L"解鎖緩衝區失敗");
+		}
+</pre>
+		</p> 
+        
+        <p><h2><font color="#FF0000">注意</font></h2>
+        對緩衝區到操作 是創建緩衝區後 通過調用QueryInterface 返回的 LPDIRECTSOUNDBUFFER8接口操作<br /><br />
+        
+        加載數據到緩衝區前要先鎖定 之後要解鎖<br />
+        緩衝區是環形的 故有兩個指針 
+<pre>HRESULT Lock(
+         DWORD dwOffset,			//設定緩衝區的開始位置
+         DWORD dwBytes,				//鎖定緩衝區大小
+         LPVOID * ppvAudioPtr1,		//指針1
+         LPDWORD  pdwAudioBytes1,	//指針1所指緩衝區大小
+         LPVOID * ppvAudioPtr2,		//指針2
+         LPDWORD pdwAudioBytes2,	//指針2....
+         DWORD dwFlags			//標誌為 DSBLOCK_FROMWRITECURSOR(忽略dwOffset參數 從緩衝區當前位置鎖定)
+         				//	DSBLOCK_ENTIREBUFFER(忽略dwBytes 鎖定整個緩衝區)
+)
+</pre>
+        </p>
+         
+	</h3></p></div>
+  	<div class="div_box"><a name="play"></a><p><h3>
+    	<p><h2><font color="#FF0000">Play 播放等控制</font></h2><br />
+        全部由於 緩衝區返回的 DIRECTSOUNDBUFFER8 接口操作<br />
+        成功皆返回DS_OK
+<pre>//播放
+HRESULT Play(
+         DWORD dwReserved1,		//系統保留 0
+         DWORD dwPriority,		//優先級一般為0	若緩衝區沒設置 DSBCAPS_LOCDEFER 必須為0
+         DWORD dwFlags			//播放標識 DSBPLAY_LOOPING( 1 循環播放)  0只播放一次
+)
+//停止播放 (不會改變緩衝區當前播放位置)
+HRESULT Stop()
+
+//設置當前播放位置 相對緩衝區頭文件偏移
+HRESULT SetCurrentPosition(
+         DWORD dwNewPosition
+)
+//獲取當前播放位置
+HRESULT GetCurrentPosition(
+         LPDWORD pdwCurrentPlayCursor,		//返回當前播放位置 相對緩衝區頭文件偏移
+         LPDWORD pdwCurrentWriteCursor		//返回一個可寫的緩衝區位置 相對緩衝區頭文件偏移 以實現流播放
+)
+
+//獲取聲音大小 單位db [DSBVOLUME_MIN ,DSBVOLUME_MAX] [-10000,0]
+HRESULT GetVolume(
+         LPLONG plVolume
+)
+
+//設置聲音
+HRESULT SetVolume(
+         LONG lVolume
+)
+
+//設置聲道值 [DSBPAN_LEFT ,DSBPAN_RIGHT ] [-10,000 ,10,000 ] 
+//0左右聲道一樣大 否則越接近DSBPAN_LEFT 左聲道越大 ...DSBPAN_RIGHT...
+HRESULT SetPan(
+         LONG lPan
+)
+//獲取聲道值
+HRESULT GetPan(
+         LPLONG plPan
+)
+
+//設置聲音播放頻率 主緩衝區不可改變
+HRESULT SetFrequency(
+         DWORD dwFrequency
+)
+//獲取聲音播放頻率
+HRESULT GetFrequency(
+         LPDWORD pdwFrequency
+)
+
+//返回緩衝區狀態
+HRESULT GetStatus(
+         LPDWORD pdwStatus
+)
+
+//SetNotificationPositions需要緩衝區過調用QueryInterface 返回的 LPDIRECTSOUNDNOTIFY接口操作
+//創建事件通知 SetNotificationPositions為緩衝區創建事件通知 當播放到指定位置時 事件被激發
+HRESULT SetNotificationPositions(
+         DWORD dwPositionNotifies,		//CDSBPOSITIONNOTIFY數組大小
+         LPCDSBPOSITIONNOTIFY pcPositionNotifies	//CDSBPOSITIONNOTIFY數組 每個CDSBPOSITIONNOTIFY包含了 一個event和 需要通知的播放位置
+)
+
+typedef struct DSBPOSITIONNOTIFY {
+    DWORD dwOffset;				//需要通知的播放位置
+    HANDLE hEventNotify;		//一個event
+} DSBPOSITIONNOTIFY;
+
+
+</pre>
+        </p>
+        <p><h2><font color="#FF0000">SetNotificationPositions example</font></h2>
+<pre>//返回notify8接口
+		LPDIRECTSOUNDNOTIFY sound_notify8;
+		if(S_OK != sound_buffer->QueryInterface(IID_IDirectSoundNotify8,(LPVOID*)&sound_notify8))
+		{
+			throw dark::debug::wexception(L"獲取次緩衝區notify8接口失敗");
+		}
+		//定義一個關心的事件
+		hEvent=CreateEvent(NULL,FALSE,FALSE,NULL);
+		if(!hEvent)
+		{
+			throw dark::debug::wexception(L"創建event失敗");
+		}
+		DSBPOSITIONNOTIFY cPositionNotifies;
+		cPositionNotifies.dwOffset		=	wave_format.nAvgBytesPerSec*3;			//位置關心的位置 此處為3秒
+		cPositionNotifies.hEventNotify	=	hEvent;
+		if(DS_OK != sound_notify8->SetNotificationPositions(1,&cPositionNotifies))
+		{
+			throw dark::debug::wexception(L"SetNotificationPositions失敗");
+		}
+		sound_notify8->Release();
+
+		//啟動wait線程
+		AfxBeginThread(waitThread,this);
+
+
+//wait線程
+UINT AFX_CDECL CDirectxTestDlg::waitThread(LPVOID lParam)
+{
+	CDirectxTestDlg* lp=(CDirectxTestDlg*)lParam;
+	while(true)
+	{
+		WaitForSingleObject(lp->hEvent,INFINITE);
+		AfxMessageBox(L"到達播放位置");
+	}
+	return 0;
+}</pre>
+        </p>
+        
+        <p><h2><font color="#FF0000">注意</font></h2><br />
+        在緩衝區的播放位置 和 寫位置之間 的數據不能被改變 這是一定會被播放的數據<br />
+        對於流緩衝區 從寫位置開始寫入跟新數據才是安全的<br />
+        應該為緩衝區設置DSBCAPS_GETCURRENTPOSITION2以獲取精確的播放位置<br /><br />
+        
+        SetNotificationPositions不能在緩衝區處於播放狀態下設置 可以先stop
+        </p>
+  	</h3></p></div>
+    <div class="div_box"><a name="wave"></a><p><h3>
+    	<p><h2><font color="#FF0000">wave文件格式</font></h2><br />
+<pre>typedef struct _WAVE_CONFIG_
+		{
+			char		riff_id[4];			//RIFF
+			DWORD		riff_size;			//file_size-8
+			
+			char		riff_data[4];		//WAVE
+
+			char		fmt_id[4];			//'fmt '
+			DWORD		fmt_size;			//18包含附加數據 16不包含附加數據
+			
+			WORD		format_tag;			//編碼方式 一般為     0001
+			WORD		nChannels;			//聲道數 
+			DWORD		nSamplesPerSec;		//採樣率
+			DWORD		nAvgBytesPerSec;	//每秒需要字節
+			WORD		nBlockAlign;		//採樣塊對齊大小
+			WORD		wBitsPerSample;		//採樣位數
+			WORD		append;				//附加數據
+
+			char		fact_id[4];			//fact
+			DWORD		fact_size;
+
+			DWORD		fact_foa;			//非wave結構 只是自定義出來記錄 數據文件偏移
+			//byte		fact_data[fact_size]
+
+			char		data_id[4];			//data
+			DWORD		data_size;			
+
+			DWORD		data_foa;			//非wave結構 只是自定義出來記錄 數據文件偏移
+			//byte		data_data[data_size]
+			
+			_WAVE_CONFIG_()
+			{
+				memset(this,0,sizeof(_WAVE_CONFIG_));
+			}
+		} WAVE_FORMA, *PWAVE_FORMA;</pre>
+  		</p>
+    </h3></p></div>
+</td></tr></table>
+</body>
+</html>

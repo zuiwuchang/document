@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>调用约定</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+    <p><h1><font color="#FF0000">调用约定</font></h1></p>
+    
+    <h2>
+    <a href="#__declspec(naked)">__declspec(naked)</a><br />
+   
+    <a href="#__stdcall">__stdcall</a><br />
+   	<a href="#__cdecl">__cdecl</a><br />
+    <a href="#__thiscall">__thiscall</a><br />
+    
+    <a href="#__clrcall">__clrcall</a><br />
+    <a href="#__fastcall">__fastcall</a><br />
+    
+    <a href="#esp">call esp ebp</a><br />
+    </h2>
+    
+    <div class="div_boxex"><a name="__declspec(naked)"></a><p><h3>
+    	<p><h2><font color="#FF0000">__declspec(naked)</font></h2><br />
+        	在vs等编译器下 编译器会生成许多额外代码 以完成 函数返回 堆栈平衡 申请临时变量等工作<br />
+            在函数前 以 __declspec(naked) 声明 表示
+            
+            
+        </p>
+   	</h3></p></div>
+    
+    <div class="div_boxex"><a name="__stdcall"></a><p><h3>
+    	<p><h2><font color="#FF0000">__stdcall</font></h2><br />
+        	标准调用 常用于 win32 api <br />
+            参数<font color="#FF0000">从右向左入栈</font><br />
+            <font color="#FF0000">函数清理堆栈</font><br />
+            名称修改 下划线(_)前缀 名称 后跟 @ 参数列表 如 fun(int a,double b) _fun@12<br />
+            /Gz
+            
+        </p>
+   	</h3></p></div>
+     <div class="div_boxex"><a name="__cdecl"></a><p><h3>
+    	<p><h2><font color="#FF0000">__cdecl</font></h2><br />
+        	c/c++ 默认调用约定 <br />
+            参数<font color="#FF0000">从右向左入栈</font><br />
+            <font color="#FF0000">调用者 清理堆栈</font><br />
+            名称修改 下划线(_)前缀<br />
+            /Gd
+            
+        </p>
+   	</h3></p></div>
+    
+    <div class="div_boxex"><a name="__thiscall"></a><p><h3>
+    	<p><h2><font color="#FF0000">__thiscall</font></h2><br />
+        	c++ 成员函数调用约定 <br />
+            参数<font color="#FF0000">从右向左入栈</font><br />
+            <font color="#FF0000">函数 清理堆栈</font><br />
+            ecx保存 this指针
+            
+        </p>
+   	</h3></p></div>
+  
+  <div class="div_boxex"><a name="esp"></a><p><h3>
+    	<p><h2><font color="#FF0000">call esp ebp</font></h2><br />
+        	<pre>
+            esp+0x4*n		//第n个参数
+            esp			//函数返回地址
+            
+            push ebp;
+            mov ebp,esp;
+            sub esp,		//申请临时变量
+            
+            ebp+0x4		//函数返回地址
+            ebp+0x4*(n+1)	//第n个参数
+            ebp-0x4*n		//第n个临时变量
+            
+            add esp,		//还原esp
+            pop ebp;</pre>
+        </p>
+   	</h3></p></div>
+</td></tr></table>
+</body>
+</html>

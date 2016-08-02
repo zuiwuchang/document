@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#base">嵌入 聚合</a>
+		<a href="#interface">interface</a>
+		
+		
+	</div>
+
+	<div class="note"><a name="base"></a>
+		<p><span class="flag">嵌入 聚合</span>
+<pre>Go 不支持 繼承 重載 Go只支持嵌入 聚合
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+)
+
+type Point struct {
+	X, Y int
+}
+
+func (p *Point) Where() {
+	fmt.Println(p.X, p.Y)
+}
+
+type cat struct {
+	//嵌入
+	Point
+
+	//聚合
+	name string
+}
+
+func main() {
+	c := cat{Point{1, 2}, "tom"}
+	fmt.Println(c)
+
+	//对于嵌入可直接使用 其内部定义
+	//fmt.Println(c.Point.X,c.point.Y)
+	fmt.Println(c.X, c.Y)
+	c.Where()
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="interface"></a>
+		<p><span class="flag">interface</span>
+<pre>interface 接口 是一些方法 定義聚合
+interface 同樣支持 嵌入
+
+type interfaceName interface{
+	funcName
+	...
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

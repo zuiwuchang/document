@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>thread</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#log">log庫</a>
+		<a href="#out">輸出日誌</a>
+		<a href="#filter">過濾器</a>
+		<a href="#sinks">sinks 輸出水槽</a>
+	</div>
+
+	<div class="note"><a name="log"></a>
+		<p><span class="flag">log庫</span>
+<pre>boost 從1.54開始 提供log庫 其可以方便的實現日誌功能
+(默認輸出到控制台 其可以自動在日誌前 加上日前時間...)
+
+#include&lt;boost\log\trivial.hpp&gt;
+namespace boost::log
+
+log庫需要編譯
+bjam --toolset=msvc-10.0 --with-log --build-type=complete --prefix=E:\Boost
+(log庫需要 data_time filesystem system thread 庫支持 故編譯相對漫長)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="out"></a>
+		<p><span class="flag">輸出日誌</span>
+<pre>使用 BOOST_LOG_TRIVIAL(lvl) 宏返回一個日誌輸出流用於輸出日誌
+(其重載了 operator&lt;&lt;)
+
+lvl 為日誌等於(取值如下)
+trace		跟踪
+debug		調試
+info		嚴重通知信息
+warning		警告
+error		錯誤
+fatal		致命錯誤
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>BOOST_LOG_TRIVIAL(trace) &lt;&lt; "A trace severity message";
+BOOST_LOG_TRIVIAL(debug) &lt;&lt; "A debug severity message";
+BOOST_LOG_TRIVIAL(info) &lt;&lt; "An informational severity message";
+BOOST_LOG_TRIVIAL(warning) &lt;&lt; "A warning severity message";
+BOOST_LOG_TRIVIAL(error) &lt;&lt; "An error severity message";
+BOOST_LOG_TRIVIAL(fatal) &lt;&lt; "A fatal severity message";
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>BOOST_LOG_TRIVIAL 可以安全的在多線程中 記錄日誌 其內部實現了線程同步
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="filter"></a>
+		<p><span class="flag">過濾器</span>
+<pre>可以在日誌輸出前 指定一個 過濾器 以過濾到 不需要記錄的 日誌等級
+只需要使用 core 類的 static 函數 get 返回 日誌單件再使用 set_filter 設置過濾器即可
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;boost/log/trivial.hpp&gt;
+#include &lt;boost/log/core.hpp&gt;
+#include &lt;boost/log/expressions.hpp&gt;
+
+void set_filter(boost::log::trivial::severity_level lv)
+{
+	boost::log::core::get()-&gt;set_filter(
+		boost::log::trivial::severity &gt;= lv	//之記錄 &gt;= info 等級的日誌
+		);
+}
+int _tmain(int argc, _TCHAR* argv[])
+{ 
+	set_filter(boost::log::trivial::trace);		//可以隨時改變 過濾等級
+	BOOST_LOG_TRIVIAL(trace) &lt;&lt; "A trace severity message";
+	BOOST_LOG_TRIVIAL(debug) &lt;&lt; "A debug severity message";
+	BOOST_LOG_TRIVIAL(info) &lt;&lt; "An informational severity message";
+	BOOST_LOG_TRIVIAL(warning) &lt;&lt; "A warning severity message";
+	BOOST_LOG_TRIVIAL(error) &lt;&lt; "An error severity message";
+	BOOST_LOG_TRIVIAL(fatal) &lt;&lt; "A fatal severity message";
+
+	set_filter(boost::log::trivial::trace);		//可以隨時改變 過濾等級
+	BOOST_LOG_TRIVIAL(trace) &lt;&lt; "A trace severity message";
+	BOOST_LOG_TRIVIAL(debug) &lt;&lt; "A debug severity message";
+	BOOST_LOG_TRIVIAL(info) &lt;&lt; "An informational severity message";
+	BOOST_LOG_TRIVIAL(warning) &lt;&lt; "A warning severity message";
+	BOOST_LOG_TRIVIAL(error) &lt;&lt; "An error severity message";
+	BOOST_LOG_TRIVIAL(fatal) &lt;&lt; "A fatal severity message";
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="sinks"></a>
+		<p><span class="flag">sinks 輸出水槽</span>
+<pre>log將日誌輸出到水槽中(默認為標準輸出流) 
+可以使用 add_file_log 設置輸出流 (一旦設置 默認水槽將被停用)
+可以 多次調用 設置多個 輸出 水槽
+
+
+可以為add_file_log簡單的傳入一個 文件路徑 
+或者 傳入任意數量 namespace boost::log::keywords 下單各種屬性 指定 更多指定信息
+</pre>
+		</p>
+		<p><span class="flag">example file</span>
+<pre>#include &lt;boost/log/utility/setup/file.hpp&gt;
+
+log::add_file_log
+(
+	/*&lt; file name pattern &gt;*/
+	keywords::file_name = "sample_%N.log",                                        
+	/*&lt; rotate files every 10 MiB... &gt;*/
+	keywords::rotation_size = 10 * 1024 * 1024,                                   
+	/*&lt; ...or at midnight &gt;*/
+	keywords::time_based_rotation = sinks::file::rotation_at_time_point(0, 0, 0), 
+	/*&lt; log record format &gt;*/
+	keywords::format = "[%TimeStamp%]: %Message%"                                 
+);
+</pre>
+		</p>
+		<p><span class="flag">example stream</span>
+<pre>#include &lt;iostream&gt;
+#include &lt;fstream&gt;
+#include &lt;boost/log/trivial.hpp&gt;
+#include &lt;boost/log/sinks.hpp&gt;
+
+using namespace std;
+using namespace boost::log;
+int main()
+{
+    typedef sinks::synchronous_sink< sinks::text_ostream_backend > text_sink;
+    boost::shared_ptr< text_sink > sink = boost::make_shared< text_sink >();
+
+    // Add a stream to write log to
+    sink->locked_backend()->add_stream(
+        boost::make_shared< std::ofstream >("sample.log"));
+
+    // Register the sink in the logging core
+    core::get()->add_sink(sink);
+
+
+    BOOST_LOG_TRIVIAL(trace) << "A trace severity message";
+    BOOST_LOG_TRIVIAL(debug) << "A debug severity message";
+    BOOST_LOG_TRIVIAL(info) << "An informational severity message";
+    BOOST_LOG_TRIVIAL(warning) << "A warning severity message";
+    BOOST_LOG_TRIVIAL(error) << "An error severity message";
+    BOOST_LOG_TRIVIAL(fatal) << "A fatal severity message";
+
+    return 0;
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

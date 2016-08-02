@@ -1,0 +1,216 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>udp</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">udp</font>
+</p>
+
+<p>
+	<a href="#udp">udp</a><br />
+    <a href="#server">server example</a><br />
+    <a href="#client">client example</a><br />
+   
+</p>
+
+
+<div class="div_box"><a name="udp"></a>
+	<p><font color="#FF0000">udp</font>
+<pre>udp 是無連接協議 操作基本同tcp 只是沒有 連接操作 
+且在發送 接受數據時 跟上來一個地址以表示 從何處接受/發送到何處
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">相關API</font>
+<pre>
+//發送數據報
+int sendto(
+  __in          SOCKET s,			//socket
+  __in          const char* buf,	//要發送到數據
+  __in          int len,			//數據大小
+  __in          int flags,			//標記
+  __in          const struct sockaddr* to,	//發送地址
+  __in          int tolen		//sizeof(to)
+);
+
+//接受數據報
+int recvfrom(
+  __in          SOCKET s,
+  __out         char* buf,
+  __in          int len,
+  __in          int flags,
+  __out         struct sockaddr* from,	//接收地址
+  __in_out      int* fromlen
+);
+
+
+//其它見tcp
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">注意</font>
+<pre>udp 是不可靠協議 其不保證數據的完整性 和 有序
+</pre>
+	</p>
+</div>
+
+<div class="div_box"><a name="server"></a>
+	<p><font color="#FF0000">server example</font>
+<pre>1	初始化socket庫
+2	創建socket
+3	綁定服務器到指定端口
+4	接收 發送數據
+
+bool Start() 
+{
+	WORD wVersionRequested;
+	WSADATA wsaData;
+	int err;
+
+	wVersionRequested = MAKEWORD( 2, 2 );
+ 
+	err = WSAStartup( wVersionRequested, &wsaData );
+	if ( err != 0 )
+	{
+                    
+		return false;
+	}
+ 
+ 
+	if ( LOBYTE( wsaData.wVersion ) != 2 || HIBYTE( wsaData.wVersion ) != 2 ) 
+	{                     
+		WSACleanup( );
+		return false; 
+	}
+
+	return true;
+}
+int _tmain(int argc, _TCHAR* argv[])
+{
+	if(Start())
+	{
+		//创建数据报 socket
+		SOCKET sock	=	socket(AF_INET,SOCK_DGRAM,0);
+		if(INVALID_SOCKET == sock)
+		{
+			puts("create socket error");
+			WSACleanup();
+			return 0;
+		}
+
+		//绑定套接字
+		SOCKADDR_IN addr;
+		addr.sin_family	=	AF_INET;
+		addr.sin_port	=	htons(1102);
+		addr.sin_addr.S_un.S_addr	=	htonl(INADDR_ANY);
+		int len	=	sizeof(SOCKADDR);
+		if(SOCKET_ERROR	==	bind(sock,(SOCKADDR*)&amp;addr,len))
+		{
+			puts("bind socket error");
+			WSACleanup();
+			return 0;
+		}
+
+		char buffer[1024]	=	{0};
+		char send_buffer[]	=	"i know";
+		SOCKADDR_IN client_addr;
+		while(true)
+		{
+			//接受数据
+			int size	=	recvfrom(sock
+				,buffer
+				,sizeof(buffer)
+				,0
+				,(SOCKADDR*)&amp;client_addr
+				,&amp;len
+				);
+			printf("%s	:	(%d)%s\n",inet_ntoa(client_addr.sin_addr),size,buffer);
+
+			//发送数据
+			sendto(sock
+				,send_buffer
+				,sizeof(send_buffer)
+				,0
+				,(sockaddr*)&amp;client_addr
+				,len);  
+		}
+
+		WSACleanup();
+	}
+
+	return 0;
+}
+</pre>
+	</p>
+</div>
+
+<div class="div_box"><a name="client"></a>
+	<p><font color="#FF0000">client example</font>
+<pre>1	初始化socket庫
+2	創建socket
+3	接收 發送數據
+
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	if(Start())
+	{
+		//创建数据报 socket
+		SOCKET sock	=	socket(AF_INET,SOCK_DGRAM,0);
+		if(INVALID_SOCKET == sock)
+		{
+			puts("create socket error");
+			WSACleanup();
+			return 0;
+		}
+
+		//绑定套接字
+		SOCKADDR_IN addr;
+		addr.sin_family	=	AF_INET;
+		addr.sin_port	=	htons(1102);
+		addr.sin_addr.S_un.S_addr	=	inet_addr("127.0.0.1");
+		int len	=	sizeof(SOCKADDR);
+		
+
+		char buffer[1024]	=	{0};
+		char send_buffer[1024]	=	{0};
+	
+		while(true)
+		{
+			scanf("%s",send_buffer);
+			//发送数据
+			sendto(sock
+				,send_buffer
+				,strlen(send_buffer) + 1
+				,0
+				,(sockaddr*)&amp;addr
+				,len);  
+
+			//接受数据
+			int size	=	recvfrom(sock
+				,buffer
+				,sizeof(buffer)
+				,0
+				,(SOCKADDR*)&amp;addr
+				,&amp;len
+				);
+			printf("%s	:	(%d)%s\n",inet_ntoa(addr.sin_addr),size,buffer);
+		}
+
+		WSACleanup();
+	}
+
+	return 0;
+}
+</pre>
+	</p>
+</div>
+
+</td></tr></table>
+</body>
+</html>

@@ -1,0 +1,430 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>lua</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#filesystem">filesystem</a>
+		<a href="#path">path</a>
+		<a href="#path_iterator">path_iterator</a>
+		<a href="#directory_iterator">directory_iterator</a>
+		<a href="#recursive_directory_iterator">recursive_directory_iterator</a>
+		<a href="#fun">導出函數</a>
+	</div>
+
+	<div class="note"><a name="filesystem"></a>
+		<p><span class="flag">filesystem</span>
+<pre>filesystem 模塊 是 lua 對 boost::filesystem 的一個 封裝
+大部分 參數 函數 同 boost
+
+
+//創建table的一個 副本
+table:clone()
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="path"></a>
+		<p><span class="flag">path</span>
+<pre>path 包含了對路徑的 處理
+</pre>
+		</p>
+		<p><span class="flag">導出接口</span>
+<pre>local m = require  "filesystem"
+
+
+
+//獲取 文件名 是否 符合 posix/window 規範
+bool m.portable_posix_name(str_n)
+bool m.windows_name(str_n)
+
+
+
+//<span class="care">構造一個</span> path 對象(path 內部使用 boost::filesystem::path*)
+m.path(str_p = "")
+
+//返回 path 對應的 字符串
+path:string()
+
+//追加目錄	__div
+path / str_n
+
+//追加字符	__add
+path / str_n
+
+
+
+//返回 完整的絕對路徑
+path path:system_complete()
+//返回 是否是 完整路徑
+path path:is_complete()
+
+-- 返回 父路徑/文件名(不包含擴展名)/文件名/後綴名
+path path:parent_path()
+path path:stem()
+path path:filename()
+path path:extension()
+
+//更改 擴展名
+path:replace_extension(str_e)
+
+//移除 最後的文件名
+path:remove_filename()
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>local m = require "filesystem"
+
+
+local path = m.path("123")
+print("path",path)
+print("path",path:string())
+
+--獲取 文件名 是否 符合 posix/window 規範
+local name = "123"
+print(m.portable_posix_name(name))
+print(m.windows_name(name))
+
+
+
+--追加 目錄
+local p1 = m.path("./")
+print(p1:string())
+local p2 = p1 / "123/456"
+print(p2:string())
+
+--追加 字符串
+p2 = p2 + ".txt"
+print(p2:string())
+
+
+
+--返回完整路徑
+print(p2:system_complete():string())
+print(p2:is_complete())
+
+-- 返回 父路徑/文件名(不包含擴展名)/文件名/後綴名
+print("path = ",p2:string())
+print(p2:parent_path():string())
+print(p2:stem():string())
+print(p2:filename():string())
+print(p2:extension():string())
+
+
+p2 = p2:system_complete()
+-- 返回 根 名/文件夾/路徑
+print(p2:root_name():string())
+print(p2:root_directory():string())
+print(p2:root_path():string())
+
+
+--更改 擴展名
+p2:replace_extension(".text")
+print(p2:string())
+--移除 擴展名
+p2:replace_extension()
+print(p2:string())
+
+
+--移除 最後的文件名
+p2:remove_filename()
+print(p2:string())
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="path_iterator"></a>
+		<p><span class="flag">path_iterator</span>
+<pre>path_iterator 對象 用於 迭代 path 對象中的目錄
+
+其只能通過 
+path_iterator path:begin()
+path_iterator path:ended()	<span class="care">end 是lua關鍵字不可作為 函數名</span>
+創建
+</pre>
+		</p>
+		<p><span class="flag">導出接口</span>
+<pre>//返回目錄 的 path 對象
+path path_iterator:path()
+
+//下移 迭代器
+path_iterator path_iterator:next()
+
+//上移 迭代器
+path_iterator path_iterator:pre()
+
+//迭代器 相等 驗證
+path_iterator == path_iterator
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>local m = require "filesystem"
+
+
+local p0 = m.path(".")
+local p1 = p0:system_complete()
+print(p1:string())
+
+local begin = p1:begin()
+local pos = p1:begin()
+local ended = p1:ended()
+
+
+--lua 用 ~= 代表 不相等
+print("*********	next	*********")
+while pos ~= ended do
+	local p = pos:path()
+	print(p:string())
+
+	--移動游標
+	pos:next()
+end
+
+print("*********	pre	*********")
+pos:pre()
+while(true)do
+	local p = pos:path()
+	print(p:string())
+	pos:pre()
+
+	if pos == begin then
+		local p = pos:path()
+		print(p:string())
+		break
+	end
+end
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="directory_iterator"></a>
+		<p><span class="flag">directory_iterator</span>
+<pre>directory_iterator 對象 用於 遍歷 文件夾
+必須使用 path 對象 構造 之
+</pre>
+		</p>
+		<p><span class="flag">導出接口</span>
+<pre>local m = require "filesystem"
+
+
+
+//返回當前 工作 目錄
+path,ecode,emsg m.current_path()
+
+//返回是否是 文件夾
+bool,ecode,emsg m.is_directory(path)
+
+
+
+//構造一個用於 遍歷 path 的 迭代器
+directory_iterator m.directory_iterator(path)
+
+//迭代器 相等 驗證
+directory_iterator == directory_iterator
+
+//返回迭代器 指向的 path
+path directory_iterator:path()
+
+//返回是否是 文件夾
+bool,ecode,emsg directory_iterator:is_directory()
+
+//返回 文件狀態 
+int,ecode,emsg pos:status()
+	<span class="care">此為boost返回狀態值 並未導入lua中
+	enum file_type
+	{
+		status_error, 	//文件存在 但 狀態 未知	0
+		file_not_found, //文件不存在	1
+		regular_file, 	//普通文件	2
+		directory_file,	//目錄		3
+
+		symlink_file, 	//鏈接文件	...
+		block_file, 	//塊設備文件
+		character_file, 	//字符設備
+		fifo_file, 		//管道設備
+		socket_file,	//socket設備
+
+		type_unknown	//類型未知
+	};
+	</span>
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>local m = require "filesystem"
+
+
+local p0,ec,em = m.current_path()
+p0:remove_filename()
+print(p0:string(),ec,em)
+print(m.is_directory(p0))
+
+--定義 遞歸 函數
+function display(path)
+	local pos = m.directory_iterator(path)
+	local ended = m.directory_iterator()
+	while pos ~= ended do
+		local p = pos:path()
+		print(p:filename():string())
+
+		if pos:is_directory() then
+			display(p)
+		end
+
+		pos:next()
+	end
+end
+display(p0)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="recursive_directory_iterator"></a>
+		<p><span class="flag">recursive_directory_iterator</span>
+<pre>recursive_directory_iterator 用法完全同 directory_iterator
+只是 recursive_directory_iterator 會進行 深度搜索(進入子文件夾)
+從而 免去 遞歸的 繁瑣與 低效
+
+同時 recursive_directory_iterator 增加了幾個 額外 和深度相關的 函數
+</pre>
+		</p>
+		<p><span class="flag">導出接口</span>
+<pre>local m = require "filesystem"
+
+
+//構造 
+recursive_directory_iterator = m.recursive_directory_iterator(path)
+
+
+
+//返回 當前 深入 等級 等級開始為0 沒進入子目錄 ++ 離開子目錄 --
+int recursive_directory_iterator:level()
+
+//是否 不進入 當前 子目錄
+int recursive_directory_iterator:no_push(bool = true)
+
+
+
+//參見 directory_iterator
+...
+
+
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>local m = require "filesystem"
+
+
+local path = m.path("../")
+
+
+local pos = m.recursive_directory_iterator(path)
+local enden = m.recursive_directory_iterator()
+local lv = -1
+while pos ~= enden do
+	if not (lv == pos:level()) then
+		lv = pos:level()
+		print("*******",lv,"*******")
+	end
+
+	local p = pos:path()
+	print(p:filename():string())
+
+	if pos:is_directory() then
+		pos:no_push(true)
+	end
+
+	pos:next()
+end
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="fun"></a>
+		<p><span class="flag">導出函數</span>
+<pre>導出函數 包含了 對文件的操作
+文件 操作 往往都 無法保證其正確完成(因為文件系統 在 軟體之外)
+
+當操作 出錯時 這些函數 會 返回 一個 int 的錯誤碼 和 emsg 的字符串錯誤信息
+</pre>
+		</p>
+		<p><span class="flag">導出函數</span>
+<pre>local m = require  "filesystem"
+
+
+
+//獲取 文件名 是否 符合 posix/window 規範
+bool m.portable_posix_name(str_n)
+bool m.windows_name(str_n)
+
+
+
+//返回當前 工作 目錄
+path,ecode,emsg m.current_path()
+
+
+
+//返回是否是 文件夾
+bool,ecode,emsg m.is_directory(path)
+
+//... 普通文件
+bool,ecode,emsg m.is_regular(path)
+
+//... 符號文件
+bool,ecode,emsg m.is_symlink(path)
+
+//... 是目錄且其內無文件時返回 true 
+//或者 p是文件 文件長度為0 返回 true
+bool,ecode,emsg m.is_empty(path)
+
+//文件不是 regular_file directory_file symlink_file 時返回 true
+bool,ecode,emsg m.is_other(path)
+
+
+
+//返回 文件 大小
+number,ecode,emsg m.file_size(path)
+
+//創建文件夾
+bool,ecode,emsg m.create_directory(path)
+
+//文件/文件夾 改名(移動) win32下無法 跨 驅動器
+bool,ecode,emsg m.rename(path)
+
+//刪除 文件/文件夾
+bool,ecode,emsg m.remove(path_o,path_n)
+
+//複製文件
+bool,ecode,emsg m.copy_file(path_o,path_n)
+
+</pre>
+		</p>
+		<p><span class='flag'>example</span>
+<pre>local m = require "filesystem"
+
+
+local path = m.current_path()
+print(path:string())
+
+local d = path / "123"
+print("create_directory",m.create_directory(d))
+local n = m.path("456")
+print("rename",d:string(),"to",n:string(),m.rename(d,n))
+
+local n = m.path("test.lua")
+local cf = m.path("789")
+print("copy_file ",n:string(),"to",cf:string(),m.copy_file(n,cf))
+
+--print("remove",m.remove(n))
+</pre>
+		</p>
+		
+	</div>
+</div>
+</body>
+</html>
+

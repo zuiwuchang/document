@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#flag">flag</a>
+		
+			
+	</div>
+
+	<div class="note"><a name="flag"></a>
+		<p><span class="flag">flag</span>
+<pre>flag 包 提供了 對命令行 參數 進行解析 的 功能
+
+
+
+flag 支持 下面 三種 參數 格式
+-flag
+-flag=x
+-flag x  // non-boolean flags only(不能是 bool)
+	<span class="care">bool 取值
+	1, 0, t, f, T, F, true, false, TRUE, FALSE, True, False</span>
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"flag"
+	"fmt"
+)
+
+func main() {
+	//定義要解析的 參數
+	ip := flag.String("host", "127.0.0.1", "remote host")
+	/*
+		var ip string
+		flag.StringVar(&ip,"host", "127.0.0.1", "remote host")
+	*/
+	h := flag.Bool("h", false, "for help")
+
+	//解析參數
+	flag.Parse()
+
+	if *h {
+		flag.PrintDefaults()
+		return
+	}
+
+	fmt.Println(*h, *ip)
+}
+</pre>
+	</div>
+
+</div>
+</body>
+</html>
+

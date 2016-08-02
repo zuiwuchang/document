@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>boost</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+
+	<div class="title">
+		<a href="#boost">boost</a>
+		<a href="#set">環境配置</a>
+		<a href="#bjam">編譯boost</a>
+		<a href="#cpp">嵌入源碼</a>
+	</div>
+
+
+	<div class="note"><a name="boost"></a>
+		<p><span class="flag">boost</span>
+<pre>boost 一個 高效 高質量 開源 的跨平台 c++ 庫
+其作者 大多為 c++ 標準委員會成員 故 其風格類似 STL 
+且 標準庫 新組件 大多直接從boost中 選取
+
+官網 <a href="http://www.boost.org/" target="_blank">www.boost.org</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="set"></a>
+		<p><span class="flag">環境配置</span>
+<pre>boost 90% 組件不需要 編譯 直接 include 頭文件(*.hpp)即可 
+然 剩下部分組件 (data_time regex program_options test thread python ...) 需要編譯
+
+1	從官網下載 源碼
+2	編譯 boost	(可選)
+3	將boost 頭文件 設置到 include目錄 編譯的 庫文件 設置到 鏈接庫目錄
+4	享受 boost
+</pre>
+		</p>
+
+		<p><span class="flag">boost庫 文件名</span>
+<pre>對於vs 支持 自動鏈接 技術 然 其他編譯器 在 使用 boost時 
+若使用到需要 編譯的庫 需要 設置庫文件 
+
+庫文件名 一般如下
+libboost_atomic-vc100-mt-sgd-1_53.lib
+前綴	lib (windows下 只有靜態庫有)
+庫名	boost_atomic
+編譯器	-vc100
+多線程	-mt
+ABI標識 sgd
+	s	靜態庫
+	dg	debug版本
+	p	使用STLPort
+版本號	1_53
+擴展名	.lib (.a .so linux)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="bjam"></a>
+		<p><span class="flag">編譯boost</span>
+<pre>編譯 boost 需要使用 bjam 其為boost專用 編譯程序 
+boost 對個平台提供了 bjam 可執行程序 亦可自己 編譯 bjam
+</pre>
+		</p>
+		
+		<p><span class="flag">編譯bjam</span>
+<pre>進入 boost_*\tools\build\v2\engine
+
+運行 build.bat 或 build.sh
+build 將 自動 選擇合適的 編譯器 編譯 bjam
+
+將編譯好的 bjam 複製到 boost_* 
+</pre>
+		</p>
+
+		<p><span class="flag">完整編譯 boost</span>
+<pre>bjam --toolset=msvc-10.0 --build-type=complete --prefix=D:\Boost install
+
+(Linux)bjam --toolset=gcc --build-type=complete install
+
+漫長的等待
+
+參數
+stdlib=stlport	指定使用 STLPort 而非默認 STL
+bjam --toolset=msvc-10.0 --build-type=complete stdlib=stlport --prefix=D:\Boost install
+
+--toolset=msvc-10.0	指定編譯器
+
+--build-type	編譯類型 默認 release complete(release and debug)
+
+--with	//指定編譯內容
+bjam --toolset=msvc-10.0 --with-date-time --build-type=complete --prefix=D:\Boost install	//只編譯 date-time庫
+
+--without	//指定不編譯的庫
+bjam --toolset=msvc-10.0 --without-date-time --build-type=complete --prefix=D:\Boost install	//除了 date-time庫 其他全編譯
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="cpp"></a>
+		<p><span class="flag">嵌入源碼</span>
+<pre>對於需要編譯的庫 亦可 使用嵌入源碼 而非編譯庫的方式 使用
+
+只需要包含實現的 cpp 文件即可
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>以 boost.system庫 為例
+1	創建cpp文件 test.cpp 並加入工程
+2	編輯 test.cpp 為
+	#define BOOST_SYSTEM_NO_LIB
+	#include&lt;libs/system/src/error_code.cpp&gt;
+
+	對於vc 需要定義宏 BOOST_ALL_NO_LIB 或 BOOST_*_NO_LIB 以禁用vc的指定鏈接功能
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

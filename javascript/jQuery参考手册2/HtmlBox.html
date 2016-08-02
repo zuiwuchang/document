@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>jQuery参考手册2</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#HtmlBox">HtmlBox</a>
+		<a href="#using">使用</a>
+		<a href="#toolbars">toolbars</a>
+		<a href="#tool">自定義工具</a>
+		<a href="#skin">皮膚</a>
+		<a href="#icons">皮膚文件夾位置</a>
+		<a href="#function">常用方法</a>
+	</div>
+
+	<div class="note"><a name="HtmlBox"></a>
+		<p><span class="flag">HtmlBox</span>
+<pre>HtmlBox 一个基于 jQuery的 在线 富文本编辑器
+可以將 textarea 專為 文本編輯器
+
+官網<a href="http://remiya.com/htmlbox/" target="_blank">http://remiya.com/htmlbox/</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="using"></a>
+		<p><span class="flag">使用</span>
+<pre>1	從官網下載 最新代碼 HtmlBox_4.0.3.zip 
+2	解壓 將 image文件夾(圖像資源) 複製到項目目錄
+3	將 htmlbox.min.js 導入html
+4	創建一個 textarea
+5	使用 htmlbox 方法 替換textarea 為富文本框(htmlbox 傳入json 指定各種 創建屬性)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>&lt;script language="javascript" src="scripts/HtmlBox_4.0.3/jquery-1.3.2.min.js"&lt;&gt;/script&gt;
+&lt;script language="javascript" src="scripts/HtmlBox_4.0.3/htmlbox.min.js"&lt;&gt;/script&gt;
+&lt;script language="javascript" &gt;
+$(document).ready(function(){
+	
+	$('#mttextbox').htmlbox({
+		toolbars:[
+			["bold","italic","underline"]
+		]
+		,about:false	//去掉幫助?按鈕
+		}
+	);
+});
+&lt;/script&gt;
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>使用的 jQuery版本 必須為 HtmlBox_4.0.3.zip 壓縮包中的版本
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="toolbars"></a>
+		<p><span class="flag">toolbars</span>
+<pre>toolbars 為工具欄定義 
+以字符串名字 定義工具欄中的 工具 ["separator","cut","copy"]
+多個工具欄使用 , 隔開
+
+separator	分隔符
+underline	下劃線
+undo		撤銷
+redo		逆撤銷
+justify		取消設置的對齊
+...
+詳見源碼中 demo_full.html
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>$(document).ready(function(){
+	$('#mttextbox').htmlbox({
+		toolbars:[
+			["separator","cut","copy","paste","separator","bold","italic","underline"]
+			,["separator","undo","redo","separator","left","right","center","justify"]
+		]
+		}
+	);
+});
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="tool"></a>
+		<p><span class="flag">自定義工具</span>
+<pre>HtmlBox 支持自定義 工具欄 需要用一個json數據定義
+顯示 圖標		icon
+顯示 文本		tooltip
+單擊 回調函數		command
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>$(document).ready(function(){
+	var save_tools	=	{
+		icon:"save.gif"
+		,tooltip:"save"
+		,command:function(){alert("saving");}
+		}
+	$('#mttextbox').htmlbox({
+		toolbars:[
+			[save_tools,"separator","cut","copy","paste","separator","bold","italic","underline"]
+			,["separator","undo","redo","separator","left","right","center","justify"]
+		]
+		}
+	);
+});
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>圖標路徑 不是以當前文件為相對路徑 而是 HtmlBox使用的 皮膚文件夾(images\default\)為相對路徑
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="skin"></a>
+		<p><span class="flag">皮膚</span>
+<pre>HtmlBox支持 sliver(default) blue green red 4中皮膚
+<img src="image/HtmlBox/skin.PNG" />
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>$(document).ready(function(){
+	var save_tools	=	{
+		icon:"save.gif"
+		,tooltip:"save"
+		,command:function(){alert("saving");}
+		}
+	$('#mttextbox').htmlbox({
+		toolbars:[
+			[save_tools,"separator","cut","copy","paste","separator","bold","italic","underline"]
+			,["separator","undo","redo","separator","left","right","center","justify"]
+		]
+		<span class="care">,skin:"red"</span>
+		}
+	);
+});
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="icons"></a>
+		<p><span class="flag">皮膚文件夾位置</span>
+<pre>使用 icons 屬性 可以改變 皮膚文件夾位置
+(只能是 images[使用的當前目錄]的1級子目錄)
+
+使用 idir 設置 使用的 當前目錄 
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>$(document).ready(function(){
+	var save_tools	=	{
+		icon:"save.gif"
+		,tooltip:"save"
+		,command:function(){alert("saving");}
+		}
+	$('#mttextbox').htmlbox({
+		toolbars:[
+			[save_tools,"separator","cut","copy","paste","separator","bold","italic","underline"]
+			,["separator","undo","redo","separator","left","right","center","justify"]
+		]
+		,skin:"red"
+		,icons:"silk"
+		,idir:"image2"
+		}
+	);
+});
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="function"></a>
+		<p><span class="flag">常用方法</span>
+<pre>//設置/返回 html(返回值 或不同於瀏覽器使用的html) 需要導入xhtml.js
+get_html()
+set_text(html)
+
+//返回文本
+get_text()
+
+...其他詳見 官方文檔HtmlBox_4.0_UserManual.pdf
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>&lt;script language="javascript" src="scripts/HtmlBox_4.0.3/jquery-1.3.2.min.js"&lt;&gt;/script&gt;
+&lt;script language="javascript" src="scripts/HtmlBox_4.0.3/xhtml.js"&lt;&gt;/script&gt;
+&lt;script language="javascript" src="scripts/HtmlBox_4.0.3/htmlbox.min.js"&lt;&gt;/script&gt;
+
+//js
+$(document).ready(function(){
+	
+	var edit1	=	$('#mttextbox1').htmlbox();
+	var	edit2	=	$('#mttextbox2').htmlbox();
+	
+	$('input').click(function(e) {
+		var html	=	edit1.get_html();
+		edit2.set_text(html);
+		alert(html);
+	});
+});
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

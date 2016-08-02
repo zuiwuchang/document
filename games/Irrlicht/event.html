@@ -1,0 +1,265 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Irrlicht</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">event</font>
+</p>
+
+<p>
+	<a href="#event">event</a><br />
+    <a href="#OnEvent">OnEvent</a><br />
+    <a href="#EET_KEY_INPUT_EVENT">EET_KEY_INPUT_EVENT 鍵盤事件</a><br />
+    <a href="#EET_MOUSE_INPUT_EVENT">EET_MOUSE_INPUT_EVENT 鼠標事件</a><br />
+    <a href="#EET_GUI_EVENT">EET_GUI_EVENT GUI 事件</a><br />
+    
+</p>
+
+
+<div class="mydiv"><a name="event"></a>
+	<p><font color="#FF0000">event</font>
+<pre>Irrlicht 是以事件驅動的 當鼠標移動 鍵盤按下 操控遊戲手柄 ... 都會產生一個事件
+要處理這些事件 必須從 class irr::IEventReceiver 派生 重寫 virtul OnEvent 函數
+
+並且將派生類 實例指針 傳給 createDevice 的最後一個參數
+或者使用
+void irr::IrrlichtDevice::setEventReceiver	(	IEventReceiver * 	receiver	)
+設置 事件處理器即可(可以使用此函數 隨時動態改變 事件處理器)
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="OnEvent"></a>
+	<p><font color="#FF0000">OnEvent</font>
+<pre>//當一個事件 發生 IEventReceiver::OnEven 函數將被自動調用 
+virtual bool irr::IEventReceiver::OnEvent(const SEvent &amp; event)
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">SEvent</font>
+<pre>struct SEvent
+{
+union {		//對應事件 附加信息
+   struct SGUIEvent    GUIEvent;
+   struct SJoystickEvent    JoystickEvent;
+   struct SKeyInput    KeyInput;
+   struct SLogEvent    LogEvent;
+   struct SMouseInput    MouseInput;
+   struct SUserEvent    UserEvent;
+};
+EEVENT_TYPE EventType;		//發生何種事件
+}
+
+
+enum EEVENT_TYPE
+{
+	EET_GUI_EVENT = 0,		//gui事件
+	EET_MOUSE_INPUT_EVENT,		//鼠標事件
+	EET_KEY_INPUT_EVENT,		//鍵盤事件
+	EET_JOYSTICK_INPUT_EVENT,	//遊戲手柄事件
+	EET_LOG_TEXT_EVENT,			//
+	EET_USER_EVENT,				//
+	EGUIET_FORCE_32_BIT = 0x7fffffff	//系統保留 未使用
+};
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">注意</font>
+<pre>OnEvent 中 返回false 將引發默認處理程序被調用
+返回 true 可屏蔽 默認處理程序
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="EET_KEY_INPUT_EVENT"></a>
+	<p><font color="#FF0000">EET_KEY_INPUT_EVENT 鍵盤事件</font>
+<pre>struct SKeyInput
+{
+	wchar_t Char;		//對應字符 0(非字符)
+	EKEY_CODE Key;		//虛擬鍵碼
+	bool PressedDown:1;	//true 按下 false 彈起
+	bool Shift:1;		//是否同時按下 shitf
+	bool Control:1;		//是否同時按下 control
+};
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="EET_MOUSE_INPUT_EVENT"></a>
+	<p><font color="#FF0000">EET_MOUSE_INPUT_EVENT 鼠標事件</font>
+<pre>struct SMouseInput
+{
+	//鼠標坐標
+	s32 X;
+	s32 Y;
+    
+	f32 Wheel;			//鼠標滾輪 [1.0,-1.0]
+	bool Shift:1;
+	bool Control:1;
+
+	u32 ButtonStates;	//鼠標狀態
+
+	//返回是否 按下
+	bool isLeftPressed() const { return 0 != ( ButtonStates &amp; EMBSM_LEFT ); }
+	bool isRightPressed() const { return 0 != ( ButtonStates &amp; EMBSM_RIGHT ); }
+	bool isMiddlePressed() const { return 0 != ( ButtonStates &amp; EMBSM_MIDDLE ); }
+
+	EMOUSE_INPUT_EVENT Event;	//何種鼠標事件
+};
+
+enum EMOUSE_INPUT_EVENT
+{
+	//按下鼠標 左右中 鍵
+	EMIE_LMOUSE_PRESSED_DOWN = 0,
+	EMIE_RMOUSE_PRESSED_DOWN,
+	EMIE_MMOUSE_PRESSED_DOWN,
+
+	//彈起鼠標 左右中 鍵
+	EMIE_LMOUSE_LEFT_UP,
+	EMIE_RMOUSE_LEFT_UP,
+	EMIE_MMOUSE_LEFT_UP,
+
+	//鼠標移動
+	EMIE_MOUSE_MOVED,
+	//滾輪滾動
+	EMIE_MOUSE_WHEEL,
+	
+	//雙機鼠標 左右中 鍵
+	EMIE_LMOUSE_DOUBLE_CLICK,
+	EMIE_RMOUSE_DOUBLE_CLICK,
+	EMIE_MMOUSE_DOUBLE_CLICK,
+
+	//三機鼠標 左右中 鍵
+	EMIE_LMOUSE_TRIPLE_CLICK,
+	EMIE_RMOUSE_TRIPLE_CLICK,
+	EMIE_MMOUSE_TRIPLE_CLICK,
+
+	//! No real event. Just for convenience to get number of events
+	EMIE_COUNT
+};
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="EET_GUI_EVENT"></a>
+	<p><font color="#FF0000">EET_GUI_EVENT 事件</font>
+<pre>struct SGUIEvent
+{
+	gui::IGUIElement* Caller;		//返回gui接口指針
+	gui::IGUIElement* Element;		//如果事件 牽涉到其他 gui 此為那個gui接口指針
+	gui::EGUI_EVENT_TYPE EventType;	//何種 gui 事件
+};
+
+enum EGUI_EVENT_TYPE
+{
+	/*Caller 失去焦點到Element
+	如果 過濾此事件(return true) 則Caller不會失去焦點*/
+	EGET_ELEMENT_FOCUS_LOST = 0,
+
+	/*一個gui獲得焦點
+	如果 過濾此事件 gui不會獲得焦點*/
+	EGET_ELEMENT_FOCUSED,
+
+	//鼠標覆蓋
+	EGET_ELEMENT_HOVERED,
+
+	//鼠標離開
+	EGET_ELEMENT_LEFT,
+
+	//一個元素 將要關閉 (如窗口)
+	EGET_ELEMENT_CLOSED,
+
+	//按鈕被單擊
+	EGET_BUTTON_CLICKED,
+
+	//滾動條發生滾動
+	EGET_SCROLL_BAR_CHANGED,
+
+	//! A checkbox has changed its check state.
+	EGET_CHECKBOX_CHANGED,
+
+	/*列表框 選項正在改變
+	500毫秒後 再次選中當前選項 亦發生此事件*/
+	EGET_LISTBOX_CHANGED,
+
+	//同EGET_LISTBOX_CHANGED 不是現在是已經改變
+    EGET_LISTBOX_SELECTED_AGAIN,
+
+	//在文件選擇窗口 成功選擇了文件
+	EGET_FILE_SELECTED,
+
+	//! A directory has been selected in the file dialog
+	EGET_DIRECTORY_SELECTED,
+
+	//! A file open dialog has been closed without choosing a file
+	EGET_FILE_CHOOSE_DIALOG_CANCELLED,
+
+	//! 'Yes' was clicked on a messagebox
+	EGET_MESSAGEBOX_YES,
+
+	//! 'No' was clicked on a messagebox
+	EGET_MESSAGEBOX_NO,
+
+	//! 'OK' was clicked on a messagebox
+	EGET_MESSAGEBOX_OK,
+
+	//! 'Cancel' was clicked on a messagebox
+	EGET_MESSAGEBOX_CANCEL,
+
+	//在編輯框 輸入回車(Enter)
+	EGET_EDITBOX_ENTER,
+
+	//編輯框文本改變 不包括自動換行的改變
+	EGET_EDITBOX_CHANGED,
+
+    //編輯框標記變化(插入符 選中文本)
+	EGET_EDITBOX_MARKING_CHANGED,
+
+	//! The tab was changed in an tab control
+	EGET_TAB_CHANGED,
+
+	//! A menu item was selected in a (context) menu
+	EGET_MENU_ITEM_SELECTED,
+
+	//! The selection in a combo box has been changed
+	EGET_COMBO_BOX_CHANGED,
+
+	//! The value of a spin box has changed
+	EGET_SPINBOX_CHANGED,
+
+	//! A table has changed
+	EGET_TABLE_CHANGED,
+	EGET_TABLE_HEADER_CHANGED,
+	EGET_TABLE_SELECTED_AGAIN,
+
+	//! A tree view node lost selection. See IGUITreeView::getLastEventNode().
+	EGET_TREEVIEW_NODE_DESELECT,
+
+	//! A tree view node was selected. See IGUITreeView::getLastEventNode().
+	EGET_TREEVIEW_NODE_SELECT,
+
+	//! A tree view node was expanded. See IGUITreeView::getLastEventNode().
+	EGET_TREEVIEW_NODE_EXPAND,
+
+	//! A tree view node was collapsed. See IGUITreeView::getLastEventNode().
+	EGET_TREEVIEW_NODE_COLLAPSE,
+
+	//! deprecated - use EGET_TREEVIEW_NODE_COLLAPSE instead. This
+	//! may be removed by Irrlicht 1.9
+	EGET_TREEVIEW_NODE_COLLAPS = EGET_TREEVIEW_NODE_COLLAPSE,
+
+	//! No real event. Just for convenience to get number of events
+	EGET_COUNT
+};    
+</pre>
+	</p>
+</div>
+
+</td></tr></table>
+</body>
+</html>

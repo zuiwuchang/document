@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>dark</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">JSonObject</font>
+</p>
+
+<p>
+	<a href="#JSonObject">JSonObject</a><br />
+    <a href="#example">example</a><br />
+   
+   
+</p>
+
+
+<div class="mydiv"><a name="JSonObject"></a>
+	<p><font color="#FF0000">JSonObject</font>
+<pre>import dark.data.format.JSonObject;
+
+方便生成 json 字符串 以便於 將信息返回給js
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">function</font>
+<pre>//返回 "text/javascript;charset=UTF-8"
+public static String getJSonContext()
+
+//設置一個 json 數據隊(name 為隊名 value 為值 可以說java基本型別 字符串 java.util.HashMap)
+public void put(String name,Object value)
+
+//返回一個 json 名字 對應 值
+public Object get(String name)
+
+//刪除一個 json 值隊
+public void erase(String name)
+
+//返回內部以馬匹 保存的 json 數據
+HashMap&lt;String,Object&gt; get()
+
+//將 json 數據 專為 字符串 形式
+public String toString()
+</pre>
+	</p>
+
+	<p><font color="#FF0000">注意</font>
+<pre>JSonObject 內部 以HashMap 存儲數據
+HashMap 未保證線程安全 故多線 需要 自己同步
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="example"></a>
+	<p><font color="#FF0000">example</font>
+<pre>System.out.println(JSonObject.getJSonContext());
+        
+        //实例化
+        JSonObject json = new JSonObject();
+        
+        //添加一般属性
+        json.put("name_1", "name_1");
+        json.put("name_2", "name_2");
+        json.put("name_1", "name_3");   //重新设置值
+        
+        //删除属性
+        json.put("name_3", "name_3");
+        json.erase("name_3");
+        
+        //json.clear();
+        
+        //添加 json {} 属性
+        HashMap h0 = new HashMap();
+        h0.put("id", "0");
+        h0.put("data", "d0");
+        json.put("json", h0);
+        
+        //添加数组 属性
+        ArrayList list = new ArrayList();
+        HashMap h1 = new HashMap();
+        h1.put("id", "1");
+        h1.put("data", "d1");
+        
+        list.add(h0);
+        list.add(h1);
+        json.put("data", list);
+       
+        
+        //获取 json 字符串
+        System.out.println(json);
+</pre>
+	</p>
+</div>
+
+
+</td></tr></table>
+</body>
+</html>

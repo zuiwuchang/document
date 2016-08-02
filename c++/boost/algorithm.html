@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>算法</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#foreach">foreach</a>
+		<a href="#minmax">minmax</a>
+		<a href="#minmax_element">minmax_element</a>
+	</div>
+
+	<div class="note"><a name="foreach"></a>
+		<p><span class="flag">foreach</span>
+<pre>#include&lt;boost\foreach.hpp&gt;
+
+c++11 增強烈for循環的 能力 可以以類似java的for 遍歷容器
+在此之前 boost提供了 BOOST_FOREACH/BOOST_REVERSE_FOREACH 宏用於 正序/逆序 遍歷容器
+在  BOOST_FOREACH/BOOST_REVERSE_FOREACH 內 完全同 for 可以break continue ... 其效率同for 相當
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include&lt;boost\foreach.hpp&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	std::vector&lt;int&gt; v;
+	boost::assign::push_back(v),1,2,3,4,5;
+
+	puts("BOOST_FOREACH");
+	BOOST_FOREACH(int var,v)
+	{
+		std::cout&lt;&lt;var&lt;&lt;std::endl;
+	}
+
+	puts("BOOST_REVERSE_FOREACH");
+	BOOST_REVERSE_FOREACH(int var,v)
+	{
+		std::cout&lt;&lt;var&lt;&lt;std::endl;
+	}
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>只有容器 符合 boost.range 概念 即可被 BOOST_FOREACH/BOOST_REVERSE_FOREACH 支持
+STL標準容器 原始數組 大部分 boost容器 皆被支持
+
+對於自定義容器 需要符合 boost.range 概念 或提供STL容器的 iterator const_iterator begin end rbegin rend
+
+BOOST_FOREACH/BOOST_REVERSE_FOREACH 是一個宏 內部出現 , 則會出現問題 如
+BOOST_FOREACH(std::pair&lt;int,int&gt; v,c)	//錯誤
+解決之道是使用 typedef 定義別名
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="minmax"></a>
+		<p><span class="flag">minmax</span>
+<pre>#include&lt;boost\algorithm\minmax.hpp&gt;
+
+c++98 提供了標準算法 std::max std::min 用於返回 最大 最小 值
+boost 提供了 minmax 同時返回 最小最大值
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include&lt;boost\algorithm\minmax.hpp&gt;
+int _tmain(int argc, _TCHAR* argv[])
+{
+	int max, min;
+	boost::tuples::tie(min,max)	=	boost::minmax(100,1);
+	//boost::tuples::tie(min,max)	=	boost::minmax(max,min);	//錯誤寫法 參加tuple
+
+	std::cout&lt;&lt;"max=\t"&lt;&lt;max
+		&lt;&lt;"\nmin=\t"&lt;&lt;min
+		&lt;&lt;std::endl;
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>minmax 返回值 是 boost::tuple 而非 std::pair 
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="minmax_element"></a>
+		<p><span class="flag">minmax_element</span>
+<pre>#include&lt;boost\algorithm\minmax_element.hpp&gt;
+
+c++98 提供了 std::min_element std::max_element 來返回容器中的 最大 最小值
+boost 的minmax_element庫 提供了一系列 函數 用於返回容器中的 元素 其中最基本的莫過於 minmax_element 用於同時返回 最小 最大 值
+</pre>
+		</p>
+		<p><span class="flag">可用算法</span>
+<pre>//返回最小值/最大值
+minmax_element
+
+//返回第一個 最小值 最大值
+first_min_element
+first_max_element
+
+first_min_first_max_element
+first_min_last_max_element
+
+last_max_element
+last_min_element
+
+last_min_first_max_element
+last_min_last_max_element
+
+...
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include&lt;boost\algorithm\minmax_element.hpp&gt;
+int _tmain(int argc, _TCHAR* argv[])
+{
+	std::vector&lt;int&gt; v	=	(boost::assign::list_of(0),1,2,3,4,5);
+
+	BOOST_AUTO(var,boost::minmax_element(v.begin(),v.end()));
+	std::cout&lt;&lt;"min=\t"&lt;&lt;*var.first
+		&lt;&lt;"\nmax=\t"&lt;&lt;*var.second
+		&lt;&lt;std::endl;
+
+	BOOST_AUTO(first_min,boost::first_min_element(v.begin(),v.end()));
+	std::cout&lt;&lt;"first_min=\t"&lt;&lt;*first_min
+		&lt;&lt;std::endl;
+	
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>minmax_element 返回的是 迭代器的 std::pair 而非 boost::tuple
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

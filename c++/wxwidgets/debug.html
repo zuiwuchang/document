@@ -1,0 +1,64 @@
+<!DOCTYPE html">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>debug</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#wxDynamicLibrary">wxDynamicLibrary 加載動態庫</a>
+		
+	</div>
+
+	<div class="note"><a name="wxDynamicLibrary"></a>
+		<p><span class="flag">wxDynamicLibrary 加載動態庫</span>
+<pre>使用 wxDynamicLibrary 構造函數 或者 Load 傳入要加載的 動態庫
+
+使用 GetSymbol 獲取 函數地址
+
+//加載動態庫
+wxDynamicLibrary (const wxString &name,	/*動態庫 名字*/ 
+	int flags=wxDL_DEFAULT)
+bool wxDynamicLibrary::Load	(	const wxString & 	name,
+	int 	flags = wxDL_DEFAULT 
+)	
+	<span class="care">flags 取值</span>
+	wxDL_LAZY:
+	Equivalent of RTLD_LAZY under Unix, ignored elsewhere.
+	wxDL_NOW:
+	Equivalent of RTLD_NOW under Unix, ignored elsewhere.
+	wxDL_GLOBAL:
+	Equivalent of RTLD_GLOBAL under Unix, ignored elsewhere.
+	wxDL_VERBATIM:
+	Don't try to append the appropriate extension to the library name (this is done by default).(不要自動增加 .dll .so 後綴名)
+	wxDL_DEFAULT:
+	Default flags, same as wxDL_NOW currently.
+	wxDL_QUIET:
+	Don't log an error message if the library couldn't be loaded.
+
+//卸載動態庫
+void wxDynamicLibrary::Unload	(		)	
+
+//是否加載
+bool wxDynamicLibrary::IsLoaded	(		)	const
+
+
+//獲取函數地址
+bool wxDynamicLibrary::HasSymbol	(	const wxString & 	name	)	const
+void* wxDynamicLibrary::GetSymbol	(	const wxString & 	name,
+bool * 	success = 0 
+)		const
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>wxDynamicLibrary 析構時 將自動 釋放加載的 動態庫
+如果期望 在wxDynamicLibrary 析構後 繼續使用 調用 wxDynamicLibrary::Detach()
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

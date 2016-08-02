@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>正则表达式</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#js">javascript中使用</a>
+		<a href="#reg">匹配语法</a>
+	</div>
+	<div class="note"><a name="js"></a>
+		<p><span class="flag">javascript中使用</span>
+<pre>	var reg=new RegExp(regexp[,flags]);
+	reg.test(str);
+
+
+	//var reg = new RegExp(/^a.*b$/); <span class="care">//中無需轉義字符串</span>
+	var reg=new RegExp("^a.*b$");
+	if(reg.test("a123b")){
+		alert('ok');
+	}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="reg"></a>
+		<p><span class="flag">字符结构</span>
+<table>
+	<tr><td>字符结构</td><td>描述</td></tr>
+	<tr><td>.</td><td>任意字符</td></tr>
+	<tr><td>X</td><td>单个字符(包括控制字符\t \n \r \\ \f)</td></tr>
+	<tr><td>Xxx</td><td>字符串</td></tr>
+	<tr><td>[abc]</td><td>包含字符a或b或c 的单个字符</td></tr>
+	<tr><td>[^abc]</td><td>不包含字符a或b或c 的单个字符</td></tr>
+	<tr><td>[a-zA-Z]</td><td>a到z 或A到Z 的单个字符</td></tr>
+	<tr><td>\s</td><td>空白符(空格 跳格 回车 换行 换页)</td></tr>
+	<tr><td>\S</td><td>非空白符</td></tr>
+	<tr><td>\d</td><td>数字(0~9)</td></tr>
+	<tr><td>\D</td><td>非数字</td></tr>
+	<tr><td>\w</td><td>文本字符[a-zA-Z0-9_]</td></tr>
+	<tr><td>\W</td><td>非文本字符</td></tr>
+</table>
+		</p>
+		<p><span class="flag">定义</span>
+<table>
+	<tr><td>定义</td><td>描述</td></tr>
+	<tr><td>^X</td><td>以字符X开始</td></tr>
+	<tr><td>X$</td><td>以字符X结尾</td></tr>
+	<tr><td>XY</td><td>字符Y紧跟在字符X后</td></tr>
+	<tr><td>X|Y</td><td>字符X或Y</td></tr>
+	<tr><td>X?</td><td>空字符串或最多一个X</td></tr>
+	<tr><td>X*</td><td>空字符串或一个到多个X</td></tr>
+	<tr><td>X+</td><td>一个或多个X</td></tr>
+	<tr><td>X{n}</td><td>n个X</td></tr>
+	<tr><td>X{n,}</td><td>至少n个X</td></tr>
+	<tr><td>X{n,m}</td><td>n到m个X</td></tr>
+</table>
+		</p>
+	</div>
+</div>
+</body>
+</html>

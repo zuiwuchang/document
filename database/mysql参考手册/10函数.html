@@ -1,0 +1,271 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>函数</title>
+</head>
+<body>
+<table align="center"><tr><td>
+	<P>
+    <h2>
+    <a href="#math">数学函数</a><br />
+    <a href="#string">字符串</a><br />
+    <a href="#date">时间日期</a><br />
+    <a href="#if">条件判断</a><br />
+    <a href="#system">系统信息</a><br />
+    <a href="#encode">加密解密</a><br />
+    <a href="#other">其他</a>
+    </h2>
+    </P>
+    
+	<a name="math"><p><h3>
+    <br /><font color="#FF0000">数学函数</font>
+    <table border="2">
+    <tr><td>函数</td><td>作用</td></tr>
+    <tr><td>abs(x)</td><td>绝对值</td></tr>
+    <tr><td>ceil(x),ceiling(x)</td><td>返回大于等于x的最小整数</td></tr>
+    <tr><td>floor(x)</td><td>返回小于等于x的最大整数</td></tr>
+    <tr><td>rand()</td><td>返回0~1的随机数</td></tr>
+    <tr><td>rand(x)</td><td>返回0~1的随机数,x是伪随机种子</td></tr>
+    <tr><td>sign(x)</td><td>返回x的符号，负 0 正 ，-1 0 1</td></tr>
+    <tr><td>pi()</td><td>返回圆周率(3.141593)</td></tr>
+    <tr><td>truncate(x,y)</td><td>返回x保留小数点后y位</td></tr>
+    <tr><td>round(x)</td><td>返回离x最近的整数</td></tr>
+    <tr><td>round(x,y)</td><td>保留x小数点后y位，四舍五入</td></tr>
+    <tr><td>pow(x,y),power(x,y)</td><td>x的y次方</td></tr>
+    <tr><td>sqrt(x)</td><td>x的平方根</td></tr>
+    <tr><td>exp(x)</td><td>e的x次方</td></tr>
+    <tr><td>mod(x,y)</td><td>x%y</td></tr>
+    <tr><td>log(x)</td><td>返回自然对数</td></tr>
+    <tr><td>log10(x)</td><td>返回10为底的对数</td></tr>
+    <tr><td>radians(x)</td><td>角度到弧度</td></tr>
+    <tr><td>degrees(x)</td><td>弧度到角度</td></tr>
+    <tr><td>sin(x)</td><td>正弦</td></tr>
+    <tr><td>asin(x)</td><td>反正弦</td></tr>
+    <tr><td>cos(x)</td><td>余弦</td></tr>
+    <tr><td>acos(x)</td><td>反余弦</td></tr>
+    <tr><td>tan(x)</td><td>正切</td></tr>
+    <tr><td>atan(x)</td><td>反正切</td></tr>
+    <tr><td>cot(x)</td><td>余切</td></tr>
+    </table>
+    </h3>
+	</p></a>
+    
+    <a name="string"><p><h3>
+    <br /><font color="#FF0000">字符串</font>
+    <table border="2">
+    <tr><td>函数</td><td>作用</td></tr>
+    <tr><td>char_length(str)</td><td>返回字符串长度</td></tr>
+    <tr><td>length(str)</td><td>返回字符串长度</td></tr>
+    <tr><td>concat(s1,s2,...)</td><td>连接字符串</td></tr>
+    <tr><td>concat_ws(str,s1,s2,...)</td><td>连接字符串但在连接时每个字符串前加上str</td></tr>
+    <tr><td>insert(s1,start,len,s2)</td><td>s2替换s1从start位置开始的len个字符串</td></tr>
+    <tr><td>upper(s),ucase(s)</td><td>转大写</td></tr>
+    <tr><td>lower(s),lcase(s)</td><td>转小心</td></tr>
+    <tr><td>left(s,n)</td><td>返回s前n个字符</td></tr>
+    <tr><td>right(s,n)</td><td>返回s后n个字符</td></tr>
+    <tr><td>lpad(s1,len,s2)</td><td>在s1前插入入s2使字符串长度达到len</td></tr>
+    <tr><td>rpad(s1,len,s2)</td><td>在s1后插入入s2使字符串长度达到len</td></tr>
+    <tr><td>ltrim(s)</td><td>去掉字符串开始空格</td></tr>
+    <tr><td>rtrim(s)</td><td>去掉字符串结尾空格</td></tr>
+    <tr><td>trim(s)</td><td>去掉字符串两端空格</td></tr>
+    <tr><td>trim(s1 from s)</td><td>去掉字符串两端的s</td></tr>
+    <tr><td>repeat(s,n)</td><td>s重复n次</td></tr>
+    <tr><td>space(n)</td><td>n个空格</td></tr>
+    <tr><td>replace(s,s1,s2)</td><td>用s2替换s中的s1</td></tr>
+    <tr><td>strcmp(s1,s2)</td><td>比较s1,s2</td></tr>
+    <tr><td>substring(s,n,len)</td><td>截取s中congn开始的len个字符</td></tr>
+    <tr><td>mid(s,n,len)</td><td>同substring(s,n,len)</td></tr>
+    <tr><td>locate(s1,s),position(s1 in s)</td><td>获取s中s1的开始位置</td></tr>
+    <tr><td>instr(s,s1)</td><td>获取s中s1的开始位置</td></tr>
+    <tr><td>reverse(s)</td><td>字符串翻转</td></tr>
+    <tr><td>elt(n,s1,s2,...)</td><td>返回第n个字符串</td></tr>
+    <tr><td>export_set(x,s1,s2)</td><td></td></tr>
+    <tr><td>field(s,s1,s2,...)</td><td>返回第一个与s匹配的字符串索引</td></tr>
+    <tr><td>find_in_set(s1,s2)</td><td>返回s2中与s1匹配的字符串的位置</td></tr>
+    <tr><td>make_set(x,s1,s2,...)</td><td>x的二进制中 位为1的索引取出字符串<br />(select make_set(11,'a','b','c','d')<br />a,b,d)</td></tr>
+    </table>
+    </h3>
+    </p></a>
+    
+    <a name="date"><p><h3>
+    <br /><font color="#FF0000">时间日期</font>
+    <table border="2">
+    <tr><td>函数</td><td>作用</td></tr>
+    <tr><td>curdate(),current_date()</td><td>返回当前日期</td></tr>
+    <tr><td>curtime(),current_time()</td><td>返回当前时间</td></tr>
+    <tr><td>now(),current_timestamp()<br />localtime(),sysdate(),<br />localtimestamp()</td><td>返回当前日期和时间</td></tr>
+    <tr><td>unix_timestamp()</td><td>以unix时间戳的形式返回当前时间</td></tr>
+    <tr><td>unix_timestamp(d)</td><td>将时间t以unix时间戳返回</td></tr>
+    <tr><td>from_unixtime(d)</td><td>将unix时间戳转换为普通格式</td></tr>
+    <tr><td>utc_date()</td><td>返回utc日期</td></tr>
+    <tr><td>utc_time()</td><td>返回utc时间</td></tr>
+    <tr><td>month(d)</td><td>返回时间中的月份</td></tr>
+    <tr><td>monthname(d)</td><td>返回时间中的月份的名字如november</td></tr>
+    <tr><td>day(d)</td><td>返回时间中的日期</td></tr>
+    <tr><td>dayname(d)</td><td>返回时间中的日期的名字如friday</td></tr>
+    <tr><td>dayofweek(d)</td><td>返回星期，1周日，2周一</td></tr>
+    <tr><td>weekday(d)</td><td>返回星期,0周一,1周二</td></tr>
+    <tr><td>week(d)</td><td>返回时此年中的星期0~53</td></tr>
+    <tr><td>weekofyear(d)</td><td>返回时此年中的星期1~53</td></tr>
+    <tr><td>dayofyear(d)</td><td>返回此年第多少天1~*</td></tr>
+    <tr><td>dayofmonth(d)</td><td>返回此月第多少天1~*</td></tr>
+    <tr><td>year(d)</td><td>返回年</td></tr>
+    <tr><td>quarter(d)</td><td>返回季度1~4</td></tr>
+    <tr><td>to_days(d)</td><td>计算从0年1月一日到d的天数</td></tr>
+    <tr><td>from_days(n)</td><td>从0年1月一日到d的天数返回时间</td></tr>
+    <tr><td>datediff(d1,d2)</td><td>计算d1-d2的天数</td></tr>
+    <tr><td>adddate(d,n)</td><td>d加上n天</td></tr>
+    <tr><td>adddate(d,interval expr type)</td><td>如select adddate(d,interval '1 1' year_month)『<a href="#type">type</a>』</td></tr>
+    <tr><td>dete_add(d,interval expr type)</td><td>同adddate(d,interval expr type)</td></tr>
+    <tr><td>subdate(d,n)</td><td>日期-n天</td></tr>
+    <tr><td>subdate(d,interval expr type)</td><td>日期-日期段</td></tr>
+    <tr><td>extract(type from d)</td><td>返回type指定数据(year month day hour minute second)</td></tr> 
+    <tr><td>hour(t)</td><td>返回小时</td></tr>
+    <tr><td>minute(t)</td><td>返回分钟</td></tr>
+    <tr><td>second(t)</td><td>返回秒</td></tr>
+    <tr><td>time_to_sec(t)</td><td>将时间转换为秒</td></tr>
+    <tr><td>sec_to_time(s)</td><td>将秒转换为时间</td></tr>
+    <tr><td>addtime(t,n)</td><td>时间+n秒</td></tr>
+    <tr><td>subdate(t,n)</td><td>时间-n秒</td></tr>
+    <tr><td>date_fromat(d,f)</td><td>按照格式f显示日期(<a href="#format">format</a>)</td></tr>
+    <tr><td>time_fromat(t,f)</td><td>按照格式f显示时间</td></tr>
+    <tr><td>get_fromat(type,s)</td><td>返回一个时间格式<br /><a href="#getformat">如 select get_format(date,'iso')</a><br />%Y-%m-%d</td></tr>
+    </table>
+    
+    <br />
+    <a name="type">时间类型
+    <table border="2">
+    <tr><td>类型</td><td>含义</td><td>expr表达式的形式</td></tr>
+    <tr><td>year</td><td>年</td><td>yy</td></tr>
+    <tr><td>month</td><td>月</td><td>mm</td></tr>
+    <tr><td>day</td><td>日</td><td>dd</td></tr>
+    <tr><td>hour</td><td>时</td><td>hh</td></tr>
+    <tr><td>minute</td><td>分</td><td>mm</td></tr>
+    <tr><td>second</td><td>秒</td><td>ss</td></tr>
+    <tr><td>year_month</td><td>年和月</td><td>yy和mm用任意符号隔开</td></tr>
+    <tr><td>day_hour</td><td>日和时</td><td>dd和hh用任意符号隔开</td></tr>
+    <tr><td>day_minute</td><td>日和分</td><td>...</td></tr>
+    <tr><td>day_second</td><td>日和秒</td><td>...</td></tr>
+    <tr><td>hour_minute</td><td>时和分</td><td>...</td></tr>
+    <tr><td>hour_second</td><td>时和秒</td><td>...</td></tr>
+    <tr><td>minute_second</td><td>分和秒</td><td>...</td></tr>
+    </table>
+    </a>
+    <br />
+    <a name="format">时间格式
+    <table border="2">
+    <tr><td>符号</td><td>含义</td><td>取值示例</td></tr>
+    <tr><td>%Y</td><td>以四位数字显示年份</td><td>2012</td></tr>
+    <tr><td>%y</td><td>以两位数字显示年份</td><td>12</td></tr>
+    <tr><td>%b</td><td>以英文缩写显示月份</td><td>nov</td></tr>  
+    <tr><td>%M</td><td>以英文显示月份</td><td>november</td></tr> 
+    <tr><td>%m</td><td>以两位数字显示月份</td><td>01,12</td></tr>
+    <tr><td>%c</td><td>以数字显示月份</td><td>1,12</td></tr>
+    <tr><td>%U</td><td>表示星期数,sunday是第一天</td><td>00~52</td></tr>
+    <tr><td>%u</td><td>表示星期数,monday是第一天</td><td>00~52</td></tr>
+    <tr><td>%j</td><td>用三位数字表示年中的天数</td><td>001~366</td></tr>
+    <tr><td>%d</td><td>以两位数字表示月中号数</td><td>01,12</td></tr>
+    <tr><td>%e</td><td>以数字表示月中号数</td><td>1,12</td></tr>
+    <tr><td>%D</td><td>以英文后缀表示月中号数</td><td>1st,2nd,...</td></tr>
+    <tr><td>%w</td><td>以数字表示星期</td><td>0为sunday</td></tr>
+    <tr><td>%W</td><td>以英文表示星期</td><td>friday</td></tr>
+    <tr><td>%a</td><td>以英文缩写表示星期</td><td>fri</td></tr>
+    <tr><td>%T</td><td>24小时计时</td><td>00:00:00~23:59:59</td></tr>
+    <tr><td>%r</td><td>12小时计时</td><td>12:00:00AM～11:59:59PM</td></tr>
+    <tr><td>%p</td><td>上午(AM)或下午(PM)</td><td>AM,PM</td></tr>
+    <tr><td>%k</td><td>以数字表示24小时</td><td>0～23</td></tr>
+    <tr><td>%l</td><td>以数字表示12小时</td><td>1~12</td></tr>
+    <tr><td>%H</td><td>以两位数字表示24小时</td><td>00~23</td></tr>
+    <tr><td>%h,%I</td><td>以两位数字表示12小时</td><td>01~12</td></tr>
+    <tr><td>%i</td><td>以两位数字表示分</td><td>00~59</td></tr>
+    <tr><td>%S,%s</td><td>以两位数字表示秒</td><td>00~23</td></tr>
+    <tr><td>%%</td><td>标识符%</td><td>%</td></tr>
+    </table>
+    </a>
+    </h3></p></a>
+    
+    <a name="getformat">get_format
+    <table border="2">
+    <tr><td>函数</td><td>返回格式字符串</td><td>表达示例</td></tr>
+    <tr><td>get_format(date,'eur')</td><td>%d.%m.%Y</td><td>02.11.2012</td></tr>
+    <tr><td>get_format(date,'usa')</td><td>%m.%d.%Y</td><td>11.02.2012</td></tr>
+    <tr><td>get_format(date,'jis')</td><td>%Y-%m-%d</td><td>2012-11-02</td></tr>
+    <tr><td>get_format(date,'iso')</td><td>%Y-%m-%d</td><td>2012-11-02</td></tr>
+    <tr><td>get_format(date,'internal')</td><td>%Y%m%d</td><td>200121102</td></tr>
+    <tr><td>get_format(time,'eur')</td><td>%H.%i.%s</td><td>15.20.04</td></tr>
+    <tr><td>get_format(time,'usa')</td><td>%h.%i.%s %p</td><td>03.20.04 PM</td></tr>
+    <tr><td>get_format(time,'jis')</td><td>%H:%i:%s</td><td>15:20:04</td></tr>
+    <tr><td>get_format(time,'iso')</td><td>%H:%i:%s</td><td>15:20:04</td></tr>
+    <tr><td>get_format(time,'internal')</td><td>%H%i%s</td><td>152004</td></tr>
+    <tr><td>get_format(datetime,'eur')</td><td>%Y-%m-%d-%H.%i.%s</td><td>2012-11-02-15.20.04</td></tr>
+    <tr><td>get_format(datetime,'usa')</td><td>%Y-%m-%d-%H.%i.%s</td><td>2012-11-02-15.20.04</td></tr>
+    <tr><td>get_format(datetime,'jis')</td><td>%Y-%m-%d %H:%i:%s</td><td>2012-11-02 15:20:04</td></tr>
+    <tr><td>get_format(datetime,'iso')</td><td>%Y-%m-%d %H:%i:%s</td><td>2012-11-02 15:20:04</td></tr>
+    <tr><td>get_format(datetime,'internal')</td><td>%Y%m%d%H%i%s</td><td>20121102152004</td></tr>
+    </table>
+    </a>
+    </h3>
+    </p></a>
+    
+    <a name="if"><p><h3>
+    <br /><font color="#FF0000">条件判断</font>
+    <table border="2">
+    <tr><td>形式</td><td>描述</td><td>示例</td></tr>
+    <tr><td>if(expr,v1v2)</td><td>expr成立返回v1否则v2</td><td>select id,if(id>10,'大','小') from test</td></tr>
+    <tr><td>case <br />when expr1 then v1 <br />[when expr2 then v2...]<br />[else vn]<br /> end</td><td>选择类似c的switch</td><td></td></tr>
+    </table>
+    </h3></p></a>
+    
+    <a name="system"><p><h3>
+    <br /><font color="#FF0000">系统信息</font>
+    <table border="2">
+    <tr><td>函数</td><td>作用</td></tr>
+    <tr><td>version()</td><td>返回mysql版本</td></tr>
+    <tr><td>connection_id()</td><td>返回服务器的连接id</td></tr>
+    <tr><td>database(),schema()</td><td>返回当前数据库名</td></tr>
+    <tr><td>user(),system_user(),session_user()<br />current_user()</td><td>返回当前用户名</td></tr>
+    <tr><td>charset(str)</td><td>返回字符串的字符集</td></tr>
+    <tr><td>collation(str)</td><td>返回字符串排列方式</td></tr>
+    <tr><td>last_insert_id()</td><td>返回最近的auto_increment值</td></tr>
+    </table>
+    </h3></p></a>
+    
+    <a name="encode"><p><h3>
+    <br /><font color="#FF0000">加密解密</font>
+    <table border="2">
+    <tr><td>函数</td><td>描述</td></tr>
+    <tr><td>不可逆加密</td><td></td></tr> 
+    <tr><td>sha(s)</td><td>生成sha摘要<br />sha2(text,512)	//使用sha512加密</td></tr>
+    <tr><td>md5(s)</td><td>生成md5摘要</td></tr>
+    <tr><td>password(s)</td><td>mysql用于生成密码摘要</td></tr>
+    <tr><td>对称加密</td><td></td></tr>
+    <tr><td>encode(s,key)</td><td>mysql对称加密-加密</td></tr>
+    <tr><td>decode(s,key)</td><td>mysql对称加密-解密</td></tr>
+    </table>
+    </h3></p></a>
+    
+    <a name="other"><p><h3>
+    <br /><font color="#FF0000">其他</font>
+    <table border="2">
+    <tr><td>其他</td><td>描述</td></tr>
+    <tr><td>format(x,n)</td><td>将x保留小数点后n位 四舍五入</td></tr>
+    <tr><td>ascii(s)</td><td>返回s第一个字符的ascii码</td></tr>
+    <tr><td>bin(x)</td><td>返回x的二进制</td></tr>
+    <tr><td>hex(x)</td><td>返回x的十六进制</td></tr>
+    <tr><td>oct(x)</td><td>返回x的八进制</td></tr>
+    <tr><td>conv(x,f1,f2)</td><td>把x由f1进制转换为f2进制</td></tr>
+    <tr><td>inet_aton(ip)</td><td>把ip地址转换为数字</td></tr>
+    <tr><td>inet_ntoa(n)</td><td>把数字表示的ip转换为.表示</td></tr>
+    <tr><td>get_loct(name,time)</td><td>定义名为name超时为time的锁，成功加锁返回1 超时0 错误 NULL</td></tr>
+    <tr><td>is_free_loct(name)</td><td>name是否锁定 锁定返回0 否则1</td></tr>
+    <tr><td>release_loct(name)</td><td>解锁</td></tr>
+    <tr><td>benchmark(count,expr)</td><td>执行expr count次返回执行时间(如 select benchmark(100,now());)</td></tr>
+    <tr><td>convert(s using cs)</td><td>将s使用的字符集变为cs(如 convert('123' using 'utf8'))</td></tr>
+    <tr><td>cast(x as type),convert(x as type)</td><td>改变x输出时的类型 如cast('fuck' as binary)<br />只对binary,char,date,datetime,time,signed integer,unsigned integer有效</td></tr>
+    </table>
+    </h3></p></a>
+    
+</td></tr></table>
+</body>
+</html>

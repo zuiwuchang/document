@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>延遲導入表</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+    <p><h1><font color="#FF0000">延遲導入表</font></h1></p>
+    
+    <h2>
+    <a href="#delay">延遲導入表</a><br />
+    <a href="#IMAGE_DELAY_IMPORT_DESCRIPTOR">IMAGE_DELAY_IMPORT_DESCRIPTOR</a><br />
+    
+    </h2>
+    <div class="div_boxex"><a name="delay"></a><p><h3>
+    	<p><h2><font color="#FF0000">延遲導入表</font></h2><br />
+        延遲導入表是 IMAGE_DELAY_IMPORT_DESCRIPTOR 結構數組 每個元素代表一個延遲導入到dll<br />
+        以一個全0的IMAGE_DELAY_IMPORT_DESCRIPTOR代表 延遲導入表結束<br /><br />
+        
+        IMAGE_DELAY_IMPORT_DESCRIPTOR結構 未聲明 需要自己在程序中聲明
+        </p>
+        
+        <p><h2><font color="#FF0000">延遲導入</font></h2><br />
+        	延遲導入dll能夠讓pe加載器 在程序加載時 不加載指定dll<br />
+            當dll中的函數被調用時 才加載dll 並且修改函數VA以調用真實函數<br /><br />
+            
+            第一次調用dll中的函數 將調用 _delayLoadHelper（不同版本編譯器此函數名不同） 此函數將加載dll 調用真實函數 並修改函數調用VA 以讓下次能直接調用真實函數<br /><br />
+            
+            對於vs可以在 選項->配置屬性->鏈接器->輸入->延遲加載的dll 中設置要延遲加載的dll
+        </p>
+   	</h3></p></div>
+    
+   	<div class="div_boxex"><a name="IMAGE_DELAY_IMPORT_DESCRIPTOR"></a><p><h3>
+    	<p><h2><font color="#FF0000">IMAGE_DELAY_IMPORT_DESCRIPTOR</font></h2>
+<pre>typedef struct _IMAGE_DELAY_IMPORT_DESCRIPTOR
+	{
+		DWORD	Attributes;		//屬性 未使用 一般為0 可自定義其值
+		DWORD	Name;			//導入dll名稱RVA \0 結尾的ansi
+		DWORD	ModuleHandle;	//存儲加載後dll模塊句柄的RVA	
+		DWORD	DelayIAT;		//IAT RVA
+		DWORD	DelayINT;		//INT RVA
+		DWORD	BoundDelayIT;	//可選	用於後續的加載
+		DWORD	UnloadDelayIT;	//可選	用於卸載dll
+		DWORD	TimeStamp;		//綁定到dll的時間戳
+	}IMAGE_DELAY_IMPORT_DESCRIPTOR,*PIMAGE_DELAY_IMPORT_DESCRIPTOR;</pre>
+        </p>
+ 	</h3></p></div>
+    
+  
+    
+    
+</td></tr></table>
+</body>
+</html>

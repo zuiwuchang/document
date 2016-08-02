@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>08时间操作</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#ctime">时间操作</a>
+		<a href="#clock">计时</a>
+        <a href="#time">获取时间</a>
+        <a href="#format">时间格式化</a>
+		
+	</div>
+
+	<div class="note"><a name="ctime"></a>
+		<p><span class="flag">时间操作</span>
+<pre>#include&lt;ctime&gt;
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="clock"></a>
+		<p><span class="flag">计时</span>
+<pre>clock_t clock( void ); //返回进程启动 到调用此 函数经过的计时单位 一般为毫秒<span class="care">(既每过1毫秒 clock的返回值+1)</span>
+typedef long clock_t;
+#define CLOCKS_PER_SEC  1000 //计时单位
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="time"></a>
+		<p><span class="flag">获取日历时间</span>
+<pre>日历时间指 到某一指定时间 经过的秒数 一般是从1970年1月1日经过多秒数
+</pre>
+		</p>
+		<p><span class="flag">time</span>
+<pre>time_t time(//返回当前日历时间 到timer 或timer传入NULL 返回到 返回值
+   time_t *timer 
+);
+typedef long time_t; //只能记录到 2038年
+
+struct tm * gmtime(const time_t *timer);    //转换到UTC世界标准时间                                      
+struct tm * localtime(const time_t * timer);	//转换到本地时间
+
+time_t mktime( struct tm *time );	//tm轉time_t
+
+struct tm {
+        int tm_sec;     /* 秒 seconds after the minute - [0,59] */
+        int tm_min;     /* 分 minutes after the hour - [0,59] */
+        int tm_hour;    /* 小时 hours since midnight - [0,23] */
+        int tm_mday;    /* 日 day of the month - [1,31] */
+        int tm_mon;     /* 月 months since January - [0,11] */
+        int tm_year;    /* 年 years since 1900 */
+        int tm_wday;    /* 星期 days since Sunday - [0,6] */
+        int tm_yday;    /* 一年第几天 days since January 1 - [0,365] */
+        int tm_isdst;   /* 夏令时标志 启用(>0) 不启用(0) 不确定(&0) daylight savings time flag */
+        };
+        
+double difftime(time_t time1, time_t time0); //返回两个时间相差秒数
+<span class="care">time_t mktime(struct tm * timeptr); //tm 到 time_t (需要设置 年月日 时分秒 tm_isdst(一般设置为0) )</span>
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="format"></a>
+		<p><span class="flag">时间格式化</span>
+<pre>//固定格式化 星期 月 日期 时:分:秒 年
+      	char * asctime(const struct tm * timeptr);
+		char * ctime(const time_t *timer);
+        
+        wchar_t *_wasctime( 
+   const struct tm *timeptr 
+);
+wchar_t *_wctime( 
+   const time_t *timer 
+);
+
+        
+        //自定义格式化 类似sprintf
+        size_t strftime(
+   char *strDest,  //格式化后保存数据缓冲区
+   size_t maxsize, //缓冲区大小 sizeof
+   const char *format,	// % 格式
+   const struct tm *timeptr  //tm结构
+);
+size_t wcsftime(
+   wchar_t *strDest,
+   size_t maxsize,
+   const wchar_t *format,
+   const struct tm *timeptr 
+);
+
+%a 星期几的简写 
+%A 星期几的全称 
+%b 月分的简写 
+%B 月份的全称 
+%c 标准的日期的时间串 
+%C 年份的后两位数字 
+%d 十进制表示的每月的第几天 
+%D 月/天/年 
+%e 在两字符域中，十进制表示的每月的第几天 
+%F 年-月-日 
+%g 年份的后两位数字，使用基于周的年 
+%G 年分，使用基于周的年 
+%h 简写的月份名 
+%H 24小时制的小时 
+%I 12小时制的小时
+%j 十进制表示的每年的第几天 
+%m 十进制表示的月份 
+%M 十时制表示的分钟数 
+%n 新行符 
+%p 本地的AM或PM的等价显示 
+%r 12小时的时间 
+%R 显示小时和分钟：hh:mm 
+%S 十进制的秒数 
+%t 水平制表符 
+%T 显示时分秒：hh:mm:ss 
+%u 每周的第几天，星期一为第一天 （值从0到6，星期一为0）
+%U 第年的第几周，把星期日做为第一天（值从0到53）
+%V 每年的第几周，使用基于周的年 
+%w 十进制表示的星期几（值从0到6，星期天为0）
+%W 每年的第几周，把星期一做为第一天（值从0到53） 
+%x 标准的日期串 
+%X 标准的时间串 
+%y 不带世纪的十进制年份（值从0到99）
+%Y 带世纪部分的十进制年份 
+%z，%Z 时区名称，如果不能得到时区名称则返回空字符。
+%% 百分号
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>std::wstring text;
+std::time_t time	=	std::time(NULL);
+std::tm t;
+localtime_s(&t,&time);
+wchar_t buffer[100];
+wcsftime(buffer,sizeof(buffer),L"%Y/%m/%d %H:%M:%S %A",&t);
+
+text	+=	buffer;
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

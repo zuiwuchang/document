@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>函數與回調</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#result_of">result_of</a>
+		<a href="#ref">ref</a>
+		<a href="#bind">bind</a>
+		<a href="#function">function</a>
+		<a href="#signals2">signals2</a>
+	</div>
+
+	<div class="note"><a name="result_of"></a>
+		<p><span class="flag">result_of</span>
+<pre>#include&lt;boost\utility\result_of.hpp&gt;
+
+result_of	已被納入c++11
+result_of	用於返回一個 functor 的返回值型別 可用於複雜的泛型編程 是boost內部實現的 基石
+
+result_of	是一個 struct 其 type 記錄了 functor 的 返回值型別
+template&lt;typename ...&gt;
+struct result_of
+{
+	typedef ??? type;
+};
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include&lt;boost\utility\result_of.hpp&gt;
+
+template&lt;typename FUN,typename T&gt;
+typename boost::result_of&lt;FUN(T)&gt;::type bind(FUN f,T t)
+{
+	return f(t);
+}
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	
+	typedef float (*Func)(float);
+	Func fun	=	std::sqrt;
+	
+	std::cout&lt;&lt;bind(fun,4.0f)
+		&lt;&lt;std::endl;
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>在example中使用 result_of 應該加上 typename 否則編譯器會以為 type是  result_of的成員變量 從而導致編譯錯誤
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="ref"></a>
+		<p><span class="flag">ref</span>
+<pre>#include&lt;boost\ref.hpp&gt;
+
+STL 和 boost 提供了大量算法 其中所有參數基本都是 值傳遞
+ref庫的 reference_wrapper 代理了一個變量的 引用(保存其指針)
+使用其配合 這些算法 可以使算法使用 引用參數
+</pre>
+		</p>
+		<p><span class="flag">相關接口</span>
+<pre>get	//返回被包裝變量 引用
+get_pointer	//返回...	指針
+
+<span class="care">//工廠函數</span>
+ref	cref	返回一個型別的 reference_wrapper 或 const reference_wrapper
+
+<span class="care">//輔助函數</span>
+is_reference_wrapper	的 value成員 返回了型別 是否被 reference_wrapper 包裝
+unwrap_reference		的 type處於 返回了 真實的型別 既（返回 被reference_wrapper包裝的型別 若未被包裝 返回 本身型別）
+unwrap_ref				若型別被 reference_wrapper 包裝 解開包裝 返回型別引用 否則 什麼都不做
+</pre>
+		</p>
+		<p><span class="flag">exampe</span>
+<pre>#include&lt;boost\ref.hpp&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+
+	int x	=	10;
+	//定義一個 引用 和原始引用 用法類似
+	boost::reference_wrapper&lt;int&gt;  ref(x);
+	
+	ref.get()	=	11;
+
+	ref	=	boost::ref(x);
+
+	//返回是否 被 reference_wrapper 包裝
+	assert(boost::is_reference_wrapper&lt;BOOST_TYPEOF(ref)&gt;::value);
+	//返回型別
+	std::cout&lt;&lt;typeid(boost::unwrap_reference&lt;BOOST_TYPEOF(ref)&gt;::type).name()&lt;&lt;std::endl;
+
+	//解包 reference_wrapper
+	boost::unwrap_ref(ref)	=	12;
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>在泛型代碼中 應該盡量使用 unwrap_ref 以支持 reference_wrapper 包裝的型別
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="bind"></a>
+		<p><span class="flag">bind</span>
+<pre>#include&lt;boost\bind.hpp&gt;
+
+bind	是c++98中 函數適配器 bind1st/bindnd 的泛化和增強 其可任意適配 functor(函數對象 函數指針 函數引用 成員函數 成員變量) 最多可綁定9個參數
+bind	已被納入c++11
+bind	綁定 的函數對象 要求其內部定義了 result_type
+bind	在綁定 成員函數 成員變量時 第一個參數 需要傳入 實例 (若要改變class 內部狀態 需要傳入 實例指針 或用 ref庫包裝)
+
+bind	返回 一個 可調用的 functor 調用 返回functor的() 將引發被 適配functor的調用
+</pre>
+		</p>
+		<p><span class="flag">佔位符</span>
+<pre>bind 存在9個 佔位符 _1 _2 ... _9 可以在 bind時 傳入以 可以等到真實調用時 才傳入參數
+使用佔位符 可以在 bind時 只傳入 部分參數 或 一個都不傳
+
+若有函數 f 需要兩個參數 可如下bind
+bind(f,a,b)()		//不使用 佔位符
+bind(f,_1,_2)(a,b)	//使用佔位符 f(a,b)
+bind(f,_2,_1)(a,b)	//...f(b,a)
+bind(f,a,_1)(b)		//包裝成了一個 1參函數	f(a,b)	
+
+亦可以 為別名 更名 如
+boost::arg&lt;1&gt;	&amp;_x	=	_1;
+BOOST_AUTO(&amp;_y,_2);
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include&lt;boost\bind.hpp&gt;
+
+class Test
+{
+public:
+	Test()
+	{
+		value	=	0;
+	}
+	int value;
+	void add(const int a,const int b)
+	{
+		std::cout&lt;&lt;a+b&lt;&lt;std::endl;
+	}
+
+	typedef int result_type;
+	result_type	operator()(const int a,const int b)
+	{
+		return a + b;
+	}
+};
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//綁定普通函數 函數指針
+	boost::bind(puts,"bind")
+		();	//operator () 引發真實的 調用
+
+	//使用佔位符
+	boost::bind(puts,_1)
+		("bind _1");	//佔位符 以便再 () 時才傳入參數
+	boost::bind(puts,_2)
+		("第一個參數被忽略","bind _2");
+
+	//綁定成員函數
+	Test t;
+	boost::bind(&Test::add,t,_1,_2)
+		(10,20);
+
+	//綁定成員變量
+	t.value	=	1;
+	std::cout&lt;&lt;boost::bind(&amp;Test::value,&amp;t)()&lt;&lt;"\n";
+
+	//綁定函數對象
+	//若未定義 result_type 需要 再模板傳入 返回值型別 bind&lt;int&lt;(Test(),1,2)
+	std::cout&lt;&lt;boost::bind(Test(),1,2)()&lt;&lt;"\n";
+	
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>bind 使用 copy 語義使用參數 若要使用引用 使用 ref庫 包裝
+
+佔位符 _n n代表了 bind operator () 傳入的第n個參數
+
+在綁定成員函數時 函數名前應該加上 &amp;
+
+對於綁定未定義 result_type 的 functor 需要在模板傳入 返回值型別
+對於非標準函數 如 printf 需要 ..
+對於 _stdcall _fastcall extern "C" 的函數 需要 ... 或在 include前 #define BOOST_BIND_ENABLE_STDCALL/BOOST_BIND_ENABLE_FASTCALL/BOOST_BIND_ENABLE_PASCALL
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="function"></a>
+		<p><span class="flag">function</span>
+<pre>#include&lt;boost\function.hpp&gt;
+
+boost::function 是一個functor對象 可以持有一個functor(內部保存其拷貝) 以等到需要時調用
+通常與bind一起工作
+function可以接受0 到10參數 分別以 class function0 ... function10 來支持
+</pre>
+		</p>
+		<p><span class="flag">function聲明</span>
+<pre>方式一（首選語法）
+	function&lt 函數標籤&gt
+	boost::function&lt;void(int)&gt; fun;	//一個可容納 返回值為void 一個參數int 的functor
+
+方式二（兼容語法）     	
+	functionn&lt;返回值,參數,參數...&gt;     
+	boost::function1&lt;void,int&gt;	//...
+</pre>
+		</p>
+		<p><span class="flag">相關接口</span>
+<pre>//構造一個不持有任何 functor的 function
+function()
+
+//是否為空（不持有 functor）
+empty()
+
+//清空 同 = 0
+clear()
+
+operator !
+operator bool
+operator =
+//完成 被持有functor的 調用 (不持有functor 拋出 bad_function_call)
+operator ()
+
+//返回被持有 functor 指針 (不持有functor 返回 NULL)
+target
+
+//返回是否持有 functor 同operator bool
+contains
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include&lt;boost\bind.hpp&gt;
+#include&lt;boost\function.hpp&gt;
+
+class Test
+{
+public:
+	typedef void result_type;
+	result_type add(const int a,const int b)
+	{
+		std::cout&lt;&lt;a&lt;&lt;" + "&lt;&lt;b&lt;&lt;" = "&lt;&lt;a+b&lt;&lt;std::endl;
+	}
+};
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//普通函數
+	boost::function&lt;int(const char*)&gt; fun	=	boost::bind(puts,_1);
+	assert(fun);
+	fun("this is a test");
+
+	//成員函數
+	Test t;
+	boost::function&lt;void(Test&amp;,const int,const int)&gt; fun2	=	boost::bind(&amp;Test::add,_1,_2,_3);
+	fun2(t,1,2);
+
+	//...其他參加bind
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>聲明function時 應該盡量使用 首選語法 兼容語法是為不支持 首選語法的編譯器 提供的
+
+function 存儲functor 傳遞 參數 都使用 copy語義 若要引用 使用 ref庫包裝
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="signals2"></a>
+		<p><span class="flag">signals2</span>
+<pre>#include&lt;boost\signals2.hpp&gt;
+
+signals2	實現了 信號/插槽(signals and slots)機制 亦被稱為事件機制(event/event handler)
+可以將多個 插槽(functor) 餘 信號關聯 當產生信號時 插槽被依次調用
+
+構造signal需要7個模板參數 通常只需要填寫第一個 其他皆有默認值
+param1	函數標籤 創建boost::function模板參數 指明了插槽簽名
+param2	合併器 用以組合所有插槽的調用結果 默認是 optional_last_value&lt;R&gt; 返回最後一個被調用插槽返回值
+param3	Group 插槽編組型別 默認 int
+param4	配合param3指定編組 排序準則 默認 std::less&lt;Group&gt;
+...
+</pre>
+		</p>
+		<p><span class="flag">相關接口</span>
+<pre>//將一個插槽 聯接到信號(信號將保持其拷貝 = ) 返回一個 connection
+connect
+//傳入組號斷開 某組的插槽 或 傳入插槽對象 斷開插槽對象
+disconnect
+//斷開所有插槽
+disconnect_all_slots
+//返回插槽數量
+num_slots
+//是否不存在 插槽
+empty
+//產生信號 導致所有被關聯的插槽被調用
+operator()
+
+//返回 設置 合併器
+combiner
+set_combiner
+</pre>
+		</p>
+		<p><span class="flag">使用組號</span>
+<pre>在 connect 時可以設置一個組號 以指定 插槽組號
+以及 at_front/at_back 指定插入位置 at_back為默認
+未編號插槽 at_back 將在所有編組之後
+... at_front ...前
+</pre>
+		</p>
+		<p><span class="flag">使用合併器</span>
+<pre>合併器 用以獲取插槽返回值 並可控制插槽執行情況
+合併器 是一個類似如下的 functor
+template&lt;typename T&gt;
+class combiner
+{
+public:
+	typedef T result_type
+	template&lt;InputIterator&gt;
+	result_type operator(InputIterator begin,InputIterator end)const    
+}; 
+
+InputIterator	是一個迭代器 begin end 可遍歷之
+*InputIterator	將應發插槽被調用 並返回 插槽調用返回值
+
+由此可知 合併器中需要遍歷所有 插槽 並調用 *InputIterator 才能 使插槽都被調用
+可以在 達到需求時 停止遍歷 以使之後的插槽 不被調用
+</pre>
+		</p>
+		<p><span class="flag">使用connection關聯連接</span>
+<pre>connection 提供 了比使用 signals 管理 插槽與 signals的連接 更方便的 操作
+當 connect成功時 會返回一個 connection 對象 用以關聯 插槽到信號的 連接
+
+<span class="care">connection 提供如下 接口</span>
+connection()
+operator =
+!=
+&lt;
+...
+swap
+
+//返回是否連接到信號
+connected
+//斷開連接
+disconnect
+//返回是否被阻塞(所謂阻塞 既產生信號時 插槽不會被調用 但連接並沒斷開)
+blocked
+
+<span class="care">scoped_connection</span>
+scoped_connection 接受一個 connection 構造 
+類似 scoped_ptr 不支持 = 和 copy 構造
+但 析構時 自動 斷開插槽 
+
+<span class="care">scoped_connection</span>
+shared_connection_block 接受一個 connection 構造
+在其生命週期內 將使用插槽 被阻塞(除非 調用其 unblock接口)
+</pre>
+		</p>
+		<p><span class="flag">slot</span>
+<pre>程序員 必須保證 被連接的插槽 才被銷毀前 被斷開 否則 當產生信號而調用插槽時 會發生 未定義行為
+signals2::slot 提供了自動管理功能 插槽被銷毀 將自動斷開連接
+統統不直接使用 slot 而是 使用其typedef solt_type
+solt_type 定義好了 slot需要的 模板參數
+
+且在 connect 時 傳入 slot.track 
+
+slot在構造時 傳入參數 指針bind語法 故可直接傳入 同bind的參數 而不必調用 bind
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include&lt;boost\signals2.hpp&gt;
+
+template&lt;int N&gt;
+class display_n
+{
+public:
+	int operator()()
+	{
+		std::cout&lt;&lt;N&lt;&lt;std::endl;
+		return N;
+	}
+};
+//自定義合併器
+template&lt;typename T&gt;
+class combiner
+{
+public:
+
+	typedef T result_type;
+
+	template&lt;typename InputIterator&gt;
+	result_type operator()(InputIterator begin,InputIterator end)const
+	{
+		T	sum	=	T();
+		BOOST_AUTO(tmp,begin);
+		while(tmp	!=	end)
+		{
+			sum	+=	*tmp;
+			++tmp;
+		}
+		return sum;
+	}
+
+};
+int _tmain(int argc, _TCHAR* argv[])
+{
+	
+	typedef	boost::signals2::signal&lt;int()	//插槽標籤
+				,combiner&lt;int&gt;				//合併器
+			&gt; signal_t;
+
+	signal_t signal;
+
+	//關聯三個 插槽
+	signal.connect(display_n&lt;0&gt;());
+	signal.connect(display_n&lt;1&gt;());
+	signal.connect(display_n&lt;2&gt;());
+
+	//使用組號
+	signal.connect(2,display_n&lt;11&gt;());
+	auto	connection	=	signal.connect(2,display_n&lt;12&gt;());
+	signal.connect(2,display_n&lt;10&gt;(),boost::signals2::at_front);
+	signal.connect(2,display_n&lt;13&gt;(),boost::signals2::at_back);
+
+	signal.connect(display_n&lt;-&gt;>(),boost::signals2::at_front);
+
+	//斷開插槽
+	signal.connect(3,display_n&lt;100&gt;());
+	signal.disconnect(3);	//斷開所有編組為3的插槽
+
+	//阻塞
+	boost::signals2::shared_connection_block block(connection);
+	
+	//自動管理
+	boost::shared_ptr&lt;display_n&lt;1000&gt;&gt; p(new display_n&lt;1000&gt;);
+	signal.connect(signal_t::slot_type(boost::ref(*p)).track(p)
+		);
+	p.reset();
+
+	//產生信號
+	signal();
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>signal 是線程安全的 其最後一個參數 Mutex 默認 是signals2::mutex
+connection 和 shared_connection_block 也是線程 安全的 
+但 指定關聯的 slot不是線程安全的
+
+signals2 中 dummy_mutex 是一個空類 傳入 signal 可使其變為 非線程安全
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

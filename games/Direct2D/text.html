@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Direct2D</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="Direct2D"><tr><td>
+<p>
+	<font color="#FF0000">文本绘制</font>
+</p>
+
+<p>
+	<a href="#text">文本绘制</a><br />
+    
+    
+</p>
+
+
+<div class="mydiv"><a name="text"></a>
+	<p><font color="#FF0000">文本绘制</font>
+<pre>Direct2D 使用 DirectWrite 进行 文本渲染
+
+#include&lt;Dwrite.h&gt;
+#pragma comment(lib,"Dwrite.lib")
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>	case WM_PAINT:
+		{			
+			IDWriteFactory* pIDWriteFactory = NULL;
+			//創建DirectWrite
+			assert(S_OK	==	DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED
+				,__uuidof(IDWriteFactory)
+				,reinterpret_cast&lt;IUnknown**&gt;(&pIDWriteFactory)
+				)
+				);
+			//創建字體
+			IDWriteTextFormat* pTextFormat = NULL;
+			assert(S_OK	==	pIDWriteFactory->CreateTextFormat(L"Gabriola"		//字體名
+				,NULL											// Font collection(NULL sets it to the system font collection)
+				,DWRITE_FONT_WEIGHT_REGULAR						// Weight
+				,DWRITE_FONT_STYLE_NORMAL						// Style
+				,DWRITE_FONT_STRETCH_NORMAL						// Stretch
+				,50.0f											// Size    
+				,L"chs"											// Local
+				,&pTextFormat									// Pointer to recieve the created object
+				)
+				);
+		
+			std::wstring text	=	L"這是草泥馬的 text 測試";
+
+			d2d_target_ptr->BeginDraw();
+			d2d_target_ptr->Clear(D2D1::ColorF(D2D1::ColorF::DarkBlue));	//以指定顏色 清除背景
+	
+				d2d_target_ptr->DrawTextW(text.c_str()
+					,text.size()
+					,pTextFormat
+					,D2D1::RectF(100,100,200,200)		//文本輸出矩形
+					,d2d_brush_ptr
+					);
+			
+			d2d_target_ptr->EndDraw();	//成功繪製返回 S_OK	
+			
+			pIDWriteFactory && pIDWriteFactory->Release();
+			pTextFormat && pTextFormat->Release();
+		}
+		break;
+</pre>
+	</p>
+</div>
+    
+</td></tr></table>
+</body>
+</html>

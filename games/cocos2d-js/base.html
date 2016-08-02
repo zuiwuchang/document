@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>cocos2d-js</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#cc">cc</a>
+		<a href="#Director">cc.Director</a>
+		<a href="#Scene">cc.Scene</a>
+		<a href="#Layer">cc.Layer</a>
+		<a href="#Sprite">cc.Sprite</a>
+		
+	</div>
+
+	<div class="note"><a name="cc"></a>
+		<p><span class="flag">cc</span>
+<pre>cc 是電影 製片人 其是所有 工作人員 資金的 總 負責人 
+其保管了 所有資源
+
+cc.winSize 保存了舞台(屏幕)大小
+
+cc.director 直接分配任務給導演
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Director"></a>
+		<p><span class="flag">cc.Director</span>
+<pre>寫遊戲就像拍電影 程序員就是導演 
+使用class cc.Director 進行導演的工作 安排演出場景...
+
+Director 保存了一個 場景 棧 只有 最外層的場景 才被渲染
+使用 runScene 壓如初始化的場景
+push*
+pop*
+入/出 棧 
+</pre>
+		</p>
+		<p><span class="flag">常用API</span>
+<pre>getRunningScene()
+返回当前正在运行的场景.
+
+pause()
+暂停导演类的计算器(ticker)
+
+isPaused()
+返回导演类是否在暂停状态
+
+resume()
+从暂停中恢复导演类,如果当前场景没有被暂停,那么什么事都不做
+
+
+
+runScene(scene)
+运行一个场景.
+
+popScene()
+从队列(ps:我感觉应该是从栈里弹出)里弹出一个场景.
+
+popToRootScene()
+弹出所有场景直到只剩根场景在队列里.
+ 	
+popToSceneStackLevel(level)
+弹出队列里所有的场景直到得到想要的"层".
+
+pushScene(scene)
+暂停当前正在执行的场景,并把他加到一个装有暂停场景的栈里
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Scene"></a>
+		<p><span class="flag">cc.Scene</span>
+<pre>cc.Scene 是佈景師 導演只負責選擇場景 
+而場景中的環境 搭配由於 佈景師 安排
+
+cc.Scene 派生自 cc.Node 
+一般在 自己從 cc.Scene 派生 場景 
+在onEnter中 初始化 場景
+
+一般只在 Scene 中 增加 Layer 而具體的 環境 增加到 Layer 中
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>var HelloWorldScene = cc.Scene.extend({
+    onEnter:function () {
+        this._super();
+        var layer = new HelloWorldLayer();
+        this.addChild(layer);
+    }
+});
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Layer"></a>
+		<p><span class="flag">cc.Layer</span>
+<pre>cc.Layer 派生自 cc.Node 是一個層 用於可以 將 場景中的 環境
+分別 佈置到不同的 層中 以便管理
+(如一般 將 演員 和 UI 佈置到不同的層中)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Sprite"></a>
+		<p><span class="flag">cc.Sprite</span>
+<pre>cc.Sprite 是派生自 cc.Node 的演員 
+因為我們是 世界一流的動畫導演
+故任何物件都可以說演員(包括一塊石頭) 而不一定要是生物
+</pre>
+		</p>
+		<p><span class="flag">常用API</span>
+<pre>cc.Sprite(fileName, rect, rotated)
+構造函數
+
+addChild(child, localZOrder, tag)
+给精灵增加一个子节点(重载 cc.Node)
+
+getTextureRect()
+返回精灵的矩形
+
+removeAllChildren(cleanup)
+从容器中移除所有的子节点。
+ 	
+removeChild(child, cleanup)
+
+setVisible(visible)
+设置精灵是否可见。
+
+runAction(action)
+执行一个动作,并且返回执行的该动作.
+
+schedule(callback_fn, interval, repeat, delay)
+调度一个自定义的选择器.
+
+scheduleOnce(callback_fn, delay)
+使用一个0s或者更大时长的延时,调度一个只运行一次的回调函数
+...
+</pre>
+		</p>
+		<p><span class="flag">Anchor Point 錨點</span>
+<pre>錨點 是相對坐標 旋轉等都是相對錨點 操作
+(0,0)對象左下角
+(0.5,0.5)對象中心
+
+var sprite = cc.Sprite.create ( "bottomleft.png" ) ; 
+sprite.attr({
+        x: 0,
+        y: 0,
+        anchorX: 0,
+        anchorY: 0
+    });
+</pre>
+		</p>
+		
+		<p><span class="flag">注意</span>
+<pre>cocos 使用 笛卡爾 右手坐標系 既(0,0)在左下角
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

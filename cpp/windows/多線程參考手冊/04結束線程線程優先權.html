@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>結束線程線程優先權</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1>
+    	<a href="#exit">結束線程</a><br />
+        <a href="#priority">優先權</a><br />
+       
+		
+    </h1></p>
+    
+    <div class="div_box"><a name="exit"></a><h2>
+    	<p><font color="#FF0000">結束線程</font><br />
+<pre>//TerminateThread 結束一個線程<font color="#FF0000">這不是推薦的做法 因為這樣線程無法做任何清理工作</font>
+BOOL WINAPI TerminateThread(
+  __inout  HANDLE hThread,
+  __in     DWORD dwExitCode
+);
+
+//<font color="#FF0000">正確做法</font>
+做一個標記 線程檢查之 以確定自己是否該結束
+如 使用一個 人工重置 的Event 線程中wait...
+</pre>
+        </p>
+   	</h2></div>
+    
+    <div class="div_box"><a name="priority"></a><h2>
+    	<p><font color="#FF0000">進程優先權</font><br />
+<pre>
+//設置進程優先權
+BOOL WINAPI SetPriorityClass(
+  __in  HANDLE hProcess,
+  __in  DWORD dwPriorityClass
+);
+
+//獲取進程優先權值
+DWORD WINAPI GetPriorityClass(
+  __in  HANDLE hProcess
+);
+</pre>
+        </p>
+        
+        <p><font color="#FF0000">線程優先權</font><br />
+        線程優先權用以確定 線程在當前進程中的重要性
+<pre>//設置線程優先權
+BOOL WINAPI SetThreadPriority(
+  __in  HANDLE hThread,
+  __in  int nPriority
+);
+//獲取線程優先權值
+int WINAPI GetThreadPriority(
+  __in  HANDLE hThread
+);
+
+</pre>
+        </p>
+ 	</h2></div>
+    
+</td></tr></table>
+</body>
+</html>

@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>pac</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#pac">pac</a>
+		
+	</div>
+
+	<div class="note"><a name="pac"></a>
+		<p><span class="flag">pac</span>
+<pre>pac 是一個 javascript 文件
+其中 定義了 函數 function FindProxyForURL(url, host) 
+猶 FindProxyForURL 的返回值 決定 如何 訪問 網絡
+</pre>
+		</p>
+        <p><span class="flag">FindProxyForURL 返回值</span>
+<pre>//直接訪問 網絡
+return "DIRECT"; 
+
+//使用 http 代理
+return "PROXY 192.168.1.1:3128";
+return "PROXY mydemon.com:3128";
+
+//使用 socket5 代理
+return "SOCKS5 lilinux.net:1080";
+
+//使用 多個代理(如果前面的代碼無法使用 則連接 後續代理)
+return "DIRECT; PROXY 192.168.1.1:3128; SOCKS5 lilinux.net:1080";
+</pre>
+        </p>
+        <p><span class="flag">pac 可用函數</span>
+<pre>
+</pre>
+        </p>
+	</div>
+
+</div>
+</body>
+</html>
+

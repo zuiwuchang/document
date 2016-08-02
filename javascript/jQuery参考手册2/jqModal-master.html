@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>jQuery参考手册2</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#jqModal-master">jqModal-master</a>
+	</div>
+
+	<div class="note"><a name="jqModal-master"></a>
+		<p><span class="flag">jqModal-master</span>
+<pre>jqModal-master 是一个jQuery弹出框 插件 可以将一个 div 替换为 弹出框对话框
+
+1	从官网<a target="_blank" href="http://jquery.iceburg.net/jqModal/">http://jquery.iceburg.net/jqModal/</a>下载 最新版本jqModal-master.zip
+2	解压 将examples/jqModal.css jqModal.min.js 引入项目
+</pre>
+		</p>
+		
+		<p><span class="flag">example</span>
+<pre>&lt;div class="jqmWindow" id="dialog"&gt;
+	&lt;a href="#" class="jqmClose"&gt;Close&lt;/a&gt;
+	&lt;hr&gt;
+	&lt;em&gt;READ ME&lt;/em&gt; --&gt;
+	This is a "vanilla plain" jqModal window. Behavior and appeareance extend far beyond this.
+
+	&lt;br /&gt;&lt;br /&gt;
+
+	Please see the &lt;a href="http://jquery.iceburg.net/jqModal/"&gt;jqModal website&lt;/a&gt; for more!
+
+	&lt;br /&gt;&lt;br /&gt;
+	&lt;em&gt;NOTE&lt;/em&gt;; You can close windows by clicking the tinted background known as the "overlay".
+	Clicking the overlay will have no effect if the "modal" parameter is passed, or if the
+	overlay is disabled.
+&lt;/div&gt;
+
+
+
+&lt;script type="text/javascript"&gt;
+$(document).ready(function() {
+
+	//替换 
+	$('#dialog').jqm();
+
+	//显示对话框
+	$('#dialog').jqmShow();
+	//$('.dialogs').jqmShow();
+
+	//隱藏对话框
+	$('#dialog').jqmHide();
+	//$('.dialogs').jqmHide();
+
+	//... 其它詳見官方文檔
+
+});
+&lt;/script&gt;
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

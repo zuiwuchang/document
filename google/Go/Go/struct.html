@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>复杂型别</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#struct">struct 结构体</a>
+		<a href="#array">array 数组</a>
+		<a href="#slice">slice  切片</a>
+		<a href="#range">range</a>
+		<a href="#map">map</a>
+		<a href="#func">func</a>
+		<a href="#panic">panic recover</a>
+	</div>
+
+	<div class="note"><a name="struct"></a>
+		<p><span class="flag">struct 结构体</span>
+<pre>//一个struct 就是一个字段 集合
+type Point struct {
+	X, Y int
+}
+
+func main() {
+	point := Point{1, 2}
+	fmt.Println(point.X, point.Y)
+}
+</pre>
+		</p>
+		<p><span class="flag">Go 存在指针不过 不存在指针运算 (通过这种访问时透明度)</span>
+<pre>import "fmt"
+
+type Vertex struct {
+	X int
+	Y int
+}
+
+func main() {
+	p := Vertex{1, 2}
+	q := &amp;p			//此句竟然报错 编译器真不给力
+	q.X = 1e9
+	fmt.Println(p)
+}
+</pre>
+		</p>
+		<p><span class="flag">定义指针</span>
+<pre>type Point struct {
+	X, Y int
+}
+
+func main() {
+	ptr := new(Point)
+	fmt.Println(ptr)
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="array"></a>
+		<p><span class="flag">array 数组</span>
+<pre>//定义数组
+	var a, b [10]int
+	a[0] = 1
+	c := []int{0, 1, 2, 3, 4}
+
+	//返回数组长度
+	fmt.Println(len(c))
+	fmt.Println(a, b, c)
+
+	//返回数组切片
+	//[1:4]	返回 [1,4)
+	//[4:]	返回 [4,last]
+	//[0:4] 返回 [0,3]
+	fmt.Println(c[:4])
+	fmt.Println(len(c[1:3])) //2
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>將一個數組 賦值給另一個數組時 會複製一個數組副本 而不是 獲得其指針
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="slice"></a>
+		<p><span class="flag">slice 切片</span>
+<pre>使用make可以创建一个 数组 并且返回其 切片
+a := make([]int, 5)  // len(a)=5
+为了指定容量，可传递第三个参数到 `make`：
+
+b := make([]int, 0, 5) // len(b)=0, cap(b)=5
+
+b = b[:cap(b)] // len(b)=5, cap(b)=5
+b = b[1:]      // len(b)=4, cap(b)=4
+
+//cap 返回 切片容量
+//空 slice len cap 都为0
+</pre>
+		</p>
+		<p><span class="flag">slice 切片</span>
+<pre>slice 可以增加長度 其總是指向底層的一個 array
+
+s0 = append(slice,v1,v2...)	增加slice 若slice容量不夠 將 從新為其分配足夠大的內存
+append(slice,slice)
+
+n := copy(slice,slice)	複製切片 返回複製數量(n 為兩個切片 最小的長度)
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>slice 是引用類型 將其賦值給 另外一個 slice 時 兩個slice 將指向同一個 array
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="range"></a>
+		<p><span class="flag">slice range</span>
+<pre>//range 可以针对 slice map 进行 迭代
+	numbers := []int{1, 2, 3, 4, 5}
+
+	for i, v := range numbers {
+		fmt.Printf("index=%d value=%d\n", i, v)
+	}
+
+	//亦可为其赋值    
+	number := make([]int, 10)
+	for i := range number {
+		number[i] = i
+	}
+	for _, value := range number {
+		fmt.Printf("%d\n", value)
+	}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="map"></a>
+		<p><span class="flag">map</span>
+<pre>//map 必须使用 make 而非 new创建
+	m := make(map[string]int)
+	m["key"] = 1
+	fmt.Println(m["key"])
+
+//定义时初始化    
+	m := map[string]int{
+		"key1": 1,
+		"key2": 2,
+	}
+	fmt.Println(m)	
+</pre>
+		</p>
+		<p><span class="flag">其他操作</span>
+<pre>	m := map[string]int{
+		"key1": 123,
+		"key2": 2,
+	}
+
+	//删除
+	delete(m, "key1")
+
+	//若key2存在 elem=m["key2"] ok=true
+	//否则 elem = 0 ok = false
+	elem, ok := m["key2"]
+	fmt.Println(elem, ok) //2 true
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="func"></a>
+		<p><span class="flag">func</span>
+<pre>//可以将 函数作为一个 值存储
+	add := func(l, r int) int {
+		return l + r
+	}
+	fmt.Println(add(1, 2))
+</pre>
+		</p>
+		<p><span class="flag">函数闭包</span>
+<pre>func adder() func(int) int {
+	sum := 0
+	return func(x int) int {
+		sum += x
+		return sum
+	}
+}
+
+func main() {
+	pos, neg := adder(), adder()
+	for i := 0; i < 10; i++ {
+		fmt.Println(
+			pos(i),
+			neg(-2*i),
+		)
+	}
+}
+</pre>
+		</p>
+		<p><span class="flag">defer</span>
+<pre>defer 可以定義一條語句 在 函數退出前 自動執行
+多個 defer 安裝 先進後出 執行
+
+import (
+	"fmt"
+)
+
+func test(x int) {
+	defer fmt.Println("end")
+	defer func() {
+		for i := 0; i < 5; i++ {
+			fmt.Print(i, " ")
+		}
+		fmt.Println()
+	}()
+
+	fmt.Println("begin")
+	fmt.Println("x=", x)
+}
+func main() {
+
+	test(1)
+}
+</pre>
+		</p>
+		<p><span class="flag">不定長參數</span>
+<pre>//參數 將作為 一個slice處理
+import (
+	"fmt"
+)
+
+func test(str string, arg ...int) {
+	fmt.Println(str, arg)
+}
+func main() {
+
+	test("草", 1, 2, 3)
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="panic"></a>
+		<p><span class="flag">panic recover</span>
+<pre>異常機制的一種類似 方式 不建議使用 故不書
+Go應該使用 error 返回值 的方式處理錯誤
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

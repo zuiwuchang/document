@@ -1,0 +1,247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>工具欄狀態欄</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">工具欄狀態欄</font>
+</p>
+
+<p>
+	<a href="#PreCreateWindow">PreCreateWindow 修改窗口外觀</a><br />
+    <a href="#CToolBar">工具欄 CToolBar</a><br />
+    <a href="#CStatusBar">狀態欄 CStatusBar</a><br />
+     <a href="#erase">去掉 菜单 工具栏 状态栏</a><br />
+</p>
+
+
+<div class="mydiv"><a name="PreCreateWindow"></a>
+	<p><font color="#FF0000">PreCreateWindow 修改窗口外觀</font><br />
+    此方法 對對話框無效<br />
+    在創建窗口前 MFC 會調用 PreCreateWindow <br />
+    修改PreCreateWindow傳入的 CREATESTRUCT&amp; cs 既可修改窗口外觀
+<pre>
+typedef struct tagCREATESTRUCT {
+    LPVOID lpCreateParams;
+    HINSTANCE hInstance;
+    HMENU hMenu;					//菜單
+    HWND hwndParent;
+    int cy;
+    int cx;
+    int y;
+    int x;
+    LONG style;						//窗口風格
+    LPCTSTR lpszName;				//窗口標題
+    LPCTSTR lpszClass;				//窗口類名
+    DWORD dwExStyle;				//擴展風格
+} CREATESTRUCT, *LPCREATESTRUCT;
+
+
+
+BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
+{
+	if( !CFrameWnd::PreCreateWindow(cs) )
+		return FALSE;
+	// TODO: 在此处通过修改
+	//  CREATESTRUCT cs 来修改窗口类或样式
+	cs.x=0;
+	cs.y=0;
+	cs.cx=400;
+	cs.cy=400;
+	cs.lpszName=L"123";
+	cs.style &= ~FWS_ADDTOTITLE;
+
+	return TRUE;
+}
+
+//修改窗口類屬性
+DWORD SetClassLong(          HWND hWnd,
+    int nIndex,			//要獲取什麼屬性
+    LONG dwNewLong
+);
+<font color="#FF0000">nIndex取值</font>
+GCL_WNDPROC
+GCL_STYLE
+GCL_HBRBACKGROUND	//背景畫刷
+GCL_HCURSOR			//光標
+GCL_HICON			//圖標
+...
+		
+//獲取窗口類屬性
+DWORD GetClassLong(          HWND hWnd,
+    int nIndex
+);
+
+//根據資源ID 返回 資源對應名
+LPTSTR MAKEINTRESOURCE(
+    WORD wInteger
+);
+
+</pre>    
+	</p>
+    <p><font color="#FF0000">注意</font>
+    對於 文檔 窗口 要 在風格中 取消FWS_ADDTOTITLE(此風格 自動將打開的文檔 設置為窗口標題) 才能改變窗口標題
+    </p>
+</div>    
+
+<div class="mydiv"><a name="CToolBar"></a>
+	<p><font color="#FF0000">工具欄 CToolBar</font><br />
+    CToolBar 代表了一個工具欄
+<pre>添加一個 工具欄資源
+定義一個 CToolBar
+CToolBar::Create 或CToolBar::CreateEx 創建工具欄
+CToolBar::LoadToolBar	加載工具欄資源
+CToolBar::EnableDocking	CFrameWnd::EnableDocking	設置可停靠位置
+CFrameWnd::DockControlBar	停靠工具欄
+</pre>
+    </p>
+    <p><font color="#FF0000">CToolBar 相關API</font><br />
+<pre>//創建工具欄
+BOOL Create( CWnd* pParentWnd,
+             DWORD dwStyle = WS_CHILD | WS_VISIBLE | CBRS_TOP,
+             UINT nID = AFX_IDW_TOOLBAR
+           );
+
+//創建工具欄
+BOOL CreateEx( CWnd* pParentWnd,
+               DWORD dwCtrlStyle = TBSTYLE_FLAT,
+               DWORD dwStyle = WS_CHILD | WS_VISIBLE | CBRS_ALIGN_TOP,
+               CRect rcBorders = CRect( 0, 0, 0 ),	//
+               UINT nID = AFX_IDW_TOOLBAR
+             );
+             
+//加載工具欄資源
+BOOL LoadToolBar( UINT nIDResource );
+
+//設置工具欄 可停靠位置
+void EnableDocking(DWORD dwDockStyle );
+<font color="#FF0000">dwDockStyle取值</font>
+CBRS_ALIGN_TOP		//頂部
+CBRS_ALIGN_BOTTOM 	//底部
+CBRS_ALIGN_LEFT		//左 
+CBRS_ALIGN_RIGHT	//右
+CBRS_ALIGN_ANY 		//所有 客戶區
+CBRS_FLOAT_MULTI	//
+
+//停靠工具欄
+void CFrameWnd::DockControlBar(
+   CControlBar* pBar,
+   UINT nDockBarID = 0,
+   LPCRECT lpRect = NULL 
+);
+
+
+//重新調整工具欄顯示
+virtual void CFrameWnd::RecalcLayout（BOOL bNotify = TRUE）;
+
+//顯示工具欄
+void CFrameWnd::ShowControlBar(CControlBar* pBar,
+	BOOL bShow,		//TRUE(顯示)	FALSE(隱藏)
+	BOOL bDelay);	//TRUE（延遲顯示）
+</pre>
+    </p>
+    
+    <p><font color="#FF0000">注意</font><br />
+    在創建 工具欄時 父窗口也要調用 EnableDocking 以設置可以 被停靠
+    </p>
+</div>      
+<div class="mydiv"><a name="CStatusBar"></a>
+	<p><font color="#FF0000">狀態欄 CStatusBar</font><br />
+    CStatusBar 代表了一個狀態欄
+    </p>
+    <p><font color="#FF0000">CStatusBar 相關API</font><br />
+<pre>//創建狀態欄
+BOOL Create( CWnd* pParentWnd, DWORD dwStyle = WS_CHILD | WS_VISIBLE | CBRS_BOTTOM, UINT nID = AFX_IDW_STATUS_BAR );
+
+//設置狀態欄 指示器
+BOOL SetIndicators( const UINT* lpIDArray, int nIDCount );
+
+//設置指示器 顯示文本
+BOOL SetPaneText( int nIndex, //指示器索引
+	LPCTSTR lpszNewText, 
+	BOOL bUpdate = TRUE 	//TRUE 是否重繪
+);
+
+//由指示器ID 返回索引
+int CommandToIndex( UINT nIDFind ) const;
+
+//修改指示器信息
+void SetPaneInfo( int nIndex	//要修改的指示器索引
+, UINT nID			//設置一個新的ID
+, UINT nStyle		//設置新的風格
+, int cxWidth );	//設置顯示寬度
+
+//獲取指示器信息
+void GetPaneInfo( int nIndex, //要獲取的指示器索引
+UINT& nID, UINT& nStyle, int& cxWidth ) const;
+
+//獲取指示器 的矩形區域
+void GetItemRect( int nIndex, LPRECT lpRect ) const;
+
+//設置狀態欄 指示器0 的文本
+void CFrameWnd::SetMessageText(LPCTSTR lpszText);
+
+//獲取狀態欄指針
+virtual CWnd* CFrameWnd::GetMessageBar( );
+
+//在子孫窗口中 搜索指定id的窗口 並返回其指針(狀態欄默認id AFX_IDW_STATUS_BAR )
+CWnd* CWnd::GetDescendantWindow( int nID, 
+BOOL bOnlyPerm = FALSE 	//是否可返回一個臨時的窗口 
+) const;
+</pre>    
+    </p>
+</div>    
+ <div class="mydiv"><a name="erase"></a>
+ 	<p><font color="#FF0000">去掉 菜单</font><br />
+<pre>//PreCreateWindow在 设置 cs.hMenu=NULL;
+BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
+{
+	if( !CFrameWnd::PreCreateWindow(cs) )
+		return FALSE;
+	// TODO: 在此处通过修改
+	//  CREATESTRUCT cs 来修改窗口类或样式
+	<font color="#FF0000">cs.hMenu=NULL;</font>
+	return TRUE;
+}</pre>    
+    </p>
+    
+    <p><font color="#FF0000">去掉 工具栏 状态栏</font><br />
+    删除 OnCreate 中 工具栏 状态栏 的创建代码
+<pre>int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (CFrameWnd::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	//if (!m_wndToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
+	//	!m_wndToolBar.LoadToolBar(IDR_MAINFRAME))
+	//{
+	//	TRACE0("未能创建工具栏\n");
+	//	return -1;      // 未能创建
+	//}
+
+	//if (!m_wndStatusBar.Create(this))
+	//{
+	//	TRACE0("未能创建状态栏\n");
+	//	return -1;      // 未能创建
+	//}
+	//m_wndStatusBar.SetIndicators(indicators, sizeof(indicators)/sizeof(UINT));
+
+	//// TODO: 如果不需要可停靠工具栏，则删除这三行
+	//m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
+	//EnableDocking(CBRS_ALIGN_ANY);
+	//DockControlBar(&m_wndToolBar);
+
+
+	return 0;
+}</pre>    
+    </p>
+    
+    
+ </div>
+</td></tr></table>
+</body>
+</html>

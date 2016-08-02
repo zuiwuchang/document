@@ -1,0 +1,61 @@
+@charset "utf-8";
+.dark_ui_rotation{
+	position:relative;
+	
+	background-image:url(background.png);	
+	-moz-background-size:100% 100%; /* 老版本的 Firefox */
+	background-size:100% 100%;
+	background-repeat:no-repeat;
+	
+	/*width:600px;
+	height:600px;*/
+	
+	-webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+		  
+	/*border:#0FC solid*/
+	
+	/*禁用文本選擇*/
+	-moz-user-select: none; /*火狐*/
+	-webkit-user-select: none;  /*webkit浏览器*/
+    -ms-user-select: none;   /*IE10*/
+    -khtml-user-select: none; /*早期浏览器*/
+    user-select: none;
+}
+
+.dark_ui_rotation_item{
+	list-style: none;
+	text-align:center;
+	cursor:pointer;
+	
+	-webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+		  
+	position:absolute;
+	/*top:20px;
+	right:20px;
+	*/
+	background-image:url(button.png);
+	-moz-background-size:100% 100%; /* 老版本的 Firefox */
+	background-size:100% 100%;
+	background-repeat:no-repeat;
+	
+	/*border:#FFF solid;*/
+}
+.dark_ui_rotation_item:hover{
+	
+	background-image:url(hover.png);
+	-moz-background-size:100% 100%; /* 老版本的 Firefox */
+	background-size:100% 100%;
+	background-repeat:no-repeat;
+	
+}
+.dark_ui_rotation_item:active{
+	background-image:url(down.png);
+	-moz-background-size:100% 100%; /* 老版本的 Firefox */
+	background-size:100% 100%;
+	background-repeat:no-repeat;
+	
+}

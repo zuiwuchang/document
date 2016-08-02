@@ -1,0 +1,275 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>pool</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">jdbc 連接池</font>
+</p>
+
+<p>
+	<a href="#pool">jdbc 連接池</a><br />
+    <a href="#execute">應用程序</a><br />
+    <a href="#web">web</a><br />
+    
+    
+</p>
+
+
+<div class="mydiv"><a name="pool"></a>
+	<p><font color="#FF0000">jdbc 連接池</font>
+<pre>tomact 從7.0 開始 提供了一個 jdbc 連接池 用於提高數據庫操作效率
+其可以 單獨 用在 應用程序中
+亦可 用在 web 服務器中
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="execute"></a>
+	<p><font color="#FF0000">應用程序</font>
+<pre>1	將tomat的 lib/tomcat-jdbc.jar bin/tomcat-juli.jar 加入classpath
+2	初始化連接池
+3	獲取連接
+...
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.apache.tomcat.jdbc.pool.DataSource;
+import org.apache.tomcat.jdbc.pool.PoolProperties;
+
+/**
+ *
+ * @author Administrator
+ */
+public class JavaApplication {
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        PoolProperties p = new PoolProperties();
+        p.setDriverClassName("org.mariadb.jdbc.Driver");    //設置驅動器名
+        p.setUrl("jdbc:mysql://localhost:3306/dark");
+        p.setUsername("root");
+        p.setPassword("***");
+        p.setJmxEnabled(true);
+        p.setTestWhileIdle(false);
+        p.setTestOnBorrow(true);
+        p.setValidationQuery("SELECT 1");
+        p.setTestOnReturn(false);
+        p.setValidationInterval(30000);
+        p.setTimeBetweenEvictionRunsMillis(30000);
+        p.setMaxActive(100);
+        p.setInitialSize(10);
+        p.setMaxWait(10000);
+        p.setRemoveAbandonedTimeout(60);
+        p.setMinEvictableIdleTimeMillis(30000);
+        p.setMinIdle(10);
+        p.setLogAbandoned(true);
+        p.setRemoveAbandoned(true);
+        p.setJdbcInterceptors(
+            "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"+
+            "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer");
+        
+        //初始化 連接池
+        DataSource datasource = new DataSource();
+        datasource.setPoolProperties(p);
+
+         
+        Connection con = null; 
+        try {
+            //獲取連接
+            con = datasource.getConnection();
+            Statement stm = con.createStatement();
+            String sql ="select id from test";
+            
+            //執行 sql 遍歷結果
+            ResultSet rs = stm.executeQuery(sql);
+            while(rs.next())
+            {
+                System.out.println(rs.getInt("id"));
+                
+            }
+            rs.close();
+            
+          } catch (SQLException ex) {
+            Logger.getLogger(JavaApplication.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            if (con!=null) try {con.close();}catch (Exception ignore) {}
+          }
+                
+    }
+    
+}
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="web"></a>
+	<p><font color="#FF0000">web</font>
+<pre>1	為tomcat配置 JNDI lookups
+2	為項目 引入 JNDI 資源
+3	獲取連接
+...
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>(編輯 tomcat*/conf/context.xml 添加JNDI 配置)
+&lt;Resource name="jdbc/MariaDB"
+          auth="Container"
+          type="javax.sql.DataSource"
+          factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
+          testWhileIdle="true"
+          testOnBorrow="true"
+          testOnReturn="false"
+          validationQuery="SELECT 1"
+          validationInterval="30000"
+          timeBetweenEvictionRunsMillis="30000"
+          maxActive="100"
+          minIdle="10"
+          maxWait="10000"
+          initialSize="10"
+          removeAbandonedTimeout="60"
+          removeAbandoned="true"
+          logAbandoned="true"
+          minEvictableIdleTimeMillis="30000"
+          jmxEnabled="true"
+          jdbcInterceptors="org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;
+            org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer"
+          username="root"
+          password="***"
+          driverClassName="org.mariadb.jdbc.Driver"
+          url="jdbc:mysql://localhost:3306/dark"/&gt;
+
+
+(編輯 項目的 web.xml 引入JNDI 資源)
+	&lt;resource-ref&gt;  
+	    &lt;description&gt;JNDI DataSource&lt;/description&gt;  
+	    &lt;res-ref-name&gt;jdbc/MariaDB&lt;/res-ref-name&gt;
+	    &lt;res-type&gt;javax.sql.DataSource&lt;/res-type&gt;  
+	    &lt;res-auth&gt;Container&lt;/res-auth&gt;  
+	&lt;/resource-ref&gt;
+
+(獲取連接 操作數據庫)
+import java.io.IOException;
+import java.io.PrintWriter;
+
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.concurrent.Future;
+
+import javax.naming.Context;
+//import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.tomcat.jdbc.pool.DataSource;
+
+
+
+/**
+ * Servlet implementation class Email
+ */
+@WebServlet("/Email")
+public class Email extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public Email() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		PrintWriter out = response.getWriter();
+	
+		Context initContext;
+		Connection con = null; 
+		try {
+			initContext = new InitialContext();
+			 DataSource datasource = (DataSource)initContext.lookup("java:comp/env/jdbc/MariaDB");
+			
+			// 一般獲取連接
+			 {
+					 Future&lt;Connection&gt; future = datasource.getConnectionAsync();
+					 while (!future.isDone()) 
+					 {
+						 System.out.println("wait connect . do other thing");
+						 try {
+							 Thread.sleep(100); //simulate work
+						 }catch (InterruptedException x) {
+							 Thread.currentThread().interrupt();
+							 }
+					}
+				 con	=	datasource.getConnection() ;
+			 }
+			//同步 獲取連接
+			 {
+				// con = datasource.getConnection();
+			 }
+			
+	        Statement stm = con.createStatement();
+	        String sql ="select id from test";
+	            
+	       //執行 sql 遍歷結果
+	      ResultSet rs = stm.executeQuery(sql);
+	      while(rs.next())
+	      {
+	    	  out.println(rs.getInt("id"));
+	       }
+	      rs.close();
+	     stm.close();
+			 
+		} catch (NamingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+        } finally {
+            if (con!=null) try {con.close();}catch (Exception ignore) {}
+         }		  
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+	}
+
+}
+             
+</pre>
+	</p>
+</div>
+         
+</td></tr></table>
+</body>
+</html>

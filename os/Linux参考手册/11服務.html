@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>服務</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1>
+    	<p><font color="#FF0000">11服務</font><br />  	
+		</p>
+        
+        <a href="#class">服務分類</a> <br />
+        <a href="#port">設置服務端口號</a> <br />
+        <a href="#start">啟動關閉服務</a> <br />
+        
+       	
+    </h1></p>
+    
+    <div class="div_box"><a name='class'><h3>
+    	<p><font color="#FF0000">服務分類</font><br />
+      	服務一般可分為兩類<br />
+        <font color="#FF0000">stand_alone</font>	可單獨啟動的服務<br />
+        服務啟動並加載到內存一直佔據系統資源
+        <font color="#FF0000">super deamon</font>	由於一個特殊deamon管理<br />
+        有一個deamon管理 各項服務節關閉 當有客戶需求時才加載服務 客戶結束時 關閉資源服務等
+        </p>
+  	</h3></a></div>
+    
+    <div class="div_box"><a name='port'><h3>
+    	<p><font color="#FF0000">設置服務端口號</font><br />
+       /etc/services	文件中 記錄了服務默認端口號 通過查詢或修改 可以 找到或改變服務端默認端口號
+        </p>
+  	</h3></a></div>
+    
+    <div class="div_box"><a name='start'><h3>
+    	<p><font color="#FF0000">啟動關閉服務</font><br />
+ <pre><font color="#FF0000">/etc/init.d/</font>		//下存放的是服務啟動腳本 執行之可管理服務
+ <img src="image/11服務/init.d.PNG" />
+ CentOS提供了 service 命令 使用之 其將自動將命令解析 /etc/init.d/... 執行
+ service [service name] [start|stop|restart]
+ service --status-all	//將所有服務狀態列出
+ 
+ 
+ <font color="#FF0000">/etc/init.d/*		//存放服務啟動腳本</font>
+ /etc/sysconfig/*	//各服務初始化環境配置文件
+ /etc/xinetd.d/		//super deamon 配置文件
+  <font color="#FF0000">/etc/*	//各服務各自配置文件
+  /var/lib/*	//各服務數據庫 mysql /var/lib/mysql
+  </font>
+  /var/run/*	//各服務pid記錄處
+ </pre>
+        </p>
+        
+        <p><font color="#FF0000">管理系統默認服務</font><br />
+        chkconfig	//列出系統默認服務<br />
+        chkconfig --list [服務名]		//只查看指定無法<br />
+        chkconfig [--level [0123456]] [服務名] [on|off]	//開機在指定等級 啟動或不啟動 指定服務 3(純文字) 5(圖形界面) on(啟動)
+        </p>
+  	</h3></a></div>
+  
+</td></tr></table>
+</body>
+</html>

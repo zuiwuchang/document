@@ -1,0 +1,302 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>cryptopp</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">cryptopp</font>
+</p>
+
+<p>
+	<a href="#cryptopp">cryptopp</a><br />
+    <a href="#often">常用類</a><br />
+   	<a href="#sha">摘要</a><br />
+   	<a href="#aes">對稱加密</a><br />
+    <a href="#rsa">非對稱加密</a><br />
+</p>
+
+
+<div class="mydiv"><a name="cryptopp"></a>
+	<p><font color="#FF0000">cryptopp</font><br />
+   cryptopp 一個開源的c++ 加密解密庫<br />
+   官網<a href="http://www.cryptopp.com/">http://www.cryptopp.com/</a><br /><br />
+   
+   需要編譯 lib 工程 <br />
+   #include &lt;sha.h&gt;	//對於算法.h<br />
+#pragma comment( lib, "cryptlib.lib")<br />
+namespace CryptoPP
+    </p>
+</div>    
+<div class="mydiv"><a name="often"></a>
+	<p><font color="#FF0000">常用類</font><br />
+    經常需要使用的class
+    </p>
+    
+    <p><font color="#FF0000">HexEncoder</font><br />
+<pre>    #include &lt;hex.h&gt;
+    HexEncoder	轉換數據為16進制(字符串<font color="#FF0000">不會添加字符串結尾標誌 0)</font>
+    HexDecoder
+int _tmain(int argc, _TCHAR* argv[])
+{
+	std::wcout.imbue(dark::local::getChsLocale());
+
+	byte input[100]		=	"this is a sha512 test";
+	byte output[100]	=	{0};
+	byte dec[100]		=	{0};
+
+	int len=strlen((char*)input);
+	CryptoPP::HexEncoder en;
+	CryptoPP::HexDecoder de;
+
+	//傳入加密數據
+	en.Put(input,len);
+	//取出加密數據
+	en.Get(output,100);
+	
+	//解密
+	len	=	strlen((char*)output);
+	de.Put(output,len);
+	de.Get(dec,100);
+
+	std::system("pause");
+	return 0;
+}
+<font color="#FF0000">注意</font><br />
+HexEncoder	維持一個輸出緩衝區 Put將 加密後 的 密文 寫入 輸出緩衝區 尾
+		Get 從緩衝區中讀取密文 並從緩衝區中清空讀取的內容
+		Peek	和Get  方法類似 只是Peek並不清除緩衝區內容      
+		SkipAll()	清空緩衝區
+		Skip(n);	清空緩衝區前n個字節
+</pre>    
+    </p>
+    
+    <p><font color="#FF0000">FileSink</font><br />
+<pre>	#include &lt;files.h&gt;
+	FileSink 代表一個 文件資源 可將地址傳入到一些 加密器 解密器 的構造函數中 用以替代默認的輸出緩衝區 以將結果寫入到文件
+	CryptoPP::HexEncoder hex(new CryptoPP::FileSink("private.txt"));
+
+	<font color="#FF0000">注意</font>
+	FileSink 必須new 而且傳入 加密器 解密器後 不能delete 加密解密器 在析構函數中 會delete之
+</pre>    
+    </p>
+    <p><font color="#FF0000">StringSink</font><br />
+<pre>	#include &lt;files.h&gt;
+	StringSink 性質和FileSink一樣 只是將輸出緩衝區 定位到 std::string(不支持 std::wstring) 而非文件
+	
+</pre>    
+    </p>
+    <p><font color="#FF0000">StringSource</font><br />
+<pre>#include &lt;filters.h&gt;
+	StringSource代表了一個 字符串資源<br />
+    CryptoPP::StringSource source(pub_data,true);
+    
+    同時其可以將一個字符串 或 byte* 作為輸入流 傳遞給 其他加密解密器
+    CryptoPP::StringSource(pub_hex,true,new CryptoPP::HexDecoder(new CryptoPP::StringSink(pub_data)));
+</pre>
+    </p>
+    <p><font color="#FF0000">FileSource</font><br />
+<pre>	FileSource 性質同StringSource 只是代表了一個 文件資源
+	CryptoPP::FileSource pubFile("public.key", true, new CryptoPP::HexDecoder);</pre>
+    </p>
+    
+</div>    
+    
+<div class="mydiv"><a name="sha"></a>
+	<p><font color="#FF0000">摘要</font><br />
+<pre>1	構造加密器
+2	加密</pre>
+    </p>
+    <p><font color="#FF0000">example</font><br />
+<pre>#include&lt;cryptopp562\sha.h&gt;
+#pragma comment( lib, "cryptlib.lib")
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	std::wcout.imbue(dark::local::getChsLocale());
+
+	byte input[]			=	"this is a sha512 test";
+	byte output[512/8+1]	=	{0};
+
+	//構造加密器
+	CryptoPP::SHA512 sha;
+	//加密
+	sha.CalculateDigest(output,input,sizeof(input));
+
+	std::wcout&lt;&lt;dark::wstring::getHex16(output,strlen((char*)output))&lt;&lt;std::endl;
+
+	std::system("pause");
+	return 0;
+}
+</pre>    
+    </p>
+    <p><font color="#FF0000">hmac</font>
+<pre>    //構造加密器
+    byte key[]			=	"kthis is key";
+	CryptoPP::HMAC&lt;CryptoPP::SHA512&gt; mac(key,sizeof(key));
+</pre>    </p>
+
+	<p><font color="#FF0000">文件摘要</font>
+<pre>CryptoPP::SHA512 sha;
+	std::string str;
+	CryptoPP::FileSource("a.exe", true, 
+		new CryptoPP::HashFilter(sha,
+			new CryptoPP::HexEncoder(new CryptoPP::StringSink(str))
+			)
+		);
+	std::cout&lt;&lt;str&lt;&lt;std::endl;</pre>
+    </p>
+</div>
+
+<div class="mydiv"><a name="aes"></a>
+	<p><font color="#FF0000">對稱加密</font><br />
+    #include&lt;modes.h&gt;	//包含了密匙填充模式的定義
+<pre>1	構造加密器
+2	設置加密key
+3	定義工作模式
+4	加密(解碼)</pre>
+    </p>
+    <p><font color="#FF0000">example 字符串加密</font><br />
+<pre>#include&lt;cryptopp562\aes.h&gt;
+#pragma comment( lib, "cryptlib.lib")
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	std::wcout.imbue(dark::local::getChsLocale());
+
+	char in[100]="123";
+	char out[100]={0}
+	,dec[100]={0};
+
+	//構造 加密 解密 器
+	CryptoPP::AESEncryption	en;
+	CryptoPP::AESDecryption	de;
+
+	//设置密匙
+	unsigned char key[ CryptoPP::AES::MAX_KEYLENGTH ]="1234567";
+	en.SetKey(key,CryptoPP::AES::MAX_KEYLENGTH );
+	de.SetKey(key,CryptoPP::AES::MAX_KEYLENGTH );
+
+	//加密
+	en.ProcessBlock((byte*)in,(byte*)out);
+
+	//解密
+	de.ProcessBlock((byte*)out,(byte*)dec);
+	
+	
+	std::system("pause");
+	return 0;
+}</pre>    
+    </p>
+    
+    <p><font color="#FF0000">example 二進制數據加密</font><br />
+<pre>#include&lt;aes.h&gt;
+#pragma comment( lib, "cryptlib.lib")
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	byte in[100]="this aes test";
+	byte out[100]={0};
+	byte dec[100]={0};
+	int len=strlen((char*)in);
+   
+	//構造 加密 解密 器
+	byte key[CryptoPP::AES::MAX_KEYLENGTH]="this is key";
+	CryptoPP::AES::Encryption aes(key, CryptoPP::AES::MAX_KEYLENGTH);
+
+	//定義工作模式
+	byte iv[CryptoPP::AES::BLOCKSIZE]="this is iv";
+	CryptoPP::CFB_Mode_ExternalCipher::Encryption mode_en(aes, iv);
+	CryptoPP::CFB_Mode_ExternalCipher::Decryption mode_de(aes,iv);
+
+	//加密
+	mode_en.ProcessData(out,in,len);
+
+	//解密
+	mode_de.ProcessData(dec,out,len);
+	
+
+	std::system("pause");
+	return 0;
+}</pre>    
+    </p>
+    
+</div>
+
+<div class="mydiv"><a name="rsa"></a>
+	<p><font color="#FF0000">非對稱加密</font><br />
+<pre>1	設置N
+2	產生公鑰 私鑰
+3	加密	解密</pre>    
+    </p>
+    <p><font color="#FF0000">example</font><br />
+<pre>#include&lt;rsa.h&gt;
+#include&lt;randpool.h&gt;
+
+#pragma comment( lib, "cryptlib.lib")
+//CryptoPP
+//(N,e)是公钥，(N,d)是私钥
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//设置N
+	char seed[]="fuck";
+	//随机密匙产生器定义
+	CryptoPP::RandomPool randPool;
+	randPool.Put((byte *)seed, strlen(seed));
+
+	//產生公鑰 私鑰
+	CryptoPP::RSAES_OAEP_SHA_Decryptor priv(randPool,1024);
+	CryptoPP::RSAES_OAEP_SHA_Encryptor pub(priv);
+	
+		/*
+        //返回密鑰 hex 值
+		/*std::string pub_hex;
+		CryptoPP::HexEncoder hex(new CryptoPP::StringSink(pub_hex));
+		pub.DEREncode(hex);
+		hex.MessageEnd();*/
+        
+		//密匙写入文件
+		CryptoPP::HexEncoder  priFile(new CryptoPP::FileSink("private.key"));
+		priv.DEREncode(priFile);
+		priFile.MessageEnd();
+		CryptoPP::HexEncoder  pubFile(new CryptoPP::FileSink("public.key"));
+		pub.DEREncode(pubFile);
+		pubFile.MessageEnd();
+		*/
+
+	char data[1024] = "this is a fucking RSA 草泥马的测试";
+	printf("原文:%s\r\n",data);
+		/*
+        //直接由hex 返回公鑰
+		/*std::string pub_hex="30819D300D06092A864886F70D010101050003818B0030818702818100B3BA154A2CA0D55C071D110917B47E8E02BAB60BA882251D40BAB201CF449DDADC6ADEBC8D33112FBD52A441B114223B7999391C68B2212C9A8361D052B7C821839947DF065347DBE6DFF5994B7E2379A22F65C08619666411D7E7AA6C4B39363E7B8A62AE24B8913D29890DD49A6CEE8AFC036A9E5983900899C24525D1933D020111";
+		std::string pub_data;
+		CryptoPP::StringSource(pub_hex,true,new CryptoPP::HexDecoder(new CryptoPP::StringSink(pub_data)));
+		CryptoPP::StringSource source(pub_data,true);
+		CryptoPP::RSAES_OAEP_SHA_Encryptor pub(source);*/
+        
+		//	由文件读取密匙
+		CryptoPP::FileSource pubFile("public.key", true, new CryptoPP::HexDecoder);
+		CryptoPP::RSAES_OAEP_SHA_Encryptor pub(pubFile);
+		CryptoPP::FileSource privFile("private.key", true, new CryptoPP::HexDecoder);
+		CryptoPP::RSAES_OAEP_SHA_Decryptor priv(privFile);
+		*/
+		//加密
+	std::string encrypt;
+	CryptoPP::StringSource(data, true, new CryptoPP::PK_EncryptorFilter(randPool, pub, new CryptoPP::HexEncoder(new CryptoPP::StringSink(encrypt))));
+	printf("密文:%s\r\n",encrypt.c_str());
+	//解密
+	std::string decrypt; 
+	CryptoPP::StringSource(encrypt, true, new CryptoPP::HexDecoder(new CryptoPP::PK_DecryptorFilter(randPool, priv, new CryptoPP::StringSink(decrypt))));
+	printf("解码:%s\r\n",decrypt.c_str()); 
+
+	system("pause");
+	return 0;
+}</pre>    
+    </p>
+</div>
+</td></tr></table>
+</body>
+</html>

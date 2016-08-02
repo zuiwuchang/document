@@ -1,0 +1,122 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Sublime Text 3</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#golang">golang</a>
+		<a href="#YouCompleteMe">YouCompleteMe</a>
+	</div>
+
+	<div class="note"><a name="golang"></a>
+		<p><span class="flag">golang</span>
+<pre>vim 可以安裝插件 以用於 golang 開發 
+</pre>
+		</p>
+		<p><span class="flag">安裝 Vundle.vim</span>
+<pre>Vundle.vim 是一個 vim 插件管理工具
+
+1	git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+
+2	vi ~/.vimrc 為其添加 如下 內容
+	<span class="care">set nocompatible              " be iMproved, required
+	filetype off                  " required
+
+	" set the runtime path to include Vundle and initialize
+	set rtp+=~/.vim/bundle/Vundle.vim
+	call vundle#begin()
+
+	" let Vundle manage Vundle, required
+	Plugin 'gmarik/Vundle.vim'
+
+	" All of your Plugins must be added before the following line
+	call vundle#end()            " required
+	filetype plugin indent on    " required</span>
+</pre>
+		</p>
+		<p><span class="flag">安裝 vim-go</span>
+<pre>1	vi ~/.vimrc 為其添加 vim-go 插件
+	<span class="care">Plugin 'fatih/vim-go'</span>
+
+2	在vim 中 執行 :PluginInstall 安裝插件
+	此時 vim 將在左邊打開 子窗口 顯示 插件
+
+3	等待安裝完成 vim在下方 顯示 done 
+	vim-go 被安裝到 .vim/bundle
+
+4	此時 vim 具有將 golang 語法高亮 
+	且保存時自動 gofmt 格式化代碼
+</pre>
+		</p>
+		<p><span class="flag">GoInstallBinaries</span>
+<pre>在 vim中 執行 :GoInstallBinaries  
+將會自動 安裝 gocode godef ...工具到$GOBIN或$GOPATH/bin下 (需要先安裝 git或hg)
+
+安裝時需要 回車確認
+
+<span class="care">這些工具 都在 google code 或github上
+社會主義地區顯然 無法正常 安裝
+
+此時 需要 手動安裝 為成功安裝的工具</span>
+
+
+
+此時多出如下功能
+ctrl+x ctrl+o 將或出現代碼補全
+:GoImports	自動導入需要的包
+
+ - 新起一行输入fmt.，然后ctrl+x, ctrl+o，Vim 会弹出补齐提示下拉框，不过并非实时跟随的那种补齐，这个补齐是由gocode提供的。
+    – 输入一行代码：time.Sleep(time.Second)，执行:GoImports，Vim会自动导入time包。
+    – 将光标移到Sleep函数上，执行:GoDef或命令模式下敲入gd，Vim会打开$GOROOT/src/time/sleep.go中 的Sleep函数的定义。执行:b 1返回到hellogolang.go。
+    – 执行:GoLint，运行golint在当前Go源文件上。
+    – 执行:GoDoc，打开当前光标对应符号的Go文档。
+    – 执行:GoVet，在当前目录下运行go vet在当前Go源文件上。
+    – 执行:GoRun，编译运行当前main package。
+    – 执行:GoBuild，编译当前包，这取决于你的源文件，GoBuild不产生结果文件。
+    – 执行:GoInstall，安装当前包。
+    – 执行:GoTest，测试你当前路径下地_test.go文件。
+    – 执行:GoCoverage，创建一个测试覆盖结果文件，并打开浏览器展示当前包的情况。
+    – 执行:GoErrCheck，检查当前包种可能的未捕获的errors。
+    – 执行:GoFiles，显示当前包对应的源文件列表。
+    – 执行:GoDeps，显示当前包的依赖包列表。
+    – 执行:GoImplements，显示当前类型实现的interface列表。
+    – 执行:GoRename [to]，将当前光标下的符号替换为[to]。
+</pre>
+		</p>
+		<p><span class="flag">安裝 YCM</span>
+<pre>1	vi ~/.vimrc為其添加 YCM 插件
+	<span class="care">Plugin 'Valloric/YouCompleteMe'</span>
+
+2	在vim 中 執行 :PluginInstall 安裝插件
+
+3	cd ~/.vim/bundle/YouCompleteMe
+	./install.sh
+	(通常這樣安裝是會失敗的 見 <a href="#YouCompleteMe">YouCompleteMe</a>)
+
+
+此時 vim將可 實時補全代碼
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="YouCompleteMe"></a>
+		<p><span class="flag">YouCompleteMe</span>
+<pre>git https://github.com/Valloric/YouCompleteMe.git ~/.vim/bundle/
+
+sudo apt-get install cmake python-dev -y
+
+cd ~/.vim/bundle/YouCompleteMe
+
+git submodule update --init --recursive
+
+sudo ./install.sh
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

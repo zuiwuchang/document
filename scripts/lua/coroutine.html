@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>lua</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#coroutine">協程</a>
+		
+	</div>
+
+	<div class="note"><a name="coroutine"></a>
+		<p><span class="flag">協程</span>
+<pre>lua 的協程 類似於線程 然區別在於
+同一時刻 只有一個協程 在運行 而且協程被能被外部 掛起等
+
+所有 協程 操作都在 table coroutine 中
+</pre>
+		</p>
+		<p><span class="flag">常用函數</span>
+<pre>//創建一個協程 使之掛起 並返回協程
+coroutine.create(function)
+
+//返回 協程狀態
+coroutine.status(co)
+	<span class="care">suspended	掛起
+	running	運行
+	dead	死亡
+	normal	正常()
+	</span>
+
+//運行協程
+coroutine.resume(co)
+
+//使當前協程 掛起
+coroutine.yield()
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>co	=	coroutine.create(function( ... )
+	print(...)	--4 5 6
+	--coroutine.yield(10,11)
+	return 10,11
+end)
+print(coroutine.status(co))
+print(coroutine.resume(co,4,5,6))	--true 10 11
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>resume 可以傳入多個參數 第一個參數 為協程函數 
+之後的參數會被 傳入 協程中
+同時 調用 resume 的協程 進入 normal狀態(暫停執行)
+(如果協程 返回 或 yield resume 返回 true , yield傳入值/return返回值
+否則 返回false 和 錯誤
+[resume 使用協程在 pcall中 運行]
+)
+
+yield 可以傳入多個參數 作為返回值返回 給 resume
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+

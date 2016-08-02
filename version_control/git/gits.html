@@ -1,0 +1,223 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>svn</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#gits">git 協作</a>
+		<a href="#push">非快進式 推送</a>
+		<a href="#merge">合併 衝突</a>
+		<a href="#tag">git tag</a>
+		<a href="#branch">git branch</a>
+	</div>
+
+
+	<div class="note"><a name="gits"></a>
+		<p><span class="flag">git 協作</span>
+<pre>git 支持多種協議 以完成 協作 工作
+</pre>
+		<table>
+			<tr><th>協議名</th><th>協議類別</th><th>語法</th><th>說明</th></tr>
+			
+			<tr><td>ssh (1)</td><td>智能協議</td><td>ssh://[user@]example.com[:port]/path</td><td>使用 ssh協議 默認端口22</td></tr>
+			
+			<tr><td>ssh (2)</td><td>智能協議</td><td>[user@]example.com:path</td><td>使用 ssh協議 的scp 格式表示法(非默認端口 需要其他方式 入主機別名)</td></tr>
+			
+			<tr><td>git</td><td>智能協議</td><td>git://example.com[:port]/path</td><td>最常用的只讀協議</td></tr>
+			
+			<tr><td>http[s]</td><td>智能協議<br>啞協議</td><td>http[s]://example.com[:port]/path</td><td>最常用的只讀協議</td></tr>
+			
+			<tr><td>ftp[s]</td><td>啞協議</td><td>ftp[s]://example.com[:port]/path</td><td></td></tr>
+			
+			<tr><td>rsync</td><td>啞協議</td><td>rsync://example.com/path</td><td></td></tr>
+			
+			<tr><td>本地協議 1</td><td>智能協議</td><td>file://path</td><td></td></tr>
+			
+			<tr><td>本地協議 2</td><td>智能協議</td><td>path</td><td>和file://類似 但有細微差別 入不支持淺拷貝 直接使用硬連接實現克隆</td></tr>
+
+		</table>
+		</p>
+
+		<p><span class="flag">智能協議</span>
+<pre>智能協議 會 根據 本地 版本庫 與 遠程庫的 差異 進行 差異拷貝
+且會顯示 拷貝 進度
+
+http/https 需要 特殊配置 才能使用 智能協議
+</pre>
+		</p>
+	</div>
+	
+	<div class="note"><a name="push"></a>
+		<p><span class="flag">非快進式 推送</span>
+<pre>git 使用 git push  將本地 版本 提交到遠程
+
+默認情況下 git 只 運行 
+快進式(遠程 分支 最新 提交 必須是本地 最新提交的 祖先提交) 推送
+以避免 多用戶 互相 覆蓋
+
+git push -f 可以強制 推送
+	<span class="care">應該盡量避免使用 -f 這會覆蓋 他/她 人的推送</span>
+</pre>
+		</p>
+		<p><span class="flag">合併後 推送</span>
+<pre>當出現 非快進 推送時 不應該使用 -f 參數
+而是 合併 遠程庫 和本地庫後 再推送
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="merge"></a>
+		<p><span class="flag">合併 衝突</span>
+<pre>//將 指定 分支 與當前 分支 合併
+git merge [選項 ...] &lt;commit&gt;
+	<span class="care">commit 可以說提交 id 對應引用 分支 里程碑...
+	--no-commit	合併結果 只放入 暫存區 而不提交
+	</span>
+
+合併後 以當前分支為 第一個 父提交 commit為第二個父提交
+
+
+
+git push 實際執行兩個 操作 
+git fetch	//將遠程庫 更新到 暫存區
+git merge	//合併 暫存區 當前庫
+
+
+當遇到 合併 衝突時 可以
+使用 git reset --hard HEAD 放棄 合併 或者 手工 處理 合併 
+</pre>
+		</p>
+		<p><span class="flag">文本衝突</span>
+<pre>當 對同文件 同位置 修改後 
+合併 會出現此 衝突
+
+此時 文件 內容 顯示如下
+
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+<span class="care">print(add(4,5,6))</span>
+=======
+print(add(1,2,3))
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; 40bbd84fed90405a3289ec175bbc389d92b62b75
+
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; 與 ======= 之間的是 當前分支 內容
+======= 與 &gt;&gt;&gt;&gt;&gt;&gt;&gt; 之間的是 所合併版本 內容
+
+手動刪除 不需要的內容 後 再
+提交即可
+git add
+git commit
+git push
+</pre>
+		</p>
+		<p><span class="flag">樹衝突</span>
+<pre>當 多個版本 將 同名文件 改名為不同時(git mv) 出現此 衝突
+
+暫存區 會保留 原名 當前版本名 合併版本名
+使用 
+git rm
+git rm
+刪除 暫存區中 不需要的名稱後 提交 即可
+git commit 
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="tag"></a>
+		<p><span class="flag">git tag</span>
+<pre>tag 對象 存儲在 .git/refs/tags/tagname 中
+
+tag用於 建立一個 比 commit id 看起來 更加直觀的 標記
+以建立 查詢 操作 ...
+
+
+
+//顯示 所有的 tag
+git tag [-n&lt;num&gt;] [-l name]
+	<span class="care">-n	最多num行顯示 tag 描述信息(默認不顯示)
+	-l 以通配符 過濾要顯示的 tag</span>
+
+//將提交顯示為一個 易記名稱(基於 tag)
+//(若提交沒有 tag 而祖先有 顯示為 <span class="care">tag</span>-<span class="care">n</span>-g<span class="care">ID</span>)
+//(若祖先也沒有 返回錯誤)
+git describe [--always]
+	<span class='care'>--always 當不存在tag時 不返回錯誤 而是顯示其精簡的 ID</span>
+
+
+//創建 指定名稱的 輕量 tag
+git tag tagname [&lt;commit&gt;]
+	<span class="care">commit 提交id 默認 HEAD</span>
+
+//創建 帶 描述信息的 tag
+git tag -a tagname [&lt;commit&gt;]
+git tag -m msg tagname [&lt;commit&gt;]
+	<span class="care">msg	描述信息</span>
+
+//創建 簽名 tag
+git tag -s tagname [&lt;commit&gt;]
+git tag -u key-id tagname [&lt;commit&gt;]
+
+//刪除 tag
+git tad -d tagname
+
+
+
+//將 tag 推送到 遠程
+git push origin tagname
+git push origin refs/tags/*
+
+//使用 遠程 指定 tag 覆蓋本地指定 tag
+git pull origin refs/tags/tagname:refs/tags/tagname
+
+//刪除遠程 tag
+git push origin tagname
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>一般不要使用 輕量 tag 其不會記錄 tag的 創建信息
+
+tag 不會 主動 push到 遠程
+pull 會主動將 不存在的 tag 同步 回來 但 不會 改變 已經存在的 不同 tag
+
+在 修改 遠程 共享的 tag 時應該慎重 盡量不要改變
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="branch"></a>
+		<p><span class="flag">git branch</span>
+<pre>//顯示分支	(當前 分支會以 * 和特別顏色 標註)
+git branch
+
+
+
+//創建 分支 默認 以位置 HEAD 創建 
+git branch &lt;branchname&gt; [HEAD]
+
+//創建 分支 並切成到指定 分支
+git checkout -b &lt;branchname&gt; [HEAD]
+
+
+//刪除 分支
+git branch -d &lt;branchname&gt;
+git branch -D &lt;branchname&gt;
+	<span class="care">-d 會檢測 分支 是否被合併到其它 分支 若沒有 拒絕刪除
+	-D 強制刪除</span>
+
+//分支 改名
+git branch -m &lt;oldname&gt; &lt;newname&gt;
+git branch -M &lt;oldname&gt; &lt;newname&gt;
+	<span class="care">-m 會 檢測是否已存在 newname 若存在 拒絕改名
+	-M 強制改名</span>
+
+//切換分支
+git checkout branchname
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,150 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>lua</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#load">編譯</a>
+		<a href="#c">c動態庫</a>
+		<a href="#error">錯誤</a>
+		<a href="#pcall">保護模式</a>
+		<a href="#traceback">錯誤追溯</a>
+		
+		
+	</div>
+
+	<div class="note"><a name="load"></a>
+		<p><span class="flag">編譯</span>
+<pre>loadfile
+loadstring
+將文件/字符串 編譯為 lua腳本 作為一個函數返回
+實際相當於	f	=	function(...)
+之後需要調用 f() 才能執行加載腳本
+(若存在語法 錯誤 返回 nil)
+
+f	=	loadstring([[
+		print(select(1,...))
+]])
+f(1)
+
+
+dofile 類似 loadfile 不過若出錯 其會 提交一個錯誤
+且在加載 成功後 會立刻 調用
+function dofile(filename)
+	local f = assert(loadfile(filename)
+	return f()
+end
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>i=100
+local i = 10
+print(i)	--10
+
+function l()
+	i=i+1
+	print(i)
+end
+l()	--11
+
+loadstring("i=i+1;print(i)")()	--101
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>loadstring/loadfile 在全局的作用域內操作變量
+
+lua 將外部獨立的模塊都 作為一個匿名函數
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="c"></a>
+		<p><span class="flag">c動態庫</span>
+<pre>lua 通常 不會實現 非ANSI C標準 但 動態庫是個例外
+
+lua 使用 package.loadlib(path,funname) 加載一個動態連接庫 並將c函數 返回
+local path	=	"usr/local/lib/lua/5.1/socket.so"
+local f	=	package.loadlib(path,"luaopen_sock")
+
+但通常不這麼做 而是使用 require (詳見後文)
+</pre>
+		</p>
+
+	</div>
+
+	<div class="note"><a name="error"></a>
+		<p><span class="flag">錯誤</span>
+<pre>lua 遇到的所有 未預期處理都會 引發一個 錯誤
+使用 error(錯誤消息) 顯示的引發一個錯誤
+
+像
+if false then error("msg") end
+這樣的操作 是很常見的 
+lua 提供了一個 內建的 assert 函數 完成 此功能
+assert(false,"msg")
+assert(false)
+
+assert第一個參數若為 真 返回其值 否則 引發一個錯誤
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="pcall"></a>
+		<p><span class="flag">保護模式</span>
+<pre>若要處理 錯誤 需要將 代碼 包裝到一個 函數 中 
+之後使用 pcall 在保護模式下運行
+
+pcall 第一個參數是要運行的函數 之後的參數 被傳入被執行的函數
+
+pcall 第一個返回值 返回是否 出錯
+		第二個返回值 返回錯誤 或函數返回值
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>function mod(l,r)
+	assert(r~=0,"right can't be 0")
+	return l%r
+end
+
+state,rs = pcall(mod,3,2)
+if state then
+	print("success",rs)	--succsee 1
+else
+	print("error",rs)
+end
+
+state,rs = pcall(mod,3,0)
+if state then
+	print("success",rs)
+else
+	print("error",rs)	--error	test.lua:2: right can't be 0
+end
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="traceback"></a>
+		<p><span class="flag">錯誤追溯</span>
+<pre>error 若為字符串 pcall返回值 會 包括 錯誤 代碼位置 等附加信息
+error 第二個參數 指定了 附加信息中 顯示的 函數位置
+nil 1 顯示當前位置
+<span class="care">[2,+∞) 顯示函數堆棧上n-1層 
+(此時無法使用 assert 引發錯誤函數 其不會為error傳入第二個參數)</span>
+
+
+pcall 返回時 堆棧信息以及被銷毀
+若需要在 發生錯誤時 處理堆棧信息 可以使用 xpcall
+xpcall 對接受一個 回調函數 以在發生錯誤時 可以 獲取到當時的堆棧信息
+debug.traceback函數
+可以返回當前 堆棧 信息
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>压缩与打包</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1>
+    	<p><font color="#FF0000">描述</font><br />
+        	gip bip tar
+		</p>
+        <a href="#gzip">gzip</a> <br />
+    	<a href="#bzip2">bzip2</a> <br />
+        <a href="#tar">tar</a> <br />
+        <a href="#dump">dump</a> <br />
+        <a href="#dd">dd</a> <br />
+    
+    </h1></p>
+    
+    <div class="div_box"><a name='gzip'><h3>
+    	<p><font color="#FF0000">gzip file</font><br />
+          gzip压缩或解压到文件不会被保留 除非用-c参数但那只能把结果输出到屏幕还需配合要定向(但如此不能用于二进制文件)
+      	</p>
+        <p>
+        -c	将压缩或解压数据输出到屏幕(此会保留原文及)<br />
+        -d	解压<br />
+        -t	检查压缩文件是否无错<br />
+        -v	显示出压缩比等信息<br />
+        -#	#为1到9的数字表示压缩程度 -1最快 -9最慢 默认-6
+        <p>
+        </p>
+        
+   	</h3></a></div> 
+   
+   <div class="div_box"><a name='bzip2'><h3>
+		<p><font color="#FF0000">bzip2 -z file</font><br />
+        -c	将压缩解压过程产生的信息输出到屏幕<br />
+        <font color="#FF0000">-d	解压<br />
+        -k	保留原文及<br />
+        -z	压缩</font><br />
+        -v	同gzip<br />
+        -#	同gzip
+        </p>
+	</h3></a></div>   
+    
+    <div class="div_box"><a name='tar'><h3>
+    	<p><font color="#FF0000">tar</font><br />
+        	<p>tar [-j][-z][cv] [-f 新建的压缩包文件名] filename //打包与压缩<br />
+            	tar [-j][-z][t] [-f 压缩包文件名]	//查看压缩包<br />
+                tar [-j][-z][xv] [-f 压缩包文件名] [-C 目录] //解压<br />
+                <br />
+                <font color="#FF0000">
+                tar -jtf test.tar.bz2 home/dark //只查看压缩包中的home/dark下单文件信息<br />
+                tar -jxf test.tar.bz2 home/dark/test //只解压压缩包中的 home/dark/test 文件<br />
+                
+                tar -jcvf test.tar.bz2 --newer-mtime="2012/01/12" /home //只把home中mtime比压缩包中mtime新的加入替换到已有压缩包
+                 --newer-mtime还可使--newer(此包含了 mtime ctime)
+                </font>
+            </p>
+            
+            <p>
+            -c	压缩<br />
+            -t	查询压缩包中文件名<br />
+            -x	解压<br /><br />
+            
+            -j	用bzip2压缩与解压<br />
+            -z	用gzip压缩与解压<br />
+            -v	压缩 解压 过程中显示出正在处理的文件名<br />
+            -f	后接压缩文件名<br />
+            -C	后接目录 以指定解压位置<br /><br />
+            
+            <font color="#FF0000">-p	保留备份文件原本的权限和属性 可用于备份数据</font><br />
+            -P	保留绝对路径 不建议使用<br />
+            --exclude=FILE	打包时不将FILE打包
+            </p>
+     	</p>
+     </h3></a></div>
+	
+     <div class="div_box"><a name='dump'><h3>
+    	<p><font color="#FF0000">dump</font><br />
+     	-S	//仅列出备份需要多少磁盘空间
+        -u	//将备份信息写入/etc/dumpdates文件中
+        -v	//将dump的过程显示出来
+        -j	//使用dump时bzip2压缩 默认压缩等级为2
+        -level	//-0到-9 指定差异备份序列
+        -f	//同tar 的 -f
+        -W	//列出/etc/fstab中具有dump设置的分区是否有过备份
+        </p>
+        
+        <p><font color="#FF0000">example</font><br />
+     	dump -S /dev/sda1 //列出备份/dev/sda1需要的磁盘空间<br />
+        dump -0uf /dump/boot.dump  /boot //将 /boot备份到 /dump/boot.dump<br />
+        dump -1uf /dump/boot.dump1  /boot //将 /boot差异备份到 /dump/boot.dump1<br />
+        
+        dump -W<br />
+        </p>
+        <p><font color="#FF0000">注意</font><br />
+     	dump用于文件夹时 不能用-u 参数 也不能差异备份 level只能为0
+        </p>
+        
+        <p><font color="#FF0000">restore 还原</font><br />
+     	restore -t [-f dumpfile] [-h]	//查看dump<br />
+        restore -C [-f dumpfile] [-D 挂载点] //比较备份和挂载点<br />
+        restore -i [-f dumpfile] 	//互动模式还原 可选择还原内容<br />
+        restore -r [-f dumpfile] 	//还原
+        </p>
+     </h3></a></div>
+     
+     <div class="div_box"><a name='dd'><h3>
+    	<p><font color="#FF0000">dd</font><br />
+     	用于对磁盘块读取写入
+        dd if="输入设备" of="输出设备" bs="block大小默认512byte" count="多少个bs"
+        </p>
+        <p><font color="#FF0000">example</font>
+        dd if=/dev/zero of=/tmp/test bs=1M count=128 //创建一个128m大的空文件<br />
+        dd if=/etc/passwd of=/tmp/dd.back  //备份/etc/passwd 为 /tmp/dd.back<br />
+        dd if=/dev/sda of=/tmp/test.back bs=512 count=1 //将磁盘sda的第一个扇区备份出来<br />
+        dd if=/dev/sda of=/dev/sdb //将磁盘2变为和磁盘1一模一样的内容<br />
+        <font color="#FF0000">dd可以读取磁盘的完整信息 包括super block 分区表等</font>
+        </p>
+     </h3></a></div>
+</td></tr></table>
+</body>
+</html>

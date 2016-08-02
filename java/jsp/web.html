@@ -1,0 +1,172 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>web</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">web</font>
+</p>
+
+<p>
+	<a href="#http">http</a><br />
+    <a href="#GET">GET</a><br />
+    <a href="#POST">POST</a><br />
+    <a href="#GETPOST">GET or POST</a><br /><br />
+    
+    <a href="#Servlet">Servlet 請求/響應</a><br />
+    <a href="#MVC">MVC/Model 2</a><br />
+    <a href="#eclipse">eclipse</a><br />
+    <a href="#path">路徑</a><br />
+    
+</p>
+
+
+<div class="mydiv"><a name="http"></a>
+	<p><font color="#FF0000">http</font>
+<pre>http 是一種 基於 請求/響應 模型 的無狀態通信協議
+
+瀏覽器 發出請求 http服務器返回響應
+
+瀏覽器一般可以用如下請求
+GET
+POST
+HEAD
+PUT
+DELETE
+...
+</pre>
+	</p>
+</div>       
+
+<div class="mydiv"><a name="GET"></a>
+	<p><font color="#FF0000">GET</font>
+<pre>GET向服務器 發出一個請求
+
+如下為一個GET請求
+http://localhost:8080/test.jsp?search=anita&amp;music=value
+
+以一個URL開始 作為請求地址 
+? 後是參數 
+以 = 隔開參數名 參數值
+多個參數以 &amp; 隔開
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="POST"></a>
+	<p><font color="#FF0000">POST</font>
+<pre>POST 同 GET 只不過 其不通過 網頁地址 傳遞參數 而是將參數移到 最後的信息體中
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="GETPOST"></a>
+	<p><font color="#FF0000">GET or POST</font>
+<pre>GET
+	將網頁結構保存為書籤
+    
+	單純請求數據 而不改變服務器狀態的
+POST
+	參數很長
+	上傳大量數據
+	參數包含 密碼 用戶名 等敏感信息
+	不期望瀏覽器從緩存中讀取的網頁
+
+	請求數據後 改變服務器狀態的
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">GET POST</font>
+<pre>在form中可以通過 method 屬性指定請求方式
+&lt;form method="get" action="http://google.com" name = "test"&gt;
+</pre>
+	</p>
+    <p><font color="#FF0000">GET or POST</font>
+<pre>一些瀏覽器 URL相同 會從緩存讀取數據 而非從服務器請求
+此時 若需要 瀏覽器 請求服務器 就需要使用POST 會在GET請求時 附加上時間戳
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="Servlet"></a>
+	<p><font color="#FF0000">Servlet 請求/響應</font>
+<pre>1	客戶端向web服務器發出請求
+2	服務器接到請求 將請求交給web容器處理
+3	web容器 解析請求 創建各種對象(HttpServletRequest HttpServletResponse HttpSession ...)
+4	web容器 根據URL將請求 交給對於Servlet處理
+5	Servlet 響應請求
+6	web容器餘服務器溝通 服務器將響應轉換為http響應 並回傳客戶端
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">注意</font>
+<pre>當請求 到達時 web容器 會新啟一個線程 故可能多個線程 在執行同一個 Servlet響應函數
+故需要 做線程 安全同步
+</pre>
+	</p>
+</div>    
+
+<div class="mydiv"><a name="MVC"></a>
+	<p><font color="#FF0000">MVC/Model 2</font>
+<pre>MVC/Model 2 既然 Model(模塊) View(視圖) Controller(控制器)
+
+Controlle	取得請求參數 驗證請求參數 轉發請求給Model 轉發請求給View
+
+Model	接受Controlle的請求調用 負責處理業務邏輯 負責數據存取邏輯
+
+VIEW	接受Controlle的請求調用 從Model取得運算結果 根據需要呈現畫面
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="eclipse"></a>
+	<p><font color="#FF0000">eclipse</font>
+<pre>神人當然可以 直接安裝 jre 之後用 vim 之類神器開始編程
+或者可以像正常人一樣安裝 IDE
+
+eclipse是個 開源 跨平台 免費 的IDE 提供了 jave ee 編程的環境
+解壓 eclipse 並打開
+修改	Preferences->Web->JSP Files->Encoding 為utf-8
+...	Preferences->Web->HTML Files->Encoding	...
+...	Preferences->Web->CSS Files->Encoding	...
+
+... Preferences->Server->Runtime Environment 設置 服務器
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">JQuery 提示</font>
+<pre>到<a href="http://www.spket.com/download.html">http://www.spket.com/download.html</a>
+下載 spket 插件 spket-1.6.23.zip 解壓 覆蓋 eclipse
+
+设置spket。
+Window -> Preferences -> Spket -> JavaScript Profiles -> New ； 输入“jQuery ”点击OK； 选择“jQuery ” 并点击“Add Library”然后在下拉条中选取“jQuery ”；
+选择 “jQuery ”并点击“Add File”，然后选中你下载的jQuery .js 文件；设成Default;
+
+设置js打开方式。
+Window -> Preferences ->General-> Editors-> File Associations-> 选择*.js 将 Spket JavaScript Editor设为Default。
+</pre>
+	</p>
+    
+	<p><font color="#FF0000">注意</font>
+<pre>eclipse使用的真实项目位置在	\.metadata\.plugins \org.eclipse.wst.server.core\tmp0\wtpwebapps\	下
+对于eclipse不更新 可以先将本项目移除 之后从新导入
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="path"></a>
+	<p><font color="#FF0000">路徑</font>
+<pre>./	當前路徑
+../	上一級目錄
+/	站點根目錄
+</pre>
+	</p>
+</div>
+ 
+</td></tr></table>
+</body>
+</html>

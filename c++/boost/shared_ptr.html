@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>shared_ptr</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#atii">智能指針</a>
+		<a href="#scoped_ptr">scoped_ptr</a>
+		<a href="#shared_ptr">shared_ptr</a>
+		<a href="#weak_ptr">weak_ptr</a>
+		<a href="#pool">pool</a>
+		<a href="#object_pool">object_pool</a>
+		<a href="#singleton_pool">singleton_pool</a>
+		<a href="#pool_alloc">pool_alloc</a>
+	</div>
+
+	<div class="note"><a name="atii"></a>
+		<p><span class="flag">智能指針</span>
+<pre>c++程序 由程序員由new從堆上申請內存 並由程序員 由delete釋放
+但如果程序員 未delete 或程序異常等導致 正常結束流程的delete不能執行 內存將永遠無法被釋放 於是發生內存洩漏
+智能指針 便是為處理 此情況而開發的
+智能指針 完成了 類似java c# 等等垃圾回收機制 但比之更好
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="scoped_ptr"></a>
+		<p><span class="flag">scoped_ptr</span>
+<pre>scoped_ptr 是一個在某作用域內的 智能指針 
+scoped_ptr 通過一個 new 指針 或 auto_ptr  或0  構造 獲取指針管理權
+一旦 構造 便不能 改變管理權
+指針 將在 scoped_ptr 析構時 被釋放
+
+scoped_ptr 不能比較 賦值
+</pre>
+		</p>
+		<p><span class="flag">相關接口</span>
+<pre>//構造
+scoped_ptr( T * p = 0 )
+scoped_ptr( std::auto_ptr&lt;T&gt; p )
+
+//返回原始指針 但不能 delete
+T * get() const 
+//交換兩個scoped_ptr (一般不該使用 此為實現 reset )
+void swap(scoped_ptr & b) 
+//delete 已有指針 獲取新指針管理權
+void reset(T * p = 0)
+
+operator
+bool	//返回內部是否擁有指針
+->
+*
+</pre>
+		</p>
+		<p><span class="flag">scoped_array</span>
+<pre>scoped_array 用法同 scoped_ptr
+不過是對 new [] delete[] 的包裝
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="shared_ptr"></a>
+		<p><span class="flag">shared_ptr</span>
+<pre>shared_ptr是boost庫下 最有價值的一個組件 是一個引用計數型的智能指針
+善用shared_ptr能 完全替換代碼中的 new 和 delete
+</pre>
+		</p>
+		<p><span class="flag">構造函數</span>
+<pre>shared_ptr()				//構造空智能指針
+shared_ptr(T* lp)			//構造保存lp的智能指針
+shared_ptr(T* lp, D d)			//同上不過同時指定一個刪除器
+shared_ptr(const shared_ptr &amp; r)	//和另外一個 shared_ptr 共享指針(引用計數+1)
+shared_ptr(std::auto_ptr &amp; r)		//接管 auto_ptr 的指針
+
+rest()				//放棄對指針的所有權 引用計數-1
+</pre>
+		</p>
+		<p><span class="flag">其他方法</span>
+<pre>bool unique()		//返回shared_ptr是否是指針對唯一所有者
+long use_count()		//返回指針的引用計數 但不推薦使用 其效率低下 且極少情況下可能不可用
+==					//比較內部保存的指針是否相等
+&lt;				//比較...大小(用於將shared_ptr 保存到關聯容器中)
+T* get()			//返回內部保存的指針
+
+//不能使用std中的轉化 轉化指針類型 需要使用boost中的方法
+boost::shared_ptr&lt;std::exception&gt; sp1(new std::bad_exception("test"));
+//向子類指針轉換
+boost::shared_ptr&lt;std::bad_exception&gt; sp2=boost::dynamic_pointer_cast&lt;std::bad_exception&gt;(sp1);
+//向父類指針轉換
+boost::shared_ptr&lt;std::exception&gt; sp3=boost::static_pointer_cast&lt;std::exception&gt;(sp2);
+
+boost::shared_ptr&lt;T&gt;  p(t);
+assert(p);					//隱式轉換為bool p是否保存有效的指針
+
+make_shared工廠函數 返回一個shared_ptr
+make_shared最多接收10個函數 比直接使用new快
+</pre>
+		</p>
+		<p><span class="flag">shared_ptr應用於stl容器</span>
+<pre>//將容器作為shared_ptr管理對象<
+shared_ptr&lt;list&lt;T&gt;&gt;
+
+//在容器中保存shared_ptr(這和直接保存 指針一樣 其實對shared_ptr的操作 就可以看作實際在操作指針)
+list&lt;shared_ptr&lt;T&gt;&gt;   
+</pre>
+		</p>
+		<p><span class="flag">刪除器</span>
+<pre>若指定了刪除器D 在shared_ptr引用計數為0時 不會以 delete lp 釋放資源
+而是調用 D(lp)
+删除器是一个 void D(T* lp) 的函数对象 lp是shared_ptr管理的指针
+</pre>
+		</p>
+		<p><span class="flag">shared_array</span>
+<pre>其行為類似shared_ptr 同樣是引用計數指針<br />
+不過對 new [] 和delete [] 智能化罷
+</pre>
+		</p>
+	</div>
+
+
+	<div class="note"><a name="weak_ptr"></a>
+		<p><span class="flag">weak_ptr</span>
+<pre>weak_ptr 並非智能指針 其被設置為 配合 shared_ptr 工作
+以用於 觀察 shared_ptr 的 使用情況
+
+weak_ptr通過一個 weak_ptr 或 shared_ptr 構造 獲取其觀測權
+</pre>
+		</p>
+		<p><span class="flag">相關接口</span>
+<pre>//構造
+weak_ptr()
+weak_ptr(const weak_ptr&amp;)
+weak_ptr(const shared_ptr&amp;)
+
+//返回 shared_ptr 引用計數
+long use_count()
+//返回 use_count()==0 但更快
+bool expired()	 
+//放棄 觀測權
+void reset()
+//交換 weak_ptr
+void swap(weak_ptr&amp; other)
+//返回 觀測的shared_ptr 由觀測者 到管理者的 轉變
+shared_ptr&lt;T&gt; lock()
+</pre>
+		</p>
+		<p><span class="flag">獲取this的shared_ptr</span>
+<pre>weak_ptr 的一個重要功能 便是 通過 lock 獲取 this 的 shared_ptr
+boost 為此 提供了 通用方案
+1	既從 enable_shared_from_this 派生
+2	調用 shared_from_this 返回shared_ptr
+#include&lt;boost\enable_shared_from_this.hpp&gt;
+</pre>
+		</p>
+		<p><span class="flag">enable_shared_from_this example</span>
+<pre>#include&lt;boost\smart_ptr.hpp&gt;
+#include&lt;boost\enable_shared_from_this.hpp&gt;
+
+class Test
+	:public boost::enable_shared_from_this&lt;Test&gt;
+{
+public:
+	~Test()
+	{
+		puts("end");
+	}
+};
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	boost::shared_ptr&lt;Test&gt; ptr	=	boost::make_shared&lt;Test&gt;();
+	{
+		boost::shared_ptr&lt;Test&gt; sPtr	=	ptr->shared_from_this();
+		ptr.reset();
+	}
+	puts("--");
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>enable_shared_from_this的 子類 必須使用 shared_ptr包裝 才能調用 shared_from_this 
+不能原始指針 或 靜態變量 調用 enable_shared_from_this
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="pool"></a>
+		<p><span class="flag">pool</span>
+<pre>#include&lt;boost\pool\pool.hpp&gt;
+
+pool 提供了一個 內存池 其可以管理 POD 型別
+
+pool 需要傳入一個模板參數(內存分配算法) 和一個大小(malloc 每次從 內存池 分配內存 大小)
+</pre>
+		</p>
+		<p><span class="flag">相關接口</span>
+<pre>//從 內存池 分配一塊內存 大小由於構造時 指定 失敗返回0
+void * malloc()
+//釋放內存 如果不是從 內存池分配的 什麼都不做
+void free(void * const chunk)
+//釋放數組
+void free(void * const chunk,size_type n)
+
+
+//同 malloc 不過會 同時 合併 空閒鍊錶
+void * ordered_malloc();
+//同 ordered_malloc 不過 分配 n個 連續內存塊(分配數組)
+void * ordered_malloc(size_type n);
+
+//同 free 不過會 同時 合併 空閒鍊錶
+void ordered_free(void * const chunk)
+void ordered_free(void * const chunk,size_type n)
+
+//返回 內存 是否由內存池 分配
+bool is_from(void * const chunk) const
+//將內存池未使用的內存 釋放給系統
+bool release_memory();
+//將內存池 所有內存 釋放給 系統
+bool purge_memory();
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include&lt;boost\pool\pool.hpp&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//一個管理 int 的 內存池
+	boost::pool&lt;&gt; pool(sizeof(int));
+
+	int* lp	=	(int*)pool.malloc();
+	pool.is_from(lp);
+	pool.free(lp);
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>free 是將 內存 歸還給 內存池 而非 系統
+
+purge_memory 會在 內存池 析構時 被自動調用
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="object_pool"></a>
+		<p><span class="flag">object_pool</span>
+<pre>#include&lt;boost\pool\object_pool.hpp&gt;
+
+object_pool 是 pool 的 子類 接口類似 pool
+object_pool 增加了 construct destroy 替代 malloc free 其會調用 類的 構造析構函數
+
+object_pool 構造時 需要傳入 一個類 作為 object_pool 每次分配的對象
+</pre>
+		</p>
+		<p><span class="flag">相關接口</span>
+<pre>//分配一個 對象指針 最多傳入3個參數 給對象構造
+element_type * construct()
+element_type * construct(...)
+
+//釋放對象 指針
+void destroy(element_type * const chunk)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include&lt;boost\pool\object_pool.hpp&gt;
+
+class Test
+{
+public:
+	Test()
+	{
+		puts("test");
+	}
+	~Test()
+	{
+		puts("~test");
+	}
+};
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//一個管理 Test 的 內存池
+	boost::object_pool&lt;Test&gt; pool;
+
+	Test* ptr	=	pool.construct();
+	pool.destroy(ptr);
+
+	
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>object_pool 要求 分配對象的 析構函數 不能拋出異常
+
+且 一旦指定了 分配對象 object_pool 不能在分配其他指針
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="singleton_pool"></a>
+		<p><span class="flag">singleton_pool</span>
+<pre>#include&lt;boost\pool\singleton_pool.hpp&gt;
+
+singleton_pool 的接口 完全同 pool 不過其為一個 單件
+
+singleton_pool 需要再模板中 傳入一個空類(作為單件的 標記) 一個大小(每次 malloc的大小)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include&lt;boost\pool\singleton_pool.hpp&gt;
+
+//一個標記
+class pool_tag{};
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//聲明一個單件
+	typedef boost::singleton_pool&lt;pool_tag,sizeof(int)&gt; singleton_pool;
+	
+	int* ptr	=	(int*)singleton_pool.malloc();
+	singleton_pool.free(ptr);
+	
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="pool_alloc"></a>
+		<p><span class="flag">pool_alloc</span>
+<pre>#include&lt;boost\pool\pool_alloc.hpp&gt;
+
+pool_alloc 提供了兩個 pool_allocator fast_pool_allocator 以用於 std 標準模板的 內存分配器
+</pre>
+		</p>
+		<p><span class="flag">pool_alloc</span>
+<pre>#include&lt;boost\pool\pool_alloc.hpp&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	std::vector&lt;int,boost::fast_pool_allocator&lt;int&gt;&gt; v;
+	v.push_back(1);
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>boost 提供的前3個 內存池 內存失敗時 返回0
+但  pool_alloc 內存失敗時 會拋出 std::bad_alloc 以符合 STL 標準
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

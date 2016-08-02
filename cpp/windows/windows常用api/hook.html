@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>hook</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<table align="center"><tr><td>
+	<p><h1><font color="#FF0000">hook</font></h1></p>
+    <p><h2>window系统是建立在消息驱动之上的 <br />win api运行程序安装一个hook 以拦截消息</h2></p>
+    
+    
+    <p>
+    <h2>
+    <a href="#query">一般步骤</a><br />
+    <a href="#example">example</a><br />
+    
+    </h2></p>
+    
+    <div class="div_box"><a name="query"></a><p><h3>
+        <p><h2><font color="#FF0000">一般步骤</font></h2><br />
+		1 在dll的maill中 保存传入 的dll HINSTANCE 实例句柄 <br />
+        2 定义一个安装hook的函数 并导出<br />
+        3 定义一个卸载hook的函数 并导出<br />
+        4 应用程序链接dll 调用安装hook 卸载hook
+        </p>
+    </h3></p></div>
+    
+    <div class="div_box"><a name="example"></a><p><h3>
+        <p><h2><font color="#FF0000">example</font></h2>
+        	
+            <p><h2><font color="#FF0000">全局变量</font></h2>
+            <pre>HHOOK hHook=NULL;//保存hook句柄
+HINSTANCE hinstance;//保存dll实例句柄</pre>
+            </p>        
+            <p><h2><font color="#FF0000">DllMain</font></h2><br />
+            <pre>BOOL WINAPI DllMain( HINSTANCE hinstDLL,DWORD fdwReason,LPVOID lpvReserved)
+{
+	switch(fdwReason)
+	{
+	case DLL_PROCESS_ATTACH:
+		hinstance=hinstDLL;
+		break;
+	case DLL_PROCESS_DETACH:
+	case DLL_THREAD_ATTACH:
+	case DLL_THREAD_DETACH:
+		break;
+	}
+	return TRUE;
+ }</pre>
+            </p>        
+            
+            <p><h2><font color="#FF0000">SetHook</font></h2>
+            <pre>bool SetHook() //安装钩子
+{
+	hHook=SetWindowsHookEx(WH_KEYBOARD_LL,//hook类型用于指定 拦截的消息
+		LowLevelKeyboardProc,//hook回调函数
+		hinstance,//dll实例句柄 为0 hook本进程
+		0);// 被hook的线程id(本線程或 由此線程派生線程 對於其他進程的線程無效) 为0代表hook整个系统
+	return hHook!=NULL;
+}</pre>
+			</p>
+            
+            <p><h2><font color="#FF0000">UnSetHook</font></h2>
+            <pre> bool UnSetHook()//移除钩子
+{
+	if(hHook!=NULL)
+	{
+		return UnhookWindowsHookEx(hHook)!=0;
+	}
+	return true;
+}</pre>
+			</p>
+            
+            <p><h2><font color="#FF0000">回調</font></h2>
+            <pre>LRESULT CALLBACK LowLevelKeyboardProc(int nCode,WPARAM wParam,  LPARAM lParam )
+{
+/*WH_KEYBOARD
+	if (wParam==VK_F2)
+	{	
+		UnSetHook();
+		return TRUE;
+	}
+
+	//中断消息传递
+	return TRUE;
+	//传递消息继续
+	return CallNextHookEx(hHook,nCode,wParam,lParam);*/
+   
+    if(WM_SYSKEYUP==wParam ||  WM_KEYUP==wParam)
+	{
+		PKBDLLHOOKSTRUCT lp=(PKBDLLHOOKSTRUCT)lParam;
+		if (lp->vkCode==VK_F2 )
+		{	
+			statue=false;
+		}
+		if (lp->vkCode==VK_F1)
+		{	
+			statue=true;
+		}
+	}
+	//传递消息继续
+	return CallNextHookEx(hHook,nCode,wParam,lParam);
+}</pre>
+            
+            </pre>
+        </p>
+    </h3></p></div>
+    
+   
+</td></tr></table>
+</body>
+</html>

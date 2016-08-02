@@ -1,0 +1,137 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#http">net/http</a>
+		<a href="#client">client</a>
+		
+			
+	</div>
+
+	<div class="note"><a name="http"></a>
+		<p><span class="flag">net/http</span>
+<pre>net/http 提供了 對http協議的封裝
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="client"></a>
+		<p><span class="flag">client</span>
+<pre>package main
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"log"
+	"mime/multipart"
+	"net/http"
+	"os"
+)
+
+type Info struct {
+	Fid       string
+	Url       string
+	PublicUrl string
+	Count     int
+}
+
+func main() {
+	info := &Info{}
+	/*e := GetVolume(info)
+	if e!=nil{
+		log.Fatal(e)
+	}*/
+	info.Fid = "3,0420491ad3"
+	info.Url = "192.168.1.254:8080"
+	file := "1.jpg"
+	e := PostFile(info, file)
+	if e != nil {
+		log.Fatal(e)
+	}
+}
+
+<span class="care">//POST 文件 example</span>
+func PostFile(info *Info, file string) error {
+	//打開文件
+	f, e := os.Open(file)
+	if e != nil {
+		return e
+	}
+	defer f.Close()
+	//創建body
+	body := &bytes.Buffer{}
+
+	//創建 part
+	writer := multipart.NewWriter(body)
+	//Content-Disposition: form-data; name="file"; filename="1.jpg"
+	part, err := writer.CreateFormFile("file", file)
+	if err != nil {
+		return err
+	}
+	//複製 byte 數據
+	_, err = io.Copy(part, f)
+
+	err = writer.Close()
+	if err != nil {
+		return err
+	}
+
+	//創建 request 請求
+	url := fmt.Sprintf("http://%v/%v", info.Url, info.Fid)
+	request, e := http.NewRequest("POST", url, body)
+	if e != nil {
+		return e
+	}
+	//設置 Content-Type
+	request.Header.Set("Content-Type", writer.FormDataContentType())
+
+	//發送POST請求
+	client := &http.Client{}
+	r, err := client.Do(request)
+	if err != nil {
+		return nil
+	}
+
+	//處理 回傳結果
+	b, e := ioutil.ReadAll(r.Body)
+	if e != nil {
+		return e
+	}
+	fmt.Println(string(b))
+
+	return nil
+}
+
+<span class="care">//Get Example</span>
+func GetVolume(info *Info) error {
+	r, e := http.Get("http://192.168.1.254:9333/dir/assign")
+	if e != nil {
+		return e
+	}
+	b, e := ioutil.ReadAll(r.Body)
+	if e != nil {
+		return e
+	}
+	e = json.Unmarshal(b, &info)
+	if e != nil {
+		return e
+	}
+	return nil
+}
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+

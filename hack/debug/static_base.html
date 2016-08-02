@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>逆向分析</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#scan">掃描</a>
+		<a href="#strings">搜索字符串</a>
+		<a href="#garble">代碼混淆</a>
+		<a href="#PE">PE文件格式</a>
+		<a href="#link">鏈接</a>
+		
+		
+	</div>
+
+	<div class="note"><a name="scan"></a>
+		<p><span class="flag">掃描</span>
+<pre>一般 對一個未知 程序的第一步 是上傳到 類似 
+<a href="https://www.virustotal.com/" target="_blank">https://www.virustotal.com/</a>
+的網站 可以讓 多個 反病毒 軟體 進行掃描 看是否有 能 識別出的信息
+
+之後可以 試下 google 文件的 hash 看是否有 識別出此 文件的 信息
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="strings"></a>
+		<p><span class="flag">搜索字符串</span>
+<pre>搜索 程序中的 字符串 是一個簡單的 猜測程序功能的 方法
+可以使用strings完成此步驟<a target="_blank" href="http://technet.microsoft.com/en-us/sysinternals/bb897439">http://technet.microsoft.com/en-us/sysinternals/bb897439</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="garble"></a>
+		<p><span class="flag">代碼混淆</span>
+<pre>代碼混淆 是用來隱藏 代碼功能的 一種技術 最常用的 是加壳
+
+一般 壳會 壓縮 加密 程序 程序運行時先運行壳的脫壳代碼 之後運行程序
+壳會嚴重 影響 靜態分析
+
+一般可以使用 peid 檢測常用的 壳
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>peid 的一些插件 會在沒有任何提示的 情況下 運行 可執行文件
+故 一定要在 安全的環境下 進行逆向
+
+一般壳至少會 包含 LoadLibrary GetProcAddress 函數
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="PE"></a>
+		<p><span class="flag">PE文件格式</span>
+<pre>windows 下的可執行文件 使用PE文件格式
+其中包含了 windows 加載器 必要的代碼信息
+(一些惡意代碼 會故意使用 過時的 兼容格式)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="link"></a>
+		<p><span class="flag">鏈接</span>
+<pre>靜態鏈接很難被 識別 因為其不會在 PE 文件頭 中 存在任何信息
+
+運行時鏈接 大量使用在 惡意代碼中
+(LoadLibrary GetProcAddress LdrGetProcAddress LdrLoadDll)
+
+動態鏈接 導入表中 記錄了動態鏈接的 詳細函數 信息
+可以使用 Dependency Walker 查看<a href="http://www.dependencywalker.com/">http://www.dependencywalker.com/</a>
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+

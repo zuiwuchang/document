@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>design-pattern</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#strategy-pattern">strategy-pattern 策略模式</a>
+		<a href="#example">example</a>
+	</div>
+
+	<div class="note"><a name="strategy-pattern"></a>
+		<p><span class="flag">strategy-pattern 策略模式</span>
+<pre>定義了算法族 分別封裝起來 讓它們之間 可以互相替換
+此模式讓算法的 變化 獨立於 使用算法的 客戶
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="example"></a>
+		<p><span class="flag">example</span>
+<pre>設想 有個 遊戲 需要實現 不同的 角色 
+角色可以使用 不同的武器 進行攻擊
+(現在有3種 角色 
+對話 npc 不能 攻擊
+
+戰士 使用 刀/劍 攻擊
+刺客 使用 匕首 攻擊
+
+將來 可能增加其他角色 使用 其他方式 攻擊
+)
+
+將 武器攻擊 封裝成算法族 以使得武器增加修改 賦予彈性
+</pre>
+		</p>
+		<p><span class="flag">example code</span>
+<pre>package main
+
+import (
+	"fmt"
+)
+
+//定義 算法族 接口
+type AttackInterface interface {
+	Attack()
+}
+
+//不能 攻擊
+type AttackNoWay struct {
+	I int
+}
+
+func (a *AttackNoWay) Attack() {
+	fmt.Println("不能 攻擊")
+}
+
+//刀 攻擊
+type AttackKnife struct {
+}
+
+func (a *AttackKnife) Attack() {
+	fmt.Println("刀 攻擊")
+}
+
+//劍 攻擊
+type AttackSword struct {
+}
+
+func (a *AttackSword) Attack() {
+	fmt.Println("劍 攻擊")
+}
+
+//匕首 攻擊
+type AttackDagger struct {
+}
+
+func (a *AttackDagger) Attack() {
+	fmt.Println("匕首 攻擊")
+}
+
+//定義 角色 基本行為 oo中的 基類
+type RoleInterface interface {
+	PerformAttack()
+	ChangeAttack(attack AttackInterface)
+}
+
+type Role struct {
+	AttackI AttackInterface
+}
+
+func (r *Role) PerformAttack() {
+	if r.AttackI != nil {
+		r.AttackI.Attack()
+	}
+}
+func (r *Role) ChangeAttack(attack AttackInterface) {
+	r.AttackI = attack
+}
+
+type Npc struct {
+	Role
+}
+
+func MakeNpc() *Npc {
+	rs := &Npc{}
+	rs.AttackI = &AttackNoWay{}
+	return rs
+}
+
+type Soldier struct {
+	Role
+}
+
+func MakeSoldier() *Soldier {
+	rs := &Soldier{}
+	rs.AttackI = &AttackKnife{}
+	return rs
+}
+
+type Assassin struct {
+	Role
+}
+
+func MakeAssassin() *Assassin {
+	rs := &Assassin{}
+	rs.AttackI = &AttackDagger{}
+	return rs
+}
+
+func main() {
+	roles := make([]RoleInterface, 0, 10)
+	roles = append(roles, MakeNpc())
+	roles = append(roles, MakeSoldier())
+	//使用 劍 工具 的 戰士
+	s := MakeSoldier()
+	s.ChangeAttack(&AttackSword{})
+	roles = append(roles, s)
+
+	roles = append(roles, MakeAssassin())
+
+	for _, v := range roles {
+		v.PerformAttack()
+	}
+}
+</pre>
+		</p>
+		<p><span class="flag">增加職業</span>
+<pre>如果 要增加 職業 只需要 為其 定義 新的 攻擊 算法族 就行 
+而影響 已存在的 職業
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

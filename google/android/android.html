@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>android</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#android">android</a>
+		<a href="#evi">環境配置 win32</a>
+		<a href="#debug">真機調試</a>
+	</div>
+
+	<div class="note"><a name="android"></a>
+		<p><span class="flag">android</span>
+<pre>android 由 google 以linux為基礎研發 於2007年 開始 發行的一個 開源(Apache 2.0)的os(其中部分組件為專有組件) 主要用於 手持設備
+
+<a href="http://www.android.com/" target="_blank">http://www.android.com/</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="evi"></a>
+		<p><span class="flag">環境配置 win32</span>
+<pre>1	安裝 java jdk(1.6/1.7)
+2	安裝 android studio ide  <a target="_blank" href="http://developer.android.com/sdk/index.html">http://developer.android.com/sdk/index.html</a>
+	(其中包含了 sdk 包)
+	//	若不安裝 官方 ide 亦可 安裝 sdk eclipse adt 插件 ...
+
+
+
+2	安裝 android sdk <a target="_blank" href="http://developer.android.com/sdk/index.html">http://developer.android.com/sdk/index.html</a>
+3	運行 SDK Manager 下載安裝 必要組件
+4	下載安裝 Eclipse IDE for Java Developers <a target="_blank" href="http://www.eclipse.org/downloads/">http://www.eclipse.org/downloads/</a>
+5	安裝adt插件 
+	運行 eclipse help->install new software
+	Add 增加倉庫 name:ADT Location:https://dl-ssl.google.com/android/eclipse/ 安裝之
+
+	//離線 安裝 adt 下載 adt 插件 <a target="_blank" href="http://dl.google.com/android/ADT-23.0.6.zip">http://dl.google.com/android/ADT-23.0.6.zip</a>(23.0.6)是adt版本號
+	運行 eclipse help->install new software
+	Add 增加倉庫 name:ADT Location:  點擊 按鈕Archive... 後 選擇 下載的ADT 安裝之
+	(sdk 餘對應 adt 見 <a target="_blank" href="http://developer.android.com/tools/sdk/eclipse-adt.html">http://developer.android.com/tools/sdk/eclipse-adt.html</a>)
+</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="debug"></a>
+		<p><span class="flag">真機調試</span>
+<pre>1	在sdk中 安裝 google use driver
+2	打開手機 usb調試 功能
+3	進入手機「設定」->「儲存空間」->右上角的「USB 電腦連線」 把連線方式中的「媒體裝置 (MTP)」與「相機 (PTP)」取消勾選
+4	用usb 連接手機 到 pc
+5	在window設備管理中 安裝 手機驅動 驅動路徑選擇 use driver 的安裝 路徑
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

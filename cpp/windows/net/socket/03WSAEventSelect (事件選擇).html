@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>03WSAEventSelect (事件選擇)</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+
+    <p><h1><font color="#FF0000">WSAEventSelect (事件選擇)</font></h1></p>
+    
+    <h2>
+    <a href="#WSAAsyncSelect">WSAEventSelect</a><br />
+    
+    
+    </h2>
+    
+    <div class="div_box"><a name="WSAAsyncSelect"></a><p><h3>
+    	<p><h2><font color="#FF0000">WSAEventSelect</font></h2>
+        WSAEventSelect 模型 可以將socket 事件綁定到一個WSAEVENT 上 並註冊關心的網絡事件<br />
+       	當有網絡事件發生 餘socket 綁定的事件將變為 激發態<br /><br />
+        
+        </p>
+      	<p><h2><font color="#FF0000">相關API</font></h2>
+<pre>
+//創建一個 WSAEVENT 失敗返回WSA_INVALID_EVENT (NULL) (以 人工重置 方式工作 初始化為 未激發)
+//如果需要自動重置 可以使用 CreateEvent 
+WSAEVENT  WSACreateEvent (void);
+
+//關閉 WSAEVENT 句柄
+BOOL WSACloseEvent(
+  __in  WSAEVENT hEvent
+);
+
+//將 WSAEVENT 設置為未激發
+BOOL WSAResetEvent(
+  __in  WSAEVENT hEvent
+);
+
+//將 WSAEVENT 設置為激發態
+BOOL WSASetEvent(
+  __in  WSAEVENT hEvent
+);
+
+//將socket和WSAEVENT綁定 失敗返回 SOCKET_ERROR 
+int WSAEventSelect(
+  __in  SOCKET s,
+  __in  WSAEVENT hEventObject,
+  __in  long lNetworkEvents		//關心的網絡事件 FD_READ FD_WRITE FD_ACCEPT FD_CONNECT FD_CLOSE ...
+);
+
+<font color="#FF0000">//等待網絡事件</font>
+DWORD WSAWaitForMultipleEvents(
+  __in  DWORD cEvents,				//等待的WSAEVENT數組大小
+  __in  const WSAEVENT* lphEvents,		//WSAEVENT數組地址
+  __in  BOOL fWaitAll,				//TRUE 全部激發才返回
+  __in  DWORD dwTimeout,			//等待超時 WSA_INFINITE 一直等待
+  __in  BOOL fAlertable				//FALSE (當用於重疊i/o時才啟用)
+);
+<font color="#FF0000">WSAWaitForMultipleEvents返回值</font>
+WSA_WAIT_FAILED	函數失敗
+
+(WSA_WAIT_IO_COMPLETION fAlertable設置為TRUE時 用於重疊i/o)
+
+WSA_WAIT_TIMEOUT
+
+WSA_WAIT_EVENT_0 to (WSA_WAIT_EVENT_0 + cEvents - 1)
+
+返回值-WSA_WAIT_EVENT_0 為使WSAWaitForMultipleEvents返回的WSAEVENT在數組中的 索引
+
+<font color="#FF0000">//檢索發生的網絡事件</font>
+int WSAEnumNetworkEvents(	
+  __in   SOCKET s,								//應該是發生網絡事件的socket
+  __in   WSAEVENT hEventObject,					//將此WSAEVENT 設置為未發態 (不需要傳入NULL)
+  __out  LPWSANETWORKEVENTS lpNetworkEvents		//返回具體的網絡事件
+);
+
+typedef struct _WSANETWORKEVENTS {  
+long lNetworkEvents;  				//FD_READ FD_WRITE ...等事件安位 &amp;
+int iErrorCode[FD_MAX_EVENTS];		//FD_READ_BIT FD_WRITE_BIT ...等事件錯誤碼(既是否發生錯誤) 0為發生錯誤
+} WSANETWORKEVENTS,  *LPWSANETWORKEVENTS;
+
+<font color="#FF0000">檢索事件 example</font>
+if (NetwordEvents.lNetworkEvents &amp; FD_READ)	//發生可讀事件
+{
+	if (NetworkEvents.iErrorCode[FD_READ_BIT] != 0)	//可讀錯誤
+	{
+		printf("FD_READ failed with error %d\n", NetworkEvents.iErrorCode[FD_READ_BIT]);
+	}
+}
+</pre>
+        </p>
+        
+      <p><h2><font color="#FF0000">注意</font></h2>
+      就WSAEventSelect而言 (對於遠程斷開 會觸發FD_CLOSE iErrorCode[FD_CLOSE_BIT];為0) (遠程異常斷開FD_CLOSE iErrorCode[FD_CLOSE_BIT]為1)<br />
+      對於錯誤的socket (一個已經關閉的socket)其可能會不斷的FD_READ 而 iErrorCode[FD_READ_BIT]為0 (此時可以通過 recv 返回值是否小於0 判斷sock是否正常)
+      </p>
+   	</h3></p></div>
+    
+    
+</td></tr></table>
+</body>
+</html>

@@ -1,0 +1,295 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Sublime Text 3</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#Sublime_Text_3">Sublime Text 3</a>
+		<a href="#linux">linux 中文輸入</a>
+		<a href="#plugin">插件安裝</a>
+		<a href="#fast">快捷鍵</a>
+	</div>
+		
+	<div class="note">
+		<p><a name="Sublime_Text_3"></a><span class="flag">Sublime Text 3</span>
+<pre>Sublime Text 3 一個高效 跨平台 超讚的文本編輯器
+官網<a href="http://www.sublimetext.com/3" target="_blank">http://www.sublimetext.com/3</a>
+
+3059註冊碼
+----- BEGIN LICENSE ----
+Andrew Weber
+Single User License
+EA7E-855605
+813A03DD 5E4AD9E6 6C0EEB94 BC99798F
+942194A6 02396E98 E62C9979 4BB979FE
+91424C9D A45400BF F6747D88 2FB88078
+90F5CC94 1CDC92DC 8457107A F151657B
+1D22E383 A997F016 42397640 33F41CFC
+E1D0AE85 A0BBD039 0E9C8D55 E1B89D5D
+5CDB7036 E56DE1C0 EFCC0840 650CD3A6
+B98FC99C 8FAC73EE D2B95564 DF450523
+------ END LICENSE ------
+
+
+
+3103註冊碼
+—– BEGIN LICENSE —–
+Michael Barnes
+Single User License
+EA7E-821385
+8A353C41 872A0D5C DF9B2950 AFF6F667
+C458EA6D 8EA3C286 98D1D650 131A97AB
+AA919AEC EF20E143 B361B1E7 4C8B7F04
+B085E65E 2F5F5360 8489D422 FB8FC1AA
+93F6323C FD7F7544 3F39C318 D95E6480
+FCCC7561 8A4A1741 68FA4223 ADCEDE07
+200C25BE DBBC4855 C4CFB774 C5EC138C
+0FEC1CEF D9DCECEC D3A5DAD1 01316C36
+—— END LICENSE ——
+
+—– BEGIN LICENSE —–
+Nicolas Hennion
+Single User License
+EA7E-866075
+8A01AA83 1D668D24 4484AEBC 3B04512C
+827B0DE5 69E9B07A A39ACCC0 F95F5410
+729D5639 4C37CECB B2522FB3 8D37FDC1
+72899363 BBA441AC A5F47F08 6CD3B3FE
+CEFB3783 B2E1BA96 71AAF7B4 AFB61B1D
+0CC513E7 52FF2333 9F726D2C CDE53B4A
+810C0D4F E1F419A3 CDA0832B 8440565A
+35BF00F6 4CA9F869 ED10E245 469C233E
+—— END LICENSE ——
+
+—– BEGIN LICENSE —–
+Anthony Sansone
+Single User License
+EA7E-878563
+28B9A648 42B99D8A F2E3E9E0 16DE076E
+E218B3DC F3606379 C33C1526 E8B58964
+B2CB3F63 BDF901BE D31424D2 082891B5
+F7058694 55FA46D8 EFC11878 0868F093
+B17CAFE7 63A78881 86B78E38 0F146238
+BAE22DBB D4EC71A1 0EC2E701 C7F9C648
+5CF29CA3 1CB14285 19A46991 E9A98676
+14FD4777 2D8A0AB6 A444EE0D CA009B54
+—— END LICENSE ——
+
+—– BEGIN LICENSE —–
+Alexey Plutalov
+Single User License
+EA7E-860776
+3DC19CC1 134CDF23 504DC871 2DE5CE55
+585DC8A6 253BB0D9 637C87A2 D8D0BA85
+AAE574AD BA7D6DA9 2B9773F2 324C5DEF
+17830A4E FBCF9D1D 182406E9 F883EA87
+E585BBA1 2538C270 E2E857C2 194283CA
+7234FF9E D0392F93 1D16E021 F1914917
+63909E12 203C0169 3F08FFC8 86D06EA8
+73DDAEF0 AC559F30 A6A67947 B60104C6
+—— END LICENSE ——
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="linux"></a>
+		<p><span class="flag">linux 中文輸入</span>
+<pre>sublime 存在一個linux下無法輸入中文的bug 一直沒有好的解決辦法
+如下方式也不能完美解決(輸入框依然 無法跟隨光標)
+
+1	//添加fcitx 源並安装 以及google拼音/或其他任意fcitx輸入法
+	sudo add-apt-repository ppa:fcitx-team/nightly
+	sudo apt-get install fcitx fcitx-config-gtk fcitx-googlepinyin	
+
+2	新建一從代碼sub-fcitx.c到sublime安裝目錄
+	/*
+	sublime-imfix.c
+	Use LD_PRELOAD to interpose some function to fix sublime input method support for linux.
+	By Cjacker Huang
+	 
+	gcc -shared -o libsublime-imfix.so sublime-imfix.c `pkg-config --libs --cflags gtk+-2.0` -fPIC
+	LD_PRELOAD=./libsublime-imfix.so subl
+	*/
+	#include &lt;gtk/gtk.h&gt;
+	#include &lt;gdk/gdkx.h&gt;
+	typedef GdkSegment GdkRegionBox;
+	 
+	struct _GdkRegion
+	{
+	  long size;
+	  long numRects;
+	  GdkRegionBox *rects;
+	  GdkRegionBox extents;
+	};
+	 
+	GtkIMContext *local_context;
+	 
+	void
+	gdk_region_get_clipbox (const GdkRegion *region,
+	            GdkRectangle    *rectangle)
+	{
+	  g_return_if_fail (region != NULL);
+	  g_return_if_fail (rectangle != NULL);
+	 
+	  rectangle->x = region->extents.x1;
+	  rectangle->y = region->extents.y1;
+	  rectangle->width = region->extents.x2 - region->extents.x1;
+	  rectangle->height = region->extents.y2 - region->extents.y1;
+	  GdkRectangle rect;
+	  rect.x = rectangle->x;
+	  rect.y = rectangle->y;
+	  rect.width = 0;
+	  rect.height = rectangle->height;
+	  //The caret width is 2;
+	  //Maybe sometimes we will make a mistake, but for most of the time, it should be the caret.
+	  if(rectangle->width == 2 && GTK_IS_IM_CONTEXT(local_context)) {
+	        gtk_im_context_set_cursor_location(local_context, rectangle);
+	  }
+	}
+	 
+	//this is needed, for example, if you input something in file dialog and return back the edit area
+	//context will lost, so here we set it again.
+	 
+	static GdkFilterReturn event_filter (GdkXEvent *xevent, GdkEvent *event, gpointer im_context)
+	{
+	    XEvent *xev = (XEvent *)xevent;
+	    if(xev->type == KeyRelease && GTK_IS_IM_CONTEXT(im_context)) {
+	       GdkWindow * win = g_object_get_data(G_OBJECT(im_context),"window");
+	       if(GDK_IS_WINDOW(win))
+	         gtk_im_context_set_client_window(im_context, win);
+	    }
+	    return GDK_FILTER_CONTINUE;
+	}
+	 
+	void gtk_im_context_set_client_window (GtkIMContext *context,
+	          GdkWindow    *window)
+	{
+	  GtkIMContextClass *klass;
+	  g_return_if_fail (GTK_IS_IM_CONTEXT (context));
+	  klass = GTK_IM_CONTEXT_GET_CLASS (context);
+	  if (klass->set_client_window)
+	    klass->set_client_window (context, window);
+	 
+	  if(!GDK_IS_WINDOW (window))
+	    return;
+	  g_object_set_data(G_OBJECT(context),"window",window);
+	  int width = gdk_window_get_width(window);
+	  int height = gdk_window_get_height(window);
+	  if(width != 0 && height !=0) {
+	    gtk_im_context_focus_in(context);
+	    local_context = context;
+	  }
+	  gdk_window_add_filter (window, event_filter, context);
+	}
+
+3	安裝編譯環境
+	sudo apt-get install build-essential
+	sudo apt-get install libgtk2.0-dev
+
+4	編譯之得到 libsublime-imfix.so
+	gcc -shared -o libsublime-imfix.so sub-fcitx.c  `pkg-config --libs --cflags gtk+-2.0` -fPIC
+
+5	之後全使用LD_PRELOAD=./libsublime-imfix.so ./sublime_text打開sublime
+	正常輸入中午
+</pre>
+		</p>
+	</div>
+	<div class="note">
+		<p><a name="plugin"></a><span class="flag">插件安裝</span>
+<pre>方式一
+	直接將插件複製到 Packages 文件夾下 即可
+
+方式二
+	使用 Package Control 需要(先安裝Package Control)
+	Preferences->Package Control 輸入 install Package 回車 
+	等待刷新插件列表 
+	選擇 插件安裝
+</pre>
+		</p>
+
+		<p><span class="flag">Package Control</span>
+<pre>view->show console->
+輸入如下代碼 回車
+import urllib.request,os,hashlib; h = '7183a2d3e96f11eeadd761d777e62404' + 'e330c659d4bb41d3bdf022e94cab3cd0'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://sublime.wbond.net/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)
+</pre>
+		</p>
+	</div>
+
+	<div class="note">
+		<p><a name="fast"></a><span class="flag">快捷鍵</span>
+		</p>
+
+		<p><span class="flag">選中相關</span>
+<pre>Ctrl + D	選中光標所在文本 (繼續此操作 選擇下一個相同文本)
+F3			選中下一個相同文本
+Alt + F3	選中所有相同文本
+Ctrl + L	選中整行
+Ctrl + SHIFT + L 同時編輯多行
+Ctrl + SHIFT + M	選中括號中的內容
+Ctrl + M	關光標移到括號尾
+Ctrl + SHIFT + ENTER 在上插入一行
+<span class="care">CTRL + SHIFT + [	折疊代碼</span>
+<span class="care">CTRL + SHIFT + ]	展開代碼</span>
+CTRL + &lt;	光標移到單詞首
+CTRL + &gt; ...尾
+CTRL + SHHIFT + UP/DOWN	將光標所在行和上/下一行交換
+
+...
+</pre>
+		</p>
+		<p><span class="flag">編輯相關</span>
+<pre>CTRL + J	合併多行
+CTRL + SHIFT + D	複製光標行並且插入到下一行
+CRTL + K + K	刪除光標到行尾
+CTRL + SHIFT + K	刪除整行
+Ctrl + / 註釋單行
+CTRL + SHIFT + /	註釋多行
+CTRL + K + U/L	轉大小寫
+
+CTRL + Z 撤銷
+CTRL + Y 恢復撤銷
+...
+</pre>
+		</p>
+	
+		<p><span class="flag">搜索相關</span>
+<pre>CTRL + F	在底部打開搜索框
+CTRL + SHIFT + F	在多文件中查找
+
+<span class="care">CTRL + P	打開高級搜索框 
+(	1	直接輸入查找文件名
+	2	@關鍵字 查找函數名
+	3	:數字	跳到指定行
+	4	#關鍵字	查找變量名)
+CTRL + R	同上不過已經自動輸入了@
+CTRL + G	... :
+CTRL + :	... #
+
+CTRL + SHIFT + P 打開命令框
+
+ESC	退出 多光標 搜索框 命令框
+
+...
+</span>
+</pre>
+		</p>
+
+		<p><span class="flag">顯示相關</span>
+<pre>CTRL + TAB 切換窗口標籤也
+CTRL + PageDown/PAGEUp	向左/右 切換標籤頁
+ALT + SHIFT + 1/2/3/4/5/6/7/8/9	窗口分屏為n
+
+F11	全屏
+SHIFT + F11 全屏 免打擾
+...
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

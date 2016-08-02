@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>virtual box</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css"></head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#virtual">virtual box</a>
+		<a href="#port">端口映射</a>
+		<a href="#android">android</a>
+		<a href="#cmd">常用命令</a>
+		<a href="#linux">linux 安裝增強功能</a>
+	</div>
+
+	<div class="note"><a name="virtual"></a>
+		<p><span class="flag">virtual box</span>
+<pre>virtual_box 一個 開源 跨平台 免費 的虛擬機軟件
+
+可以虛擬 Solaris Windows DOS Linux OS/2 Warp OpenBSD FreeBSD android等os
+可以支持 usb2.0接口 但需要安裝 Virtualbox Extension Pack
+
+其在3D渲染上 無法和 VMWare相比 然其消耗資源小 特別適合 安裝存終端的 Linux
+
+官網 <a href="https://www.virtualbox.org/" target="_blank">https://www.virtualbox.org/</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="port"></a>
+		<p><span class="flag">端口映射</span>
+<pre>主機 填入 本機ip 而非 虛擬os的網關地址
+<img src="image/virtual_box/port.PNG" />
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="android"></a>
+		<p><span class="flag">android</span>
+<pre>1	從 <a href="https://code.google.com/p/android-x86/downloads/list" target="_blank">https://code.google.com/p/android-x86/downloads/list</a> 
+	下載最新的 x86 iso鏡像安裝文件
+2	虛擬機新建 FreeBSD 系統
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="cmd"></a>
+		<p><span class="flag">常用命令</span>
+<pre>//為鏡像產生新的uuid
+VBoxManage  internalcommands sethduuid "E:\virtualbox\sb\sb.vdi"
+</pre>
+		</p>
+	</div>
+
+
+	<div class="note"><a name="linux"></a>
+		<p><span class="flag">linux 安裝增強功能</span>
+<pre>如果安裝增強功能 失敗 
+yum install kernel-devel //可能需要重啟後在安裝增強功能
+yum install gcc 
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

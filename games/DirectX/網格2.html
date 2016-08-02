@@ -1,0 +1,217 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>網格2</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="DirectX"><tr><td>
+<p>
+	<font color="#FF0000">網格2</font>
+</p>
+
+<p>
+	<a href="#ID3DXBuffer">ID3DXBuffer</a><br />
+    <a href="#XFile">XFile</a><br />
+    <a href="#ID3DXPMesh">ID3DXPMesh</a><br />
+    <a href="#D3DXComputeBoundingSphere">外接體</a><br />
+   
+   
+   
+</p>
+
+
+<div class="mydiv"><a name="ID3DXBuffer"></a>
+	<p><font color="#FF0000">ID3DXBuffer</font>
+<pre>ID3DXBuffer 是一種泛型數據結構
+
+其只提供了兩個接口
+LPVOID GetBufferPointer();	//返回緩存地址
+DWORD GetBufferSize();		//返回緩存大小
+
+使用
+HRESULT  D3DXCreateBuffer(
+  __in   DWORD NumBytes,
+  __out  LPD3DXBUFFER *ppBuffer
+);
+創建ID3DXBuffer
+
+ID3DXBuffer 是一個COM接口 故不需要時應該 Release()
+
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>	//創建一個 int[4] 數組
+	LPD3DXBUFFER	buffer_ptr	=	NULL;
+	D3DXCreateBuffer(sizeof(int)*4,&amp;buffer_ptr);
+	if(buffer_ptr)
+	{
+		int* arrays_ptr;
+		arrays_ptr	=	(int*)buffer_ptr-&gt;GetBufferPointer();
+		for(UINT i=0;i&lt;buffer_ptr-&gt;GetBufferSize()/sizeof(int);++i)
+		{
+			arrays_ptr[i]=i;
+		}
+		//釋放COM資源
+		buffer_ptr->Release();
+	}
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="XFile"></a>
+	<p><font color="#FF0000">XFile</font>
+<pre>遊戲開發 不可能全部使用代碼創建3D模型 而是使用可視化建模工具 創建模型 
+之後將模型保存為文件 遊戲程序 從文件讀取點 紋理 材質 等信息 創建相應模型到內存
+
+XFile 是DirectX 定義的網格模型文件 DirectX提供了API可直接讀取此類文件 並創建ID3DXMesh 網格
+微軟亦 提供了 Direct3D Tool 工具包 將常見3D模型 轉換到 XFile格式
+
+使用
+ HRESULT  D3DXLoadMeshFromX(
+  __in   LPCTSTR pFilename,			//XFile 文件路徑
+  __in   DWORD Options,				//網格創建標記 參見 D3DXCreateMeshFVF
+  __in   LPDIRECT3DDEVICE9 pD3DDevice,		//設備
+  __out  LPD3DXBUFFER *ppAdjacency,		//返回 ID3DXBuffer* 網格鄰接數據
+  __out  LPD3DXBUFFER *ppMaterials,		//返回 ID3DXBuffer* D3DXMATERIAL數組(材質 紋理)
+  __out  LPD3DXBUFFER *ppEffectInstances,	//返回 ID3DXBuffer* D3DXEFFECTINSTANCE結構
+  __out  DWORD *pNumMaterials,			//返回 D3DXMATERIAL 數組個數
+  __out  LPD3DXMESH *ppMesh			//返回網格
+);
+從一個 XFile 文件創建 ID3DXMesh 網格
+
+typedef struct D3DXMATERIAL {
+  D3DMATERIAL9 MatD3D;			//材質
+  LPSTR        pTextureFilename;	//紋理路徑字符串(無紋理 NULL)
+} D3DXMATERIAL, *LPD3DXMATERIAL;
+
+D3DXMATERIAL 索引 和網格子集11對應
+(如 id為1的子集 其D3DXMATERIAL 索引為1)
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">頂點法向量</font>
+<pre>XFile文件中可能沒有存放頂點法向量 如果如此為了使用光照 不得不計算每個頂點法向量
+
+使用
+HRESULT  D3DXComputeNormals(
+  __inout  LPD3DXBASEMESH pMesh,
+  __in     const DWORD *pAdjacency
+);
+計算 ID3DXMesh 的法向量
+傳入 的 ID3DXMesh指針 必須包含 D3DFVF_NORMAL 標記
+如果 XFile 沒有法向量 創建的ID3DXMesh也不會有D3DFVF_NORMAL標記 
+此時需要克隆一個 ID3DXMesh 並指定 D3DFVF_NORMAL標記
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="ID3DXPMesh"></a>
+	<p><font color="#FF0000">ID3DXPMesh</font>
+<pre>D3DX 使用ID3DXPMesh 表示渐进网格
+其为一个可將将网格精简化(减少三角形面/) 並能恢復原狀 的网格 以提供必要時绘制小圖像以提供效率
+
+使用
+HRESULT WINAPI 
+    D3DXGeneratePMesh(
+        LPD3DXMESH pMesh, 			//原网格
+        CONST DWORD* pAdjacency, 	//pMesh 鄰接數據
+        CONST D3DXATTRIBUTEWEIGHTS *pVertexAttributeWeights,	//NULL(使用默認值) 指向D3DXATTRIBUTEWEIGHTS数组 其指定了原网格 每个点属性的 权值
+        CONST FLOAT *pVertexWeights,	//NULL(使用默認值) 指向 float数组 其指定了原网格 每个顶点权值
+        DWORD MinValue, 		//渐进网格 顶点数/面数 此为参考值 结果不一定同 生成的渐进网格
+        DWORD Options, 			//D3DXMESHSIMP_VERTEX(MinValue為頂點數) D3DXMESHSIMP_FACE(MinValue為三角形面數)
+        LPD3DXPMESH* ppPMesh);	//返回漸進網格指針
+创建渐进网格
+
+使用
+SetNumFaces
+SetNumVertices
+可 隨時調整 精簡程度
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">其他接口</font>
+<pre>//返回漸進網格 可指定 三角面數上線
+DWORD GetMaxFaces()
+
+//...頂點上線
+DWORD GetMaxVertices()
+
+//...三角面數下線
+DWORD GetMinFaces()
+
+//...頂點下線
+DWORD GetMinVertices()
+
+//重新設置 漸進網格被精簡為的 三角面數 超過取值上下線 取上下線值
+HRESULT SetNumFaces(DWORD)
+
+//... 頂點數 ...
+HRESULT SetNumVertices(DWORD)
+
+//重設 三角面 上下線(必須位於原上下線之間) 返回 頂點 面 重繪信息
+HRESULT TrimByFaces(DWORD NewFacesMin,
+	DWORD NewFacesMax
+	DWORD* rgiFaceRemap
+	DWORD* rgiVertRemap
+	);
+
+//... 頂點 ..
+HRESULT TrimByFaces(DWORD NewVerticessMin,
+	DWORD NewVerticesMax
+	DWORD* rgiFaceRemap
+	DWORD* rgiVertRemap
+	);        
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="D3DXComputeBoundingSphere"></a>
+	<p><font color="#FF0000">外接體</font>
+<pre>使用
+HRESULT  D3DXComputeBoundingSphere(
+  __in  const D3DXVECTOR3 *pFirstPosition,	//頂點數組
+  __in  DWORD NumVertices,			//頂點個數
+  __in  DWORD dwStride,				//每個頂點大小
+  __out D3DXVECTOR3 *pCenter,			//返回球心
+  __out FLOAT *pRadius				//返回球半徑
+);
+返回 外接球
+
+使用
+ HRESULT  D3DXComputeBoundingBox(
+  __in   const D3DXVECTOR3 *pFirstPosition,
+  __in   DWORD NumVertices,
+  __in   DWORD dwStride,
+  __out  D3DXVECTOR3 *pMin,		//返回左下角
+  __out  D3DXVECTOR3 *pMax		//返回右上角
+);
+返回 外接盒
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>	D3DXVECTOR3 center;
+	float radius;
+	
+	d3dx::Vertex* vertexs;
+	mesh_ptr_-&gt;LockVertexBuffer(0,(LPVOID*)&amp;vertexs);
+
+	D3DXComputeBoundingSphere((D3DXVECTOR3*)vertexs
+		,mesh_ptr_-&gt;GetNumVertices()
+		,D3DXGetFVFVertexSize(d3dx::Vertex::FVF)
+		,&amp;center
+		,&amp;radius
+		);
+
+
+	mesh_ptr_-&gt;UnlockVertexBuffer();
+</pre>
+	</p>
+</div>
+    
+</td></tr></table>
+</body>
+</html>

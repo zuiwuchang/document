@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>字符串</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1><a href="#string">字符串</a></h1></p>
+    <p><h1><a href="#fun">常用操作</a></h1></p>
+    
+    <div class="div_box"><a name="string"></a><h2>
+        <p><font color="#FF0000">字符串</font><br />
+        <pre>CHAR* c_str="ASNI";
+	WCHAR* w_str=L"unicode";
+
+	ANSI_STRING ansi_string;//"这是驱动中封装的 ansi 字符串类 没有包含\\0");
+	UNICODE_STRING unicode_string;//...
+
+	//unicode_string.Buffer; //指向缓冲区
+	//unicode_string.Length; //指明缓冲区长度 而非字符串
+	//unicode_string.MaximumLength;  //最大容纳字节长度
+
+	//初始化字符串类
+	RtlInitAnsiString(&ansi_string,"ansi");
+	RtlInitUnicodeString(&unicode_string,L"unicode");
+	
+	/*
+	另一种初始化方式初始化字符串
+	unicode_string.Buffer=L"unicode"; //const
+	unicode_string.Length=7;
+	unicode_string.MaximumLength=7;
+	*/
+
+	KdPrint(("%s %S %Z %wZ",c_str,w_str,ansi_string,unicode_string));</pre>
+    	</p>
+   	</h2></div>
+	<div class="div_box"><a name="fun"></a><h2>
+        <p><font color="#FF0000">常用操作</font><br />
+        <pre>UNICODE_STRING s1,s2;
+	ANSI_STRING ansi_string;
+	RtlInitUnicodeString(&s1,L"字符串1");
+	RtlInitUnicodeString(&s2,L"字符串2");
+	RtlInitAnsiString(&ansi_string,"ansi");
+
+	//复制字符串
+	RtlCopyUnicodeString(&s1,&s2);
+	//比较相等
+	BOOLEAN b=RtlEqualUnicodeString(&s1,&s2,
+		true);//是否忽略大小写
+	
+	//转大写 成功返回 STATUS_SUCCESS
+	RtlUpcaseUnicodeString(&s1,&s2,
+		FALSE);	//是否为s1重新分配 内存 TRUE分配（比如s1未初始化过 或大小不够） 分配的话当不使用s1时 要RtlFreeUnicodeString(&s1)释放之
+
+	ULONG number;
+	//字符串 整型 相互转换 成功返回 STATUS_SUCCESS
+	RtlUnicodeStringToInteger(&s1,10,&number);
+	RtlIntegerToUnicodeString(number,10,&s1);
+
+	//字符串连接 ...
+	RtlAppendUnicodeStringToString(&s1,&s2);
+	RtlAppendUnicodeToString(&s1,L"wchat_t*");
+	
+
+	//字符集转换...
+	RtlUnicodeStringToAnsiString(&ansi_string,&s1,
+		FALSE);//是否分配内存 同RtlUpcaseUnicodeString
+	RtlAnsiStringToUnicodeString(&s1,&ansi_string,FALSE);</pre>
+        </p>
+  	</h2></div>
+
+</td></tr></table>
+</body>
+</html>

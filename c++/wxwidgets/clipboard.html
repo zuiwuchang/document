@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>wxwidgets</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#clipboard">剪切板</a>
+		<a href="#drop">拖放</a>
+		
+	</div>
+
+	<div class="note"><a name="clipboard"></a>
+		<p><span class="flag">剪切板</span>
+<pre>對 剪切板 的 操作 通過 全局指針 wxClipboard* wxTheClipboard 進行
+
+1   使用 Open 打開 剪切板
+2   使用 SetData GetData 獲取數據
+3   使用 Close 釋放 剪切板 控制權
+</pre>
+        </p>
+        <p><span class="flag">example</span>
+<pre>#include &lt;wx/clipbrd.h&gt;
+
+//SetData
+if (wxTheClipboard->Open())
+{
+    wxTheClipboard->SetData( new wxTextDataObject(_("Some text")) );
+    wxTheClipboard->Close();
+}
+
+//GetData
+if (wxTheClipboard->Open())
+{
+    //判斷 檢查表數據 是否 支持 文本 格式
+    if (wxTheClipboard->IsSupported( wxDF_TEXT ))
+    {
+        wxTextDataObject data;
+        wxTheClipboard->GetData( data );
+        wxMessageBox( data.GetText() );
+    }
+    wxTheClipboard->Close();
+}
+</pre>
+        </p>
+        <p><span class="flag">注意</span>
+<pre>SetData 設置剪切板的 數據 必須 用 new 申請
+且 必須釋放 其會在 剪切板 不使用 次資源時 由 框架 自動釋放
+</pre>
+        </p>
+    </div>
+
+</div>
+</body>
+</html>
+

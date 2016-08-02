@@ -1,0 +1,173 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#action">action</a>
+		<a href="#Render">Render</a>
+		<a href="#routes">routes</a>
+		<a href="#param">參數綁定</a>
+		<a href="#session">session</a>
+			
+	</div>
+
+	<div class="note"><a name="action"></a>
+		<p><span class="flag">action</span>
+<pre>action 是一個 http 請求的映射
+(一個 返回值為 revel.Result 的 控制器 方法)
+
+控制器 是 一個 直接 或 間接 嵌入了 *revel.Controller 的struct
+其 Render 方法 實現了 對 http 的 響應
+
+
+
+//使用對應模板 渲染 之後 返回之
+func (c *Controller) Render(extraRenderArgs ...interface{}) Result
+
+//返回404
+func (c *Controller) NotFound(msg string, objs ...interface{}) Result
+
+//重定向
+func (c *Controller) Redirect(val interface{}, args ...interface{}) Result
+	<span class="care">c.Redirect(Controller.Action)
+	c.Redirect("/controller/action")
+	c.Redirect("/controller/%d/action", id)</span>
+
+//通過 encoding/json.Marsha 返回json 數據
+func (c *Controller) RenderJson(o interface{}) Result
+
+//通過 encoding/xml.Marsha 返回xml 數據
+func (c *Controller) RenderXml(o interface{}) Result
+
+//返回一個文件 讓用戶 下載
+func (c *Controller) RenderFile(file *os.File, delivery ContentDisposition) Result
+
+//使用 errors/500.html 渲染 並返回
+func (c *Controller) RenderError(err error) Result
+
+...
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>type App struct {
+	*revel.Controller
+}
+
+func (c App) Index() revel.Result {
+	//使用 模板 App/Index.html 渲染
+	return c.Render()
+}
+
+<span class="care">routes</span>
+GET       /                                                 App.Index
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Render"></a>
+		<p><span class="flag">Render</span>
+<pre>控制器 提供了多種 Render 方法 返回數據
+若要改變 默認 頭信息等 直接設置 相應 屬性 即可
+
+func (c App) Action() revel.Result {
+	c.Response.Status = http.StatusTeapot
+	c.Response.ContentType = "application/dishware"
+	return c.Render()
+}
+</pre>
+		</p>
+		<p><span class="flag">添加自己的 Result</span>
+<pre>實現  Apply(req *Request, resp *Response) 接口 即可
+
+type Html string
+
+func (r Html) Apply(req *Request, resp *Response) {
+	resp.WriteHeader(http.StatusOK, "text/html")
+	resp.Out.Write([]byte(r))
+}
+
+func (c *App) Action() revel.Result {
+	return Html("<html><body>Hello World</body></html>")
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="routes"></a>
+		<p><span class="flag">routes</span>
+<pre>/conf/routes 文件用於 配置 路由
+
+//匹配簡單路由 (最後的/ 加不加都一樣)
+GET		/index.html		App.Index
+GET		/index.html/		App.Index
+
+//綁定 參數
+GET		/param/:id		App.Param
+
+//自動路由
+GET   /:id/:action    Hotels.:action
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>路由是不區分大小寫的
+</pre>
+		</p>
+	</div>
+	
+	<div class="note"><a name="param"></a>
+		<p><span class="flag">參數綁定</span>
+<pre>參數被收集到一個 
+type Params struct {
+	url.Values
+	Files map[string][]*multipart.FileHeader
+}
+中
+
+亦可直接將參數 綁定 到 action
+func (c App) Param(id int) revel.Result {
+	str := ""
+	c.Params.Bind(&str, "id")
+	return c.RenderText(str)
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="session"></a>
+		<p><span class="flag">session</span>
+<pre>revel 提供了 對 session 的支持
+
+session 是一個 存儲在 控制器 中的 type Session map[string]string
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre><span class="care">*.go</span>
+func (c App) Index() revel.Result {
+	c.Session["name"] = "illusive man"
+	return c.Render()
+}
+
+
+
+<span class="care">*.html</span>
+{{.session.name }}
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>revel 是一個 無狀態 服務器 其session 其實是保存在 客戶端的簽名cookie
+其session 保存數據 不能 超過 4kb
+且session 的key 中 不能 包含 :
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>更多java</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#array">array</a>
+		<a href="#for">for</a>
+		<a href="#classArrays">class Arrays</a>
+		<a href="#string">字符串</a>
+		<a href="#StringTokenizer">StringTokenizer</a>
+		<a href="#regex">正則表達式</a>
+		<a href="#jar">jar</a>
+	</div>
+
+	<div class="note"><a name="array"></a>
+		<p><span class="flag">array</span>
+<pre>int array[] =   new int [3];
+        int array[] =   {0,1,2};   
+        for(int var:array)
+        {
+            System.out.println(array[var]);
+        }
+
+int array[][] =   new int [3][4]; 
+
+//分離 聲明 創建
+int array[][];
+array =   new int [3][4]；    
+
+//創建非規則數組 (好SB)
+        int array[][] =   new int[4][];   
+        for(int i=0;i&lt;array.length;++i)
+        {
+            array[i]    =   new int[i];
+        }   
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="for"></a>
+		<p><span class="flag">for</span>
+<pre>java 提供了新的 for 語法 用以 遍歷數組 容器
+
+      int arrays[] = new int[10];
+      for(int i=0;i&lt;arrays.length;++i)
+      {
+          arrays[i] =i;
+      }
+      for(int var:arrays)
+      {
+     
+          System.out.println(var);
+      }
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="classArrays"></a>
+		<p><span class="flag">class Arrays</span>
+<pre>import java.util.Arrays;
+
+class java.util.Arrays 提供了一些static方法對數組 進行操作
+
+//返回兩個數組是否相等
+public static boolean equals(a1,a2)
+//將數組 全部填充為 value
+fill(a,value);
+//在數組中查找v 失敗返回負
+int binarySearch(a,v)
+
+//複製數組 到返回值
+copyOf
+//複製數組區間 到返回值
+copyOfRange
+
+//排序數組 可指定排序區間
+sort(a)
+sort(a,i1,i2)
+</pre>
+		</p>
+		<p><span class="flag">sort</span>
+<pre>對於自定義數組 若要使用 Arrays.sort 需要實現 Comparable 接口
+
+    public class test implements  Comparable
+    {
+        int x;
+
+        @Override
+        public int compareTo(Object t) {
+            //返回負 &lt;
+            //...0 ==
+            //...正 &gt;
+            test tmp  =   (test)t;
+            return this.x - tmp.x;
+        }
+        
+    }
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="string"></a>
+		<p><span class="flag">字符串</span>
+<pre>java 使用class String 表示字符串
+String 的操作 只是創建一個新的引用到字符串 而不改變自身內存
+
+StringBuilder 操作基本同 String 只是 其改變字符串時 是為自己分配內存 之後拷貝字符串到內存
+StringBuffer 基本同StringBuilder 不過其操作都是 線程安全的
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="StringTokenizer"></a>
+		<p><span class="flag">StringTokenizer</span>
+<pre>import java.util.StringTokenizer;
+
+class StringTokenizer 是java中 用於分解字符串的類
+
+String[] String::split(String regex) 亦可分解字符串
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>String str   =   "1911-10-10";
+StringTokenizer  token   =   new  StringTokenizer(str,"-");
+
+while(token.hasMoreTokens())
+{
+   System.out.println(token.nextToken());
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="regex"></a>
+		<p><span class="flag">正則表達式</span>
+<pre>java 亦提供了對正則表達式的支持
+
+//matches 返回字符串 是否和 傳入的正則表達式 匹配
+boolean String::matches(String regex)
+</pre>
+		</p>
+		<p><span class="flag">Pattern Matcher</span>
+<pre>java 以提供了專門處理正則表達式的 Pattern Matcher
+使用 Pattern 代表一個正則表達式 Matcher記錄匹配結果
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>String str   =   "1911-10-10";
+Pattern regex    =   Pattern.compile("1.*0");
+Matcher matcher = regex.matcher(str);
+
+if(matcher.matches())
+{
+    System.out.println("matches");
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="jar"></a>
+		<p><span class="flag">jar</span>
+<pre>java 的程序庫 封裝在 jar 文件中
+要創建 jar 執行如下命令
+
+jar cvf name.jar path\*
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

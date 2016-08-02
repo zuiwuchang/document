@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>email</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#email">email</a>
+		<a href="#address">地址</a>
+		<a href="#email">smpt example</a>
+		<a href="#muil">附件 example</a>
+		<a href="#ssl">ssl example</a>
+	</div>
+
+	<div class="note"><a name="email"></a>
+		<p><span class="flag">email</span>
+<pre>JavaMail 提供了email 功能
+
+從<a target="_blank" href="http://www.oracle.com/technetwork/java/javamail/index.html">http://www.oracle.com/technetwork/java/javamail/index.html </a>
+下最新 JavaMail 得到javamail1_4_7.zip 解壓 將 mail.jar 加入到 classpath中
+
+Properties	會話設置
+Session		會話
+Message		代發送消息
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="address"></a>
+		<p><span class="flag">地址</span>
+<table>
+	<tr><td>address</td><td>port</td><td>SSL port</td></tr>
+    <tr><td>imap.gmail.com</td><td></td><td>993</td></tr>
+    <tr><td>smtp.gmail.com</td><td></td><td>465</td></tr>
+    <tr><td>pop3.gmail.com</td><td></td><td>995</td></tr>
+    <tr><td></td><td></td><td></td></tr>
+	<tr><td>smtp.qq.com</td><td>25</td><td>465 | 587</td></tr>
+    <tr><td>smtp.163.com</td><td>25</td><td>465 | 994</td></tr>
+    <tr><td>smtp.sina.com</td><td>25</td><td>465</td></tr>
+
+</table>
+		</p>
+	</div>
+
+	<div class="note"><a name="smpt"></a>
+		<p><span class="flag">smpt example</span>
+<pre>public static void main(String[] args){
+        try 
+        {
+            final String email          =   "2847289337@qq.com";
+            final String password       =   "*******************";
+            final String target_email   =   "zuiwuchang@hotmail.com";
+            
+            //設置必要信息
+            Properties properties = new Properties();
+            properties.setProperty("mail.smtp.auth","true");            //設置驗證機制
+            properties.setProperty("mail.transport.protocol","smtp");   //設置郵件協議
+          
+            //創建session
+            Session session = Session.getDefaultInstance(properties);
+          
+            //構造郵件信息
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(email));
+            message.setSubject("郵件標題");
+            message.setText("郵件正文");
+          
+            //連接服務器
+           Transport transport =   session.getTransport();
+           transport.connect("smtp.qq.com", 25, email, password);
+           if(transport.isConnected())
+           {
+               //發送郵件
+               transport.sendMessage(message
+                       ,new Address[]{ new InternetAddress(target_email)}   //目標地址數組
+               );
+               transport.close();
+           }
+        } catch (MessagingException ex) {
+            Logger.getLogger(Email.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    
+    }
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="muil"></a>
+		<p><span class="flag">附件 example</span>
+<pre>要添加 附加 會多種內容 需要使用 MimeMultipart(message.setContent(muti_part);) 而非
+message.setText("郵件正文");
+
+MimeMultipart 中 每個內容 有MimeBodyPart 組成
+使用MimeMultipart.addBodyPart 將MimeBodyPart增加到 MimeMultipart
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>public static void main(String[] args){
+        try 
+        {
+            final String email          =   "2847289337@qq.com";
+            final String password       =   "**********************";
+            final String target_email   =   "zuiwuchang@hotmail.com";
+            
+            //設置必要信息
+            Properties properties = new Properties();
+            properties.setProperty("mail.smtp.auth","true");            //設置驗證機制
+            properties.setProperty("mail.transport.protocol","smtp");   //設置郵件協議
+          
+            //創建session
+            Session session = Session.getDefaultInstance(properties);
+          
+            //構造郵件信息
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(email));
+            message.setSubject("郵件標題");
+           
+            //設置郵件正文
+            {
+                MimeMultipart muti_part = new MimeMultipart("mixed"); 
+
+                //文本
+                MimeBodyPart text_part = new MimeBodyPart();
+                text_part.setContent("文本內容", "text/html;charset=UTF-8");
+                muti_part.addBodyPart(text_part);
+
+                //附件
+                MimeBodyPart image_part = new MimeBodyPart();
+                FileDataSource fileD_source = new FileDataSource( new File("D:\\image\\Cerberus\\Neo-Cerberus.jpg"));
+                image_part.setDataHandler(new DataHandler(fileD_source));
+                image_part.setFileName(fileD_source.getName());
+                muti_part.addBodyPart(image_part);
+                
+                 //文本2
+                MimeBodyPart text_part2 = new MimeBodyPart();
+                text_part2.setContent("文本內容2", "text/html;charset=UTF-8");
+                muti_part.addBodyPart(text_part2);
+
+                message.setContent(muti_part);
+            }
+            //連接服務器
+           Transport transport =   session.getTransport();
+           transport.connect("smtp.qq.com", 25, email, password);
+           if(transport.isConnected())
+           {
+               //發送郵件
+               transport.sendMessage(message
+                       ,new Address[]{ new InternetAddress(target_email)}   //目標地址數組
+               );
+               transport.close();
+           }
+        } catch (MessagingException ex) {
+            Logger.getLogger(Email.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    
+    }
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="ssl"></a>
+		<p><span class="flag">ssl example</span>
+<pre>對於gmail這種 高安全 郵箱 只能通過 SSL 安全連接 進行 email 
+
+1	下載與 jdk 對應版本 的 JCE 得到 UnlimitedJCEPolicyJDK7.zip 並解壓
+2	將 local_policy.jar US_export_policy.jar 替換 jdk jre 下的原版本 lib\security\*
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>import com.sun.mail.util.MailSSLSocketFactory;
+import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
+import java.util.Properties;
+import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+public class JavaApplication {
+    public static void main(String[] args) throws MessagingException, UnsupportedEncodingException, GeneralSecurityException {	
+        final String email          =   "zuiwuchang@gmail.com";
+        final String password       =   "*******************";
+        final String target_email   =   "zuiwuchang@hotmail.com";
+            
+        Properties props = new Properties();
+        //啟用驗證
+        props.setProperty("mail.smtp.auth", "true"); 
+        //設置 smtp 服務器地址
+        props.setProperty("mail.smtp.host", "smtp.gmail.com"); 
+        props.setProperty("mail.smtp.port", "465");
+        
+        //創建SSL連接工廠
+        MailSSLSocketFactory sf = new MailSSLSocketFactory();
+        sf.setTrustAllHosts(true);
+        //設置 SSL 信息
+        props.put("mail.smtp.ssl.enable", "true");
+        props.put("mail.smtp.ssl.socketFactory", sf);
+        
+        props.setProperty("mail.imap.ssl.socketFactory.fallback", "false");
+        props.setProperty("mail.smtp.socketFactory.port", "465");
+        
+        //建立連接
+        Authenticator auth = new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(email, password);
+            }
+        };
+        Session session = Session.getInstance(props, auth);
+        
+        MimeMessage message = new MimeMessage(session);
+        message.setSubject("郵件標題");
+        message.setText("郵件正文");
+         
+        message.setFrom(new InternetAddress(email));
+        message.setRecipients(Message.RecipientType.TO,InternetAddress.parse(target_email));
+        
+        //發送email
+        Transport.send(message);  
+         
+        System.out.println("email sent success");
+    }
+}
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

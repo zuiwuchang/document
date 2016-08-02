@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#why">原理</a>
+		<a href="#care">注意</a>
+		
+		
+	</div>
+
+	<div class="note"><a name="why"></a>
+		<p><span class="flag">原理</span>
+<pre>windows 在加載 模塊時(如果使用相對路徑) 按照
+當前目錄
+系統目錄 system32
+系統目錄 system (兼容16位程式)
+windows目錄
+PATH
+中尋找 模塊
+
+在 程式 找到 真的模塊 前 提供一個 導出表相同的
+模板 則 此模塊會被 加載
+從而實現 模塊 劫持
+</pre>
+		</p>
+	</div>
+	
+	<div class="note"><a name="care"></a>
+		<p><span class="flag">注意</span>
+<pre>在xp頻繁被 dll劫持後
+微軟 加入了 新的 機制 以防止 dll 劫持
+
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\KnownDLLs
+下 存在 REG_SZ 型別的 多個鍵
+其名稱 為 模塊名(ws2_32) 值為 模塊 完整名稱(ws2_32.dll)
+這些 dll 系統 只會從 系統目錄下加載
+
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager 下存在
+名為ExcludeFromKnownDlls 的 REG_MULTI_SZ 的鍵
+為其寫入 模塊 完整名稱(ws2_32.dll) 
+可將 HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\KnownDLLs 中設置
+取消
+	<span class="care">需要 reboot os</span>
+</pre>
+		</p>
+	</div>	
+
+</div>
+</body>
+</html>
+

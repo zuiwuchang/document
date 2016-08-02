@@ -1,0 +1,501 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Irrlicht</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">特效</font>
+</p>
+
+<p>
+	<a href="#walter">水</a><br />
+    <a href="#light">移動點光源</a><br />
+    <a href="#Shadow">動態陰影</a><br />
+    <a href="#Particle">粒子系統</a><br />
+    <a href="#textures">紋理動畫</a><br />
+    <a href="#example">example</a><br />
+    
+    
+    
+    
+</p>
+
+
+<div class="mydiv"><a name="walter"></a>
+	<p><font color="#FF0000">水</font>
+<pre>Irrlicht製作水面特效 只需要先 製作/加載一個 像水面一樣有波紋的場景節點
+為其設置 一層水底紋理
+為其設置 一層水表紋理 
+之後為其指定 EMT_REFLECTION_2_LAYER 材質 即可
+</pre>
+	</p>
+
+	<p><font color="#FF0000">相關API</font>
+<pre>//創建一個 從飛機上觀察到的 山丘 有高低起伏移動 的網格池
+virtual IAnimatedMesh* irr::scene::ISceneManager::addHillPlaneMesh	(	
+const io::path&amp; name,									//為其取個名字 以再之後使用 irr::scene::ISceneManager::getMesh(name) 檢索 
+const core::dimension2d&lt;f32&gt;&amp; tileSize,							//網格大小
+const core::dimension2d&lt;u32&gt;&amp; tileCount,						//網格數量(橫 豎)
+video::SMaterial* material = 0,								//材質
+f32 hillHeight = 0.0f,									//山丘高度 0(沒有山丘被創建) &lt;0(孔)
+const core::dimension2d&lt;f32&gt;&amp; countHills = core::dimension2d&lt;f32&gt;(0.0f, 0.0f),		//山丘數量
+const core::dimension2d&lt;f32&gt;&amp; textureRepeatCount = core::dimension2d&lt;f32&gt;(1.0f, 1.0f)	//紋理重複長寬
+)	 
+</pre>
+	</p>   
+    
+	<p><font color="#FF0000">example</font>
+<pre>	//創建水面
+	mesh = smgr_ptr->addHillPlaneMesh( "myHill"
+		,core::dimension2d&lt;f32&gt;(20,20)
+		,core::dimension2d&lt;f32&gt;(40,40)
+		,0
+		,0
+		,core::dimension2d&lt;f32&gt;(0,0)
+		,core::dimension2d&lt;f32&gt;(10,10)
+		);
+
+	node = smgr_ptr->addWaterSurfaceSceneNode(mesh, 3.0f, 300.0f, 30.0f);
+	node->setPosition(core::vector3df(0,7,0));
+
+	node->setMaterialTexture(0, driver_ptr->getTexture("media/stones.jpg"));
+	node->setMaterialTexture(1, driver_ptr->getTexture("media/water.jpg"));
+
+	node->setMaterialType(video::EMT_REFLECTION_2_LAYER);
+</pre>
+	</p>    
+</div>
+
+<div class="mydiv"><a name="light"></a>
+	<p><font color="#FF0000">移動點光源</font>
+<pre>創建一個 點光源 為其增加一個動作器 在為其綁定一個 廣告牌 以顯示 光源位置即可
+
+要將一個 場景節點 綁定 到另外一個節點中 只需要 在 新增節點時 指定其父節點即可
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">相關API</font>
+<pre>ILightSceneNode* irr::scene::ISceneManager::addLightSceneNode(	
+ISceneNode * 	parent = 0,
+const core::vector3df&amp; position = core::vector3df(0, 0, 0),		//光位置
+video::SColorf 	color = video::SColorf(1.0f, 1.0f, 1.0f),		//光顏色
+f32 	radius = 100.0f,						//光照射半徑
+s32 	id = -1 
+)	
+</pre>
+	</p>
+    
+     <p><font color="#FF0000">example</font>
+<pre>	//創建 移動點光源
+	node_ptr = smgr_ptr->addLightSceneNode(0, core::vector3df(0,0,0),
+		video::SColorf(1.0f, 0.6f, 0.7f, 1.0f)
+		,800.0f);
+	scene::ISceneNodeAnimator* anim_ptr	=	smgr_ptr->createFlyCircleAnimator (core::vector3df(0,150,0),250.0f);
+	node_ptr->addAnimator(anim_ptr);
+	anim_ptr->drop();
+
+	//將 廣告牌 綁定到 光源
+	node_ptr	=	smgr_ptr->addBillboardSceneNode(node_ptr, core::dimension2d&lt;f32&gt;(50, 50));
+	node_ptr->setMaterialFlag(video::EMF_LIGHTING, false);
+	node_ptr->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
+	node_ptr->setMaterialTexture(0, driver_ptr->getTexture("media/particlewhite.bmp"));
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="Shadow"></a>
+	<p><font color="#FF0000">動態陰影</font>
+<pre>在加載模式後只需要 調用 addShadowVolumeSceneNode 接口為模型加上動態陰影
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">相關API</font>
+<pre>//為場景增加動態陰影
+IShadowVolumeSceneNode* irr::scene::IAnimatedMeshSceneNode::addShadowVolumeSceneNode	(	
+const IMesh * 	shadowMesh = 0,		//可以自定義陰影網格體
+s32 	id = -1,
+bool 	zfailmethod = true,			//true 陰影使用zfail false陰影使用zpass
+f32 	infinity = 1000.0f 			//
+)	
+
+//設置全局 陰影顏色
+void irr::scene::ISceneManager::setShadowColor	(	video::SColor 	color = video::SColor(150, 0, 0, 0)	)
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>	//加載模型
+	mesh_ptr = smgr_ptr->getMesh("media/dwarf.x");
+	scene::IAnimatedMeshSceneNode* anode_ptr	=	smgr_ptr->addAnimatedMeshSceneNode(mesh_ptr);
+	anode_ptr->setPosition(core::vector3df(-50,20,-60));
+	anode_ptr->setAnimationSpeed(15);
+
+	//設置 動態陰影
+	anode_ptr->addShadowVolumeSceneNode();
+	smgr_ptr->setShadowColor(video::SColor(150,0,0,0));
+
+	//縮放模型 並規範化 法向量
+	anode_ptr->setScale(core::vector3df(2,2,2));
+	anode_ptr->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
+
+	//攝像機
+	scene::ICameraSceneNode* camera = smgr_ptr->addCameraSceneNodeFPS();
+	camera->setPosition(core::vector3df(-50,50,-150));
+	camera->setFarValue(10000.0f);		//設置陰影可見範圍
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">注意</font>
+<pre>在縮放了模型後 必須使其法向量 規範化 否則 不能正確計算 光照效果
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="Particle"></a>
+	<p><font color="#FF0000">粒子系統</font>
+<pre>Irrlicht 提供了靈活的 粒子系統
+
+實現 創建一個粒子系統場景節點
+之後 創建一個粒子發射器 用於發射粒子
+可以 為粒子發生器指定一個 影響器 指定粒子在飛行時的屬性 如 風向 重力 ...
+
+粒子發射器 有一些通用的參數 如 粒子方向 個數 顏色...
+Irrlicht 提供了多種 粒子發射器 (如 點狀粒子發射器[從一個點發射粒子] 盒粒子發射器[從一個盒子形狀內隨機生成] )
+(若要自己實現 發射器 只需從IParticleEmitter派生)
+
+若要自己實現 粒子運行器 只需派生自 IParticleAffector 並實現AddAffector() 即可
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">相關API</font>
+<pre>//創建一個粒子系統場景
+IParticleSystemSceneNode* irr::scene::ISceneManager::addParticleSystemSceneNode	(	
+bool 	withDefaultEmitter = true,			//true 使用默認粒子發生器 false 必須手動指定粒子發生器
+ISceneNode * 	parent = 0,
+s32 	id = -1,
+const core::vector3df&amp; position = core::vector3df(0, 0, 0),		//所在位置
+const core::vector3df&amp; rotation = core::vector3df(0, 0, 0),		//旋轉角度
+const core::vector3df&amp; scale = core::vector3df(1.0f, 1.0f, 1.0f) 	//大小
+)	 
+
+//創建一個 盒子形狀 的粒子發射器
+IParticleBoxEmitter* irr::scene::IParticleSystemSceneNode::createBoxEmitter	(	
+const core::aabbox3df&amp; box = core::aabbox3df(-10, 28,-10, 10, 30, 10),		//盒子尺寸
+const core::vector3df&amp; direction = core::vector3df(0.0f, 0.03f, 0.0f),		//發射方向
+u32 minParticlesPerSecond = 5,							//每秒最少發射數
+u32 maxParticlesPerSecond = 10,							//每秒最多發射數
+const video::SColor&amp; minStartColor = video::SColor(255, 0, 0, 0),		//最深顏色
+const video::SColor&amp; maxStartColor = video::SColor(255, 255, 255, 255),		//最亮顏色 (實際顏色為 [最深,最亮]見到隨機插值 )
+u32 lifeTimeMin = 2000,								//粒子 最小 壽命(毫秒) 
+u32 lifeTimeMax = 4000,								//粒子 最大 壽命(毫秒)
+s32 maxAngleDegrees = 0,							//不解
+const core::dimension2df&amp; minStartSize = core::dimension2df(5.0f, 5.0f),	//粒子 最小 尺寸
+const core::dimension2df&amp; maxStartSize = core::dimension2df(5.0f, 5.0f) 	//粒子 最大 尺寸 (實際為 [最小,最大]隨機插值)
+)	
+
+//為子系統場景 指定 發射器
+void irr::scene::IParticleSystemSceneNode::setEmitter	(	IParticleEmitter * 	emitter	)	
+
+
+
+//創建 淡出粒子 影響器
+IParticleFadeOutAffector* irr::scene::IParticleSystemSceneNode::createFadeOutParticleAffector	(
+const video::SColor&amp; targetColor = video::SColor(0, 0, 0, 0),	//粒子顏色改變值
+u32 	timeNeededToFadeOut = 1000 			//多長時間影響一次 (毫秒)
+)
+
+//為子系統場景 指定 影響器
+void irr::scene::IParticleSystemSceneNode::addAffector	(	IParticleAffector * 	affector	)
+</pre>
+	</p>
+       
+    <p><font color="#FF0000">example</font>
+<pre>	//創建粒子系統
+	scene::IParticleSystemSceneNode* ps =	smgr_ptr->addParticleSystemSceneNode(false);
+	ps->setPosition(core::vector3df(-70,60,40));
+	ps->setScale(core::vector3df(2,2,2));
+	
+	//設置粒子材質
+	ps->setMaterialFlag(video::EMF_LIGHTING, false);
+	ps->setMaterialFlag(video::EMF_ZWRITE_ENABLE, false);
+	ps->setMaterialTexture(0, driver_ptr->getTexture("media/fire.bmp"));
+	ps->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
+
+	//創建 粒子發生器
+	scene::IParticleEmitter* em = ps->createBoxEmitter(
+		core::aabbox3d&lt;f32&gt;(-7,0,-7,7,1,7), // emitter size
+		core::vector3df(0.0f,0.06f,0.0f),   // initial direction
+		80,100,                             // emit rate
+		video::SColor(0,255,255,255),       // darkest color
+		video::SColor(0,255,255,255),       // brightest color
+		800,2000,0,                         // min and max age, angle
+		core::dimension2df(10.f,10.f),         // min size
+		core::dimension2df(20.f,20.f));        // max size
+
+	ps->setEmitter(em);
+	em->drop();
+
+	scene::IParticleAffector* paf = ps->createFadeOutParticleAffector();
+
+	ps->addAffector(paf); // same goes for the affector
+	paf->drop();
+</pre>
+	</p>   
+</div>
+
+<div class="mydiv"><a name="textures"></a>
+	<p><font color="#FF0000">紋理動畫</font>
+<pre>Irrlicht 可以創建一個 紋理 動畫 既依次使用紋理層
+只需要使用 createTextureAnimator 創建 紋理動畫器 之後 將其和 創建節點關聯即可
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">相關API</font>
+<pre>//創建 自發光 場景節點
+IVolumeLightSceneNode* irr::scene::ISceneManager::addVolumeLightSceneNode	(	
+ISceneNode * 	parent = 0,
+s32 	id = -1,
+const u32 	subdivU = 32,						//紋理映射U值
+const u32 	subdivV = 32,						//紋理映射V值
+const video::SColor foot = video::SColor(51, 0, 230, 180),	//底部顏色
+const video::SColor tail = video::SColor(0, 0, 0, 0),		//頂部顏色
+const core::vector3df&amp; position = core::vector3df(0, 0, 0),		//位置
+const core::vector3df&amp; rotation = core::vector3df(0, 0, 0),		//旋轉
+const core::vector3df&amp; scale = core::vector3df(1.0f, 1.0f, 1.0f) //尺寸
+)	
+
+//創建紋理動畫器
+ISceneNodeAnimator* irr::scene::ISceneManager::createTextureAnimator	(	
+const core::array&lt;video::ITexture*&gt;&amp; 	textures,	//紋理數組
+s32 	timePerFrame,		//多長時間 切換一次 紋理層(毫秒)
+bool 	loop = true 	
+)	
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>	//創建一個  自發光 場景節點
+	scene::IVolumeLightSceneNode* n = smgr_ptr->addVolumeLightSceneNode(0, -1,
+				32,                              // Subdivisions on U axis
+				32,                              // Subdivisions on V axis
+				video::SColor(0, 255, 255, 255), // foot color
+				video::SColor(0, 0, 0, 0));      // tail color
+
+	if (n)
+	{
+		n->setScale(core::vector3df(56.0f, 56.0f, 56.0f));
+		n->setPosition(core::vector3df(-120,50,40));
+
+		//加載紋理
+		core::array&lt;video::ITexture*&gt; textures;
+		for (s32 g=4; g > 0; --g)
+		{
+			core::stringc tmp;
+			tmp = "media/portal";
+			tmp += g;
+			tmp += ".bmp";
+			video::ITexture* t = driver_ptr->getTexture( tmp.c_str() );
+			textures.push_back(t);
+		}
+
+		//創建紋理動畫器 並關聯 場景節點
+		scene::ISceneNodeAnimator* glow = smgr_ptr->createTextureAnimator(textures, 150);
+		n->addAnimator(glow);
+		glow->drop();
+	}
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="example"></a>
+	<p><font color="#FF0000">example</font>
+<pre>此為幾個 特效的 完整示例
+
+int main()
+{
+	IrrlichtDevice *device_ptr	=	createDevice(irr::video::EDT_DIRECT3D9
+		,irr::core::dimension2d&lt;u32&gt;(640, 480)
+		,16
+		, false
+		,true);
+
+	if (device_ptr == 0)
+		return 1; 
+
+	irr::video::IVideoDriver* driver_ptr	=	device_ptr->getVideoDriver();
+	scene::ISceneManager* smgr_ptr			=	device_ptr->getSceneManager();
+
+	//加載場景
+	scene::IAnimatedMesh* mesh_ptr = smgr_ptr->getMesh("media/room.3ds");
+	//為場景創建一個 平面材質貼圖
+	smgr_ptr->getMeshManipulator()->makePlanarTextureMapping(mesh_ptr->getMesh(0), 0.004f);
+	scene::ISceneNode* node_ptr	=	0;
+	node_ptr	=	smgr_ptr->addAnimatedMeshSceneNode(mesh_ptr);
+	node_ptr->setMaterialTexture(0, driver_ptr->getTexture("media/wall.jpg"));
+	node_ptr->getMaterial(0).SpecularColor.set(0,0,0,0);
+
+	//創建水面
+	mesh_ptr = smgr_ptr->addHillPlaneMesh( "myHill"
+		,core::dimension2d&lt;f32&gt;(20,20)
+		,core::dimension2d&lt;f32&gt;(40,40)
+		,0
+		,0
+		,core::dimension2d&lt;f32&gt;(0,0)
+		,core::dimension2d&lt;f32&gt;(10,10)
+		);
+
+	node_ptr = smgr_ptr->addWaterSurfaceSceneNode(mesh_ptr, 3.0f, 300.0f, 30.0f);
+	node_ptr->setPosition(core::vector3df(0,7,0));
+
+	node_ptr->setMaterialTexture(0, driver_ptr->getTexture("media/stones.jpg"));
+	node_ptr->setMaterialTexture(1, driver_ptr->getTexture("media/water.jpg"));
+
+	node_ptr->setMaterialType(video::EMT_REFLECTION_2_LAYER);
+
+	//創建 移動點光源
+	node_ptr = smgr_ptr->addLightSceneNode(0, core::vector3df(0,0,0),
+		video::SColorf(1.0f, 0.6f, 0.7f, 1.0f)
+		,800.0f);
+	scene::ISceneNodeAnimator* anim_ptr	=	smgr_ptr->createFlyCircleAnimator (core::vector3df(0,150,0),250.0f);
+	node_ptr->addAnimator(anim_ptr);
+	anim_ptr->drop();
+
+	//將 廣告牌 綁定到 光源
+	node_ptr	=	smgr_ptr->addBillboardSceneNode(node_ptr, core::dimension2d<f32>(50, 50));
+	node_ptr->setMaterialFlag(video::EMF_LIGHTING, false);
+	node_ptr->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
+	node_ptr->setMaterialTexture(0, driver_ptr->getTexture("media/particlewhite.bmp"));
+
+
+
+	//加載模型
+	mesh_ptr = smgr_ptr->getMesh("media/dwarf.x");
+	scene::IAnimatedMeshSceneNode* anode_ptr	=	smgr_ptr->addAnimatedMeshSceneNode(mesh_ptr);
+	anode_ptr->setPosition(core::vector3df(-50,20,-60));
+	anode_ptr->setAnimationSpeed(15);
+
+	//設置 動態陰影
+	anode_ptr->addShadowVolumeSceneNode(0,-1,true);
+	smgr_ptr->setShadowColor(video::SColor(150,0,0,0));
+
+	//縮放模型 並規範化 法向量
+	anode_ptr->setScale(core::vector3df(2,2,2));
+	anode_ptr->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
+
+	//攝像機
+	scene::ICameraSceneNode* camera = smgr_ptr->addCameraSceneNodeFPS();
+	camera->setPosition(core::vector3df(-50,50,-150));
+	camera->setFarValue(10000.0f);		//設置陰影可見範圍
+
+	device_ptr->getCursorControl()->setVisible(false);
+
+
+	//粒子系統
+	//創建粒子系統
+	scene::IParticleSystemSceneNode* ps =	smgr_ptr->addParticleSystemSceneNode(false);
+	ps->setPosition(core::vector3df(-70,60,40));
+	ps->setScale(core::vector3df(2,2,2));
+	
+	//設置粒子材質
+	ps->setMaterialFlag(video::EMF_LIGHTING, false);
+	ps->setMaterialFlag(video::EMF_ZWRITE_ENABLE, false);
+	ps->setMaterialTexture(0, driver_ptr->getTexture("media/fire.bmp"));
+	ps->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
+
+	//創建 粒子發生器
+	scene::IParticleEmitter* em = ps->createBoxEmitter(
+		core::aabbox3d<f32>(-7,0,-7,7,1,7), // emitter size
+		core::vector3df(0.0f,0.06f,0.0f),   // initial direction
+		80,100,                             // emit rate
+		video::SColor(0,255,255,255),       // darkest color
+		video::SColor(0,255,255,255),       // brightest color
+		800,2000,0,                         // min and max age, angle
+		core::dimension2df(10.f,10.f),         // min size
+		core::dimension2df(20.f,20.f));        // max size
+
+	ps->setEmitter(em);
+	em->drop();
+
+	scene::IParticleAffector* paf = ps->createFadeOutParticleAffector();
+
+	ps->addAffector(paf); // same goes for the affector
+	paf->drop();
+
+	
+	//創建一個  自發光 場景節點
+	scene::IVolumeLightSceneNode* n = smgr_ptr->addVolumeLightSceneNode(0, -1,
+				32,                              // Subdivisions on U axis
+				32,                              // Subdivisions on V axis
+				video::SColor(0, 255, 255, 255), // foot color
+				video::SColor(0, 0, 0, 0));      // tail color
+
+	if (n)
+	{
+		n->setScale(core::vector3df(56.0f, 56.0f, 56.0f));
+		n->setPosition(core::vector3df(-120,50,40));
+
+		//加載紋理
+		core::array&lt;video::ITexture*&gt; textures;
+		for (s32 g=4; g > 0; --g)
+		{
+			core::stringc tmp;
+			tmp = "media/portal";
+			tmp += g;
+			tmp += ".bmp";
+			video::ITexture* t = driver_ptr->getTexture( tmp.c_str() );
+			textures.push_back(t);
+		}
+
+		//創建紋理動畫器 並關聯 場景節點
+		scene::ISceneNodeAnimator* glow = smgr_ptr->createTextureAnimator(textures, 150);
+		n->addAnimator(glow);
+		glow->drop();
+	}
+
+	s32 lastFPS = -1;
+
+	while(device_ptr->run())
+	{
+		if (device_ptr->isWindowActive())
+		{
+			driver_ptr->beginScene(true, true, 0);
+
+			smgr_ptr->drawAll();
+
+			driver_ptr->endScene();
+
+			const s32 fps = driver_ptr->getFPS();
+
+			if (lastFPS != fps)
+			{
+				core::stringw str = L"Irrlicht Engine - SpecialFX example [";
+				str += driver_ptr->getName();
+				str += "] FPS:";
+				str += fps;
+
+				device_ptr->setWindowCaption(str.c_str());
+				lastFPS = fps;
+			}
+		}
+		else
+		{
+			device_ptr->yield();
+		}
+	}
+
+	device_ptr->drop();
+
+	return 0;
+}
+</pre>
+	</p>
+</div>
+
+</td></tr></table>
+</body>
+</html>

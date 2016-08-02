@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>添加快捷鍵</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+    <p><h1><font color="#FF0000">添加快捷鍵</font></h1></p>
+    
+    <h2>
+    <a href="#WM_KEYDOWN">攔截 WM_KEYDOWN</a><br />
+    <a href="#Accelerator">添加 Accelerator 資源</a><br />
+    <a href="#WM_HOTKEY">添加 全局 快捷鍵</a><br />
+    <a href="#ATOM">全局原子</a><br />
+   
+    </h2>
+    
+    <div class="div_box"><a name="WM_KEYDOWN"></a><p><h3>
+    <h2><font color="#FF0000">攔截 WM_KEYDOWN</font></h2><br />
+    	 <p><font color="#FF0000">攔截 WM_KEYDOWN</font><br />
+        在 用GetKeyState 或 GetAsyncKeyState獲取是否按下某鍵
+<pre>//返回某按鍵當前是否按下
+SHORT 
+	GetKeyState(   
+		int nVirtKey 	//按鍵虛擬鍵碼
+	); 
+最高位為1	既0x8000	 按下
+最低位為1	既1	某按鍵是否切換狀態（被按下一次 此值為1 按鍵被再按一次 為0 再一次為1 ...	此特性可用於記錄 鍵盤燈狀態）
+
+//返回自上次調用GetAsyncKeyState後 按鍵是否被按下過 按下過返回1
+SHORT 
+	GetAsyncKeyState(   
+		int vKey 		//按鍵虛擬鍵碼
+	); 
+</pre>
+        </p>
+        
+        <p><font color="#FF0000">example</font><br />
+<pre>BOOL CMFCTestDlg::PreTranslateMessage(MSG* pMsg)
+{
+	if (
+		pMsg->message == WM_KEYDOWN
+		&amp;&amp;	pMsg->wParam== 'A'
+		&amp;&amp;	GetKeyState(VK_CONTROL) &amp; 0x8000        
+		) 
+	{ 
+			MessageBox(L"方法一：GetKeyState + WM_KEYDOWN"); 
+	}
+	
+	return CDialogEx::PreTranslateMessage(pMsg);
+}</pre>        
+        </p>
+        
+        
+   		<p><font color="#FF0000">注意</font><br />
+        一些遊戲使用 GetKeyState GetAsyncKeyState來判斷按鍵是否按下 以屏蔽 SendMessage PostMessage
+        </p>
+        
+    </h3></p></div>
+    
+   	<div class="div_box"><a name="Accelerator"></a><p><h3>
+    <h2><font color="#FF0000">添加 Accelerator 資源</font></h2><br />
+    	 <p><font color="#FF0000">Accelerator</font><br />
+         Accelerator用以定義快捷鍵 和 與之相關的按鈕 當按下快捷鍵時 觸發按鍵按下事件
+         </p>
+         <p><font color="#FF0000">eaxmple</font><br />
+<pre>1
+	添加一個Accelerator資源
+	將按鍵和快捷鍵關聯	使之ID一致
+2
+	定義一個Accelerator資源實例
+	HACCEL m_hAccel;
+3
+	用資源實例加載對應Accelerator資源
+	m_hAccel= LoadAccelerators(AfxGetInstanceHandle(),MAKEINTRESOURCE(IDR_ACCELERATOR1));
+4
+	在消息處理中把消除傳遞給快捷鍵資源
+	BOOL CMFCTestDlg::PreTranslateMessage(MSG* pMsg)
+	{
+		//將快捷鍵消息傳遞到關聯按鈕
+		if(m_hAccel &amp;&amp; TranslateAccelerator(m_hWnd, m_hAccel, pMsg))
+		{
+			return TRUE;
+		}
+		return CDialogEx::PreTranslateMessage(pMsg);
+	}</pre> 
+         </p>
+         
+         <p><font color="#FF0000">注意</font><br />
+         也可以不將 快捷鍵和 按鍵關聯<br />
+         第四部的 TranslateAccelerator 將把發送WM_COMMAND消息到主窗口故可 在消息處理中 判斷按下的快捷鍵 並操作
+<pre>BOOL CMFCTestDlg::OnCommand(WPARAM wParam, LPARAM lParam)
+{
+	 switch(LOWORD(wParam))   
+	 {  	
+	 case  ID_ACCELERATOR32777:   //快捷鍵ID   
+	
+		 MessageBox(L"ok");
+		 break;   
+	 }  
+
+	return CDialogEx::OnCommand(wParam, lParam);
+}</pre>
+         </p>
+  	</h3></p></div>
+  	
+    <div class="div_box"><a name="WM_HOTKEY"></a><p><h3>
+    <h2><font color="#FF0000">添加 全局 快捷鍵</font></h2><br />
+    	 <p><font color="#FF0000">全局 快捷鍵</font><br />
+<pre>//向系統註冊快捷鍵
+BOOL RegisterHotKey(          HWND hWnd,	//接受WM_HOTKEY消息的窗口
+    int id,									//定義一個全局標識id以代表此快捷鍵
+    UINT fsModifiers,						//定義組合鍵 如ctrl等
+    UINT vk									//快捷鍵虛擬鍵碼
+);
+//fsModifiers取值
+#define MOD_ALT         0x0001
+#define MOD_CONTROL     0x0002
+#define MOD_SHIFT       0x0004
+#define MOD_WIN         0x0008
+
+//向系統註銷快捷鍵
+BOOL UnregisterHotKey(          HWND hWnd,
+    int id
+);
+
+WM_HOTKEY 消息處理
+wParam 包含了被註冊快捷鍵的id
+</pre>
+         </p>
+         
+         <p><font color="#FF0000">注意</font><br />
+<pre>id：
+定义热键的标识符。调用线程中的其他热键，不能使用同样的标识符。应用程序必须定义一个0X0000-0xBFFF范围的值。一个共享的动态链接
+（DLL）必须定义一个范围为0xC000-0xFFFF的值(GlobalAddAtom函数返回该范围）。为了避免与其他动态链接库定义的热键冲突，一个DLL必
+使用GlobalAddAtom函数获得热键的标识符。</pre>
+         </p>
+   </h3></p></div>
+   
+   <div class="div_box"><a name="ATOM"></a><p><h3>
+   <h2><font color="#FF0000">全局原子</font></h2><br />
+    	<p><font color="#FF0000">全局原子</font><br />
+        系統維護着一張全局原子表 其中記錄了一個字符串 和與之對應的全局唯一16位值<br />
+        可用之實現 數據的唯一性<br />
+        如註冊全局快捷鍵的id<br />
+        讓程序只運行一個實例
+        </p>
+        <p><font color="#FF0000">相關API</font><br />
+<pre>//添加一個全局原子 失敗返回0 否則返回原子值
+ATOM GlobalAddAtom(          LPCTSTR lpString
+);
+
+//刪除一個全局原子	始終返回0
+ATOM GlobalDeleteAtom(          ATOM nAtom
+);
+
+//查找是否存在指定原子 不存在返回0
+ATOM GlobalFindAtom(          LPCTSTR lpString
+);
+
+//返回指定原子對應的字符串	失敗返回0 成功返回字符串長度
+UINT GlobalGetAtomName(          ATOM nAtom,
+    LPTSTR lpBuffer,
+    int nSize
+);
+</pre>        
+        </p>
+   </h3></p></div>
+    
+</td></tr></table>
+</body>
+</html>

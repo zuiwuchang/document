@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>xpressive</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#get">获取支持</a>
+		<a href="#static">动态语法与静态语法区别</a>
+		<a href="#reg">正则表达式语法</a>
+		<a href="#match">匹配</a>
+		<a href="#search">查找</a>
+		<a href="#regex_replace">替換</a>
+		<a href="#iterator">迭代</a>
+		<a href="#token">分詞</a>
+	</div>
+
+	<div class="note"><a name="get"></a>
+		<p><span class="flag">获取支持</span>
+<pre>#include&lt;boost\xpressive\xpressive.hpp&gt;
+
+
+若只需静态语法支持
+#include&lt;boost\xpressive\xpressive_static.hpp&gt;
+
+
+若只需动态语法支持
+#include&lt;boost\xpressive\xpressive_dynamic.hpp&gt;
+</pre>
+		</p>
+		<p><span class="flag">namespace</span>
+			boost::xpressive
+		</p>
+	</div>
+
+	<div class="note"><a name="static"></a>
+		<p><span class="flag">动态语法与静态语法区别</span>
+<pre>静态语法在编译c++程序时 编译正则表达式 故大约比动态快0.1倍
+用法一样 只是正则表达式构造方式不同
+</pre>
+		</p>
+		<p><span class="flag">构造</span>
+<pre>//动态语法
+cregex	 reg=cregex::compile(&quot;^123\\d*\\w+&quot;);
+
+//静态语法
+cregex	 reg=bos&gt;&gt;&quot;123&quot;&gt;&gt;*_d&gt;&gt;*_w;
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="reg"></a>
+		<p><span class="flag">正则表达式语法</span>
+<pre><table>
+<tr><td>Perl</td><td>Static xpressive</td><td>note</td></tr>
+<tr><td><span class="care">邏輯定義</span></td><td>...</td><td>...</td></tr>
+<tr><td>(abc...)</td><td></td><td>將空號中的內容作為一個整體 和邏輯定義一起處理</td></tr>
+<tr><td>ab</td><td>a>>b</td><td>b仅接在a之后</td></tr>
+<tr><td>a|b</td><td>a|b</td><td>a或者b</td></tr>
+<tr><td>^a</td><td>bos>>a</td><td>以a开头</td></tr>
+<tr><td>a$</td><td>a>>eos</td><td>以a结尾</td></tr>
+<tr><td>a*</td><td>*a</td><td>重复a 任意次</td></tr>
+<tr><td>a+</td><td>+a</td><td>重复a 至少1次</td></tr>
+<tr><td>a?</td><td>!a</td><td>重复a 0到1次</td></tr>
+<tr><td>a{n,m}</td><td>repeat&lt;n,m&gt;(a)</td><td>重复a n到m次</td></tr>
+<tr><td><span class="care">字符結構</span></td><td>...</td><td>...</td></tr>
+<tr><td>.</td><td>_</td><td>匹配任意单个字符</td></tr>
+<tr><td>X</td><td></td><td>單個字符包括(\t \n \r \\ \f)</td></tr>
+<tr><td>Xxx</td><td></td><td>字符串</td></tr>
+<tr><td>[abc]</td><td></td><td>字符 a 或 b 或 c</td></tr>
+<tr><td>[^abc]</td><td></td><td>非 a b c 的字符</td></tr>
+<tr><td>[a-zA-Z]</td><td></td><td>字母</td></tr>
+<tr><td>\s</td><td></td><td>空白符(空格 跳格 回車 換行 換頁)</td></tr>
+<tr><td>\S</td><td></td><td>非空白符</td></tr>
+<tr><td>\d</td><td></td><td>數字 [0,9]</td></tr>
+<tr><td>\D</td><td></td><td>非數字</td></tr>
+<tr><td>\w</td><td></td><td>文本 [a,z] [A,Z] [0,9] <span class="care">_</span></td></tr>
+<tr><td>\W</td><td></td><td>非文本</td></tr>
+</table>
+
+<img src="image/xpressive/1.png" />
+<img src="image/xpressive/2.png" />
+<img src="image/xpressive/3.png" />
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="match"></a>
+		<p><span class="flag">匹配</span>
+<pre>全匹配
+返回字符串是否匹配正则表达式
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>//cregex 匹配c字符串 sregex匹配std::string w[sc]regex匹配unicode
+cregex reg=cregex::compile("^12\\w*bc$" /*,icase* 可忽略大小寫*/);
+
+std::cout&lt;&lt;boost::xpressive::regex_match("123abc",reg)&lt;&lt;std::endl;
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="search"></a>
+		<p><span class="flag">查找</span>
+<pre>部分匹配
+返回字符串是否包含子串匹配正则表达式
+what返回字串信息(只会返回一个被匹配的字串信息)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>	std::string str="this is a power-suip item this is a power-wuit item";
+	
+	sregex reg=sregex::compile("(power)-(.{4})");
+
+	//定義返回結果
+	smatch what;
+	//regex_search查找
+	if(regex_search(str,what,reg))
+	{
+		for(smatch::const_iterator iter=what.begin();iter!=what.end();++iter)
+		{
+			std::cout&lt;&lt;*iter&lt;&lt;std::endl;
+		}
+	}
+	/*for(int i=0;i&lt;what.size();++i)
+	{
+		std::cout&lt;&lt;what[i]&lt;&lt;std::endl;
+	}*/
+
+//輸出結果
+power-suip
+power
+suip
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>regex_search 只進行部分匹配 而非全匹配
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="regex_replace"></a>
+		<p><span class="flag">替換</span>
+<pre>部分匹配
+返回字符串是否包含子串匹配正则表达式
+what返回字串信息(只会返回一个被匹配的字串信息)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>std::string str="readme.txt readme.txt ";
+
+sregex reg=sregex::compile("(.*)(me)");
+
+std::cout&lt;&lt;regex_replace(str,reg,"c++")&lt;&lt;std::endl;
+
+//ecma-262 語法 $&amp;代表被匹配的原字符串 $n 代表正則表達式中第n個()內地字符串
+std::cout&lt;&lt;regex_replace(str,reg,"$1abc")&lt;&lt;std::endl;
+std::cout&lt;&lt;regex_replace(str,reg,"$&amp;$&amp;")&lt;&lt;std::endl;
+std::cout&lt;&lt;regex_replace(str,reg,"$1abc$2")&lt;&lt;std::endl;
+
+system("pause");
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>似乎regex_replace默認只替換了最後一個被匹配到的字符串
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="iterator"></a>
+		<p><span class="flag">迭代</span>
+<pre>部分匹配
+regex_iterator 可將所有被匹配到的子字符串都 輸出
+*iterator 將返回一個 match_results對象
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>std::string str;
+for(int i=0;i&lt;;20;++i)
+{
+	str+="begin";
+
+	str+=boost::lexical_cast&lt;std::string&gt;(i);
+	str+="end";
+}
+sregex reg=sregex::compile("(begin)(.{0,2})(end)");
+
+sregex_iterator iterator(str.begin(),str.end(),reg);
+sregex_iterator end;
+while(iterator!=end)
+{
+	std::cout&lt;&lt;(*iterator)[0]&lt;&lt;std::endl;
+	++iterator;
+}
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="token"></a>
+		<p><span class="flag">分詞</span>
+<pre>部分匹配
+regex_token_iterator 可用於分隔字符串
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>std::string str;
+for(int i=0;i&lt;20;++i)
+{
+	str+=boost::lexical_cast&lt;std::string&gt;(i);
+	str+="||";
+}
+sregex reg1=sregex::compile("\\|\\|");
+sregex reg2=sregex::compile("\\d+");
+
+//最後一個參數傳入 -1 則將正則表達式 作為分隔符
+sregex_token_iterator iterator1(str.begin(),str.end(),reg1,-1);
+sregex_token_iterator end;
+while(iterator1!=end)
+{
+	std::cout&lt;&lt;*iterator1&lt;&lt;std::endl;
+	++iterator1;
+}
+
+//將正則表達式作為 要查找的元素
+sregex_token_iterator iterator2(str.begin(),str.end(),reg2);
+while(iterator2!=end)
+{
+	std::cout&lt;&lt;*iterator2&lt;&lt;std::endl;
+	++iterator2;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>*iterator2 返回的是一個sub_match對象
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

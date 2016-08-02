@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>asio</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#asio">asio</a>
+		<a href="#deadline_timer">deadline_timer 定時器</a>
+		<a href="#tcp">ip::tcp</a>
+		<a href="#socket">socket acceptor</a>
+		<a href="#resolver">resolver</a>
+		<a href="#example">tcp 同步 example</a>
+		<a href="#example_async">tcp 異步 example</a>
+		<a href="#udp">ip::udp</a>
+	</div>
+
+	<div class="note"><a name="asio"></a>
+		<p><span class="flag">asio</span>
+<pre>#include&lt;boost\asio.hpp&gt;
+
+asio 庫是boost 提供了跨平台的 網絡通信功能  支持 TCP UDP ICMP 等協議
+asio不需要編譯 然其依賴的 其他庫 需要編譯 如 boost::system boost::datatime ... 若需要支持SSL還要安裝 OpenSSL
+
+asio使用 前攝模式(Proactor) 封裝了操作系統的 select poll/epoll kqueue overlapped I/O 等機制 實現了異步I/O
+io_service 是asio的核心類 任何一個 操作 都需要 io_service
+
+同步模式下:
+	程序發起一個I/O請求(向 io_service提交請求)
+	io_service把操作交給 os 並同步等待
+	當io完成 os通知io_service	
+	io_service 把結果 返回給程序
+
+異步模式下:
+	程序發起一個io請求 並定義一個用於回調的 完成處理函數  
+	io_service 把操作交給os 並立刻返回(調用io_service的run函數 可等待操作完成)
+	當io完成 io_service獲取結果 並調用 完成處理函數
+    
+
+asio不使用 os提供的線程 而是定義了一個 自己的 線程概念 strand
+strand 保證 在多線程環境下 代碼可以正確執行 而無需使用互斥量
+io_service::strand::wap 函數可以包裝一個函數在 strand中執行
+
+asio使用 mutable_buffer const_buffer 來封裝緩衝區 其可以被安全的應用在異步讀寫中 使用buffer()函數 能夠包裝常用的c++容器 array vector string...
+read() write() 用於 讀寫緩衝區
+
+asio 使用 system庫的 error_code system_error 表示程序運行的 錯誤 
+基本上 所有操作都有兩種 重載形式 
+	一種是有個 error_code的輸出參數 調用函數後 必須檢查此參數 以驗證是否發生錯誤
+	一種是 沒有此參數 出錯時 拋出 system_error 異常 
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="deadline_timer"></a>
+		<p><span class="flag">deadline_timer 定時器</span>
+<pre>deadline_timer 定時器 是asio中 最簡單的一個io模型 提供等待終止的功能
+
+deadline_timer 雖然簡單 但其顯示了 asio的 基本使用方法
+
+1	定義一個 io_service 前摄器
+2	定義相應的IO操作類(如deadline_timer)
+3	同步 或 異步 提交IO 若異步還要定義 完成處理函數 用於IO完成時被回調
+4	若異步 可以選擇 調用run 等待IO完成
+</pre>
+		</p>
+		<p><span class="flag">相關接口</span>
+<pre>//構造
+接受一個 io_service 以及一個可選參數 (時間點/時間段) 指定等待時間
+
+//構造時 若未指定 等待時間 必須 調用下面兩函數 指定等待時間
+
+//傳入一個時間段 指定 等待時間
+expires_from_now
+
+//傳入時間點 指定 等待時間 無參構造 返回 終止時間
+expires_at
+
+//提交IO 同步等待IO完成
+wait()
+
+//提交異步IO 異步等待IO完成 傳入完成處理函數 handler
+async_wait(BOOST_ASIO_MOVE_ARG(WaitHandler) handler)
+</pre>
+		</p>
+		<p><span class="flag">同步 example</span>
+<pre>#include&lt;boost\asio.hpp&gt;
+#include&lt;boost\date_time\posix_time\posix_time.hpp&gt;
+
+using namespace boost::asio;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//定義 前攝器 定時器
+	io_service	ios;
+	deadline_timer t(ios
+		,boost::posix_time::seconds(2)
+		);
+	
+	//返回終止時間
+	std::cout&lt;&lt;t.expires_at()&lt;&lt;std::endl;
+
+	//提交IO 同步等待
+	t.wait();
+
+	std::cout&lt;&lt;"wait end"&lt;&lt;std::endl;
+	
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">異步 example</span>
+<pre>#include&lt;boost\asio.hpp&gt;
+#include&lt;boost\date_time\posix_time\posix_time.hpp&gt;
+
+using namespace boost::asio;
+
+void handler(const boost::system::error_code&amp; e)
+{
+	if(e)
+	{
+		std::cout&lt;&lt;e.message()&lt;&lt;std::endl;
+		return;
+	}
+
+	std::cout&lt;&lt;"wait end"&lt;&lt;std::endl;
+}
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	io_service	ios;
+	deadline_timer t(ios
+		,boost::posix_time::seconds(2)
+		);
+
+	std::cout&lt;&lt;t.expires_at()&lt;&lt;std::endl;
+
+	//異步等待
+	t.async_wait(handler);
+	
+	//run 等待所有被掛接到 異步操作結束
+	ios.run();
+	
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>在使用 異步 操作時 可以借用 boost::bind 以適配更靈活的 函數簽名
+同時 要要使用 boost::asio::placeholders::error 作為 const boost::system::error_code的佔位符
+如函數簽名為 void handler(const boost::system::error_code&amp; e,int code);
+則 async_wait(bind(boost::asio::placeholders::error,n));
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="tcp"></a>
+		<p><span class="flag">ip::tcp</span>
+<pre>asio 支持TCP UDP ICMP 協議 在 namespace boost::asio::ip 中提供了 大量網絡通信 函數 類
+
+ip::tcp 是TCP主要的類 其本身沒實現 太多功能 主要定義了 數個 typedef 其更像是個 namespace
+</pre>
+		</p>
+		<p><span class="flag">ip地址</span>
+<pre>asio 使用 class ip::address 代表ip地址 可以同時支持 ipv4 ipv6
+
+asio 使用 class ip::tcp::endpoint 代表連接的 一個端點 既(一個ip地址 加上 通信端口)
+</pre>
+		</p>
+		<p><span class="flag">address 相關接口</span>
+<pre>//返回 是否是 v4 v6 地址
+bool is_v4() const
+bool is_v6() const
+
+//返回 地址字符串 或 從字符串返回address
+std::string address::to_string() const
+address address::from_string(const std::string& str)
+</pre>
+		</p>
+		<p><span class="flag">endpoint 相關接口</span>
+<pre>endpoint 使用一個 address 和 端口參數 構造
+
+//返回 使用的 地址 address
+address()
+//返回 使用的 端口號
+port()
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include&lt;boost\asio.hpp&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//ipv4
+	boost::asio::ip::address address	=	boost::asio::ip::address::from_string("127.0.0.1");
+	assert(address.is_v4());
+	std::cout&lt;&lt;address.to_string()&lt;&lt;std::endl;
+
+	//ipv6
+	address	=	address.from_string("2404:6800:4005:c00::64");
+	assert(address.is_v6());
+	std::cout&lt;&lt;address.to_string()&lt;&lt;std::endl;
+
+	//端點
+	boost::asio::ip::tcp::endpoint endpoint(address,1102);
+	assert(endpoint.address()	==	address);
+	assert(endpoint.port()	==	1102);
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="socket"></a>
+		<p><span class="flag">socket acceptor</span>
+<pre>class ip::tcp::socket 是TCP的基本類
+class ip::tcp::acceptor 對應於 socket API 的accept函數
+</pre>
+		</p>
+		<p><span class="flag">socket 相關接口</span>
+<pre>//傳入一個 前攝器 io_service 構造
+
+//連接到一個指定的 端點
+void connect(const endpoint_type& peer_endpoint)
+//異步連接 同上 不過多一個 完成處理函數 作為參數
+async_connect
+
+//返回連接的 兩端 端點信息
+local_endpoint
+remote_endpoint
+
+//同步 讀寫 數據 需要一個讀寫緩衝區作為參數 
+read_some
+write_some
+
+//異步 讀寫 參數同上 不過多了一個 完成處理函數 
+async_read_some
+async_write_some
+
+//關閉socket 析構時被 自動調用
+close
+</pre>
+		</p>
+		<p><span class="flag">acceptor 相關接口</span>
+<pre>傳入一個 前攝器 io_service 以及一個指明了ip協議和監聽端口的endpoint端點 構造
+
+//傳入一個 socket 以用於 連接 同步
+accept 
+
+//同上 不過為異步操作 以及需要傳入一個 完成處理函數
+async_accept
+
+注意 讀寫的數據 必須使用 buffer 函數將其進行 包裝
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="resolver"></a>
+		<p><span class="flag">resolver</span>
+<pre>class ip::tcp::resolver 用来 返回域名对应的 ip地址
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include&lt;boost\asio.hpp&gt;
+#include&lt;boost\lexical_cast.hpp&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//域名 端口 (查询结果将 返回为endpoint)
+	std::string name("www.google.com");
+	unsigned short port	=	1102;
+	
+	//定义一个查询
+	boost::asio::io_service ios;
+	boost::asio::ip::tcp::resolver rlv(ios);
+	boost::asio::ip::tcp::resolver::query qry(name,boost::lexical_cast&lt;std::string&gt;(port));
+	
+	//查询
+	boost::asio::ip::tcp::resolver::iterator iter	=	rlv.resolve(qry)
+		,end;
+
+	//遍历域名对应的 所有ip
+	for(;iter!= end;++iter)
+	{
+		std::cout&lt;&lt;iter->host_name()&lt;&lt;"\t"	//www.google.com
+			&lt;&lt;iter->service_name()&lt;&lt;"\t"	//1102
+			&lt;&lt;iter->endpoint().address()
+			&lt;&lt;"\n";
+	}
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>构造 ip::tcp::resolver::query 时 传入的第二个参数 端口 可以说任意值 
+其值指定了返回结果中 endpoint 记录的端口号 以方便直接使用 此endpoint 进行连接
+
+ip::tcp::resolver::query 构造时传入的 端口号不能省略 且其必须转化为字符串
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="example"></a>
+		<p><span class="flag">tcp 同步 example</span>
+<pre>下面的例子 演示了如何 使用 asio 進行同步 tcp操作
+</pre>
+		</p>
+		<p><span class="flag">client example</span>
+<pre>#include&lt;boost\thread.hpp&gt;
+#include&lt;boost\asio.hpp&gt;
+#include&lt;boost\array.hpp&gt;
+
+using namespace boost::asio;
+#define BUFFER_LEN	10240
+
+void write_thread(ip::tcp::socket&amp; sock)
+{
+	std::string cmd;
+
+	while(true)
+	{	
+		std::cin&gt;&gt;cmd;
+		sock.write_some(buffer(cmd));
+	}
+	
+}
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	std::string cmd;
+	unsigned short port	=	0;
+	try
+	{
+		io_service ios;
+
+		puts("輸入 連接地址(def 127.0.0.1 1102)");
+		std::cin&gt;&gt;cmd;
+		if(cmd =="def")
+		{
+			cmd		=	"127.0.0.1";
+			port	=	1102;
+		}
+		ip::address address	=	ip::address::from_string(cmd);
+		
+		if(!port)
+		{
+			puts("輸入連接端口");
+			std::cin&gt;&gt;port;
+		}
+
+		ip::tcp::endpoint endpoint(address,port);
+
+		ip::tcp::socket sock(ios);
+		sock.connect(endpoint);
+
+		puts("連接成功");
+		std::cout&lt;&lt;"本地端口:"&lt;&lt;sock.local_endpoint().port()
+			&lt;&lt;"\n遠程端口:"&lt;&lt;sock.remote_endpoint().port()
+			&lt;&lt;"\t遠程地址:"&lt;&lt;sock.remote_endpoint().address()&lt;&lt;std::endl;
+			
+		//開啟 write 線程
+		boost::thread t(boost::bind(write_thread
+			,boost::ref(sock)
+			)
+			);
+			
+		boost::array&lt;char,BUFFER_LEN&gt; buf	=	{0};
+		while(true)
+		{
+			std::fill(buf.begin(),buf.end(),0);
+			size_t size;
+			try
+			{
+				size	=	sock.read_some(buffer(buf));
+			}
+			catch(const boost::system::system_error& e)
+			{
+				//網絡異常 或 服務器斷開連接
+				throw e;
+			}
+			if(size)
+			{
+				std::cout&lt;&lt;"\nread size:"&lt;&lt;size
+					&lt;&lt;"\ndata:\n"&lt;&lt;buf.data()
+					;
+			}
+		}
+		
+	}
+	catch(const boost::system::system_error&amp; e)
+	{
+		std::cout&lt;&lt;e.what()&lt;&lt;std::endl;
+	}
+	catch(const std::exception&amp; e)
+	{
+		std::cout&lt;&lt;e.what()&lt;&lt;std::endl;
+	}
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">server example</span>
+<pre>服務其一般採用 異步模式 
+若使用同步模式 操作同 客戶端 只是多了 accept接受連接 操作
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>同步執行 connect 操作時 當一段時間 都未連接成功 connect 將拋出異常 或使用error_code 返回錯誤
+
+在使用 buffer 包裝 數據時 若數據是 容器如 vector 在 read時 一次接受的數據最大大小 和容器大小相同
+然 容器大小不能為0(為0 接直接接受 然每次接受的 數據大小都為0)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="example_async"></a>
+		<p><span class="flag">tcp 異步 example</span>
+<pre>下面的例子 演示了如何 使用 asio 進行異步 tcp操作
+</pre>
+		</p>
+		<p><span class="flag">client example</span>
+<pre>客戶端 基本同 同步客戶端 只是現在要 使用 async_*函數
+參見 同步 client example 和 異步 server example
+</pre>
+		</p>
+		<p><span class="flag">server example</span>
+<pre>#include&lt;boost\asio.hpp&gt;
+#include&lt;boost\noncopyable.hpp&gt;
+#include&lt;boost\thread.hpp&gt;
+#include&lt;boost\smart_ptr.hpp&gt;
+#include&lt;boost\unordered_set.hpp&gt;
+
+using namespace boost::asio;
+
+
+class server
+	: boost::noncopyable
+{	
+private:
+	//前攝器
+	boost::asio::io_service ios;
+	//連接器
+	boost::asio::ip::tcp::acceptor acceptor;
+
+	//客戶端 散列表
+	typedef boost::shared_ptr&lt;boost::asio::ip::tcp::socket&gt; socket_ptr_t;
+	boost::unordered_set&lt;socket_ptr_t&gt; set;
+	boost::unordered_set&lt;socket_ptr_t&gt; set_standby;
+	friend std::size_t hash_value(const server::socket_ptr_t value);
+
+	unsigned int buf_length;
+	typedef boost::shared_ptr&lt;std::vector&lt;char&gt;&gt; buffer_ptr_t;
+public:
+	inline unsigned int buffer_length()const
+	{
+		return buf_length;
+	}
+	void buffer_length(const unsigned int buffer_length)
+	{
+		buf_length	=	buffer_length;
+	}
+public:
+	server(const boost::asio::ip::tcp::endpoint& endpoint,const unsigned int buffer_length	=	10240)
+		: acceptor(ios,endpoint)
+		,buf_length(buffer_length)
+	{
+
+		std::cout&lt;&lt;"listen at "&lt;&lt;endpoint.port()&lt;&lt;"\n";
+
+		//投遞 接受客戶端連接
+		start(false);
+	}
+	inline void run()
+	{
+		ios.run();
+	}
+private:
+	void start(bool is_once	=	true)
+	{
+		unsigned int count	=	1;
+		if(!is_once)
+		{
+			count	=	boost::thread::hardware_concurrency()  + 2;
+		}
+		for(unsigned int i = 0 ; i &lt; count ; ++i)
+		{
+			socket_ptr_t tmp_socket_ptr	=	boost::make_shared&lt;boost::asio::ip::tcp::socket&gt;(ios);
+
+			//接受連接 綁定連接 完成處理函數
+			acceptor.async_accept(*tmp_socket_ptr
+				,boost::bind(&amp;server::accept_handler
+					,this
+					,boost::asio::placeholders::error
+					,tmp_socket_ptr
+					)
+				);
+		}
+	}
+	void accept_handler(const boost::system::error_code&amp; e,socket_ptr_t socket_ptr)
+	{
+		//再來給連接
+		start();
+
+		if(e)
+		{
+			return;
+		}
+
+		//連接成功 加入到 客戶端 散列表中
+		set.insert(socket_ptr);
+
+		buffer_ptr_t buf_ptr	=	boost::make_shared&lt;std::vector&lt;char&gt;&gt;(buf_length,0);
+		socket_ptr->async_read_some(boost::asio::buffer(*buf_ptr)
+			,boost::bind(&amp;server::read_handler
+				,this
+				,boost::asio::placeholders::error
+				,socket_ptr
+				,buf_ptr
+				)
+			);
+
+		std::cout&lt;&lt;"client port:"&lt;&lt;socket_ptr-&gt;remote_endpoint().port()
+			&lt;&lt;"\tclient address:"&lt;&lt;socket_ptr-&gt;remote_endpoint().address()
+			&lt;&lt;"\n";
+
+		//write
+		boost::shared_ptr&lt;std::string&gt; buf_write_ptr	=	boost::make_shared&lt;std::string&gt;("i'm come in");
+		socket_ptr-&gt;async_write_some(boost::asio::buffer(*buf_write_ptr)
+			,boost::bind(&amp;server::write_handler
+				,this
+				,boost::asio::placeholders::error
+				,buf_write_ptr
+				)
+			);
+	}
+
+	void read_handler(const boost::system::error_code&amp; e,socket_ptr_t socket_ptr,buffer_ptr_t buf_ptr)
+	{
+		//連接斷開 釋放資源
+		if(e)
+		{
+			std::cout&lt;&lt;"leave : "&lt;&lt;socket_ptr-&gt;remote_endpoint().port()&lt;&lt;"\t"&lt;&lt;socket_ptr-&gt;remote_endpoint().address()
+				&lt;&lt;"\n";
+
+			set.erase(socket_ptr);
+			return;
+		}
+
+		//處理接收到數據
+		std::cout&lt;&lt;"from:"&lt;&lt;socket_ptr-&gt;remote_endpoint().port()&lt;&lt;"\t"&lt;&lt;socket_ptr-&gt;remote_endpoint().address()
+			&lt;&lt;"\tdata:\t"&lt;&lt;buf_ptr-&gt;data()
+			&lt;&lt;"\n";
+
+		//繼續接受下一段數據
+		socket_ptr-&gt;async_read_some(boost::asio::buffer(*buf_ptr)
+			,boost::bind(&amp;server::read_handler
+				,this
+				,boost::asio::placeholders::error
+				,socket_ptr
+				,buf_ptr
+				)
+			);
+		std::fill(buf_ptr-&gt;begin(),buf_ptr-&gt;end(),0);
+
+	}
+
+	void write_handler(const boost::system::error_code&amp; e,boost::shared_ptr&lt;std::string&gt; buf_write_ptr)
+	{
+		
+	}
+};
+
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(),1102);
+	server s(endpoint);
+	s.run();
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="asio"></a>
+		<p><span class="flag">asio</span>
+<pre>server 中沒有 任何資源釋放的 代碼 在於 所有資源都使用了 智能指針 在資源未使用後 被自動釋放
+而 socket 再析構時會 自動調用 close 關閉 故而沒有顯示調用close
+
+write_handler 是一個空 函數 其只是為了 不讓智能指針存儲的發送緩衝區 在被完全發送前 被釋放 
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="udp"></a>
+		<p><span class="flag">ip::udp</span>
+<pre>ip::udp 是UDP主要的類 其本身沒實現 太多功能 主要定義了 數個 typedef 其更像是個 namespace
+
+用法基本同 tcp 只是省略了其中的連接操作(udp不需要建立連接) 並且在發送接收數據時 需要多跟一個 目標地址
+</pre>
+		</p>
+		<p><span class="flag">server example</span>
+<pre>#include&lt;boost\thread.hpp&gt;
+#include&lt;boost\asio.hpp&gt;
+#include&lt;boost\smart_ptr.hpp&gt;
+#include&lt;boost\bind.hpp&gt;
+
+typedef boost::shared_ptr&lt;std::vector&lt;char&gt;&gt; net_data_ptr_t;
+typedef boost::shared_ptr&lt;boost::asio::ip::udp::endpoint&gt;	endpoint_ptr_t;
+
+class server
+{
+private:
+	//前攝器
+	boost::asio::io_service ios_;
+
+	boost::asio::ip::udp::socket socket_;
+
+	unsigned int buffer_length_;
+public:
+	server(const boost::asio::ip::udp::endpoint&amp; endpoint,const unsigned int buffer_length	=	1024)
+		: buffer_length_(buffer_length)
+		,socket_(ios_,endpoint)
+	{
+		unsigned int count	=	boost::thread::hardware_concurrency()  + 2;
+		for(unsigned int i = 0 ; i &lt; count ; ++i)
+		{
+			post_read();
+		}
+	}
+	inline void run()
+	{
+		ios_.run();
+	}
+protected:
+	void post_read()
+	{
+		net_data_ptr_t net_data_ptr	=	boost::make_shared&lt;std::vector&lt;char&gt;&gt;(buffer_length_,0);
+		endpoint_ptr_t	endpoint_ptr	=	boost::make_shared&lt;boost::asio::ip::udp::endpoint&gt;();
+	
+		socket_.async_receive_from(boost::asio::buffer(*net_data_ptr)
+			,*endpoint_ptr
+			,boost::bind(&amp;server::read_handler
+				,this
+				,boost::asio::placeholders::error
+				,boost::asio::placeholders::bytes_transferred
+				,endpoint_ptr
+				,net_data_ptr
+				)
+			);
+	}
+	void read_handler(const boost::system::error_code&amp; e,std::size_t size,endpoint_ptr_t endpoint_ptr,net_data_ptr_t net_data_ptr)
+	{
+		if(!e)
+		{
+			unsigned short port	=	endpoint_ptr-&gt;port();
+			std::string str	=	endpoint_ptr-&gt;address().to_string();
+
+			//沒有錯誤 讀出數據 
+			printf("%s:%s\n",endpoint_ptr-&gt;address().to_string().c_str(),net_data_ptr-&gt;data());
+
+			{
+				//封包
+				std::string str	=	"i know";
+				net_data_ptr_t send_data	=	boost::make_shared&lt;std::vector&lt;char&gt;&gt;(str.size() + 1,0);
+				memcpy(send_data-&gt;data(),str.data(),str.size());
+				//發送數據
+				post_send(endpoint_ptr,send_data);
+			}
+		}
+		//讀取新內容
+		post_read();
+	}
+
+public:
+	void post_send(endpoint_ptr_t endpoint_ptr,net_data_ptr_t net_data_ptr)
+	{
+		socket_.async_send_to(boost::asio::buffer(*net_data_ptr)
+			,*endpoint_ptr
+			,boost::bind(&amp;server::send_handler
+				,this
+				,boost::asio::placeholders::error
+				,endpoint_ptr
+				,net_data_ptr
+				,0
+				)
+			);
+
+		unsigned short port	=	endpoint_ptr-&gt;port();
+		std::string str	=	endpoint_ptr-&gt;address().to_string();
+
+	}
+protected:
+	void send_handler(const boost::system::error_code&amp; e,endpoint_ptr_t endpoint_ptr,net_data_ptr_t net_data_ptr,int count/*記錄發送次數*/)
+	{
+		if(e
+			&gt;&gt; count &lt; 5
+			)
+		{
+			//如果發送失敗 且重發次數小於5 重發
+			socket_.async_send_to(boost::asio::buffer(*net_data_ptr)
+				,*endpoint_ptr
+				,boost::bind(&amp;server::send_handler
+					,this
+					,boost::asio::placeholders::error
+					,endpoint_ptr
+					,net_data_ptr
+					,count + 1
+					)
+				);
+		}
+	}
+
+};
+
+
+
+int main(int, char*[])
+{
+	boost::asio::ip::udp::endpoint endpoint(boost::asio::ip::udp::v4(),53);
+	server s(endpoint);
+	s.run();
+
+	std::system("pause");
+    return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">client example</span>
+<pre>#include&lt;boost\thread.hpp&gt;
+#include&lt;boost\asio.hpp&gt;
+#include&lt;boost\smart_ptr.hpp&gt;
+#include&lt;boost\bind.hpp&gt;
+
+typedef boost::shared_ptr&lt;std::vector&lt;char&gt;&gt; net_data_ptr_t;
+typedef boost::shared_ptr&lt;boost::asio::ip::udp::endpoint&gt;	endpoint_ptr_t;
+
+//前攝器
+boost::asio::io_service ios;
+//服務器地址
+boost::asio::ip::udp::endpoint endpoint(boost::asio::ip::address::from_string("127.0.0.1"),53);
+//recv 地址
+boost::asio::ip::udp::endpoint recv_endpoint;
+//socket
+boost::asio::ip::udp::socket sock(ios);
+
+
+//函數聲明
+void send_handler(const boost::system::error_code&amp; e,net_data_ptr_t net_data_ptr,int count/*記錄發送次數*/);
+void read_handler(const boost::system::error_code&amp; e,std::size_t size,net_data_ptr_t net_data_ptr);
+void post_read();
+
+void send_handler(const boost::system::error_code&amp; e,net_data_ptr_t net_data_ptr,int count/*記錄發送次數*/)
+{
+	if(e
+		&amp;&amp; count &lt; 5
+		)
+	{
+		//如果發送失敗 且重發次數小於5 重發
+		sock.async_send_to(boost::asio::buffer(*net_data_ptr)
+			,endpoint
+			,boost::bind(&amp;send_handler
+				,boost::asio::placeholders::error
+				,net_data_ptr
+				,count + 1
+				)
+			);
+	}
+}
+
+void read_handler(const boost::system::error_code&amp; e,std::size_t size,net_data_ptr_t net_data_ptr)
+{
+	if(!e)
+	{
+		//沒有錯誤 讀出數據 
+		printf("server:%s\n",net_data_ptr->data());
+	}
+	//讀取新內容
+	post_read();
+}
+
+void post_read()
+{
+	net_data_ptr_t net_data_ptr	=	boost::make_shared&lt;std::vector&lt;char&gt;&gt;(1024,0);
+	sock.async_receive_from(boost::asio::buffer(*net_data_ptr)
+		,endpoint
+		,boost::bind(read_handler
+			,boost::asio::placeholders::error
+			,boost::asio::placeholders::bytes_transferred
+			,net_data_ptr
+			)
+		);
+}
+
+void work_thread()
+{
+	std::string str;
+	while(true)
+	{
+		std::cin&gt;&gt;str;
+		if(str	==	"exit")
+		{
+			break;
+		}
+
+		//封包發送
+		net_data_ptr_t send_data	=	boost::make_shared&lt;std::vector&lt;char&gt;&gt;(str.size() + 1,0);
+		memcpy(send_data-&gt;data(),str.data(),str.size());
+		sock.async_send_to(boost::asio::buffer(*send_data)
+			,endpoint
+			,boost::bind(&amp;send_handler
+				,boost::asio::placeholders::error
+				,send_data
+				,0
+				)
+			);
+	}
+
+	ios.stop();
+}
+int _tmain(int argc, _TCHAR* argv[])
+{
+	<span class="care">//使用ipv4協議	必須指定ip協議之後才能 進行通信</span>
+	sock.open(boost::asio::ip::udp::v4());
+
+	post_read();
+	
+	new boost::thread(work_thread);
+
+	ios.run();
+
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

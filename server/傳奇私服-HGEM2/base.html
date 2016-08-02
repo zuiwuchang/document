@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>wxwidgets</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#GM">新增GM</a>
+		<a href="#exit">小退再進黑屏</a>
+		
+		
+	</div>
+
+	<div class="note"><a name="GM"></a>
+		<p><span class="flag">新增GM</span>
+<pre>編輯 Mir200\Envir\AdminList.txt 增加GM 角色名 如：
+<span class='care'>*   king</span>
+
+或者 運行 M2Server.exe
+菜單 -&gt; 查看-&gt; 列表信息1 -&gt; 管理員列表
+新增 權限為10 的角色名
+</pre>
+		</p>
+        <p><span class="flag">注意</span>
+<pre>可能需要 重啟 M2Server.exe  才能生效
+</pre>
+        </p>
+	</div>
+	<div class="note"><a name="exit"></a>
+		<p><span class="flag">小退再進黑屏</span>
+<pre>編輯
+MirServer/DBServer/!serverinfo.txt
+
+MirServer/Config.ini
+	[RunGate]
+	Count=n
+
+確保此兩文件 設置的 網關數量 端口 一致
+
+
+編輯
+MirServer/SelGate/Config.ini
+將
+	KeepConnectTimeOut=60000
+改為
+	KeepConnectTimeOut=120000
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

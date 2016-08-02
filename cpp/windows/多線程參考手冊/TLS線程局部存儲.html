@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>TLS線程局部存儲</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1>
+    	<a href="#TLS">TLS線程局部存儲</a><br />
+		<a href="#static">靜態TLS</a><br />
+        <a href="#dynamic">動態TLS</a><br />
+		<a href="#callback">TLS回調</a>
+		
+    </h1></p>
+   
+    
+    
+    <div class="div_box"><a name="TLS"></a><h2>
+    	<p><font color="#FF0000">TLS線程局部存儲</font><br />
+        線程TEB是線程環境塊 其中有64個 PVOID數組 用以存儲線程TLS數據<br />
+        將變量定義為 TLS 則變量在每個不同的線程中的值不同(因為其值保存在TEB中 對變量的訪問 實際是通過這64個數組的索引在訪問)
+        </p>
+    </h2></div>
+    
+     <div class="div_box"><a name="static"></a><h2>
+    	<p><font color="#FF0000">靜態TLS</font><br />
+        只需要在全局變量上加上 _declspec(thread) 聲明 便可定義為TLS變量<br />
+        如 _declspec(thread) DWORD tlsFlag=1;
+        </p>
+        
+        <p><font color="#FF0000">注意</font><br />
+        靜態TLS只能應用以exe 不能用以動態庫 因為動態加載的庫 其TEB不會被正確修改
+        </p>
+    </h2></div>
+
+	 <div class="div_box"><a name="dynamic"></a><h2>
+    	<p><font color="#FF0000">動態TLS</font><br />
+        通過4個函數使用動態TLS
+<pre>//申請一個TLS變量 返回其訪問索引
+DWORD WINAPI TlsAlloc(void);	//錯誤返回TLS_OUT_OF_INDEXES
+
+//返回TLS值
+LPVOID WINAPI TlsGetValue(
+  __in  DWORD dwTlsIndex
+);
+
+//設置TLS值
+BOOL WINAPI TlsSetValue(
+  __in      DWORD dwTlsIndex,
+  __in_opt  LPVOID lpTlsValue
+);
+
+//釋放TLS變量
+BOOL WINAPI TlsFree(
+  __in  DWORD dwTlsIndex
+);
+
+</pre>
+        </p>
+	</h2></div>
+    
+    <div class="div_box"><a name="callback"></a><h2>
+    	<p><font color="#FF0000">TLS回調</font><br />
+        TLS回調能夠註冊一個或多個回調函數 用以在程序主程序執行前執行 或程序結束 新啟線程 線程結束<br />
+        一般可用於在進程執行前 執行anti操作
+        </p>
+        
+        <p><font color="#FF0000">example</font><br />
+<pre>//告訴編譯器 啟用TLS目錄
+#pragma comment(linker, "/INCLUDE:__tls_used") 
+
+//回調函數定義
+VOID NTAPI tlsCallBack (
+    PVOID DllHandle,	//模塊句柄
+    DWORD Reason,		//調用原因 類似dll入口函數
+    PVOID Reserved		//保留未使用 為0
+    )
+{
+	switch(Reason)
+	{
+	case DLL_PROCESS_DETACH:	//進程要被終止 包括第一個線程
+		break;
+	case DLL_PROCESS_ATTACH:	//啟動了一個進程 包括第一個線程
+		MessageBox(NULL,L"before run",L"tls",MB_OK);
+		break;
+	case DLL_THREAD_ATTACH:		//新啟一個線程(不包括第一個主線程)
+		break;
+	case DLL_THREAD_DETACH:		//線程將要被終止(不包括第一個主線程)
+		break;
+	}
+}
+
+//指定回調函數
+#pragma data_seg(".CRT$XLB")
+PIMAGE_TLS_CALLBACK p_thread_callback = tlsCallBack;
+//PIMAGE_TLS_CALLBACK p_thread_callback[]={tlsCallBack,tlsCallBack1,tlsCallBack,...}	多個回調
+
+/*这是创建一个tls段
+".CRT$XLB"的含义是：
+.CRT表明是使用C RunTime机制
+$后面的XLB中
+X表示随机的标识
+L表示是TLS callback section
+B可以被换成B到Y的任意一个字母，但是不能使用".CRT$XLA"和".CRT$XLZ"
+因为".CRT$XLA"和".CRT$XLZ"是用于tlssup.obj的
+*/
+#pragma data_seg()</pre>
+        </p>
+    </h2></div>
+    
+</td></tr></table>
+</body>
+</html>

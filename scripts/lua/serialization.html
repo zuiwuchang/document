@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>lua</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#table">數據文件</a>
+		<a href="#serialization">串行化</a>
+		
+	</div>
+
+	<div class="note"><a name="table"></a>
+		<p><span class="flag">數據文件</span>
+<pre>無論是解析 xml json 都是麻煩的 事
+
+可以將 table 作為一個 數據文件 在使用時 使用 dofile loadfie 將其編譯即可 
+這樣就自動 解析 了數據 並且被存儲到了 table中
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>//數據文件(好吧 其實就是一個 lua腳本)
+--一個存儲了人物基本信息的 數據文件
+Data	=	{name	=	"illusive man"
+	,hp	=	1
+	,mp	=	1
+}
+
+//lua腳本
+--讀取數據
+dofile('data')
+--打印數據
+print(Data.name)
+print(Data.hp)
+print(Data.mp)
+--對於沒有定義的值 當然輸出nil
+print(Data.pos)
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>不用擔心 這樣編譯lua 的效率 問題
+lua 一開始 就以快速 編譯為 目標 開發者 為之做出來相當大的努力
+
+聽人測試說 如此 讀取 20M 的文件 只需要1秒
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="serialization"></a>
+		<p><span class="flag">串行化</span>
+<pre>串行化 不過是將 數據 轉化到 字節流(或其他任何文本可存儲 網絡可傳輸的 數據格式)
+之後可以 使用 此字節流 恢復到當前 數據環境的 技術
+
+這在c++這種強類型編譯語言似乎很麻煩 但在腳本中 根本沒什麼好說的
+</pre>
+		</p>
+
+		<p><span class="flag">exampel</span>
+<pre>--串行化
+l = "save"
+s = string.format("l=%q",l)
+print(s)	--s="str"
+
+--改變數據
+l="other"
+print(l)
+
+--恢復數據
+assert(loadstring(s))()
+print(l)	-- save
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>string.format 的%q 格式化字符串 為其兩端 加上 " 
+並且會正確專業 內容中的 " 
+(這個功能 不但在串行化中 很好用 在sql中依然)
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

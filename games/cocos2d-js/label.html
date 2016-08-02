@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>cocos2d-js</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#LabelTTF">LabelTTF</a>
+		<a href="#LabelBMFont">LabelBMFont</a>
+		<a href="#LabelAtlas">LabelAtlas</a>
+		<a href="#bmfont">bmfont</a>
+		
+	</div>
+
+	<div class="note"><a name="LabelTTF"></a>
+		<p><span class="flag">LabelTTF</span>
+<pre>Class
+cc.LabelTTF
+
+Defined in: CCLabelTTF.js
+Extends cc.Sprite
+	<span class="care">cc.Class
+		cc.Note
+			cc.Sprite
+				cc.LabelTTF)</span>
+</pre>
+		</p>
+		<p><span class="flag">用處</span>
+<pre>ttf 字體渲染
+</pre>
+		</p>
+		<p><span class="flag">屬性</span>
+<pre>//標籤 寬/高 度
+{Number} boundingWidth
+{Number} boundingHeight
+
+//填充色
+{cc.Color} fillStyle
+
+//字體(如 "18px Verdan") 
+{String} font
+
+//字體名
+{String} fontName
+
+//字體大小
+{Number} fontSize
+
+//不知用處 不過官方也建議不要調用
+{Boolean} initWithStringAndTextDefinition
+
+{Number} lineWidth
+- The line width for stroke
+
+{Number} shadowBlur
+- The blur size of shadow
+
+{Number} shadowOffsetX
+- The x axis offset of shadow
+
+{Number} shadowOffsetY
+- The y axis offset of shadow
+
+{Number} shadowOpacity
+- The opacity of shadow
+
+{String} string
+- Content string of label
+
+{cc.Color} strokeStyle
+- The stroke color
+
+//水平對齊
+{Number} textAlign
+- Horizontal Alignment of label: cc.TEXT_ALIGNMENT_LEFT|cc.TEXT_ALIGNMENT_CENTER|cc.TEXT_ALIGNMENT_RIGHT
+
+//垂直對齊
+{Number} verticalAlign
+- Vertical Alignment of label: cc.VERTICAL_TEXT_ALIGNMENT_TOP|cc.VERTICAL_TEXT_ALIGNMENT_CENTER|cc.VERTICAL_TEXT_ALIGNMENT_BOTTOM
+</pre>
+		</p>
+		<p><span class="flag">方法</span>
+<pre>//創建LabelTTF
+static {cc.LabelTTF|Null} cc.LabelTTF.create(text, fontName, fontSize, dimensions, hAlignment, vAlignment)
+	{String} text	//要顯示的的文本
+	{String|cc.FontDefinition} fontName Optional, Default: "Arial"
+	{Number} fontSize Optional, Default: 16
+	{cc.Size} dimensions Optional, Default: cc.size(0,0)
+	{Number} hAlignment Optional, Default: cc.TEXT_ALIGNMENT_LEFT
+	{Number} vAlignment Optional, Default: cc.VERTICAL_TEXT_ALIGNMENT_TOP
+
+...
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>	var helloLabel = new cc.LabelTTF("Hello World", "Arial", 38);
+	// position the label on the center of the screen
+	helloLabel.x = size.width / 2;
+	helloLabel.y = 0;
+	// add the label as a child to this layer
+	this.addChild(helloLabel, 5);
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="LabelBMFont"></a>
+		<p><span class="flag">LabelBMFont</span>
+<pre>Class
+cc.LabelTTF
+
+Defined in: CCLabelBMFont.js
+Extends cc.SpriteBatchNode
+	cc.Class
+		cc.Note
+			cc.SpriteBatchNode
+				cc.LabelBMFont)
+</pre>
+		</p>
+		<p><span class="flag">LabelBMFont</span>
+<pre>LabelBMFont 用於 支持 bf 字體 其使用 了類似 精靈集合 的渲染方式 以提高效率
+是 cocos2d 中 最快的 文本渲染方式
+</pre>
+		</p>
+		<p><span class="flag">屬性</span>
+<pre>	
+boundingWidth
+- Width of the bounding box of label, the real content width is limited by boundingWidth
+ 	
+string
+- Content string of label
+ 	
+textAlign
+- Horizontal Alignment of label, cc.TEXT_ALIGNMENT_LEFT|cc.TEXT_ALIGNMENT_CENTER|cc.TEXT_ALIGNMENT_RIGHT
+</pre>
+		</p>
+		<p><span class="flag">方法</span>
+<pre>&lt;static&gt; cc.LabelBMFont.create(str, fntFile, width, alignment, imageOffset)
+creates a bitmap font atlas with an initial string and the FNT file
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>	var helloLabel = new  cc.LabelBMFont("hello world", res.Font_path);
+	helloLabel.x = size.width / 2;
+	helloLabel.y = 0;
+	// add the label as a child to this layer
+	this.addChild(helloLabel, 5);
+</pre>
+		</p>
+
+	</div>
+
+	<div class="note"><a name="bmfont"></a>
+		<p><span class="flag">bmfont</span>
+<pre>bmfont 是一個 windows下 將 ttf 字體 專為 bm字體的工具
+到 <a href="http://www.angelcode.com/products/bmfont/">http://www.angelcode.com/products/bmfont/</a> 
+下載 最新版本
+</pre>
+		</p>
+
+		<p><span class="flag">使用說明</span>
+<pre>1	字體設置
+	Options->Font settings
+	font 字體
+	Charset 選擇unicode
+	<img src="images/label/1.PNG">
+
+2	導出設置
+	Options->Export Options
+	Font descriptot 導出格式 cocos2d支持Text
+	Presets 設置透明選項(White text width alpha)
+	texture 紋理格式(png 似乎文件小點)
+	<img src="images/label/2.PNG">
+
+3	選擇要導出的文字
+	勾選 右側的分類
+	<img src="images/label/2.PNG">
+
+	或者 Edit->Select char from file 通過 文件中的文本選擇
+	(文本文件 必須是 utf8 帶bom的格式)
+
+4	導出 bm 字體
+	Options->Save bitmap font as...
+</pre>
+		</p>
+		<p><span class="flag">命令行</span>
+<pre>//保持 配置
+Options->Save configuration as...
+
+//生成 bf 字體
+bmfont.exe" -t 文本文件 -c 配置文件路徑  -o 導出字體路徑
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

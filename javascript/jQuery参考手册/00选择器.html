@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>选择器</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#DOM">jQuery和DOM转换</a>
+		<a href="#base">基本选择器</a>
+		<a href="#filter">过滤选择器</a>
+		<a href="#level">层次选择器</a>
+		<a href="#form">表单选择器</a>
+	</div>
+
+
+	<div class="note"><a name="DOM"></a>
+		<p><span class="flag">jQuery和DOM转换</span>
+<pre>实现jQuery元素和标准DOM元素之间相互转换
+</pre>
+		</p>
+		<p><span class="flag">DOM to jQuery</span>
+<pre>以 $() 传入DOM元素 便会返回jQuery元素
+$(document.getElementsByTagName("div"))
+</pre>
+		</p>
+		<p><span class="flag">jQuery to DOM</span>
+<pre>调用$().get()方法;
+
+
+
+//返回所有元素为dom元素数组
+var dom=$('li').get();
+
+//返回所有元素中第一个为dom元素
+var dom=$('li').get(0);
+
+//返回所有元素中第二个为dom元素
+var dom=$('li').get(1);
+
+//返回所有元素中倒数第一个为dom元素
+var dom=$('li').get(-1);
+
+//返回所有元素中倒数第二个为dom元素
+var dom=$('li').get(-2);
+</pre>
+		</p>
+	</div>
+
+
+	<div class="note"><a name="base"></a>
+		<p><span class="flag">基本选择器</span>
+<pre>jQuery中最常用的选择器
+</pre>
+		</p>
+		<p><span class="flag">基本选择器</span>
+			<table>
+				<tr><th>selector</th><th>note</th><th>example</th></tr>
+				<tr><td>*</td><td>选取所有元素</td><td>$('*') 包括了html和body ...</td></tr>
+				<tr><td>tag</td><td>选择指定标签名的所有元素</td><td>$('div')</td></tr>
+				<tr><td>#id</td><td>选择指定id的元素</td><td>$('#12')</td></tr>
+				<tr><td>.class</td><td>选择拥有指定class属性的所有元素<br />此selector效率低下 一般不单独使用 多和其他选择器组合使用</td><td>$('.mybox')</td></tr>
+			</table>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>多个选择器同时使用 选择符合所有选择器要求的元素
+$('div.mydiv') //选择了所有包含class为mydiv的div元素
+
+多个选择器以<span class="care">,(逗号)</span>隔开 选择符合其中之一的元素 ,相当于逻辑或
+$('p,.mydiv')//选择了所有p标签和所有class属性为mydiv的元素
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="filter"></a>
+		<p><span class="flag">过滤选择器</span>
+<pre>用在基本选择器之后 用于从selector选择后端内容中过滤不需要元素
+若不指明基本选择器 默认基本选择器为 *
+</pre>
+		</p>
+		<p><span class="flag">基本 过滤选择器</span>
+			<table>
+				<tr><th>selector</th><th>note</th><th>example</th></tr>
+				<tr><td>:first</td><td>选取第一个元素</td><td>$('p:first')</td></tr>
+				<tr><td>:last</td><td>选取最后一个元素</td><td>$('p:last')</td></tr>
+				<tr><td>:even</td><td>选取索引值是偶数的元素</td><td>$('p:even')</td></tr>
+				<tr><td>:odd</td><td>选取索引值是奇数的元素</td><td>$('p:odd')</td></tr>
+				<tr><td>:eq(index)</td><td>选取索引值为index的元素</td><td>$('p:eq(0)')</td></tr>
+				<tr><td>:gt(index)</td><td>选取索引值大于index的元素</td><td>$('p:gt(1)')</td></tr>
+				<tr><td>:lt(index)</td><td>选择索引值小于index的元素</td><td>$('p:lt(1)')</td></tr>
+				<tr><td>:not(selector)</td><td>选取不与selector匹配的元素</td><td>$('p:not(.myp)')<br />//选取了所有class属性不为myp的p标签</td></tr>
+				<tr><td>:header</td><td>选取了所有标题元素</td><td>$(':header') //如 h1 h2...</td></tr>
+				<tr><td>:animated</td><td>x选取所有正在执行的动画元素</td><td></td></tr>
+			</table>
+		</p>
+		<p><span class="flag">子元素 过滤选择器</span>
+			<table>
+				<tr><th>selector</th><th>note</th><th>example</th></tr>
+				<tr><td>:first-child</td><td>第一个子元素</td><td></td></tr>
+				<tr><td>:last-child</td><td>最后一个子元素</td><td></td></tr>
+				<tr><td>:only-child</td><td>选取唯一的子元素</td><td></td></tr>
+				<tr><td>:nth-child(odd)</td><td>子元素索引为偶</td><td></td></tr>
+				<tr><td>:nth-child(even)</td><td>子元素索引为奇</td><td></td></tr>
+				<tr><td>:nth-child(index)</td><td>子元素索引为index</td><td></td></tr>
+				<tr><td>:nth-child(equation)</td><td>子元素索引符合equation（表达式）</td><td>$('p:nth-child(3n+1)')<br />//equation可自定义 n取值为0 1 2 3 ...</td></tr>
+			</table>
+		</p>
+		<p><span class="flag">内容 过滤选择器</span>
+			<table>
+				<tr><th>selector</th><th>note</th><th>example</th></tr>
+				<tr><td>:contains(text)</td><td>选取含义文本text的元素</td><td>$("div:contains('hello')")</td></tr>
+				<tr><td>:has(selector)</td><td>选取含有后代元素为selector的元素</td><td></td></tr>
+				<tr><td>:parent</td><td>选取含有后代元素或文本的非空元素</td><td></td></tr>
+				<tr><td>:empty</td><td>选取不包含后代元素和文本的空元素</td><td></td></tr>
+			</table>
+		</p>
+		<p><span class="flag">可见性 过滤选择器</span>
+			<table>
+			<tr><th>selector</th><th>note</th><th>example</th></tr>
+			<tr><td>:hidden</td><td>选取不可见元素</td><td></td></tr>
+			<tr><td>:visible</td><td>选取可见元素</td><td></td></tr>
+			</table>
+		</p>
+		<p><span class="flag">属性 过滤选择器</span>
+			<table>
+				<tr><th>selector</th><th>note</th><th>example</th></tr>
+				<tr><td>[attr]</td><td>选取使用了attr属性的元素</td><td>$('div[class]')</td></tr>
+				<tr><td>[attr=value]</td><td>选取attr属性为value的元素</td><td></td></tr>
+				<tr><td>[attr!=value]</td><td>选取attr属性不为value的元素</td><td></td></tr>
+				<tr><td>[attr~=value]</td><td>选取attr属性用空格分隔的值中有一个为value的元素</td><td></td></tr>
+				<tr><td>[attr^=value]</td><td>选取attr属性以value开始的元素</td><td></td></tr>
+				<tr><td>[attr$=value]</td><td>选取attr属性以value结束的元素</td><td></td></tr>
+				<tr><td>[attr*=value]</td><td>选取attr属性含有value的元素</td><td></td></tr>
+			</table>
+		</p>
+	</div>
+	<div class="note"><a name="level"></a>
+		<p><span class="flag">层次选择器</span>
+			由两个selector组合而成
+		</p>
+
+		<p><table>
+			<tr><th>selector</th><th>note</th></tr>
+			<tr><td>selector1 selector2</td><td>从selector1的后代里选取selector2</td></tr>
+			<tr><td>selector1>selector2</td><td>从selector1的子元素里选取selector2</td></tr>
+			<tr><td>selector1+selector2</td><td>从selector1后第一个兄弟元素里选取selector2</td></tr>
+			<tr><td>selector1~selector2</td><td>从selector1后的所有兄弟元素里选取selector2</td></tr>
+		</table></p>
+
+	</div>
+	<div class="note"><a name="form"></a>
+		<p><span class="flag">表单选择器</span>
+			用于方便的选取表达元素
+		</p>
+		<p><table >
+			<tr><th>selector</th><th>note</th></tr>
+			<tr><td>:input</td><td>选取input textarea select button</td></tr>
+			<tr><td>:text</td><td>选取[type=text]的input</td></tr>
+			<tr><td>:password</td><td>选取[type=password]的input</td></tr>
+			<tr><td>:radio</td><td>选取[type=radio]的input</td></tr>
+			<tr><td>:checkbox</td><td>选取[type=checkbox]的input</td></tr>
+			<tr><td>:image</td><td>选取[type=image]的input</td></tr>
+			<tr><td>:file</td><td>选取[type=file]的input</td></tr>
+			<tr><td>:button</td><td>选取[type=button]的input 和 button</td></tr>
+			<tr><td>:submit</td><td>选取[type=submit]的input</td></tr>
+			<tr><td>:reset</td><td>选取[type=reset]的input</td></tr>
+			<tr><td>/*我是分界线*/</td><td></td></tr>
+			<tr><td>:enabled</td><td>选取可用的表单元素</td></tr>
+			<tr><td>:disabled</td><td>选取不可用的表单元素</td></tr>
+			<tr><td>:checked</td><td>选取被选中的input<br /><span class="care">一些浏览器会把 $(':checked') 误选为option<br />所以推荐用$('input:checked')</span></td></tr>
+			<tr><td>:selected</td><td>选取被选中的option</td></tr>
+		</table></p>
+	</div>
+</div>
+</body>
+</html>

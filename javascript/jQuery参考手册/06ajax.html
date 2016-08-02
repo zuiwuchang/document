@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>ajax</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#ajax">ajax</a>
+		<a href="#ajaxsetup">ajax全局设置</a>
+		<a href="#other">other</a>
+	</div>
+
+
+	<div class="note"><a name="ajax"></a>
+		<p><span class="flag">ajax</span>
+<pre>$.ajax({
+	url:"请求的URL地址",
+	dataType:"html",	//服务器传回数据类型 可以是 html xml json script
+	data:{"name":"test","id":"123"},	//向服务器传输的数据
+	type:"get",	//请求的方式post get 默认get
+	success:function(data){}	//请求成功时代处理函数
+})
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>$.ajax({
+	url:"example.jsp",
+	dataType:"html",
+	type:"post",
+	data:{"name":"test"},
+	sucess:function(data){
+		alert(data);
+	}
+});
+</pre>
+		</p>
+		<p><span class="flag">sucess处理xml</span>
+<pre>&lt;?xml version="1.0" encoding="utf-8 ?"&gt;
+
+function(data){
+	$(data).find("后代标签名").each(function(){
+		$(this).find("...").text();
+	});
+}
+</pre>
+		</p>
+		<p><span class="flag">sucess处理json</span>
+<pre>[
+	{"name":"jay","phone":"12345"},
+	{"name":"illusive man","phone":"54321"}
+]
+上为json数据格式 也可动态生成
+
+function(data){
+	$.each(data,function(index,obj){
+		alert(obj.name + obj.phone);
+	})
+})
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="ajaxsetup"></a>
+		<p><span class="flag">ajax全局设置</span>
+<pre>//可改变ajax默认参数 其调用方法同$.ajax
+$.ajaxSetUp(option);
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="other"></a>
+		<p><span class="flag">other</span>
+<pre>若$.ajax的dataType属性是script 可以接受一段javascript
+这段代码将作为全局javascript
+比如接受的js中定义了一个变量 于是可以sucess函数中直接使用这个变量
+</pre>
+		</p>
+		<p><span class="flag">ajax快捷方法</span>
+<pre>jQuery封装了三个快捷的方法 以让我们可以填入更少的参数
+$.get(url,[,data][,sucess],[dateType]);	//其实就是默认get传输
+$.post(url,[,data][,sucess],[dateType]);	//...post...
+$.get("get.test",{"id":"123"},function(){},"html");
+
+
+load...	//估计余不会用 且打字累了 故不列出具体用法
+</pre>
+		</p>
+		<p><span class="flag">跨域</span>
+<pre>一般浏览器阻止从不同域名获取数据
+jQuery的
+$.getScript(url,[,data],[sucess])
+$getJSON(url,[,data][,sucess])
+可以跨域
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>CWnd</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+    <p><h1><font color="#FF0000">CWnd</font></h1></p>
+    
+    <h2>
+    <a href="#CWnd">CWnd</a><br />
+    <a href="#Create">Create</a><br />
+   	<a href="#fun">常用方法</a><br />
+    <a href="#state">狀態相關</a><br />
+    
+    </h2>
+    
+    <div class="div_box"><a name="CWnd"></a><p><h3>
+    	<p><h2><font color="#FF0000">CWnd</font></h2>
+       	CWnd	是所有窗口的基類 其定義了窗口的 基本特性<br /><br />
+        
+        m_hWnd 保存了與之連接的窗口句柄
+    	</p>
+    </h3></p></div>
+    
+    <div class="div_box"><a name="Create"></a><p><h3>
+    	<p><h2><font color="#FF0000">Create</font></h2>
+<pre>//創建窗口
+virtual BOOL Create(
+             LPCTSTR lpszClassName,		//一個註冊的窗口類名
+             LPCTSTR lpszWindowName,		//窗口名
+             DWORD dwStyle,			//窗口風格	<font color="#FF0000">不能是WS_POPUP 需要WS_POPUP應該使用 CreateEx</font>
+             const RECT& rect,			//窗口區域
+             CWnd* pParentWnd,			//父窗口
+             UINT nID,				//id
+             CCreateContext* pContext = NULL	//窗口創建上下文
+             );
+<font color="#FF0000">dwStyle取值</font>
+WS_CHILD		子窗口
+WS_CHILDWINDOW	同WS_CHILD
+WS_POPUP		彈出窗口
+WS_SIZEBOX		可調整邊框
+WS_TABSTOP		可以通過tab移動到窗口
+
+WS_HSCROLL		具有水平滾動條
+WS_VSCROLL		具有垂直滾動條
+
+WS_VISIBLE		最初可見
+WS_DISABLED		最初禁用
+WS_GROUP		指定一組控件
+
+WS_MINIMIZE		最初最小化
+WS_ICONIC		同WS_MINIMIZE
+WS_MINIMIZEBOX	有 最小化 按鈕
+
+WS_MAXIMIZE		最初最大化
+WS_MAXIMIZEBOX	有最大化按鈕
+
+...
+
+//CreateEx 
+BOOL CreateEx(
+     DWORD dwExStyle,
+     LPCTSTR lpszClassName,
+     LPCTSTR lpszWindowName,
+     DWORD dwStyle,
+     int x,
+     int y,
+     int nWidth,
+     int nHeight,
+     HWND hwndParent,
+     HMENU nIDorHMenu,
+     LPVOID lpParam = NULL
+     );
+
+BOOL CreateEx(
+     DWORD dwExStyle,			//窗口擴展風格	 WS_EX_ACCEPTFILES 接受文件拖放
+     LPCTSTR lpszClassName,
+     LPCTSTR lpszWindowName,
+     DWORD dwStyle,
+     const RECT& rect,
+     CWnd* pParentWnd,
+     UINT nID,
+     LPVOID lpParam = NULL
+     );
+
+
+//返回一個 AFX 小組預先 定義註冊的 標準窗口類名
+LPCTSTR AFXAPI AfxRegisterWndClass(
+        UINT nClassStyle,			//窗窗口類風格 NULL 使用默認風格
+        HCURSOR hCursor = 0,		//光標
+        HBRUSH hbrBackground = 0,	//背景畫刷
+        HICON hIcon = 0				//圖標
+       );
+</pre>
+    	</p>
+    </h3></p></div>
+    
+    <div class="div_box"><a name="fun"></a><p><h3>
+    	<p><h2><font color="#FF0000">常用方法</font></h2>
+<pre>//連接一個 窗口
+BOOL Attach( HWND hWndNew );
+//分離窗口句柄
+HWND Detach( );
+
+//返回窗口風格
+DWORD GetStyle( ) const;
+
+//返回窗口 擴展風格
+DWORD GetExStyle( ) const;
+
+//銷毀與之連接的窗口
+virtual BOOL DestroyWindow( );
+
+</pre>        
+        </p>
+ 	</h3></p></div>
+   <div class="div_box"><a name="state"></a><p><h3>
+    	<p><h2><font color="#FF0000">狀態相關</font></h2>
+<pre>//返回是否允許 鼠標 鍵盤輸入
+BOOL IsWindowEnabled( ) const
+<font color="#FF0000">//設置 是否 允許 鼠標 鍵盤 輸入	TRUE(允許)</font>
+BOOL EnableWindow( BOOL bEnable = TRUE );
+
+//返回活動窗口 <font color="#FF0000">返回的是一個臨時的指針</font>
+static CWnd* PASCAL GetActiveWindow( );
+//激活窗口 返回原活動窗口的歷時指針
+CWnd* SetActiveWindow( );
+
+<font color="#FF0000">//修改窗口風格 擴展風格</font>
+BOOL ModifyStyle( DWORD dwRemove, DWORD dwAdd, UINT nFlags = 0 );
+BOOL ModifyStyleEx( DWORD dwRemove, DWORD dwAdd, UINT nFlags = 0 );
+<font color="#FF0000">nFlags 取值</font>
+SWP_NOSIZE		保持窗口大小  
+SWP_NOMOVE		保持窗口位置  
+SWP_NOZORDER	保存窗口Z軸次序  
+SWP_NOACTIVATE	不激活窗口
+...其他參加SetWindowPos
+
+//返回 設置 圖標句柄 TRUE(32*32) FALSE(16*16)
+HICON GetIcon( BOOL bBigIcon ) const;
+HICON SetIcon( HICON hIcon, BOOL bBigIcon );
+
+//返回前台窗口 臨時指針
+static CWnd* PASCAL GetForegroundWindow( );
+//設置為前台窗口
+BOOL SetForegroundWindow( );
+//返回桌面窗口 臨時指針
+static CWnd* PASCAL GetDesktopWindow( );
+
+//獲取焦點窗口 臨時指針
+static CWnd* PASCAL GetFocus( );
+//設置窗口 獲得焦點 返回原焦點 窗口臨時指針
+CWnd* SetFocus( );
+
+//獲取鼠標 輸入窗口 臨時指針
+static CWnd* PASCAL GetCapture( );
+<font color="#FF0000">//設置鼠標 輸入窗口 返回 原窗口臨時指針</font>
+CWnd* SetCapture( );
+
+//獲取激活窗口 臨時指針
+static CWnd* PASCAL GetActiveWindow( );
+<font color="#FF0000">//激活窗口 返回原 激活窗口 臨時指針</font>
+CWnd* SetActiveWindow( );
+</pre>      
+        </p>
+ 	</h3></p></div>
+  	
+</td></tr></table>
+</body>
+</html>

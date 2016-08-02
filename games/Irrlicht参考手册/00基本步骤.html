@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>基本步骤</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1>
+    	<p><font color="#FF0000">描述</font><br />
+        	Irrlicht的基本操作步骤
+		</p>
+   		
+        <a href="#Irrlicht">Irrlicht</a> <br />
+        <a href="#get">環境配置 win32</a> <br />
+        <a href="#namespace">namespace</a> <br />
+        <a href="#base">基本步骤</a> <br />
+    </h1></p>
+    
+    <div class="div_box"><a name='Irrlicht'><h3>
+    	<font color="#FF0000">Irrlicht</font>
+<pre>一個開源 跨平台的 c++ 3D遊戲引擎
+官網<a href="http://irrlicht.sourceforge.net/">http://irrlicht.sourceforge.net/</a></pre>
+        <p>
+  	</h3></a></div>
+    
+    <div class="div_box"><a name='get'><h3>
+    	<font color="#FF0000">環境配置 win32</font>
+        <p><font color="#FF0000">example</font><br />
+<pre>1	下載最新Irrlicht 得到 irrlicht-*.zip
+2	解壓 將include 加入 編譯器include目錄 將對於環境 的Irrlicht.dll (bin\...) Irrlicht.lib (lib\...) 設置到動態鏈接環境 
+
+3	#pragma comment(lib,&quot;Irrlicht.lib&quot;)
+	#include &lt;irrlicht.h&gt;
+</pre>        	
+        <p>
+  	</h3></a></div>
+    
+     <div class="div_box"><a name='namespace'><h3>
+    	<font color="#FF0000">namespace</font><br>
+        <p><font color="#FF0000">描述</font><br />
+<pre>irr	主namespace 包括基本型別
+
+下為 irr下的 子namespace 
+core	主要是一些數據結構
+scene	場景管理 場景節點 攝像機 粒子系統 mesh 燈光 ... 大部分3D功能	
+video	視頻渲染
+io	輸入輸出
+gui	常用圖像用戶接口
+</pre>        
+        <p>
+  	</h3></a></div>
+    
+   	<div class="div_box"><a name='base'><h3>
+    	<font color="#FF0000">基本步骤</font>
+        
+        <p><font color="#FF0000">step</font><br />
+        创建驱动设备句柄<br />
+        创建 视频设备 gui设备 ...<br />
+        设置场景 gui...<br />
+        设置摄像头<br />
+        绘制<br />
+        释放驱动设备句柄
+        </p>
+        <p><font color="#FF0000">example</font>
+       	<pre>
+       //创建驱动设备句柄
+	irr::IrrlichtDevice *device=irr::createDevice(
+		irr::video::EDT_DIRECT3D9,				//图形渲染设备
+		irr::core::dimension2d&lt;irr::u32&gt;(640,480),	//窗口大小
+		16,		//窗口色深
+		false,	//是否全屏
+		false,	//绘制阴影时是否使用模板缓冲区
+		false,	//是否开启同步，仅全屏时有效
+		0);		//事件接受对象 既对鼠标 键盘 消息的处理
+	/*irr::IrrlichtDevice *device=irr::createDevice(irr::video::EDT_DIRECT3D9,irr::core::dimension2d&lt;irr::u32&gt;(640,480),16,
+			false,false,false,0);*/
+
+	if (!device)
+		return 1;
+	device->setWindowCaption(L"这里设置窗口标题");
+
+	//获取 视频设备 场景管理器 gui设备
+	irr::video::IVideoDriver *driver=device->getVideoDriver();
+	irr::scene::ISceneManager *smgr=device->getSceneManager();
+	irr::gui::IGUIEnvironment *gui=device->getGUIEnvironment();
+
+	//增加一个 static text 到gui
+	gui->addStaticText(L"Hellow 3D Games",irr::core::rect&lt;int&gt;(10,10,260,22),true);
+	
+	//读取一个md2模型 同时还支持 .obj(Maya文件) .bsp(Quake3地图文件) .ms3d(Milshape 文件)
+	irr::scene::IAnimatedMesh* mesh=smgr->getMesh("media/sydney.md2");
+	if (!mesh)
+	{
+		device->drop();
+		return 1;
+	}
+	//创建一个场景节点以显示mesh
+	irr::scene::IAnimatedMeshSceneNode* node=smgr->addAnimatedMeshSceneNode(mesh);
+	
+	if(node)
+	{
+		node->setMaterialFlag(irr::video::EMF_LIGHTING,//设置高光属性
+			false);	//高光属性为false
+
+		//设置针循环以保证模型动作
+		node->setMD2Animation(irr::scene::EMAT_STAND);
+		//设置针纹理
+		node->setMaterialTexture(0,driver->getTexture("media/sydney.bmp"));
+	
+	}
+
+	//设置摄像头3D位置以及观察目标点
+	smgr->addCameraSceneNode(0,irr::core::vector3df(0,30,-40)//摄像头位置
+		,irr::core::vector3df(0,5,0));//观察目标点
+
+	while (device->run())//死循环 Alt+F4 才能结束之
+	{
+		/*
+		beginScene将屏幕以制度颜色和深度缓存清空 再以gui环境进行内存绘制
+		endScene将内容绘制到屏幕
+		*/
+		//开始绘制
+		driver->beginScene(true,true,irr::video::SColor(255,100,101,140));
+		
+		//绘制场景
+		smgr->drawAll();
+		//绘制gui
+		gui->drawAll();
+		
+		//结束绘制
+		driver->endScene();
+	}
+
+	//释放驱动设备
+	device->drop();
+        </pre>
+        </p>
+        
+ 	</h3></a></div>
+</td></tr></table>
+</body>
+</html>

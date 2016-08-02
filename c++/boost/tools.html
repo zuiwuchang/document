@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>實用工具</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#noncopyable">noncopyable</a>
+		<a href="#typeof">typeof</a>
+		<a href="#optional">optional</a>
+		<a href="#assign">assign</a>
+		<a href="#swap">swap</a>
+		<a href="#singleton">singleton</a>
+   
+	</div>
+
+
+	<div class="note"><a name="noncopyable"></a>
+		<p><span class="flag">noncopyable</span>
+<pre>#include&lt;boost/noncopyable.hpp&gt;
+
+編譯器默認 會給 class 添加 拷貝構造和 operator= 函數 
+這樣的好處是 class 直接符合容器的 copy語義 自動支持swap
+若需要類 禁止copy 只需要將上述函數 定義為private 
+boost提供了更便捷的方式 使class從noncopyable派生既可(noncopyable 不過是將上述函數定義為private 派生繼承了此二函數)
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>#include &lt;boost/noncopyable.hpp&gt;
+
+class Test
+	: boost::noncopyable
+{
+	
+};
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	Test a,b;
+	//a	=	b;	//錯誤
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="typeof"></a>
+		<p><span class="flag">typeof</span>
+<pre>#include &lt;boost/typeof/typeof.hpp&gt;
+
+c++11 提供了 decltype 用於返回一個型別的 數據類型
+		auto 用於 定義一個 由編譯器推導的 型別
+
+boost 在c++11 之前便提供了宏 
+	BOOST_TYPEOF 實現decltype
+	BOOST_AUTO 實現 auto
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>#include &lt;boost/typeof/typeof.hpp&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	BOOST_AUTO(i1,1);
+	BOOST_TYPEOF(i1) i2;
+	i2	=	i1;
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="optional"></a>
+		<p><span class="flag">optional</span>
+<pre>#include &lt;boost/optional.hpp&gt;
+
+optional 用以容器的語義 來包裝一個函數 返回值 為無效值提供了一個 很好的解決方案 
+
+optional 重載了 -> * 使optional使用起來 像一個指向 被包裝型別的指針
+
+optional 隱式轉化為 bool  以代表 是否是有效值
+</pre>
+		</p>
+
+		<p><span class="flag">optional</span>
+<pre>//構造
+optional()	//無線值
+optional(const T &amp; v)		//構造一個 optional 值為v(模板為T) 或 &amp;v(模板為T&amp;) (傳入none 為參數 則 構造為無效值)
+optional(condition,v)			//根據條件  condition 為 true 以v 構造 或者 以無效值構造
+
+//深比較
+==
+!=
+&lt;
+&lt;=
+>
+&gt;=
+
+->
+*
+
+//返回包裝元素 引用
+get
+//返回包裝元素 指針
+get_ptr
+
+//返回 包裝的值 若optional為無效值 返回 default
+const T&amp; get)value_or(const&amp; T default)const
+
+//工廠函數 生產一個 optional
+make_optional(const　Ｔ&amp;)
+make_optional(bool,const　Ｔ&amp;)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;boost/optional.hpp&gt;
+#include &lt;boost/utility/in_place_factory.hpp&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	// 一個 int的 無效值
+	boost::optional&lt;int&gt; op;
+	
+	//值為1
+	op	=	boost::make_optional(1);
+	if(op)
+	{
+		std::cout&lt;&lt;*op&lt;&lt;std::endl;
+	}
+
+	//條件為true 值為2 否則為 無效值
+	op	=	boost::make_optional(false,2);
+	if(op)
+	{
+		std::cout&lt;&lt;*op&lt;&lt;std::endl;
+	}
+
+	//創建一個 &amp; 包裝
+	boost::optional&lt;int&amp;&gt; op1;
+    
+	//傳入 構造函數的 參數 構造型別 並被optional包裝  
+	boost::optional&lt;std::vector&lt;int&gt;&gt; op_v	(boost::in_place(10,3));
+    
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>optional 只要求被包裝型別 支持copy語義
+
+對於 包裝 的型別 若copy 消耗過大 boost 提供了 in_place 其可以通過  傳入 型別的 構造參數 in_place就地創建 一個 optional
+而不需要 創建一個臨時的 型別 再傳入 optional 構造
+#include &lt;boost/utility/in_place_factory.hpp&gt;
+
+對於 &amp; 的包裝 不支持 就地創建 賦值 且可以不立刻指定初始值(無效值) 在賦值時可以轉移包裝對象
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="assign"></a>
+		<p><span class="flag">assign</span>
+<pre>#include &lt;boost/assign.hpp&gt;
+using namespace boost::assign;
+
+STL 提供了大量容器 然對於其添加數據 需要 insert push_* 頗為不便
+boost的 assign 簡化了這些 操作
+</pre>
+		</p>
+		<p><span class="flag">assign</span>
+<pre>+=	用於在一個 容器尾(當然有序容器 不一定在 容器尾) 插入數據
+<font color="#FF0000">+=	只能用於 STL 標準容器 對於 boost容器 或其他容器 無能為力</font>
+
+#include &lt;vector&gt;
+#include &lt;map&gt;
+
+#include &lt;boost/assign.hpp&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	using namespace boost::assign;
+	std::vector&lt;int&gt; v;
+	for(int i = 0;i &lt; 10;++i)
+	{
+		v	+=	i;
+	}
+	v	+=	10,11,12,13;
+    
+	std::map&lt;int,std::string&gt; map;
+	map	+=	std::make_pair(0,"0");
+	map	+=	std::make_pair(1,"1");
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">()</span>
+<pre>push_back push_front insert 返回容器的 list_inserter 代理對象 
+list_inserter 重載了 , = () 使用容器對應的 push_* insert 進行插入操作
+
+#include&lt;vector&gt;
+#include&lt;map&gt;
+
+#include &lt;boost/assign.hpp&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	std::vector&lt;int&gt; v;
+	//()中 為空 以 T() 構造型別 插入
+	boost::assign::push_back(v)(1)(2)(3)(),4,5,6;
+	
+	std::map&lt;int,std::string&gt; map;
+	boost::assign::insert(map)(1,"one")(2,"two");
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">初始化容器元素</span>
+<pre>list_of map_list_of/pair_list_of tuple_list_of 用於返回一個 匿名 列表 用於快速 初始化 容器
+
+
+#include&lt;vector&gt;
+#include&lt;map&gt;
+
+#include &lt;boost/assign.hpp&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//list_of
+	std::vector&lt;int&gt; v	=	(boost::assign::list_of(1)(2)(3),4,5,6);
+	std::vector&lt;std::vector&lt;int&gt;&gt; vv	=	boost::assign::list_of(boost::assign::list_of(1)(2)(3))(boost::assign::list_of(4)(5)(6));
+
+	//map_list_of
+	std::map&lt;int,std::string&gt; map	=	boost::assign::map_list_of(1,"one")(2,"two");
+
+	//tuple_list_of
+	std::vector&lt;boost::tuple&lt;int,std::string&gt;&gt;	tuple	=	boost::assign::tuple_list_of(1,"one")(2,"two");
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">減少重複輸入</span>
+<pre>assign 提供了 repeat repeat_fun range 3個函數 用於減少 重複輸入
+
+#include &lt;vector&gt;
+
+#include &lt;boost/assign.hpp&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	std::vector&lt;int&gt; v,v1;
+	//插入 3 個 2
+	boost::assign::push_back(v).repeat(3,2);
+
+	//插入 3 個 functor的返回值
+	boost::assign::push_back(v).repeat_fun(3,[](){ return std::rand()%10;});
+	
+	//將一個 容器區間 插入 
+	boost::assign::push_back(v1).range(v.begin(),v.end());
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">與非標準容器工作</span>
+<pre>assign 支持全部的 STL 標準容器(vector string deque list set multiset map multimap)
+對於非標準容器 stack queue priority_queue 沒有insert push_* 只能用 list_of 且最後要調用 to_adapter()
+
+#include &lt;stack&gt;
+
+#include &lt;boost/assign.hpp&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	std::stack&lt;int&gt; stack	=	(boost::assign::list_of(1),2,3).to_adapter();
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="swap"></a>
+		<p><span class="flag">swap</span>
+<pre>#include &lt;boost/swap.hpp&gt;
+boost::swap 是對 std::swap 的泛型增強
+
+boost::swap 調用 模板特化swap 若不存在 最後 調用 std::swap
+boost::swap 亦可交換兩個數組 然數組長度 必須相同
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;boost/swap.hpp&gt;
+
+class Test
+{
+	int x;
+public:
+	Test(int value)
+	{
+		x	=	value;
+	}
+	void swap(Test& s)
+	{
+		std::swap(x,s.x);
+		puts("inner");
+	}
+};
+
+//特化 swap
+void swap(Test& left,Test& right)
+{
+	left.swap(right);
+}
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//調用 特化 swap
+	Test t1(1),t2(2);
+	boost::swap(t1,t2);
+
+	//交換數組
+	int a[10],b[10];
+	std::fill_n(a,10,5);
+	std::fill_n(b,10,6);
+	boost::swap(a,b);
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="singleton"></a>
+		<p><span class="flag">singleton</span>
+<pre>#include &lt;boost/serialization/singleton.hpp&gt;
+
+單件頗有有用的模式 boost並未提供 單件庫 然在序列化庫serialization 中提供了一個 單件singleton 可用以實現單件模式
+
+singleton 有兩種使用方式 
+1	由singleton派生
+2	將 class 傳入 singleton 的模板
+</pre>
+		</p>
+		<p><span class="flag">相關接口</span>
+<pre>//返回實例應用
+static const T &amp; get_const_instance()
+static T &amp; get_mutable_instance()
+</pre>
+		</p>
+		<p><span class="flag">example 1</span>
+<pre>#include &lt;boost/serialization/singleton.hpp&gt;
+
+class Test
+{
+public:
+	int x;
+};
+
+typedef boost::serialization::singleton&lt;Test&gt; singleton;
+int _tmain(int argc, _TCHAR* argv[])
+{
+	singleton::get_mutable_instance();
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">example 2</span>
+<pre>#include &lt;boost/serialization/singleton.hpp&gt;
+
+class Test
+	: public boost::serialization::singleton&lt;Test&gt;
+{
+public:
+	int x;
+};
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	Test::get_mutable_instance();
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>singleton 要求 被包裝的class 構造析構 不能拋出異常
+
+singleton 不是線程安全的 需要自己 同步線程
+
+singleton 是noncopyable的 子類
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

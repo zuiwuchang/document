@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>算法</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#algorithm">算法</a>
+		<a href="#end">尾词</a>
+		<a href="#class">算法分类</a>
+		<a href="#nomodifying">非变动性算法</a>
+		<a href="#modifying">变动性算法</a>
+		<a href="#remove">移除性算法</a>
+		<a href="#mutating">变序算法</a>
+		<a href="#sort">排序算法</a>
+		<a href="#alreadysort">已序区间算法</a>
+		<a href="#numeric">数值算法</a>
+		
+	</div>
+
+	<div class="note"><a name="algorithm"></a>
+		<p><span class="flag">算法</span>
+<pre> STL算法被设计用于处理一个或多个迭代器区间 
+第一区间通常以起点终点表示 其他区间只提供起点 其终点由第一区间推倒出来
+STL算法采用覆盖模式 若需要安插可以安插迭代器改变其行为
+
+#include&lt;algorithm&gt;
+#include&lt;numeric&gt;//包含一些和数值相关的算法
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="end"></a>
+		<p><span class="flag">尾词</span>
+<pre><span class="care">_if</span>
+对于_if算法通常可传入一个函数或仿函数判别式 只对满足判别式的元素操作
+
+<span class="care">_copy</span>
+此类算法中不但操作元素 元素还会被拷贝到新的目标区间
+</pre>
+		</p>
+	</div>
+	
+	<div class="note"><a name="class"></a>
+		<p><span class="flag">算法分类</span>
+<pre>非变动性算法
+变动性算法
+移除算法
+变序算法
+排序算法
+已序区间算法
+数值算法
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>一些算法可能同时属于多个分类中
+</pre>
+		</p>
+	</div>
+	
+	<div class="note"><a name="nomodifying"></a>
+		<p><span class="flag">非变动性算法</span>
+			<table>
+				<tr><td>function</td><td>note</td></tr>
+				<tr><td>for_each(begin,end,fun...)</td><td>对每个元素执行fun...操作</td></tr>
+				<tr><td>count(begin,end,&amp;elem)</td><td>返回区间中值为elem的元素个数</td></tr>
+				<tr><td>count_if(begin,end,fun...)</td><td>...值使fun...为true的元素个数</td></tr>
+				<tr><td>min_element(begin,end)<br />min_element(begin,end,fun...)</td><td>返回区间内最小元素的 迭代器</td></tr>
+				<tr><td>max_element(begin,end)<br />max_element(begin,end,fun...)</td><td>...大...</td></tr>
+				<tr><td>find(begin,end,&amp;elem)</td><td>返回区间中第一个值等于elem的元素 的迭代器</td></tr>
+				<tr><td>find_if(begin,end,fun...)</td><td>...使用fun...返回true的元素 的迭代器</td></tr>
+				<tr><td>search_n(begin,end,n,&amp;elem)<br />search_n(begin,end,&amp;elem,fun...(*iterator,&amp;elem))</td><td>返回具有某特性的第一段"n个连续元素" 的迭代器</td></tr>
+				<tr><td>search(begin,end,begin2,end2)<br />search(begin,end,begin2,end2,fun...(*iterator,*iterator2))</td><td>搜索子区间第一次出现位置 的迭代器</td></tr>
+				<tr><td>find_end(...)//参数同search</td><td>...最后一次...</td></tr>
+				<tr><td>find_first_of(...)//参数同search</td><td>返回第一个既在区间1中出现 又在区间2中出现的位置 的迭代器</td></tr>
+				<tr><td>adjacent_find(begin,end)<br />adjacent_find(begin,end,fun..(iterator1,iterator2))</td><td>搜索连续两个相等的元素</td></tr>
+				<tr><td>equal(begin,end,begin2)<br />equal(begin,end,begin2,fun...(iterator1,iterator2))</td><td>判断两区间是否相等</td></tr>
+				<tr><td>mismatch(begin,end,begin2)<br />mismatch(begin,end,begin2,fun...(iterator1,iterator2))</td><td>返回两个序列的各对应元素中 第一对不相等元素的 迭代器</td></tr>
+				<tr><td>lexicographical_compare(begin,end,begin2,end2)<br />lexicographical_compare(begin,end,begin2,end2,fun...(iterator1,iterator2))</td><td>以字典方式比较 判断第一区间是否小于第二区间</td></tr>
+			</table>
+		</p>
+	</div>
+
+	<div class="note"><a name="modifying"></a>
+		<p><span class="flag">变动性算法</span>
+			<table>
+				<tr><td>function</td><td>note</td></tr>
+				<tr><td>for_each(begin,end,fun...)</td><td>对每个元素执行fun...操作</td></tr>
+				<tr><td>copy(begin,end,begin2)</td><td>复制区间</td></tr>
+				<tr><td>copy_backward(begin,end,end2)</td><td>复制区间</td></tr>
+				<tr><td>transfrom(begin,end,begin2,fun...)<br />transfrom(begin,end,begin2,,begin3,fun...)//调用fun(iter1,iter2)写入iter3</td><td>以fun...的返回值为begin2赋值</td></tr>
+				<tr><td>merge</td><td>严格说来只应该用于已序数列 当然硬用于无序亦可</td></tr>
+				<tr><td>swap_ranges(begin,end,begin2)</td><td>交换区间内容</td></tr>
+				<tr><td>fill(begin,end,&amp;elem)</td><td>以elem覆盖区间内元素的值</td></tr>
+				<tr><td>fill_n(begin,n,&amp;elem)</td><td>以elem替换n个元素的值</td></tr>
+				<tr><td>generate(begin,end,fun...(无参))</td><td>以fun...()的返回值替换区间元素值</td></tr>
+				<tr><td>generate_n(begin,n,fun..(无参))</td><td>...n个元素的值</td></tr>
+				<tr><td>replace(begin,end,&amp;old_elem,&amp;new_elem)</td><td>将区间内元素值为old_elem的元素的值替换为new_elem</td></tr>
+				<tr><td>replace_if(begin,end,fun...(),&amp;elem)</td><td>区间内元素值使fun...()返回true的元素的值替换为 elem</td></tr>
+				<tr><td>replace_copy(begin,end,begin2,&amp;old_elem,&amp;new_elem)</td><td>复制区间到新区间 并在新区间中把元素值为old_elem的元素的值替换为new_elem</td></tr>
+				<tr><td>replace_copy(begin,end,begin2,fun...(),&amp;elem)</td><td>复制区间到新区间 并在新区间中把元素值使fun...()返回true的元素的值替换为 elem</td></tr>
+
+			</table>
+		</p>
+	</div>
+	<div class="note"><a name="remove"></a>
+		<p><span class="flag">移除性算法</span>
+			<table>
+				<tr><td>function</td><td>note</td></tr>
+				<tr><td>remove(begin,end,&amp;elem)</td><td>移除值为elem的元素(实际未改变容器大小) 返回逻辑终点</td></tr>
+				<tr><td>remove_if(begin,end,fun...())</td><td>移除使fun...()返回true的元素(...) ...</td></tr>
+				<tr><td>remove_copy(begin,end,begin2,&amp;elem)</td><td>将不等于elem的元素复制到新的区间</td></tr>
+				<tr><td>remove_copy_if(begin,end,fun...()</td><td>将使fun..()返回false的元素复制到新的区间</td></tr>
+				<tr><td>unique(begin,end)<br />unique(begin,end,fun...(&amp;elem,&amp;elem_nex))</td><td>移除相邻重复元素(实际为改变容器大小) 返回逻辑节点</td></tr>
+				<tr><td>unique_copy(begin,end,bgin2)<br />unique_copy(begin,end,bgin2,fun...(&amp;elem,&amp;elem_nex))</td><td>将元素复制到新区间 相邻重复的元素只复制一份</td></tr>
+			</table>
+		</p>
+	</div>
+	<div class="note"><a name="mutating"></a>
+		<p><span class="flag">pair</span>
+			<table>
+				<tr><td>function</td><td>note</td></tr>
+				<tr><td>reverse(begin,end)</td><td>逆转元素次序</td></tr>
+				<tr><td>reverse_copy(begin,end,begin2)</td><td>复制元素到新区间 并将新区间内元素次序逆转</td></tr>
+				<tr><td>rotate(begin,mid,end)</td><td>将会[begin,mid) [mid,begin)的次序</td></tr>
+				<tr><td>rotate_copy(begin,mid,end,begin2)</td><td>参加rotate reverse_copy</td></tr>
+				<tr><td>nex_permutation</td><td>暂时不解用法</td></tr>
+				<tr><td>pre_permutation</td><td>暂时不解用法</td></tr>
+				<tr><td>random_shuffle(begin,end)<br />random_shuffle(begin,end,fun...(std::ptrdiff_t max))//fun中返回一个[0,max)的数</td><td>随机打乱序列</td></tr>
+				<tr><td>partition(begin,end,fun...())</td><td>使fun...()返回true的元素移动到前面 相对位置可能改变</td></tr>
+				<tr><td>stable_partition(begin,end,fun...())</td><td>同上 但true元素间相对位置不变 false亦然</td></tr>
+			</table>
+		</p>
+	</div>
+	<div class="note"><a name="sort"></a>
+		<p><span class="flag">排序算法</span>
+			<table>
+				<tr><td>function</td><td>note</td></tr>
+				<tr><td>sort(begin,end)<br />sort(begin,end,fun...(&amp;elem1,&amp;elem2))</td><td>排序区间</td></tr>
+				<tr><td>stable_sort //参数同sort</td><td>同sort 但保证相等元素相对位置不变</td></tr>
+				<tr><td>partial_sort(begin,mid,end)<br />partial_sort(begin,mid,end,fun...(&amp;elem1,&amp;elem2))</td><td>排序直到[begin,mid)排序就位</td></tr>
+				<tr><td>partial_sort_copy(begin,end,begin2,mid2)<br />partial_sort_copy(begin,end,begin2,mid2,fun...(&amp;elem1,&amp;elem2))</td><td>排序直到[begin2,mid2)就位 结果复制到begin2<br />(值复制[begin2,mid2)))</td></tr>
+				<tr><td>nth_element(begin,mid,end)<br />nth_element(begin,mid,end,fun...(&amp;elem1,&amp;elem2))</td><td>使[begin,mid)的元素都小于等于(但[begin,mid)内部可能无序)) mid <br />...(mid,end)...大于等于....</td></tr>
+				<tr><td>partition(begin,end,fun...())</td><td>使fun...()返回true的元素移动到前面 相对位置可能改变</td></tr>
+				<tr><td>stable_partition(begin,end,fun...())</td><td>使fun...()返回true的元素移动到前面 相对位置可能不变</td></tr>
+				<tr><td>make_heap(begin,end)<br />make_heap(begin,end,fun...(&amp;elem1,&amp;elem2))</td><td>使区间成为heap</td></tr>
+				<tr><td>push_heap //参数同make_head</td><td>在heap末尾插入一个新元素后 调用此方法 使heap为新元素排序以符合heap性质</td></tr>
+				<tr><td>pop_heap //...</td><td>将heap第一个元素移动到heap尾 既[begin,end-1)成为新的heap</td></tr>
+				<tr><td>sort_heap //...</td><td>将heap重排为有序群集</td></tr>
+			</table>
+		</p>
+		<p><span class="flag">heap</span>
+<pre>heap是一种特殊元素组织方法 以二叉树实现 具有两大性质
+第一个元素总是最大
+总是能够在对数时间类增加移除一个元素
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="alreadysort"></a>
+		<p><span class="flag">已序区间算法</span>
+			<table>
+				<tr><td>function</td><td>note</td></tr>
+				<tr><td>binary_search(begin,end,&amp;elem)<br />binary_search(begin,end,&amp;elem,fun...(*iterator,&amp;elem))</td><td>返回区间中是否存在某值</td></tr>
+				<tr><td>includes(begin,end,begin2,end2)<br />includes(begin,end,begin2,end2,fun...(*iterator,*iterator2))</td><td>返回区间2是否是区间一定子集</td></tr>
+				<tr><td>lower_bound(begin,end,&amp;elem)<br />lower_bound(begin,end,&amp;elem,fun...(*iterator,&amp;elem))</td><td>返回第一个值大于等于elem的元素的迭代器</td></tr>
+				<tr><td>upper_bound //参数同上</td><td>...大于...</td></tr>
+				<tr><td>equal_range //...</td>
+				<td>...等于...元素的区间pair&lt;begin,end&gt;</td></tr>
+				<tr><td>merge(begin,end,begin2,end2,begin3)<br />merge(begin,end,begin2,end2,begin3,fun...(*iterator,&amp;elem))</td><td>将[begin,end) [begin2,end2) 合并到 begin3</td></tr>
+				<tr><td>set_union</td><td>求两区间并集 元素重复 则重复某区间中重复次数最多的次数</td></tr>
+				<tr><td>set_intersection</td><td>...交集 元素重复 ...最少...</td></tr>
+				<tr><td>set_difference</td><td>...只存储在于第一区间 不存在于第二区间的元素</td></tr>
+				<tr><td>set_symmetric_difference</td><td>...存在于第一或第二区间 <font color="#FF0000">但不同时</font>存储于两区间的元素</td></tr>
+				<tr><td>inplace_merge</td><td>...合并两已序区间 并保持已序</td></tr>
+			</table>
+		</p>
+	</div>
+	<div class="note"><a name="numeric"></a>
+		<p><span class="flag">数值算法</span>
+<pre>#include<numeric>
+对序列进行某种运算
+T accumulate(begin,end,T elemt);
+//对每个元素调用 <span class="care">elemt=elemt+*iterator</span> 最终返回elemt
+T accumulate(begin,end,T elemt,op);
+//对每个元素调用 elemt=op(elemt,*iterator) 最终返回elemt
+
+T inner_product（begin1,end1,begin2,T elemt);
+//... <span class="care">elemt= elemt+ (*iterator1) * (*iterator)</span>
+T inner_product（begin1,end1,begin2,T elemt,op1,op2);
+//...elemt=op1(elemt,op2(*iterator1,*iterator2))
+
+OutputIterator partial_sum(begin,end,begin2);
+对于序列1调用之 	a1 	,a2 		,a3...
+将对序列2写入		a1	,a1+a2		,<span class="care">a1+a2+a3</span>...
+
+OutputIterator partial_sum(begin,end,begin2,op);
+........
+....	a1	,a1 op a2 	,a1 op a2 op a3 ....
+
+adjacent_difference <span class="care">类似</span> partial_sum 且+变为-而
+........
+... a1,	a2-a1	,<span class="care">a3-a2</span> ...
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

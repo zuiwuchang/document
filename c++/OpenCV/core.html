@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>OpenCV</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#filter2D">矩陣掩碼操作</a>
+		<a href="#addWeighted">過度疊加</a>
+		<a href="#Brightness">調整亮度 對比度</a>
+		<a href="#draw">基本繪製</a>
+		<a href="#text">繪製文本</a>
+		<a href="#dft">离散傅立叶变换</a>
+	</div>
+
+	<div class="note"><a name="filter2D"></a>
+		<p><span class="flag">矩陣掩碼操作</span>
+<pre>矩阵的掩码操作 就是根據矩陣(亦稱為核)重新計算圖像每個像素值
+
+//filter2D濾波器 完成掩碼操作
+CV_EXPORTS_W void filter2D( InputArray src, //輸入
+	OutputArray dst,	//輸出
+	int ddepth,			//深度
+	InputArray kernel, Point anchor=Point(-1,-1),	//掩碼
+	double delta=0, int borderType=BORDER_DEFAULT );
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>int _tmain(int argc, _TCHAR* argv[])
+{
+	//待變換圖像
+	cv::Mat mat	=	cv::imread("123.bmp");
+	
+	cv::Mat kern = (cv::Mat_&lt;char&gt;(3,3) &lt;&lt; 0, -1,  0
+                               ,-1,  5, -1
+                               ,0, -1,  0);
+							
+	cv::filter2D(mat,mat, mat.depth(), kern );
+	
+
+	cv::namedWindow("test");
+	cv::imshow("test",mat);
+	cv::waitKey(0);
+	cv::destroyWindow("test");
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="addWeighted"></a>
+		<p><span class="flag">過度疊加</span>
+<pre>對於兩幅圖像 對其每個像素執行 dst = alpha * src1 + (1-alpha) * src2 即可 實現幻燈片 切換時的 淡入淡出混合過度效果
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>int _tmain(int argc, _TCHAR* argv[])
+{
+	//待變換圖像
+	cv::Mat mat		=	cv::imread("123.bmp");
+	cv::Mat mat2	=	cv::imread("456.bmp");
+	
+	double alpha	=	0.5;
+	double beta		=	1 - alpha;
+
+	//對每個像素執行 mat[i]*alpha + mat2[i] * beta + 0.0
+	cv::addWeighted(mat,alpha,mat2,beta,0.0,mat);
+
+	cv::namedWindow("test");
+	cv::imshow("test",mat);
+	cv::waitKey(0);
+	cv::destroyWindow("test");
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Brightness"></a>
+		<p><span class="flag">調整亮度 對比度</span>
+<pre>對每個像素的顏色通道 執行 g(x)	=	a * f(x)	+ b
+即可調整 對比度(a)	b(亮度)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>int _tmain(int argc, _TCHAR* argv[])
+{
+	//待變換圖像
+	cv::Mat mat		=	cv::imread("123.bmp");
+	double a	=	2.0;	//[1.0,3.0]
+	int b		=	50;		//[0,100]
+
+	//執行 a * image + b 
+
+	//cv::Mat new_image = cv::Mat::zeros(mat.size(), mat.type() );
+	//int rows	=	mat.rows;
+	//int cols	=	mat.cols;
+	//for(int i = 0; i &lt; rows; ++i)
+	//{
+	//	for(int j = 0; j &lt; cols; ++j)
+	//	{
+	//		for(int c=0;c&lt;3;++c)
+	//		{
+	//			new_image.at&lt;cv::Vec3b&gt;(i,j)[c]	=	
+	//				cv::saturate_cast&lt;uchar&gt;	//結果可能越界 用此函數轉換
+	//				(a * mat.at&lt;cv::Vec3b&gt;(i,j)[c] + b);
+	//		}
+	//	}
+	//}
+	//mat	=	new_image;
+	mat.convertTo(mat, -1, a, b);	
+	
+	cv::namedWindow("test");
+	cv::imshow("test",mat);
+	cv::waitKey(0);
+	cv::destroyWindow("test");
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="draw"></a>
+		<p><span class="flag">基本繪製</span>
+<pre>int _tmain(int argc, _TCHAR* argv[])
+{
+	//待變換圖像
+	cv::Mat mat(300,300,CV_8UC3);
+
+	//繪製直線
+	cv::line(mat	//繪製目標
+		,cv::Point(10,10),cv::Point(10,290)	//	起始結束點
+		,cv::Scalar(0,0,255)	//BGR顏色
+		,2						//線寬
+		);
+	
+	//填充多邊形
+	{
+		const cv::Point points[4]	=	{cv::Point(100,70 )
+			,cv::Point(200,70)
+			,cv::Point(200,230)
+			,cv::Point(100,230)
+		};
+		const cv::Point* ppt[1] = { points };
+		int count	=	4;
+		cv::fillPoly(mat
+				,ppt
+				,&count		//頂點數
+				,1			//對變形數
+				,cv::Scalar( 0, 255, 0 )
+				,8);
+	}
+	//畫圓 橢圓/圓/不封口圓弧
+	cv::ellipse(mat
+		,cv::Point(150,150)		//圓心
+		,cv::Size(50,80)		//水平 垂直半徑
+		,0						//旋轉角度
+		,0,360					//繪製起始 結束 度數
+		,cv::Scalar(0,0,255)	//BGR顏色
+		,-1						//線寬	-1 填充圖像
+		);
+	
+	cv::namedWindow("test");
+	cv::imshow("test",mat);
+	cv::waitKey(0);
+	cv::destroyWindow("test");
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="text"></a>
+		<p><span class="flag">繪製文本</span>
+<pre>int _tmain(int argc, _TCHAR* argv[])
+{
+	cv::Mat mat(300,300,CV_8UC3);
+
+	std::string text("123");
+	double scale	=	1;
+	int thickness	=	1;
+	cv::Point	point(50,50);
+
+	//返回繪製文本大小
+	cv::Size size	=	cv::getTextSize(text
+		,CV_FONT_HERSHEY_PLAIN
+		,scale
+		,thickness
+		,0);
+
+	//繪製文本所在矩形
+	cv::rectangle(mat
+		,cv::Rect(point.x - 2,point.y - size.height - 2,size.width + 2 * 2,size.height + 2 * 2)
+		,cv::Scalar());
+
+	//繪製文本
+	cv::putText(mat
+		,text
+		,point			//繪製左下角
+		,CV_FONT_HERSHEY_PLAIN		//字體	[0,7]
+		,scale						//字體縮放比例
+		,cv::Scalar(0,0,255)
+		,thickness
+		);
+
+	cv::namedWindow("test");
+	cv::imshow("test",mat);
+	cv::waitKey(0);
+	cv::destroyWindow("test");
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="dft"></a>
+		<p><span class="flag">离散傅立叶变换</span>
+<pre>离散傅立叶变换 通常用於識別文字的 排列方式(水平 垂直...)
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

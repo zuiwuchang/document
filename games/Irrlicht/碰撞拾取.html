@@ -1,0 +1,391 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Irrlicht</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">碰撞拾取</font>
+</p>
+
+<p>
+	<a href="#ITriangleSelector">三角形選擇器</a><br />
+    <a href="#camera">fps攝像機</a><br />
+    <a href="#Billboard">廣告牌</a><br />
+    <a href="#Animator">動畫器</a><br />
+    <a href="#coll">揀選</a><br />
+    <a href="#example">example</a><br />
+    
+    
+</p>
+
+
+<div class="mydiv"><a name="ITriangleSelector"></a>
+	<p><font color="#FF0000">三角形選擇器</font>
+<pre>ITriangleSelector 是一個三角形選擇器 能夠從場景中揀選出三角形
+碰撞就是由 多個 三角形選擇器 實現的
+
+當創建了三角形 選擇器後 可以把它和 多個場景節點關聯 (每次其引用計數 +1)(drop -1)
+關聯後 但場景節點 被釋放 其會被自動 drop 
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">相關API</font>
+<pre>//根據八叉樹 創建三角形選擇器
+virtual ITriangleSelector* irr::scene::ISceneManager::createOctreeTriangleSelector	(	
+IMesh * 	mesh,		//要被選擇的 模型幀
+ISceneNode * 	node,	//模型被加載到場景 返回的場景節點
+s32 	minimalPolysPerNode = 32 	//指定 模型被劃分為多邊形的 最小數值(既 模型 不會被劃分為 比此值 更少的 多邊形)
+)	
+
+//關聯 場景節點 三角形選擇器
+void irr::scene::ISceneNode::setTriangleSelector	(	ITriangleSelector * 	selector	)
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="camera"></a>
+	<p><font color="#FF0000">fps動畫器</font>
+<pre>Irrlicht 提供了多種 攝像機 其中 使用
+virtual ICameraSceneNode* irr::scene::ISceneManager::addCameraSceneNodeFPS	(	
+ISceneNode * 	parent = 0,		//攝像機父節點
+f32 	rotateSpeed = 100.0f,	//鼠標旋轉速度
+f32 	moveSpeed = 0.5f,		//攝像機移動步長
+s32 	id = -1,
+SKeyMap * 	keyMapArray = 0,	//鍵盤數組 指定 鍵盤移動關係
+s32 	keyMapSize = 0,			//數組長度
+bool 	noVerticalMovement = false,	//true 只能在平面移動	false(若沒有重力 可以在空中移動)
+f32 	jumpSpeed = 0.f,		//跳躍速度
+bool 	invertMouse = false,	//true 鼠標上 向下看 ...下...上 false反之
+bool 	makeActive = true 		//是否保證攝像機 始終活躍(當然true)
+)
+可以創建一個 fps 攝像機
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">ICameraSceneNode 接口</font>
+<pre>//設置攝像機位置
+void setPosition(vector3df)
+
+//設置觀察目標位置
+void setPosition(setTarget)
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="Billboard"></a>
+	<p><font color="#FF0000">廣告牌</font>
+<pre>通常 fps 視角會隱藏鼠標光標 而使用一個帶紋理始終正對攝像機的矩形(廣告牌) 指示鼠標位置
+
+使用
+//IrrlichtDevice* device_ptr;
+device_ptr->getCursorControl()->setVisible(false);
+隱藏鼠標光標
+
+使用
+IBillboardSceneNode* irr::scene::ISceneManager::addBillboardSceneNode	(	
+ISceneNode* parent = 0,
+const core::dimension2d&lt;f32&gt;&amp; size = core::dimension2d< f32 >(10.0f, 10.0f),
+const core::vector3df&amp; position = core::vector3df(0, 0, 0),
+s32 id = -1,
+video::SColor colorTop = 0xFFFFFFFF,		//廣告牌頂部顏色
+video::SColor colorBottom = 0xFFFFFFFF 		//廣告牌底部顏色
+)	
+創建一個廣告牌場景節點
+</pre>
+	</p>
+</div>
+    
+<div class="mydiv"><a name="Animator"></a>
+	<p><font color="#FF0000">動畫器</font>
+<pre>動畫器 用來為 場景節點 增加一個動畫(create*)
+
+其中
+createCollisionResponseAnimator
+創建一個特殊的 動作機 將自動檢測碰撞(不能穿牆 受到重力 之樂) 和相應
+</pre>
+	</p>
+    <p><font color="#FF0000">相關API</font>
+<pre>//為場景節點 增加一個動作器
+void irr::scene::ISceneNode::addAnimator(ISceneNodeAnimator * 	animator)
+
+
+
+//創建一個 自動檢測碰撞 和 響應的 動作機
+virtual ISceneNodeAnimatorCollisionResponse* irr::scene::ISceneManager::createCollisionResponseAnimator	(	
+ITriangleSelector * 	world,	//用於檢測碰撞的 三角形選擇器
+ISceneNode * 	sceneNode,		//和此動作器關聯的場景節點
+const core::vector3df&amp; ellipsoidRadius = core::vector3df(30, 60, 30),		//此節點的一個外接體(橢球) x y z 半徑
+const core::vector3df&amp; gravityPerSecond = core::vector3df(0,-10.0f, 0),		//重力 若單位為米 (0,-10,0)[逼真的地球重力] (0,0,0)[無重力]
+const core::vector3df&amp; ellipsoidTranslation = core::vector3df(0, 0, 0),		//偏移
+f32 	slidingValue = 0.0005f 			//系統保留
+)
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="coll"></a>
+	<p><font color="#FF0000">揀選</font>
+<pre>從攝像機 到 觀測點的揀選線(射線/或線段) 和 三角形選擇器中 第一個三角形的交點 
+既然 揀選位置 對應三角形 便是被揀選的三角形
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">相關API</font>
+<pre>//返回 碰撞檢測 管理器
+ISceneCollisionManager* irr::scene::ISceneManager::getSceneCollisionManager()
+
+//獲取碰撞點 無被選擇返回false 
+bool irr::scene::ISceneCollisionManager::getCollisionPoint	(	
+const core::line3d< f32 > & 	ray,			//揀選線
+ITriangleSelector * 	selector,			//選擇器
+core::vector3df & 	outCollisionPoint,		//返回 揀選 交點
+core::triangle3df & 	outTriangle,			//返回 揀選 的三角形
+ISceneNode *& 	outNode 				//返回揀選的場景節點
+)	
+
+//返回攝像機視角 揀選 三角形場景節點
+ISceneNode* irr::scene::ISceneCollisionManager::getSceneNodeFromCameraBB	(	
+ICameraSceneNode * 	camera,
+s32 	idBitMask = 0,					//指定要檢測的場景id
+bool 	bNoDebugObjects = false 
+)	
+
+
+//獲取碰撞點 返回被揀選的三角形 場景節點
+ISceneNode* irr::scene::ISceneCollisionManager::getSceneNodeAndCollisionPointFromRay	(	
+core::line3df ray,
+core::vector3df&amp; outCollisionPoint,
+core::triangle3df&amp; outTriangle,
+s32 idBitMask = 0,					//指定要檢測的場景id
+ISceneNode* collisionRootNode = 0,	//僅檢測 此節點 和其 子節點 0 檢測全部
+bool 	noDebugObjects = false 
+)	
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">注意</font>
+<pre>在增加場景節點 時 可以指定一個id 為不同場景 分組 (多個節點 可id相同[被視為同一組])
+一般使用 getSceneNodeAndCollisionPointFromRay 檢測碰撞 其可 指定要碰撞檢測的 id
+
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="example"></a>
+	<p><font color="#FF0000">example</font>
+<pre>此示例 演示了如何 使用 選擇器 進行揀選(被揀選人物 禁用光照)
+以及 如何 為攝像機 加上一個 動作器 使其受到 重力 和 不能穿牆 飛行
+
+
+enum NOTE_ID
+{
+	ID_CAN_COLLISION	=	0x1
+	,ID_NO_COLLISION	=	0
+	,ID_LIGHTING		=	0x4
+};
+
+int main()
+{
+	IrrlichtDevice *device_ptr	=	createDevice(video::EDT_DIRECT3D9);
+
+	irr::video::IVideoDriver* driver_ptr	=	device_ptr->getVideoDriver();
+	irr::scene::ISceneManager* smgr_ptr		=	device_ptr->getSceneManager();
+	
+	device_ptr->getFileSystem()->addFileArchive("media/map-20kdm2.pk3");
+	irr::scene::IAnimatedMesh*	mesh		=	smgr_ptr->getMesh("20kdm2.bsp");
+	irr::scene::IMeshSceneNode* note_ptr	=	NULL;
+	if(mesh)
+	{
+		note_ptr	=	smgr_ptr->addOctreeSceneNode(mesh,0,ID_CAN_COLLISION);
+		note_ptr->setPosition(irr::core::vector3df(-1350,-130,-1400));
+	}
+
+	//定義 三角形 選擇器
+	irr::scene::ITriangleSelector* selector_ptr	=	NULL;
+	if(note_ptr)
+	{
+		//創建 三角形 選擇器
+		selector_ptr	=	smgr_ptr->createOctreeTriangleSelector(note_ptr->getMesh(),note_ptr,128);
+		//關聯 場景節點 三角形選擇器
+		note_ptr->setTriangleSelector(selector_ptr);
+		//引用計數 -1
+		selector_ptr->drop();
+	}
+
+	//一個從cs起源的經典 fps 控制 w s a d space
+	irr::SKeyMap keyMap[5];
+    keyMap[0].Action = EKA_MOVE_FORWARD;
+    keyMap[0].KeyCode = KEY_KEY_W;
+
+    keyMap[1].Action = EKA_MOVE_BACKWARD;
+    keyMap[1].KeyCode = KEY_KEY_S;
+
+    keyMap[2].Action = EKA_STRAFE_LEFT;
+    keyMap[2].KeyCode = KEY_KEY_A;
+
+    keyMap[3].Action = EKA_STRAFE_RIGHT;
+    keyMap[3].KeyCode = KEY_KEY_D;
+	
+	keyMap[4].Action = EKA_JUMP_UP;
+    keyMap[4].KeyCode = KEY_SPACE;
+																				  
+	irr::scene::ICameraSceneNode* camera_ptr	=	smgr_ptr->addCameraSceneNodeFPS(0,100,0.5,ID_NO_COLLISION,keyMap,5,true,1);
+	camera_ptr->setPosition(irr::core::vector3df(50,50,-60));
+	camera_ptr->setTarget(core::vector3df(-70,30,-60));
+
+	//通常 fps 會隱藏 鼠標 而顯示一個廣告牌
+	device_ptr->getCursorControl()->setVisible(false);
+	irr::scene::IBillboardSceneNode* billboard_ptr	=	smgr_ptr->addBillboardSceneNode();
+	billboard_ptr->setMaterialType(irr::video::EMT_TRANSPARENT_ADD_COLOR);
+	billboard_ptr->setMaterialTexture(0,driver_ptr->getTexture("media/particle.bmp"));
+	billboard_ptr->setMaterialFlag(irr::video::EMF_LIGHTING,false);
+	billboard_ptr->setMaterialFlag(irr::video::EMF_ZBUFFER,false);
+	billboard_ptr->setSize(irr::core::dimension2d<f32>(20,20));
+
+	//為攝像機 定義一個 動作器
+	irr::scene::ISceneNodeAnimator* animator_ptr	=	smgr_ptr->createCollisionResponseAnimator(selector_ptr
+		,camera_ptr
+		,irr::core::vector3df(30,45,30)	//外接體 橢球
+		,irr::core::vector3df(0,-10,0)	//重力G
+		,irr::core::vector3df(0,45,0)	//人眼應該從球心 向上偏移一些
+		);
+	//關聯攝像機 動作器
+	camera_ptr->addAnimator(animator_ptr);
+	animator_ptr->drop();
+
+	//增加一個MD 模型 (基於頂點動畫) 
+	irr::video::SMaterial material;
+	irr::scene::IAnimatedMeshSceneNode*
+		model_ptr	=	smgr_ptr->addAnimatedMeshSceneNode(smgr_ptr->getMesh("media/faerie.md2"),
+						0, ID_CAN_COLLISION | ID_LIGHTING);
+	model_ptr->setPosition(core::vector3df(-90,-15,-140));
+	model_ptr->setScale(core::vector3df(1.6f));
+	model_ptr->setMD2Animation(scene::EMAT_POINT);
+	model_ptr->setAnimationSpeed(20.f);
+	material.setTexture(0, driver_ptr->getTexture("media/faerie2.bmp"));
+	material.Lighting = true;
+	material.NormalizeNormals = true;
+	model_ptr->getMaterial(0) = material;
+
+	//為模型創建 選擇器
+	selector_ptr	=	smgr_ptr->createTriangleSelector(model_ptr);
+	model_ptr->setTriangleSelector(selector_ptr);
+	selector_ptr->drop();
+
+	//增加一個 B3D 模型 (基於骨骼動畫)
+	model_ptr = smgr_ptr->addAnimatedMeshSceneNode(smgr_ptr->getMesh("media/ninja.b3d"),
+						0, ID_CAN_COLLISION | ID_LIGHTING);
+	model_ptr->setScale(core::vector3df(10));
+	model_ptr->setPosition(core::vector3df(-75,-66,-80));
+	model_ptr->setRotation(core::vector3df(0,90,0));
+	model_ptr->setAnimationSpeed(8.f);
+	model_ptr->getMaterial(0).NormalizeNormals = true;
+	model_ptr->getMaterial(0).Lighting = true;
+
+	selector_ptr	=	smgr_ptr->createTriangleSelector(model_ptr);
+	model_ptr->setTriangleSelector(selector_ptr);
+	selector_ptr->drop();
+
+	//增加一個 XFILE 模型 (基於骨骼動畫)
+	model_ptr = smgr_ptr->addAnimatedMeshSceneNode(smgr_ptr->getMesh("media/dwarf.x"),
+						0, ID_CAN_COLLISION | ID_LIGHTING);
+	model_ptr->setPosition(core::vector3df(-70,-66,-30));
+	model_ptr->setRotation(core::vector3df(0,-90,0));
+	model_ptr->setAnimationSpeed(20.f);
+	model_ptr->getMaterial(0).Lighting = true;
+	
+	selector_ptr	=	smgr_ptr->createTriangleSelector(model_ptr);
+	model_ptr->setTriangleSelector(selector_ptr);
+	selector_ptr->drop();
+
+	//增加一個 MD 模型 (基於骨骼動畫)
+	model_ptr = smgr_ptr->addAnimatedMeshSceneNode(smgr_ptr->getMesh("media/yodan.mdl"),
+						0, ID_CAN_COLLISION | ID_LIGHTING);
+	model_ptr->setPosition(core::vector3df(-90,-25,20));
+	model_ptr->setScale(core::vector3df(0.8f));
+	model_ptr->getMaterial(0).Lighting = true;
+	model_ptr->setAnimationSpeed(20.f);
+
+	selector_ptr	=	smgr_ptr->createTriangleSelector(model_ptr);
+	model_ptr->setTriangleSelector(selector_ptr);
+	selector_ptr->drop();
+
+	//增加一個光照
+	scene::ILightSceneNode * light = smgr_ptr->addLightSceneNode(0, core::vector3df(-60,100,400),
+		video::SColorf(1.0f,1.0f,1.0f,1.0f), 600.0f);
+	light->setID(ID_NO_COLLISION);
+	
+	//被揀選三角形 材質
+	material.setTexture(0, 0);
+	material.Lighting	=	false;	//無光照效果
+	material.Wireframe	=	true;	//只繪製線框
+
+	irr::scene::ISceneNode* scene_nolight_ptr	=	NULL;
+	while(device_ptr->run())
+	{
+		driver_ptr->beginScene();
+			/*定義揀選線
+			此處為一個 1000 長度 的線段 如果是激光之類的碰撞檢測 可以使用如下定義射線
+			*/
+			irr::core::line3df ray;
+			ray.start	=	camera_ptr->getPosition();
+			ray.end		=	ray.start + (camera_ptr->getTarget() - ray.start).normalize() * 1000;
+			//揀選
+			irr::core::vector3df intersection;
+			irr::core::triangle3df triangle;
+			irr::scene::ISceneNode* scene_note_ptr = NULL;
+			
+			scene_note_ptr	=	smgr_ptr->getSceneCollisionManager()->getSceneNodeAndCollisionPointFromRay(ray
+					,intersection
+					,triangle
+					,ID_CAN_COLLISION
+					);
+			
+			if(scene_note_ptr)
+			{
+				//將廣告牌設置到揀選位置
+				billboard_ptr->setPosition(intersection);
+
+				//將三角形 繪製 出來 繪製前 需要重新 變換世界坐標
+				driver_ptr->setTransform(video::ETS_WORLD, core::matrix4());
+				driver_ptr->setMaterial(material);
+				driver_ptr->draw3DTriangle(triangle, video::SColor(0,255,0,0));
+
+				//設置 被選擇三角形所在場景節點 關閉光照
+				if(scene_note_ptr != scene_nolight_ptr)
+				{
+					if(scene_nolight_ptr
+						&& ID_LIGHTING & scene_nolight_ptr->getID()
+						)
+					{
+						scene_nolight_ptr->setMaterialFlag(video::EMF_LIGHTING, true);
+					}
+					scene_nolight_ptr	=	scene_note_ptr;
+					if(scene_nolight_ptr
+						&& ID_LIGHTING & scene_nolight_ptr->getID()
+						)
+					{
+						scene_nolight_ptr->setMaterialFlag(video::EMF_LIGHTING, false);
+					}
+				}
+			}	
+
+		smgr_ptr->drawAll();
+
+		driver_ptr->endScene();
+	}
+	device_ptr->drop();
+
+	return 0;
+}
+
+</pre>
+	</p>
+</div>
+</td></tr></table>
+</body>
+</html>

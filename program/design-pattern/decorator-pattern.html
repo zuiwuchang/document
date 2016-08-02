@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>design-pattern</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#decorator-pattern">decorator-pattern 裝飾模式</a>
+		<a href="#example">example</a>
+	</div>
+
+	<div class="note"><a name="decorator-pattern"></a>
+		<p><span class="flag">decorator-pattern 裝飾模式</span>
+<pre>動態的將責任附加到對象上
+(裝飾者 在 被裝飾者 操作之 前/後 進行額外操作 提供)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="example"></a>
+		<p><span class="flag">example</span>
+<pre>設想 你計劃通過 賭博 立業興邦
+你可能要參加了 骰子 牌九 百家樂 ... 多種(被裝飾者) 賭局
+
+你每場賭局 都還可能 下不同的外圍(裝飾者) 以達到 更快的 立業效果
+</pre>
+		</p>
+		<p><span class="flag">example code</span>
+<pre>package main
+
+import (
+	"fmt"
+)
+
+//定義 賭局 接口
+//裝飾者的 存在應該是 透明度 所以 被裝飾/裝飾 者 應該是 同一型別(oo中 同一超類)
+type GamblingInterface interface {
+	//返回 收益
+	Earnings() float32
+
+	//返回玩法
+	Play() string
+}
+
+//定義 骰子
+type Dice struct {
+}
+
+func (g *Dice) Earnings() float32 {
+	//其實 你是 羅四海 的得意弟子 所以每局都穩贏 這麼多
+	//... 如果認錯了人 其實你不是 四哥的門人 就修改使用 自己的 收益算法
+	return 10000
+}
+func (g *Dice) Play() string {
+	return "骰寶"
+}
+
+//定義 牌九
+type PaiGow struct {
+}
+
+func (g *PaiGow) Earnings() float32 {
+	return 1000
+}
+func (g *PaiGow) Play() string {
+	return "牌九"
+}
+
+//定義 裝飾者 接口 oo中 裝飾者 的父類
+type DecoratorInterface interface {
+	Earnings() float32
+	Decorator(d GamblingInterface)
+	Play() string
+}
+
+//定義裝飾者 國際外圍
+type DecoratorInternational struct {
+	gambling GamblingInterface
+}
+
+func (d *DecoratorInternational) Earnings() float32 {
+	return d.gambling.Earnings() + 10000*10
+}
+func (d *DecoratorInternational) Decorator(g GamblingInterface) {
+	d.gambling = g
+}
+func (d *DecoratorInternational) Play() string {
+	return d.gambling.Play() + " " + "國際外圍"
+}
+
+//定義裝飾者 本地外圍
+type DecoratorLocal struct {
+	gambling GamblingInterface
+}
+
+func (d *DecoratorLocal) Earnings() float32 {
+	return d.gambling.Earnings() + 10000*3
+}
+func (d *DecoratorLocal) Decorator(g GamblingInterface) {
+	d.gambling = g
+}
+func (d *DecoratorLocal) Play() string {
+	return d.gambling.Play() + " " + "本地外圍"
+}
+
+func Decorator(g GamblingInterface, d DecoratorInterface) GamblingInterface {
+	d.Decorator(g)
+	return d
+}
+func main() {
+	var d GamblingInterface
+	d = &Dice{}
+	fmt.Println(d.Play(), d.Earnings())
+	d = Decorator(d, &DecoratorLocal{})
+	fmt.Println(d.Play(), d.Earnings())
+	d = Decorator(d, &DecoratorLocal{})
+	fmt.Println(d.Play(), d.Earnings())
+	d = Decorator(d, &DecoratorInternational{})
+	fmt.Println(d.Play(), d.Earnings())
+
+	d = &PaiGow{}
+	fmt.Println(d.Play(), d.Earnings())
+	d = Decorator(d, &DecoratorLocal{})
+	fmt.Println(d.Play(), d.Earnings())
+}
+
+</pre>
+		</p>
+		
+	</div>
+</div>
+</body>
+</html>

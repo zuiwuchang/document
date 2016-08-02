@@ -1,0 +1,520 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Irrlicht</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">UI</font>
+</p>
+
+<p>
+	<a href="#UI">UI</a><br />
+    <a href="#IGUISkin">IGUISkin</a><br />
+    <a href="#IGUIElement">IGUIElement</a><br />
+    <a href="#IGUIButton">IGUIButton 按鈕</a><br />
+    <a href="#IGUIStaticText">IGUIStaticText 靜態文本框</a><br />
+    <a href="#IGUIScrollBar">IGUIScrollBar 滾動條</a><br />
+    <a href="#IGUIEditBox">IGUIEditBox 編輯框</a><br />
+    <a href="#IGUIImage">IGUIImage 圖像框</a><br />
+    <a href="#IGUIListBox">IGUIListBox 列錶框</a><br />
+    <a href="#IGUIListBox">IGUIListBox 列錶框</a><br />
+    <a href="#IGUIWindow">IGUIWindow 窗口</a><br />
+    <a href="#IGUIFileOpenDialog">IGUIFileOpenDialog 文件選擇窗口</a><br />
+    <a href="#example">example</a><br />
+</p>
+
+
+<div class="mydiv"><a name="UI"></a>
+	<p><font color="#FF0000">UI</font>
+<pre>Irrlicht 提供了基本的 UI
+UI 使用UI管理器 irr::gui::IGUIEnvironment 進行管理
+
+使用 irr::IrrlichtDevice::add* 添加 UI
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">注意</font>
+<pre>一般 為需要響應事件的 ui設置 一個獨立的 id  
+在事件處理中 通過此id 判斷 是 那個ui引發的事件
+</pre>
+	</p>
+</div>    
+
+<div class="mydiv"><a name="IGUISkin"></a>
+	<p><font color="#FF0000">IGUISkin</font>
+<pre>Irrlicht 使用IGUISkin 為所有UI的皮膚
+
+使用
+IGUISkin * getSkin ()
+獲取 皮膚
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">相關API</font>
+<pre>//設置 ui 字體
+irr::gui::IGUISkin* skin = gui_ptr->getSkin();
+irr::gui::IGUIFont* font = gui_ptr->getFont("media/fonthaettenschweiler.bmp");
+
+//更改 ui 透明度
+void setSkinTransparency(irr::s32 alpha, irr::gui::IGUISkin* skin)
+{
+	irr::video::SColor col;
+	for (irr::s32 i=0; i&lt;irr::gui::EGDC_COUNT ; ++i)
+	{
+		col	=	skin->getColor((irr::gui::EGUI_DEFAULT_COLOR)i);
+		col.setAlpha(alpha);
+		skin->setColor((irr::gui::EGUI_DEFAULT_COLOR)i, col);
+	}
+}
+</pre>
+	</p>
+</div>    
+
+<div class="mydiv"><a name="IGUIElement"></a>
+	<p><font color="#FF0000">IGUIElement</font>
+<pre>IGUIElement 是 所有ui的基類 定義了 ui的基本方法
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">接口</font>
+<pre>//返回/設置 控件id
+s32 getID () 
+void setID (s32 id)
+
+//返回/設置 控件文本
+const wchar_t * getText () const
+void setText (const wchar_t *text)
+
+//返回/設置 控件是否可用
+bool isEnabled () const
+void setEnabled (bool enabled)
+
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="IGUIButton"></a>
+	<p><font color="#FF0000">IGUIButton 按鈕</font>
+<pre>IGUIButton 是 一個 按鈕
+使用
+IGUIButton* irr::gui::IGUIEnvironment::addButton	(	
+const core::rect&lt;s32&gt;&amp; 	rectangle,		//按鈕位置尺寸
+IGUIElement* 	parent = 0,
+s32 	id = -1,
+const wchar_t * 	text = 0,		//按鈕顯示文本
+const wchar_t * 	tooltiptext = 0 	//鼠標懸浮顯示文本
+)
+為設備增加一個 按鈕 控件
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">常用事件</font>
+<pre>EGET_BUTTON_CLICKED				//按鈕被單擊
+</pre>
+	</p>
+</div>    
+
+<div class="mydiv"><a name="IGUIStaticText"></a>
+	<p><font color="#FF0000">IGUIStaticText 靜態文本框</font>
+<pre>IGUIStaticText 是 一個 靜態文本框
+使用
+IGUIStaticText* irr::gui::IGUIEnvironment::addStaticText	(	
+const wchar_t * 	text,
+const core::rect&lt;s32&gt;&amp; rectangle,
+bool 	border = false,
+bool 	wordWrap = true,		//啟用換行
+IGUIElement * 	parent = 0,
+s32 	id = -1,
+bool 	fillBackground = false 		//是否填充背景 false(透明背景)
+)	
+為設備增加一個 靜態文本框 控件
+</pre>
+	</p>
+    
+</div>    
+
+<div class="mydiv"><a name="IGUIScrollBar"></a>
+	<p><font color="#FF0000">IGUIScrollBar 滾動條</font>
+<pre>IGUIScrollBar 是 一個 滾動條
+使用
+IGUIScrollBar* irr::gui::IGUIEnvironment::addScrollBar	(	
+bool 	horizontal,				//true(水平) false(垂直)
+const core::rect&lt;s32&gt;&amp; rectangle,
+IGUIElement * 	parent = 0,
+s32 	id = -1 
+)	
+為設備增加一個 滾動條
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">常用事件</font>
+<pre>EGET_SCROLL_BAR_CHANGED,	//滾動條發生滾動
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">接口</font>
+<pre>//返回/設置 滾動條 當前值
+s32 getPos () const
+void setPos (s32 pos)
+
+//返回/設置 滾動條 最大值
+s32 getMax () const
+void setMax (s32 max)
+
+//返回/設置 滾動條 最小值
+s32 getMin () const
+void setMin (s32 max)
+</pre>
+	</p>
+</div>    
+
+<div class="mydiv"><a name="IGUIEditBox"></a>
+	<p><font color="#FF0000">IGUIEditBox 編輯框</font>
+<pre>IGUIEditBox 是 一個 編輯框
+使用
+IGUIEditBox* irr::gui::IGUIEnvironment::addEditBox	(	
+const wchar_t * 	text,
+const core::rect&lt;s32&gt;&amp; rectangle,
+bool 	border = true,
+IGUIElement * 	parent = 0,
+s32 	id = -1 
+)	
+為設備增加一個 編輯框
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">常用事件</font>
+<pre>EGET_EDITBOX_ENTER		//在編輯框 輸入回車(Enter)
+EGET_EDITBOX_CHANGED		//編輯框文本改變 不包括自動換行的改變
+EGET_EDITBOX_MARKING_CHANGED	//編輯框標記變化(插入符 選中文本)
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">接口</font>
+<pre>//設置 是否啟用 換行(默認 false)
+void setMultiLine (bool enable)
+
+//設置文本對齊方式
+void irr::gui::IGUIEditBox::setTextAlignment	(	
+EGUI_ALIGNMENT 	horizontal,		//水平	EGUIA_UPPERLEFT(默認) EGUIA_LOWERRIGHT EGUIA_CENTER
+EGUI_ALIGNMENT 	vertical 		//垂直	EGUIA_UPPERLEFT EGUIA_LOWERRIGHT EGUIA_CENTER(默認 單行編輯框只對此值有效)
+)	
+
+enum EGUI_ALIGNMENT
+{
+	//上/左
+	EGUIA_UPPERLEFT=0,
+	//下/右
+	EGUIA_LOWERRIGHT,
+	//中心
+	EGUIA_CENTER,
+	//縮放
+	EGUIA_SCALE
+};
+</pre>
+	</p>
+</div>    
+
+<div class="mydiv"><a name="IGUIImage"></a>
+	<p><font color="#FF0000">IGUIImage 圖像框</font>
+<pre>IGUIImage 是 一個 圖像框
+使用
+IGUIImage* irr::gui::IGUIEnvironment::addImage	(	
+video::ITexture * 	image,		//driver_ptr->getTexture
+core::position2d&lt;s32&gt; 	pos,		//ui位置 大小由於image定
+bool 	useAlphaChannel = true,		//是否使用alpha通道
+IGUIElement * 	parent = 0,
+s32 	id = -1,
+const wchar_t * 	text = 0 	//文本(不會被繪製出來)
+)	
+為設備增加一個 圖像框
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">接口</font>
+<pre>//改變顯示的圖像(控件大小 會自動調整到 圖像大小)
+void setImage	(	video::ITexture * 	image	)	
+</pre>
+	</p>
+</div>   
+
+<div class="mydiv"><a name="IGUIListBox"></a>
+	<p><font color="#FF0000">IGUIListBox 列錶框</font>
+<pre>IGUIListBox 是 一個 列錶框
+使用
+IGUIListBox* irr::gui::IGUIEnvironment::addListBox	(	
+const core::rect&lt;s32&gt;&amp; rectangle,
+IGUIElement * 	parent = 0,
+s32 	id = -1,
+bool 	drawBackground = false 
+)	
+為設備增加一個 列錶框
+</pre>
+	</p>
+
+	<p><font color="#FF0000">常用事件</font>
+<pre>EGET_LISTBOX_CHANGED		//列表框 選項改變(500毫秒後 再次選中當前選項 亦發生此事件)    
+EGET_LISTBOX_SELECTED_AGAIN	//同EGET_LISTBOX_CHANGED 不是現在是已經改變
+</pre>
+	</p>
+        
+    <p><font color="#FF0000">接口</font>
+<pre>//增加子項
+u32 addItem (const wchar_t *text)
+
+//插入子項
+s32 insertItem (u32 index, const wchar_t *text, s32 icon)
+
+//刪除子項
+void removeItem (u32 index)
+
+//清空列表 
+void clear ()
+</pre>
+	</p>
+</div>   
+
+<div class="mydiv"><a name="IGUIWindow"></a>
+	<p><font color="#FF0000">IGUIWindow 窗口</font>
+<pre>IGUIWindow 是 一個 窗口(不可 調整大小)
+使用
+IGUIWindow* irr::gui::IGUIEnvironment::addWindow	(	
+const core::rect&lt;s32&gt;&amp; rectangle,
+bool 	modal = false,				//是否是模式窗口
+const wchar_t * 	text = 0,		//標題
+IGUIElement * 	parent = 0,
+s32 	id = -1 
+)	
+為設備增加一個 窗口
+
+為此窗口 添加 元素 同 最開始的設備繪製窗口 
+只是現在需要把元素的 父節點 設置為此窗口
+</pre>
+	</p>
+
+	<p><font color="#FF0000">常用事件</font>
+<pre>EGET_ELEMENT_CLOSED	//一個元素 將要關閉 (如窗口)
+</pre>
+	</p>
+        
+</div>   
+
+<div class="mydiv"><a name="IGUIFileOpenDialog"></a>
+	<p><font color="#FF0000">IGUIFileOpenDialog 文件選擇窗口</font>
+<pre>IGUIWindow 是 一個 文件選擇窗口
+使用
+IGUIFileOpenDialog* irr::gui::IGUIEnvironment::addFileOpenDialog	(	
+const wchar_t * 	title = 0,
+bool 	modal = true,				//是否為模式窗口
+IGUIElement * 	parent = 0,
+s32 	id = -1,
+bool 	restoreCWD = false,			//false(將關閉窗口時 的瀏覽路徑 作為下次打開此窗口時的 瀏覽路徑)
+io::path::char_type * 	startDir = 0 	//打開此窗口時的 瀏覽路徑
+)
+為設備增加一個 文件選擇窗口
+</pre>
+	</p>
+
+	<p><font color="#FF0000">常用事件</font>
+<pre>EGET_FILE_SELECTED	//在文件選擇窗口 成功選擇了文件
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">接口</font>
+<pre>//返回選擇的文件名 未選擇返回 NULL
+const wchar_t* getFileName() 
+</pre>
+	</p>
+        
+</div>  
+
+<div class="mydiv"><a name="example"></a>
+	<p><font color="#FF0000">example</font>
+<pre>#include &lt;irrlicht.h&gt;
+
+#ifdef _IRR_WINDOWS_
+#pragma comment(lib, "Irrlicht.lib")
+#endif
+
+//設置gui透明
+void setSkinTransparency(irr::s32 alpha, irr::gui::IGUISkin* skin);
+irr::gui::IGUIListBox* listbox_ptr;
+
+enum GUI_ID
+{
+	GUI_BUTTON_EXIT_ID
+	,GUI_BUTTON_NEW_WINDOW_ID
+	,GUI_BUTTON_OPEN_FILE_ID
+
+	,GUI_SCROLL_BAR_ID
+};
+
+class MyEventReceiver : public irr::IEventReceiver
+{
+private:
+	irr::IrrlichtDevice* device_ptr_;
+public:
+	MyEventReceiver(irr::IrrlichtDevice* device_ptr) 
+	{
+		device_ptr_	=	device_ptr;
+	}
+
+	virtual bool OnEvent(const irr::SEvent& event)
+	{
+		if (event.EventType == irr::EET_GUI_EVENT)
+		{
+			switch(event.GUIEvent.EventType)
+			{
+			case irr::gui::EGET_BUTTON_CLICKED:
+				//按鈕被單擊
+				if(GUI_BUTTON_EXIT_ID == event.GUIEvent.Caller->getID())
+				{
+					device_ptr_->closeDevice();
+					return true;
+				}
+				else if(GUI_BUTTON_NEW_WINDOW_ID == event.GUIEvent.Caller->getID())
+				{
+					listbox_ptr->addItem(L"new window");
+					irr::gui::IGUIWindow* window_ptr	=	device_ptr_->getGUIEnvironment()->addWindow(
+						irr::core::rect&lt;irr::s32&gt;(100, 100, 300, 200)
+						,false
+						,L"Test window");
+					
+					device_ptr_->getGUIEnvironment()->addStaticText(L"Please close me"
+						,irr::core::rect&lt;irr::s32&gt;(35,35,140,50)
+						,true
+						,false
+						,window_ptr);
+					return true;
+				}
+				else if(GUI_BUTTON_OPEN_FILE_ID == event.GUIEvent.Caller->getID())
+				{
+					listbox_ptr->addItem(L"File open");
+					
+					device_ptr_->getGUIEnvironment()->addFileOpenDialog(L"Please choose a file.", true, 0, -1, false);
+					return true;
+				}
+				break;
+			case irr::gui::EGET_SCROLL_BAR_CHANGED:
+				{
+					//滾動條 滾動
+					irr::gui::IGUIScrollBar* scrollbar_ptr	=	(irr::gui::IGUIScrollBar*)event.GUIEvent.Caller;
+					irr::s32 pos	=	scrollbar_ptr->getPos();
+					setSkinTransparency(pos, device_ptr_->getGUIEnvironment()->getSkin());
+					return true;
+				}
+				break;
+			case irr::gui::EGET_FILE_SELECTED:
+				{
+					irr::gui::IGUIFileOpenDialog* fiile_dialog_ptr	=	(irr::gui::IGUIFileOpenDialog*)event.GUIEvent.Caller;
+					listbox_ptr->addItem(fiile_dialog_ptr->getFileName());
+				}
+				break;
+			}
+		}
+		return false;
+	}
+};
+
+
+int main()
+{
+
+	irr::IrrlichtDevice* device_ptr	=	irr::createDevice(irr::video::EDT_DIRECT3D9);
+	if (!device_ptr)
+		return 1; // could not create selected driver.
+
+	MyEventReceiver receiver(device_ptr);
+	device_ptr->setEventReceiver(&receiver);
+	
+	device_ptr->setWindowCaption(L"Irrlicht Engine - User Interface Demo");
+	//可以調整窗口大小
+	device_ptr->setResizable(true);
+
+	irr::video::IVideoDriver* driver_ptr	=	device_ptr->getVideoDriver();
+	irr::gui::IGUIEnvironment* gui_ptr		=	device_ptr->getGUIEnvironment();
+
+	irr::gui::IGUISkin* skin = gui_ptr->getSkin();
+	irr::gui::IGUIFont* font = gui_ptr->getFont("media/fonthaettenschweiler.bmp");
+
+	if (font)
+		skin->setFont(font);
+	skin->setFont(gui_ptr->getBuiltInFont(), irr::gui::EGDF_TOOLTIP);
+
+	//增加三個按鈕
+	gui_ptr->addButton(irr::core::rect&lt;irr::s32&gt;(10,240,110,240 + 32), 0, GUI_BUTTON_EXIT_ID,
+			L"quit", L"quit program");
+	gui_ptr->addButton(irr::core::rect&lt;irr::s32&gt;(10,280,110,280 + 32), 0, GUI_BUTTON_NEW_WINDOW_ID,
+			L"New Window", L"Launches a new Window");
+	gui_ptr->addButton(irr::core::rect&lt;irr::s32&gt;(10,320,110,320 + 32), 0, GUI_BUTTON_OPEN_FILE_ID,
+			L"File Open", L"Opens a file");
+
+	//增加一個 靜態文本框
+	gui_ptr->addStaticText(L"Transparent Control:", irr::core::rect&lt;irr::s32&gt;(150,20,350,40), true);
+	
+	//增加一個 滾動條
+	irr::gui::IGUIScrollBar* scrollbar_ptr	=	gui_ptr->addScrollBar(true,
+		irr::core::rect&lt;irr::s32&gt;(150, 45, 350, 60), 0, GUI_SCROLL_BAR_ID);
+	scrollbar_ptr->setMax(255);
+	scrollbar_ptr->setPos(255);
+
+	//改變gui透明度
+	setSkinTransparency( scrollbar_ptr->getPos(), gui_ptr->getSkin());
+
+	//增加一個 輸入文本框
+	gui_ptr->addEditBox(L"Editable Text", irr::core::rect&lt;irr::s32&gt;(350, 80, 550, 100));
+	
+	
+	gui_ptr->addStaticText(L"Logging ListBox:", irr::core::rect&lt;irr::s32&gt;(50,110,250,130), true);
+	//增加 列表
+	listbox_ptr	=	gui_ptr->addListBox(irr::core::rect&lt;irr::s32&gt;(50, 140, 250, 210));
+	
+	//增加一個 圖像框
+	gui_ptr->addImage(driver_ptr->getTexture(L"media/irrlichtlogo2.png"),
+		irr::core::position2d&lt;int&gt;(10,10));
+	
+
+	while(device_ptr->run()
+		&& driver_ptr)
+	{
+		if (device_ptr->isWindowActive())
+		{
+			driver_ptr->beginScene(true, true,irr::video::SColor(0,200,200,200));
+
+			gui_ptr->drawAll();
+	
+			driver_ptr->endScene();
+		}
+		else
+		{
+			device_ptr->yield();
+		}
+	}
+	device_ptr->drop();
+
+	return 0;
+}
+
+//設置gui透明
+void setSkinTransparency(irr::s32 alpha, irr::gui::IGUISkin* skin)
+{
+	irr::video::SColor col;
+	for (irr::s32 i=0; i&lt;irr::gui::EGDC_COUNT ; ++i)
+	{
+		col	=	skin->getColor((irr::gui::EGUI_DEFAULT_COLOR)i);
+		col.setAlpha(alpha);
+		skin->setColor((irr::gui::EGUI_DEFAULT_COLOR)i, col);
+	}
+}
+</pre>
+	</p>
+</div>
+
+</td></tr></table>
+</body>
+</html>

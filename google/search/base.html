@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>基本语法</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#logic">逻辑连接</a>
+		<a href="#help">辅助搜索</a>
+		<a href="#height">高级语法</a>
+	</div>
+
+	<div class="note"><a name="logic"></a>
+		<p><span class="flag">逻辑连接</span>
+<pre>与 非 或	
+下文以小写字母 代表一个搜索关键字
+</pre>
+		</p>
+		<p><span class="flag">与</span>
+<pre>取交集
+and 空格 + 
+
+a +b (+ 和 b之间不能有空格否则忽略+)
+a and b
+a b
+</pre>
+		</p>
+		<p><span class="flag">或</span>
+<pre>取并集
+OR |
+
+a OR b
+a | b
+</pre>
+		</p>
+		<p><span class="flag">非</span>
+<pre>取补集
+-
+
+a -b (满意条件a 不满足b)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="help"></a>
+		<p><span class="flag">辅助搜索</span>
+<pre>google search不支持通配符 (*除外 *代表一個任意單字符 且使用*的 搜索必須使用 " 擴起來)
+
+google search 对搜索到英文关键字 忽略大小写
+* ? 以及 i am com 等常用英文单词会被忽略 需要在忽略词前加 + 进行强制搜索("+who am i")
+
+英文 ? , 等不能作为搜索关键字 加+ 也无用
+google 在搜索句子时需要以英文双引号 " 括起来
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="height"></a>
+		<p><span class="flag">高级语法</span>
+<pre>a site:163.com			//指定域名
+a link:www.google.com		//搜索所有含有链接到www.google.com的网页
+a inurl:test			//搜索链接地址中含有关键字test的网页
+a allurl:one two		//同上不过可指定多个关键字
+intitle:			//创見inurl 不过是对title
+alltitle:			//参加allurl
+filetype：pdf	//搜索指定文件 .xls、.ppt、.doc，.rtf swf ...
+
+related:wwwsina.com.cn/index.shtml //搜索與指定頁面 結構相似的網站
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

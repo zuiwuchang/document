@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>android</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#layout">佈局</a>
+		<a href="#xml">使用xml佈局</a>
+		<a href="#java">使用java佈局</a>
+		<a href="#xj">xml java 混合佈局</a>
+		<a href="#manager">佈局管理</a>
+		<a href="#LinearLayout">線性佈局</a>
+		<a href="#TableLayout">表格佈局</a>
+		<a href="#FrameLayout">帧佈局</a>
+		<a href="#RelativeLayout">相對佈局</a>
+	</div>
+
+	<div class="note"><a name="layout"></a>
+		<p><span class="flag">佈局</span>
+<pre>android 提供了使用 xml 或者java代碼 控制佈局的方法(亦可混用)
+同時提供了 5種佈局管理器 以方便 佈局
+LinearLayout(線性佈局)
+TableLayout(表格佈局)
+FrameLayout(幀佈局)
+RelativeLayout(相對佈局)
+AbsoluteLayout(絕對佈局) <span class="care">android2.0中被標記為過期 不推薦使用</span>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="xml"></a>
+		<p><span class="flag">使用xml佈局</span>
+<pre>在 res/layout 目錄下 插件編輯 佈局 xml文件(R.java 會自動收錄 該資源)
+之後 在 代碼中 調用 setContentView(R.layout.activity_main); 顯示佈局
+<span class="care">activity_main 是佈局xml文件名</span>
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><img src="images/layout/x.PNG">
+<span class="care">//activity_main.xml</span>
+//使用 相對佈局
+&lt;RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.dark.myfirstapp.MainActivity" &gt;
+
+    //在佈局中增加一個 文本框
+    &lt;TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/hello_world" /&gt;
+
+&lt;/RelativeLayout&gt;
+
+
+
+<span class="care">//*.java</span>
+...
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		//顯示 activity_main.xml
+		setContentView(R.layout.activity_main);
+	}
+...
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="java"></a>
+		<p><span class="flag">使用java佈局</span>
+<pre>android 亦可使用 java code 佈局 基本同 java se
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><img src="images/layout/j.PNG">
+...
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		//創建佈局
+		RelativeLayout layout = new RelativeLayout(this);
+		//創建ui
+		TextView text = new TextView(this);
+		text.setText("hellow word j");
+		text.setTextSize(TypedValue.COMPLEX_UNIT_PX,48);
+		text.setTextColor(Color.rgb(1, 1, 1));
+		//將ui 增加到 佈局
+		layout.addView(text);
+
+		//顯示佈局
+		setContentView(layout);
+	}
+...
+</pre>
+		</p>
+	</div>
+	
+	<div class="note"><a name="xj"></a>
+		<p><span class="flag">xml java 混合佈局</span>
+<pre><img src="images/layout/xj.PNG">
+
+class="care">//activity_main.xml</span>
+//使用 相對佈局
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.dark.myfirstapp.MainActivity" 
+    android:id="@+id/layout"&gt;
+
+    //在佈局中增加一個 文本框
+    &lt;TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/hello_world" /&gt;
+
+&lt;/LinearLayout&gt;
+
+
+
+<span class="care">//*.java</span>
+...
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+
+		//顯示 activity_main.xml
+		setContentView(R.layout.activity_main);
+		//獲取當前 佈局
+		LinearLayout layout = (LinearLayout)findViewById(R.id.layout);
+		TextView text = new TextView(this);
+		text.setText("hellow word j");
+		text.setTextSize(TypedValue.COMPLEX_UNIT_PX,48);
+		text.setTextColor(Color.rgb(1, 1, 1));
+		layout.addView(text);
+	}
+...
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="manager"></a>
+		<p><span class="flag">佈局管理</span>
+<pre>android 中的ui 是 	
+android.view.View 
+android.view.ViewGroup(亦是View的子類) 
+的子類
+
+ViewGroup 定義了 視圖容器 佈局管理器的 行為
+</pre>
+		</p>
+		<p><span class="flag">view 常用方法 xml屬性</span>
+<pre>
+<table>
+<tr><th>xml attr</th><th>function</th><th>note</th></tr>
+<tr><td>android:id</td><td>setId(int)</td><td>為view指定一個id值以便之後使用 
+View.findViewById() 或 Activity.findViewById()  
+返回此view</td></tr>
+
+<tr><td>android:layout_width
+android:layout_height</td><td></td><td>設置view 寬 高 
+fill_parent 
+match_parent 
+wrap_content(剛好顯示view)</td></tr>
+
+<tr><td>android:gravity</td><td></td><td>對其方式
+left
+right
+center</td></tr>
+
+<tr><td>...</td><td></td><td></td></tr>
+</table>
+</pre>
+		</p>
+		<p><span class="flag">ViewGroup 常用方法 xml屬性</span>
+<pre>//增加一個 view 到 view group
+void	addView(View child, int index, ViewGroup.LayoutParams params)
+void	addView(View child, ViewGroup.LayoutParams params)
+void	addView(View child, int index)
+void	addView(View child)
+void	addView(View child, int width, int height)
+
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="LinearLayout"></a>
+		<p><span class="flag">線性佈局</span>
+<pre>android.widget.LinearLayout 將其內地view 按照 水平或垂直方式佈局
+</pre>
+		</p>
+		<p><span class="flag">常用方法 xml屬性</span>
+<table>
+	<tr><th>xml attr</th><th>function</th><th>note</th></tr>
+
+	<tr><td>android:orientation</td><td>setOrientation(int)<br>HORIZONTAL VERTICAL</td><td>horizontal(水平 默認)<br>vertical(垂直) 佈局 </td></tr>
+
+<tr><td>...</td><td></td><td></td></tr>
+</table>
+		</p>
+		<p><span class="flag">example</span>
+<pre><img src="images/layout/l_h.PNG">
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.dark.myfirstapp.MainActivity"
+    
+    android:orientation="horizontal"
+    &gt;
+    
+    
+    
+    &lt;Button android:text="button 0"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+	/&gt;
+    &lt;Button android:text="button 1"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+	/&gt;
+    &lt;Button android:text="button 2"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+	/&gt;
+&lt;/LinearLayout&gt;
+
+
+
+<img src="images/layout/l_v.PNG">
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.dark.myfirstapp.MainActivity"
+    
+    android:orientation="vertical"
+    &gt;
+    
+    
+    
+    &lt;Button android:text="button 0"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+	/&gt;
+    &lt;Button android:text="button 1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+	/&gt;
+    &lt;Button android:text="button 2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+	/&gt;
+&lt;/LinearLayout&gt;
+</pre>
+		</p>	
+	</div>
+
+	<div class="note"><a name="TableLayout"></a>
+		<p><span class="flag">表格佈局</span>
+<pre>android.widget.TableLayout 將其內地view 被佈局為一個 表格
+
+&lt;TableRow&gt;&lt;/TableRow&gt;用來 增加行
+TableRow中 沒增加一個 ui 將會自動增加 1 列
+
+TableLayout中的 列 可以被設置為 隱藏 可收縮 可拉伸...
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><img src="images/layout/t.PNG">
+&lt;TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.dark.myfirstapp.MainActivity"
+    &gt;
+    
+    
+    &lt;TableRow android:layout_width="wrap_content">
+    	&lt;Button android:text="(0,0)"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+		/&gt;   
+		&lt;Button android:text="(0,1)"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+		/&gt;
+		&lt;Button android:text="(0,2)"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+		/&gt;
+		&lt;Button android:text="(0,3)"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+		/&gt;
+    &lt;/TableRow&gt;
+    
+    &lt;TableRow&gt;
+    	&lt;Button android:text="(1,0)"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+		/&gt; 
+		
+    &lt;/TableRow&gt;
+    
+ 
+&lt;/TableLayout&gt;
+
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="FrameLayout"></a>
+		<p><span class="flag">帧佈局</span>
+<pre>android.widget.FrameLayout 是帧佈局
+FrameLayout中的 view 不會相互 影響 其他view的 佈局 位置
+view將 層疊 佈局
+後增加的 view 將 覆蓋在 先增加的view 之上
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><img src="images/layout/f.PNG">
+&lt;FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.dark.myfirstapp.MainActivity"
+    &gt;
+    
+
+   	&lt;Button android:text="before"
+       android:layout_width="400px"
+       android:layout_height="400px"
+       android:layout_gravity="center"
+	/&gt;  
+	&lt;Button android:text="after"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+	/&gt;
+
+&lt;/FrameLayout&gt;
+
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="RelativeLayout"></a>
+		<p><span class="flag">相對佈局</span>
+<pre>android.widget.RelativeLayout 將其內的 view 
+相對(上 下 左 右) 指定id的一個view佈局
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre><img src="images/layout/r.PNG">
+&lt;RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.dark.myfirstapp.MainActivity"
+    &gt;
+    
+   	&lt;Button android:text="button 0"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:id="@+id/button0"
+       android:layout_centerInParent="true"
+	/&gt;
+   	
+   	&lt;!-- 上 --&gt;
+   	&lt;Button android:text="button top"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       
+       android:layout_above="@+id/button0"
+       android:layout_alignLeft="@+id/button0"
+	/&gt;
+   	
+   	&lt;!-- 下 --&gt;
+   	&lt;Button android:text="button bottom"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       
+       android:layout_below="@+id/button0"
+       android:layout_alignLeft="@+id/button0"
+	/&gt;
+   	
+   	&lt;!-- 左 --&gt;
+   	&lt;Button android:text="button left"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       
+       android:layout_toLeftOf="@+id/button0"
+       android:layout_alignTop="@+id/button0"
+	/&gt;
+   	
+   	&lt;!-- 右 --&gt;
+   	&lt;Button android:text="button right"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       
+       android:layout_toRightOf="@+id/button0"
+       android:layout_alignTop="@+id/button0"
+	/&gt;
+   
+&lt;/RelativeLayout&gt;
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

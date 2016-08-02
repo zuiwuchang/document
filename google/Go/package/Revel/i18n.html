@@ -1,0 +1,96 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#i18n">i18n</a>
+		<a href="#use">使用的語言環境</a>
+			
+	</div>
+
+	<div class="note"><a name="i18n"></a>
+		<p><span class="flag">i18n</span>
+<pre>revel 支持 國際化 語言翻譯文件 必須放在 messages 文件夾下(名稱 隨意)
+
+
+
+revel 根據 後綴名 獲取翻譯 文件
+zh	中文
+en	英文
+...
+
+
+revel 會將 後綴名相同的 文件 自動 合併 
+故 可以 將 翻譯 放在 多個文件中
+
+
+
+翻譯文件 使用 key=value 形式
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><span class="care">sample.zh</span>
+#	中文翻譯
+country=中國
+
+#	針對 zh-TW 翻譯
+[TW]
+country=中華民國
+
+#	針對 zh-HK 翻譯
+country=赤縣
+
+
+
+<span class="care">*.go</span>
+func (c App) Index() revel.Result {
+	//獲取當前 使用的 語言環境
+	currentLocale := c.Request.Locale
+
+	//獲取翻譯
+	//c.Message("country")
+	c.Render(currentLocale)
+}
+
+
+<span class="care">*.html</span>
+&lt;p&gt;Current preferred locale: {{.currentLocale}}&lt;/p&lt;
+&lt;p&gt;Greetings: {{msg . "country" }}&lt;/p&gt;
+</pre>
+		</p>
+		<p><span class="flag">注意 翻譯文件 可以 使用參數</span>
+<pre>myname=i'am %s
+
+
+c.Render("myname","illusive man")
+
+{{msg . "myname" "illusive man" }
+
+</pre>
+		</p>
+	</div>
+	
+	<div class="note"><a name="use"></a>
+		<p><span class="flag">使用的語言環境</span>
+<pre>revel 會按一以下順序 選擇 使用的語言 環境
+
+1	如果 在 cnf/app.conf 中 配置了 <span class="care">i18n.cookie=XXX</span>
+	在cookie中 尋找 XXX 找到XXX 使用 此 語言環境
+
+2	在 Accept-Language HTTP 頭中 尋找
+
+3	客戶端 默認 語言
+
+4	cnf/app.conf 中 i18n.default_language 設置的語言環境
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

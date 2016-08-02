@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>cocos2d-js</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#action">action</a>
+		<a href="#CallFunc">cc.CallFunc 回調動作</a>
+		<a href="#sequence">cc.sequence 線性組合動作</a>
+		<a href="#spawn">cc.spawn 異步組合動作</a>
+		<a href="#Animation">cc.Animation 動畫</a>
+		
+	</div>
+
+	<div class="note"><a name="action"></a>
+		<p><span class="flag">action</span>
+<pre>action 是各種 動作 Sprite 可以使用 runAction 執行這些動作
+
+
+//直线移動
+cc.MoveBy(duration, deltaPos, deltaY)
+cc.MoveTo(duration, position, y)
+
+//贝塞尔曲线 移动
+cc.BezierBy(duration, point_arrays_3)
+cc.BezierTo(duration, point_arrays_3)
+	<span class="care">point_arrays_3 是一个 cc.Point 数组
+	分别为 贝塞尔曲线的 [控制点,控制点,终点]</span>
+
+//旋轉
+cc.RotateBy(duration, deltaAngleX, deltaAngleY)
+cc.RotateTo(duration, deltaAngleX, deltaAngleY)
+
+//縮放
+cc.ScaleBy(duration, sx, sy)
+cc.ScaleTo(duration, sx, sy)
+
+//變色
+cc.TintBy(duration, deltaRed, deltaGreen, deltaBlue)
+cc.TintTo(duration, red, green, blue)
+
+...
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="CallFunc"></a>
+		<p><span class="flag">cc.CallFunc 回調動作</span>
+<pre>cc.CallFunc 可以將一個 函數 作為 回調動作 供Sprite執行
+
+cc.CallFunc(selector/*回調函數*/, selectorTarget/*this*/, data/*自定義參數*/)
+</pre>
+		</p>
+		<p>
+<pre>...function(){
+		monster.runAction(
+		cc.sequence(
+				cc.MoveTo(0, cc.p(convey.stop_x * map.tileWidth, convey.stop_y * map.tileHeight)),
+				cc.CallFunc(this.move_moster_move_call_back,
+				this,
+				{
+					"monster":monster,
+					"x":x,
+					"y":y
+				})
+
+		)
+	);
+},
+move_moster_move_call_back:function(lp,data){
+	cc.log(data["monster"]);
+	cc.log(data["x"]);
+	cc.log(data["y"]);
+}
+...</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="sequence"></a>
+		<p><span class="flag">cc.sequence 線性組合動作</span>
+<pre>cc.sequence 接受多個 動作 其將 
+這些動作 組合為一個 線性 執行的 動作 供Sprite執行
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>	//定義 精靈
+		var grossini = new cc.Sprite(res.GROSSINI_DANCE_05_PNG);
+		grossini.attr({
+			"x":size.width /2,
+			"y":size.height /2
+		});
+		this.addChild(grossini,1);
+		//執行組合動作
+		grossini.runAction(
+			cc.sequence(//線性組合 多個動作
+				cc.moveBy(2.5, cc.p(0,90)),	//2.5秒內 上移 90像素
+				cc.rotateBy(2,360)		//2秒內  順時針 旋轉 360 度
+			)
+		);
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="spawn"></a>
+		<p><span class="flag">cc.spawn 異步組合動作</span>
+<pre>cc.spawn 接受多個 動作 其將 
+這些動作 組合為一個 
+異步 執行的(被組合的動作 同時在線) 動作 
+供Sprite執行
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>	//定義 精靈
+		var grossini = new cc.Sprite(res.GROSSINI_DANCE_05_PNG);
+		grossini.attr({
+			"x":size.width /2,
+			"y":size.height /2
+		});
+		this.addChild(grossini,1);
+		//執行組合動作
+		grossini.runAction(
+			cc.spawn(//異步組合 多個動作
+				cc.moveBy(2.5, cc.p(0,90)),	//2.5秒內 上移 90像素
+				cc.rotateBy(2,360)		//2秒內  順時針 旋轉 360 度
+			)
+		);
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Animation"></a>
+		<p><span class="flag">cc.Animation 動畫</span>
+<pre>cc.Animation 動畫 是一組 動畫
+可以 用 cc.animate 將 其包裝為一個 action 供 Sprite 執行
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>	//定義 精靈
+		var grossini = new cc.Sprite(res.GROSSINI_DANCE_05_PNG);
+		grossini.attr({
+			"x":size.width /2,
+			"y":size.height /2
+		});
+		
+		
+		this.addChild(grossini,1);
+		
+		//定義動畫
+		var animation = new cc.Animation();
+		//為動畫 增加 幀
+		animation.addSpriteFrameWithFile(res.GROSSINI_DANCE_05_PNG);
+		animation.addSpriteFrameWithFile(res.GROSSINI_DANCE_06_PNG);
+		animation.addSpriteFrameWithFile(res.GROSSINI_DANCE_07_PNG);
+		animation.addSpriteFrameWithFile(res.GROSSINI_DANCE_08_PNG);
+		
+		//設置播放 速度
+		animation.setDelayPerUnit(0.9 / 4);
+		//設置 被反射結束 是否 恢復 原來的 幀動畫
+		animation.setRestoreOriginalFrame(true);
+		
+		
+		//將 動畫 包裝為 動作
+		var action = cc.animate(animation);
+		//執行組合動作
+		grossini.runAction(
+			cc.sequence(
+					action,
+					action.reverse()	//逆向執行動畫
+			)
+		);
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,145 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>dark</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#carousel">carousel</a>
+	</div>
+
+	<div class="note"><a name="carousel"></a>
+		<p><span class="flag">carousel</span>
+<pre><span class="care">定義</span>
+carousel/carousel.js
+
+<span class="care">依賴</span>
+dark.core.js
+dark.ui.js
+
+<span class="care">namespace</span>
+dark.ui
+
+<span class="care">描述</span>
+一個圖片輪播插件
+<img src="image/carousel/carousel.PNG">
+</pre>
+		</p>
+
+		<p><span class="flag">常用接口</span>
+<pre>//初始化 組件
+[instance] namespace.carousel.create(_jquery	//被初始化的元素
+	{begin:0	//首播圖片索引
+	,interval:0	//自動翻頁時間間隔(毫秒) 0(不自動翻頁)
+	})
+
+//播放下一頁
+instance.next()
+
+//播放上一頁
+instance.previous()
+
+//顯示指定頁
+instance.show_n(n)
+
+//設置新的 自動播放時間間隔(毫秒) 0(不自動翻頁) 
+instance.play(interval)
+
+//關閉自動播放
+instance.stop()
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre><span class="care">html</span>
+
+...
+&lt;!--	jquery	--&gt;
+&lt;script type="text/javascript" src="jquery-1.11.2.min.js"&gt;&lt;/script&gt;
+
+
+
+&lt;!--	dark 核心組件	--&gt;
+&lt;script type="text/javascript" src="dark/dark.core.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="dark/dark.ui.js"&gt;&lt;/script&gt;
+
+&lt;!--	dark carousel 組件	--&gt;
+&lt;link rel="stylesheet" type="text/css" href="dark/carousel/carousel.css"&gt;
+&lt;script type="text/javascript" src="dark/carousel/carousel.js"&gt;&lt;/script&gt;
+
+
+
+&lt;script type="text/javascript" src="main.js"&gt;&lt;/script&gt;
+
+
+<span class="care">&lt;!--	carousel定義	--&gt;</span>
+&lt;div id="myloops" class="dark_ui_carousel"&gt;
+	<span class="care">&lt;!--	node 節點	--&gt;</span>
+	&lt;div class="dark_ui_carousel_node"&gt;
+		<span class="care">&lt;!--	url鏈接	--&gt;</span>
+		&lt;a href="http://www.google.com.tw"&gt;
+		<span class="care">&lt;!--	顯示圖片	--&gt;</span>
+		&lt;img src="1.jpg"  class="dark_ui_carousel_node_img"&gt;
+		&lt;/a&gt;
+		<span class="care">&lt;!--	顯示文本	--&gt;</span>
+		&lt;span class="dark_ui_carousel_node_text"&gt;image one&lt;/span&gt;
+	&lt;/div&gt;
+
+	&lt;div class="dark_ui_carousel_node"&gt;
+		&lt;a href="http://www.google.com.tw"&gt;
+		&lt;img src="2.jpg"  class="dark_ui_carousel_node_img"&gt;
+		&lt;/a&gt;
+		&lt;span class="dark_ui_carousel_node_text"&gt;image two&lt;/span&gt;
+	&lt;/div&gt;
+
+	&lt;div class="dark_ui_carousel_node"&gt;
+		&lt;a href="http://www.google.com.tw"&gt;
+		&lt;img src="3.jpg"  class="dark_ui_carousel_node_img"&gt;
+		&lt;/a&gt;
+		&lt;span class="dark_ui_carousel_node_text"&gt;image three&lt;/span&gt;
+	&lt;/div&gt;
+
+	<span class="care">&lt;!--	文本顯示標籤	--&gt;</span>
+	&lt;div class="dark_ui_carousel_text_show"&gt;
+	&lt;h3&gt;image three&lt;/h3&gt;
+	&lt;/div&gt;
+	
+	<span class="care">&lt;!--	翻頁按鈕	--&gt;</span>
+	&lt;a class="dark_ui_carousel_next" href="#"&gt;Next&lt;/a&gt;
+	&lt;a class="dark_ui_carousel_previous" href="#"&gt;Previous&lt;/a&gt;
+
+
+&lt;/div&gt;
+...
+
+
+
+<span class="care">main.js</span>
+$(document).ready(function() {
+	//使用 namespace
+	var namespace = dark_using_namespace("dark.ui");
+	var jq	=	$("#myloops");
+
+	jq.width(800);
+	jq.height(600);
+
+	//初始化 組件
+	var obj = namespace.carousel.create(jq,
+		{
+			begin:0		//首先播放圖片索引
+			,interval:3000	//自動翻頁間隔(毫秒) 0(不主動翻頁)
+		});
+
+	
+});
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>dialog</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#dialog">定制對話框</a>
+	</div>
+
+	<div class="note"><a name="dialog"></a>
+		<p><span class="flag">定制對話框</span>
+<pre>1	從 wxDialog 派生一個新類
+
+2	定義對話框 數據
+
+3	編寫代碼 創建 佈局 和 相關  控件
+
+4	增加 c++變量 和 控件 交換數據的 代碼
+
+5	增加 事件響應 以處理 控件 和 其他 事件
+
+6	增加界面更新函數 以設置控件 正確狀態
+
+7	增加幫助
+
+8	使用此 對話框
+</pre>
+		</p>
+		<p><span class="flag">常用事件</span>
+<pre>EVT_CLOSE(func):
+	The dialog is being closed by the user or programmatically (see wxWindow::Close). The user may generate this event clicking the close button (typically the 'X' on the top-right of the title bar) if it's present (see the wxCLOSE_BOX style) or by clicking a button with the wxID_CANCEL or wxID_OK ids.
+
+EVT_INIT_DIALOG(func):
+	Process a wxEVT_INIT_DIALOG event. See wxInitDialogEvent.
+</pre>
+		</p>
+		<p><span class="flag">數據傳輸和 驗證</span>
+<pre>當 對話框 第一次顯示 時 
+virtual void 	InitDialog () 會被自動調用
+
+InitDialog會 產生一個 wxEVT_INIT_DIALOG 事件 
+
+此事件 默認處理函數 會 調用
+virtual bool 	TransferDataToWindow ()
+TransferDataToWindow 負責把數據 設置給 變量
+
+當點擊 wxID_OK 等 的默認 處理函數 會 調用
+virtual bool 	TransferDataFromWindow ()
+將 控件 數據 設置 給 c++變量 
+
+故 可以 重載 這兩個 函數 實現 自己的 數據 和 控件 交互
+</pre>
+		</p>
+		<p><span class="flag">驗證器</span>
+<pre>處理 使用重載 TransferDataToWindow 外 亦可使用 驗證器
+驗證器 將 數據 和 控件 關聯 
+並負責 數據傳輸 和 數據驗證
+
+調用控件的 virtual void 	SetValidator (const wxValidator &validator)方法 可以為之 設置一個驗證器
+
+默認的 OnOk函數 在 TransferDataToWindow之前 會 調用 
+virtual bool 	Validate ()
+
+Validate會遍歷所有 字節子窗口(如果實在了wxWS_EX_VALIDATE_RECURSIVELY 會遞歸所有子孫窗口)
+依次調用 其 Validate 函數 
+並按照驗證器 進行數據驗證 如果任何驗證 失敗
+立刻返回 false 並且顯示一個包含錯誤信息的消息框 此時 
+OnOk 將 不會 關閉對話框 並立刻返回
+
+
+
+<span class="care">常用驗證器</span>
+wxGenericValidator	是一個 只負責傳輸數據 而不進行驗證的 驗證器
+wxTextValidator	是一個 提供了多種驗證方法的 驗證器
+
+<span class="care">自定義驗證器</span>
+從wxValidator派生
+實現Clone
+實現 驗證 機制
+(詳細 見 後章節 自定義控件)
+</pre>
+		</p>
+
+		<p><span class="flag">處理UI更新</span>
+<pre>wxWidgets 會在 系統空間(所有事件處理完畢時)
+發送一個 wxUpdateUIEvent 事件 
+一般 可在此 依據控件狀態 改變外觀
+
+#define EVT_UPDATE_UI(winid, func)
+
+<span class="care">這不是一個用 高效的 做法
+對於 要求 高效率的 程序 應該 慎重考慮 使用 此事件</span>
+</pre>
+		</p>
+
+		<p><span class="flag">工具提示</span>
+<pre>//在鼠標 劃過窗口時 彈出一個 小窗口 顯示 一段說明文字
+void 	SetToolTip (const wxString &tipString)
+</pre>
+		</p>
+		<p><span class="flag">上下文敏感信息</span></p>
+		<p><span class="flag">聯機幫助</span></p>
+		
+	</div>
+</div>
+</body>
+</html>

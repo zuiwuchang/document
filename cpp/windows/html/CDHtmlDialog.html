@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>函數與回調</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#CDHtmlDialog">CDHtmlDialog</a>
+		<a href="#source">連接資源</a>
+		<a href="#JsCallCpp">js調用c++</a>
+		<a href="#activex">關閉提示 activex</a>
+		
+	</div>
+
+	<div class="note"><a name="CDHtmlDialog"></a>
+		<p><span class="flag">CDHtmlDialog</span>
+<pre>CDHtmlDialog 用於 在对话框應用中 使用ie內核 渲染 html
+
+构造函数
+CDHtmlDialog(***::IDD, ***::IDH, pParent)
+中 IDH 指定了 初始化 html 模板
+
+//從資源中 加載新的html渲染
+BOOL LoadFromResource(
+   LPCTSTR lpszResource 
+);
+BOOL LoadFromResource(
+   UINT nRes 
+);
+
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="source"></a>
+		<p><span class="flag">連接資源</span>
+<pre>將資源 導入到vs中 
+將連接地址 寫為 res:/資源類型/#資源id
+
+<script type="text/javascript" src="res:/js/#129"></script>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="JsCallCpp"></a>
+		<p><span class="flag">js調用c++</span>
+<pre>1	在類中 聲明 宏 
+	DECLARE_DISPATCH_MAP() 
+
+2	在 OnInitDialog 中 設置開啟 接口
+	EnableAutomation();       
+	SetExternalDispatch(GetIDispatch(TRUE));  
+
+3	添加 函數 映射到宏 
+	BEGIN_DISPATCH_MAP(CDlgChildListHtml, CDHtmlDialog) 
+		//void(void)
+		DISP_FUNCTION(CDlgChildListHtml, "page_initial",  DoHtmlInit, VT_EMPTY, VTS_NONE)  
+		//void(VARIANT& str1,VARIANT& str2)
+		DISP_FUNCTION(CDlgChildListHtml, "pkg_change",  DoPkgChange, VT_EMPTY, VTS_VARIANT VTS_VARIANT)  
+		//void(VARIANT& str1,VARIANT& str2)
+		DISP_FUNCTION(CDlgChildListHtml, "on_pkgs_sort",  DoPkgsSort, VT_EMPTY, VTS_VARIANT)  
+	END_DISPATCH_MAP()  
+
+	void CDlgChildListHtml::DoHtmlInit(VARIANT& vStr1 ) 
+
+4	在js中 通過 window.external.XXX/external.XXX 調用擴展函數
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><span class="care">.h</span>
+class CPluginsDialog : public CDHtmlDialog
+{
+...
+	BOOL JsExecute(VARIANT& cmd);
+	VARIANT JsGetCmds();
+	DECLARE_DISPATCH_MAP()
+}
+
+
+<span class="care">.cpp</span>
+BEGIN_DISPATCH_MAP(CPluginsDialog, CDHtmlDialog)   
+	DISP_FUNCTION(CPluginsDialog, "Execute",  JsExecute, VT_BOOL, VTS_VARIANT) 
+	DISP_FUNCTION(CPluginsDialog, "GetCmds",  JsGetCmds, VT_VARIANT,VTS_NONE)
+END_DISPATCH_MAP() 
+
+BOOL CPluginsDialog::OnInitDialog()
+{
+	CDHtmlDialog::OnInitDialog();
+	...
+	
+	EnableAutomation();
+	SetExternalDispatch(GetIDispatch(TRUE));
+
+	...
+}
+
+BOOL CPluginsDialog::JsExecute(VARIANT& cmd)
+{
+	CString str = cmd;
+	if(str == L"ok")
+	{
+		return TRUE;
+	}
+	return FALSE;
+}
+VARIANT CPluginsDialog::JsGetCmds()
+{
+	CString str = L"return str test";
+	CComVariant rs = str;
+	return rs;
+}
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="activex"></a>
+		<p><span class="flag">關閉提示 activex</span>
+<pre>js調用c++是 會提示 是否允許運行 activex 組件
+重載
+inline BOOL CanAccessExternal()
+{
+	return TRUE;
+}
+可關閉提示信息	
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

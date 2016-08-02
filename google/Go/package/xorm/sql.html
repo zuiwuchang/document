@@ -1,0 +1,28 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#sql">執行sql</a>
+
+	</div>
+
+	<div class="note"><a name="sql"></a>
+		<p><span class="flag">執行sql</span>
+<pre>//執行sql查詢
+func (engine *Engine) Query(sql string, paramStr ...interface{}) (resultsSlice []map[string][]byte, err error)
+
+//執行 sql 
+func (engine *Engine) Exec(sql string, args ...interface{}) (sql.Result, error)
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

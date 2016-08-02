@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>傳奇私服</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">SetUp</font>
+</p>
+
+<p>
+	<a href="#SetUp">SetUp</a><br />
+    <a href="#ScriptGotoCountLimit">循環次數 ScriptGotoCountLimit</a><br />
+    
+    <a href="#exp">經驗</a><br />
+  	<a href="#Castle">城堡 [Setup]</a><br />
+   
+</p>
+
+
+<div class="mydiv"><a name="SetUp"></a>
+	<p><font color="#FF0000">SetUp</font>
+<pre>MirServer\Mir200\!setup.txt
+是傳奇服務器 配置參數 主要配置服務器 配額等
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="ScriptGotoCountLimit"></a>
+	<p><font color="#FF0000">循環次數 ScriptGotoCountLimit</font>
+<pre>ScriptGotoCountLimit	=	10
+定義了一個腳本文件中 能夠使用 GOTO 的次數 
+超過此值 便會出現 [腳本死循環] 的sb錯誤
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="exp"></a>
+	<p><font color="#FF0000">經驗 [exp]</font>
+<pre>[exp]	段之後是 經驗相關 設置
+
+//設置 沒級 升級經驗
+Level1=100
+Level1=200
+...
+
+
+//設置 角色 英雄 最高等級
+PlayMaxLevel=200
+HeroMaxLevel=200
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="exp"></a>
+	<p><font color="#FF0000">[Setup]</font>
+<pre>[Setup] 段下 記錄了 城堡信息
+CastleMemberPriceRate=80
+CastleGoldMax=10000000
+CastleOneDayGold=2000000
+CastleName=Sabuk					城堡名
+CastleHomeMap=3
+CastleHomeX=644
+CastleHomeY=290
+CastleWarRangeX=100
+CastleWarRangeY=100
+CastleTaxRate=5
+CastleGetAllNpcTax=0
+
+
+
+StartCastleWarDays=2
+StartCastlewarTime=20				攻城開始時間 小時 24計時
+ShowCastleWarEndMsgTime=600000
+CastleWarTime=7200000				攻城持續時間 (毫秒)
+GetCastleTime=600000				獲取城堡最短時間 (毫秒)
+</pre>
+	</p>
+</div>
+</td></tr></table>
+</body>
+</html>

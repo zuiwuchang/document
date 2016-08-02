@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>SQLite</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#SQLite">SQLite</a>
+		<a href="#evi">環境配置</a>
+		<a href="#cmd">常用命名</a>
+	</div>
+
+	<div class="note"><a name="SQLite"></a>
+		<p><span class="flag">SQLite</span>
+<pre>SQLite 一個 快速 開源 的嵌入式 關係型 數據庫
+
+官網<a href="http://www.sqlite.org" target="_blank">http://www.sqlite.org</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="evi"></a>
+		<p><span class="flag">環境配置</span>
+<pre>1	從官網下載 最新 源碼(sqlite-amalgamation-3080702.zip 或者 
+	<span>sqlite-autoconf-3080702.tar.gz [附帶等makefile文件]</span>) 
+
+	api文檔(sqlite-doc-3080702.zip)
+
+2	解壓 sqlite-autoconf-3080702.tar.gz 並編譯 
+	.configure
+	make
+	
+	在 .libs/ 文件夾下得到
+	libsqlite3.a (靜態庫)
+	libsqlite3.dll.a libsqlite3-0.dll(動態庫)
+	libsqlite3.a (客戶端程序)
+
+3	將 sqlite3.h 加入到 include 路徑
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="cmd"></a>
+		<p><span class="flag">常用命名</span>
+<pre>//創建 或 打開 數據庫 
+sqlite3.exe test.db
+
+//查詢存在的表		
+select name from sqlite_master where type = 'table' order by name;
+.table
+
+//查詢表詳細信息	
+select * from sqlite_master where type = 'table' order by name;  
+
+//查詢表創建命令	
+.schema table_name   
+
+//獲取表字段		
+PRAGMA table_info(table_name)
+    
+//設置顯示分隔符	    
+.separator "-"
+
+//顯示數據庫名	    
+.databases
+
+//退出	    
+.quit
+
+//修改表名    
+alter table 舊表名 rename to 新表名
+
+//增加列 
+alter table 表名 add column 列名 數據類型 限定符
+
+//開始/提交/取消 事務
+BEGIN TRANSACTION
+COMMIT
+ROLLBACK
+</pre>
+</p>
+		<p><span class="flag">轉義字符</span>
+<pre>	/   ->    //
+	'   ->    ''
+	[   ->    /[
+	]   ->    /]
+	%   ->    /%
+	&   ->    /&
+	_   ->    /_
+	(   ->    /(
+	)   ->    /)
+</pre>
+		</p>
+		<p><span class="flag">like</span>
+<pre>%	任意字符串
+_	單個字符
+[]	指定範圍
+[^]	排除範圍
+</pre>
+		</p>
+	</div> 
+</div>
+</body>
+</html>

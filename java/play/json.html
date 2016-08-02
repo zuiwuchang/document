@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>json</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+    <a href="#json">json</a>
+		<a href="#request">request</a>
+		<a href="#response">response</a>
+		
+		
+	</div>
+
+  <div class="note"><a name="json"></a>
+    <p><span class="flag">json</span>
+<pre>play 提供了對 json的 封裝
+</pre>
+    </p>
+    <p><span class="flag">生成 json</span>
+<pre>import play.libs.Json;
+
+public static Result error(String msg) {
+    ObjectNode root = Json.newObject();
+    {
+      ObjectNode arrays = Json.newObject();
+
+      //arrays
+      int[] arrays_data = new int[3];
+      arrays_data[0]=0;
+      arrays_data[1]=1;
+      arrays_data[2]=2;
+      root.put("arrays",Json.toJson(arrays_data));
+
+      //object
+      ObjectNode object = Json.newObject();
+      object.put("arrays",Json.toJson(arrays_data));
+      object.put("data",123);
+      root.put("object",object);
+    }
+    return ok(root);
+  }
+</pre>
+    </p>
+    <p><span class="flag">解析 json</span>
+<pre>import play.libs.Json;
+
+public static Result error(String msg) {
+    JsonNode root = Json.parse("{\"arrays\":[0,1,2],\"object\":{\"arrays\":[0,1,2],\"data\":123}}");
+    JsonNode arrays = root.findPath("arrays");
+    if(arrays!=null && arrays.isArray()){
+      for(int i=0;i&lt;arrays.size();++i){
+        System.out.println(arrays.get(i).asInt());
+      }
+    }
+    JsonNode object = root.findPath("object");
+    if(object!=null && object.isObject()){
+      System.out.println(object.get("data").asInt());
+    }
+    return ok("ok");
+  }
+</pre>
+    </p>
+
+    <p><span class="flag">fasterxml</span>
+<pre>好吧 play 其實 只是使用 另外一個開源項目 fasterxml 處理json
+
+其他詳細用法 見 fasterxml
+<a href="http://fasterxml.github.io/" target="_blank">http://fasterxml.github.io/</a>
+</pre>
+    </p>
+  </div>
+
+	<div class="note"><a name="request"></a>
+		<p><span class="flag">request</span>
+<pre>A JSON request is an HTTP request using a valid JSON payload as request body. Its Content-Type header must specify the text/json or application/json MIME type.
+
+By default an action uses an any content body parser, which you can use to retrieve the body as JSON (actually as a Jackson JsonNode):
+
+import com.fasterxml.jackson.databind.JsonNode;
+...
+
+public static Result sayHello() {
+  JsonNode json = request().body().asJson();
+  if(json == null) {
+    return badRequest("Expecting Json data");
+  } else {
+    String name = json.findPath("name").textValue();
+    if(name == null) {
+      return badRequest("Missing parameter [name]");
+    } else {
+      return ok("Hello " + name);
+    }
+  }
+}
+Of course it’s way better (and simpler) to specify our own BodyParser to ask Play to parse the content body directly as JSON:
+
+import com.fasterxml.jackson.databind.JsonNode;
+import play.mvc.BodyParser;
+...
+
+@BodyParser.Of(BodyParser.Json.class)
+public static Result sayHello() {
+  JsonNode json = request().body().asJson();
+  String name = json.findPath("name").textValue();
+  if(name == null) {
+    return badRequest("Missing parameter [name]");
+  } else {
+    return ok("Hello " + name);
+  }
+}
+Note: This way, a 400 HTTP response will be automatically returned for non JSON requests with Content-type set to application/json.
+
+You can test it with cURL from a command line:
+
+curl 
+  --header "Content-type: application/json" 
+  --request POST 
+  --data '{"name": "Guillaume"}' 
+  http://localhost:9000/sayHello
+It replies with:
+
+HTTP/1.1 200 OK
+Content-Type: text/plain; charset=utf-8
+Content-Length: 15
+
+Hello Guillaume
+</pre>
+	</div>
+
+	<div class="note"><a name="response"></a>
+		<p><span class="flag">response</span>
+<pre>In our previous example we handled a JSON request, but replied with a text/plain response. Let’s change that to send back a valid JSON HTTP response:
+
+import play.libs.Json;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+...
+
+public static Result sayHello() {
+  ObjectNode result = Json.newObject();
+  result.put("exampleField1", "foobar");
+  result.put("exampleField2", "Hello world!");
+  return ok(result);
+}
+Now it replies with:
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{"exampleField1":"foobar","exampleField2":"Hello world!"}
+You can also return a Java object and have it automatically serialized to JSON by the Jackson library:
+
+import play.libs.Json;
+...
+
+public Result getPeople() {
+  List&lt;Person&gt; people = personDao.findAll();
+  return ok(Json.toJson(people));
+}
+</pre>
+	</div>
+
+	
+
+</div>
+</body>
+</html>
+

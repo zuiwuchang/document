@@ -1,0 +1,468 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>圖像編碼解碼</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p>
+    <a href="#image">圖像編碼解碼</a><br />
+    <a href="#get">獲取系統 編碼器 解碼器</a><br />
+    <a href="#param">圖像編碼參數</a><br />
+    <a href="#Save">Save</a><br />
+   
+    </p>
+    
+        
+<div class="div_box"><a name="image"></a>
+<p><font color="#FF0000">圖像編碼解碼</font>
+<pre>圖像 編碼 是將圖像按照一定格式保存 解碼 既格局編碼的格式 讀取文件
+GDI+ 封裝了其中的 細節 使程序員 無需關心具體的 編碼解碼細節
+</pre>    
+</p>
+</div>
+
+<div class="div_box"><a name="get"></a>
+<p><font color="#FF0000">獲取系統 編碼器 解碼器</font>
+<pre>要獲取 系統支持的編碼器信息
+首先使用
+Status GetImageEncodersSize(          UINT *numEncoders,
+    UINT *size
+);
+獲取 編碼器總數 以及存儲信息需要的 空間大小
+之後使用
+Status GetImageEncoders(          UINT numEncoders,
+    UINT size,
+    ImageCodecInfo *encoders
+);
+返回 ImageCodecInfo 數組 保存了 編碼器信息
+
+
+獲取解碼器信息 同上 不過用以下兩 函數
+Status GetImageDecodersSize(          UINT *numDecoders,
+    UINT *size
+);
+Status GetImageDecoders(          UINT numDecoders,
+    UINT size,
+    ImageCodecInfo *decoders
+);
+</pre>
+</p>
+
+<p><font color="#FF0000">ImageCodecInfo</font>
+<pre>ImageCodecInfo 存儲了 編碼器/解碼器 詳細信息
+class ImageCodecInfo {  public:              
+	<font color="#FF0000">CLSID        Clsid;				//編碼標識</font>
+	GUID         FormatID;				//文件格式標識
+	<font color="#FF0000">const WCHAR* CodecName;				//編碼器名</font>
+	const WCHAR* DllName;				//編碼器依存的動態庫
+	const WCHAR* FormatDescription;			//編碼描述
+	<font color="#FF0000">const WCHAR* FilenameExtension;			//編碼器對於文件擴展名</font>
+	<font color="#FF0000">const WCHAR* MimeType;				//編碼器的MIME(用於網際郵件擴充協議)類型描述</font>
+	DWORD        Flags;				//ImageCodeFlags枚舉的標記集
+	DWORD        Version;				//編碼器版本
+	DWORD        SigCount;				//餘編碼器對應文件格式標記總數
+	DWORD        SigSize;				//文件格式標記大小
+	const BYTE*  SigPattern;			//標記的樣式
+	const BYTE*  SigMask;				//標記掩碼
+	};
+    
+//將 CLSID 轉換為字符串    
+int StringFromGUID2(
+  REFGUID rguid,		//clsid
+  LPOLESTR lpsz,		//字符串數組指針
+  int cchMax			//字符串數組大小 sizeof(array)
+);
+</pre>
+</p>
+
+<p><font color="#FF0000">獲取系統 編碼器 example</font>
+<pre>	//獲取編碼器數量 存儲信息需要大小
+	UINT num;
+	UINT size;
+	Gdiplus::GetImageEncodersSize(&num,&size);
+
+	//分配內存
+	Gdiplus::ImageCodecInfo* ptr_infos	=	(Gdiplus::ImageCodecInfo*)malloc(size);
+	
+	//獲取信息
+	Gdiplus::GetImageEncoders(num,size,ptr_infos);
+
+	//獲取信息
+	CString tmp,info;
+	for(UINT i = 0;i < num;++i)
+	{
+		tmp.Format(L"編碼器名:%s\t 文件擴展名:%s\r\n",ptr_infos[i].CodecName,ptr_infos[i].FilenameExtension);
+		info	+=	tmp;
+	}
+	SetDlgItemText(IDC_EDIT1,info);
+
+	//釋放內存
+	free(ptr_infos);
+</pre>
+</p>
+
+<p><font color="#FF0000">獲取系統 解碼器 example</font>
+<pre>	//獲取解碼器數量 存儲信息需要大小
+	UINT num;
+	UINT size;
+	Gdiplus::GetImageDecodersSize(&num,&size);
+
+	//分配內存
+	Gdiplus::ImageCodecInfo* ptr_infos	=	(Gdiplus::ImageCodecInfo*)malloc(size);
+	
+	//獲取信息
+	Gdiplus::GetImageDecoders(num,size,ptr_infos);
+
+	//獲取信息
+	CString tmp,info;
+	for(UINT i = 0;i < num;++i)
+	{
+		tmp.Format(L"解碼器名:%s\t 文件擴展名:%s\r\n",ptr_infos[i].CodecName,ptr_infos[i].FilenameExtension);
+		info	+=	tmp;
+	}
+	SetDlgItemText(IDC_EDIT1,info);
+
+	//釋放內存
+	free(ptr_infos);
+</pre>
+</p>
+
+<p><font color="#FF0000">注意</font>
+<pre>存儲信息大小 必須是 malloc(size) 而不是 new ImageCodecInfo[numEncoders]
+</pre>
+</p>
+</div>
+
+<div class="div_box"><a name="param"></a>
+<p><font color="#FF0000">圖像編碼參數</font>
+<pre>對於不同的編碼方式 都可以接受 各自的編碼參數 以確定 具體的編碼效果
+GDI+ 在保存圖像時 亦可 傳入這些參數 以指定具體的 編碼情況
+
+首先使用
+UINT Image::GetEncoderParameterListSize(          const CLSID *clsidEncoder
+);
+返回 保存 編碼參數信息 需要的 內存大小
+之後使用
+Status Image::GetEncoderParameterList(          const CLSID *clsidEncoder,
+    UINT size,
+    EncoderParameters *buffer	//返回參數信息
+);
+//返回 參數信息 
+
+//EncoderParameters對象 保存了 編碼需要的 所有參數信息
+class EncoderParameters {  public:    UINT             Count; //EncoderParameter 數量
+    EncoderParameter Parameter[1];	//EncoderParameter 數組
+    };
+
+//EncoderParameter 保存了單個 參數的具體信息
+class EncoderParameter {  public:    
+	GUID  Guid;    
+	ULONG NumberOfValues;
+	ULONG Type;    
+	VOID* Value;
+};    
+</pre>
+
+<p><font color="#FF0000">example</font>
+<pre>//定義的 輔助函數
+namespace dark
+{
+	namespace gdiplus
+	{
+		class tools
+		{
+		private:
+			tools(){}
+		public:
+			//根據 MimeType 返回 CLSID
+			//常用 MimeType image/bmp  image/jpeg image/gif image/png 
+			static bool get_encoder_clsid(const std::wstring& mime_type,CLSID& clsid)
+			{
+				bool result	=false;;
+
+				//獲取編碼器數量 存儲信息需要大小
+				UINT num;
+				UINT size;
+				Gdiplus::GetImageEncodersSize(&num,&size);
+
+				//分配內存
+				Gdiplus::ImageCodecInfo* ptr_infos	=	(Gdiplus::ImageCodecInfo*)malloc(size);
+	
+				//獲取信息
+				Gdiplus::GetImageEncoders(num,size,ptr_infos);
+
+				//獲取信息
+				
+				for(UINT i = 0;i < num;++i)
+				{
+					if(mime_type == ptr_infos[i].MimeType)
+					{
+						clsid	=	ptr_infos[i].Clsid;
+						result	=	true;
+						break;
+					}
+				}
+				//釋放內存
+				free(ptr_infos);
+				return result;
+			}
+
+			//更具參數 Guid 值返回 人類能夠明白的 字符串
+#ifdef PARAM_NAME_ZH_CN
+	#define	PARAM_NAME_COMPRESSION		L"壓縮方式"
+	#define	PARAM_NAME_COLORDEPTH		L"色深"
+	#define	PARAM_NAME_SCANMETHOD		L"掃描方式"
+	#define	PARAM_NAME_VERSION			L"保存版本"
+	#define	PARAM_NAME_RENDERMETHOD		L"渲染方式"
+	#define	PARAM_NAME_QUALITY			L"壓縮質量"
+	#define	PARAM_NAME_TRANSFORMATION	L"轉換信息"
+	#define	PARAM_NAME_LUMINANCETABLE	L"亮度表"
+	#define	PARAM_NAME_CHROMINANCETABLE	L"色度表"
+	#define	PARAM_NAME_SAVEFLAG			L"文件保存選項"
+	#define PARAM_NAME_UNKNOW			L"未知"
+#else
+	#define	PARAM_NAME_COMPRESSION		L"Compression"
+	#define	PARAM_NAME_COLORDEPTH		L"Color Depth"
+	#define	PARAM_NAME_SCANMETHOD		L"Scan Method"
+	#define	PARAM_NAME_VERSION			L"Version"
+	#define	PARAM_NAME_RENDERMETHOD		L"Render Method"
+	#define	PARAM_NAME_QUALITY			L"Quality"
+	#define	PARAM_NAME_TRANSFORMATION	L"Transformation"
+	#define	PARAM_NAME_LUMINANCETABLE	L"Luminance Table"
+	#define	PARAM_NAME_CHROMINANCETABLE	L"Chrominance Table"
+	#define	PARAM_NAME_SAVEFLAG			L"Save Flag"
+	#define PARAM_NAME_UNKNOW			L"UnKnown"
+
+#endif
+			static std::wstring get_param_name(const GUID& guid)
+			{	
+				if(guid == Gdiplus::EncoderCompression)
+				{
+					return PARAM_NAME_COMPRESSION;
+				}
+				else if(guid == Gdiplus::EncoderColorDepth)
+				{
+					return PARAM_NAME_COLORDEPTH;
+				}
+				else if(guid == Gdiplus::EncoderScanMethod)
+				{
+					return PARAM_NAME_SCANMETHOD;
+				}
+				else if(guid == Gdiplus::EncoderVersion)
+				{
+					return PARAM_NAME_VERSION;
+				}
+				else if(guid == Gdiplus::EncoderRenderMethod)
+				{
+					return PARAM_NAME_RENDERMETHOD;
+				}
+				else if(guid == Gdiplus::EncoderQuality)
+				{
+					return PARAM_NAME_QUALITY;
+				}
+				else if(guid == Gdiplus::EncoderTransformation)
+				{
+					return PARAM_NAME_TRANSFORMATION;
+				}
+				else if(guid == Gdiplus::EncoderLuminanceTable)
+				{
+					return PARAM_NAME_LUMINANCETABLE;
+				}
+				else if(guid == Gdiplus::EncoderChrominanceTable)
+				{
+					return PARAM_NAME_CHROMINANCETABLE;
+				}
+				else if(guid == Gdiplus::EncoderSaveFlag)
+				{
+					return PARAM_NAME_SAVEFLAG;
+				}
+				
+				return PARAM_NAME_UNKNOW;
+			}
+		};
+	};
+};
+
+//示例        
+void CGDITestDlg::OnBnClickedButtonTest()
+{
+	Gdiplus::Image image(L"123.bmp");
+
+	CLSID clsid;
+	typedef dark::gdiplus::tools tools_t;
+	if(tools_t::get_encoder_clsid(L"image/gif",clsid))
+	{
+		//獲取保存參數信息 需要內存大小
+		UINT size	=	image.GetEncoderParameterListSize(&clsid);
+		//分配內存
+		Gdiplus::EncoderParameters* ptr_param	=	(Gdiplus::EncoderParameters*)malloc(size);
+
+		//獲取參數信息
+		image.GetEncoderParameterList(&clsid,size,ptr_param);
+
+		//輸出信息
+		CString tmp,info;
+		for(UINT i=0;i&lt;ptr_param-&gt;Count;++i)
+		{
+			tmp.Format(L"參數名\t:\t%s\r\n"
+				L"參數數量\t:\t%d\r\n"
+				L"型別\t:\t%d\r\n"
+				L"\r\n\r\n"
+				,tools_t::get_param_name(ptr_param->Parameter[i].Guid).c_str()
+				,ptr_param->Parameter[i].NumberOfValues
+				,ptr_param->Parameter[i].Type
+				
+				);
+			info	+=	tmp;
+		}
+		SetDlgItemText(IDC_EDIT1,info);
+
+		//釋放內存
+		free(ptr_param);
+	}
+}
+</pre>
+</p>
+
+</p>
+
+<p><font color="#FF0000">class EncoderParameter</font>
+<pre>class EncoderParameter {  public:    
+	GUID  Guid;    
+	ULONG NumberOfValues;
+	ULONG Type;    
+	VOID* Value;
+}; 
+
+<font color="#FF0000">Guid</font>
+Guid 代表了參數類型 (如保存分辨率 版本 色深等)
+
+<font color="#FF0000">NumberOfValues</font>
+此參數類型 需要多少個參數設置(一個參數類型 可能需要多個參數進行設置)
+（如文件版本號 5.8 5是主版本 8是副版本）
+
+<font color="#FF0000">指明 參數型別</font>
+enum EncoderParameterValueType {  EncoderParameterValueTypeByte          = 1,	//8位無符號整型
+  EncoderParameterValueTypeASCII         = 2,	//ASCII字符串
+  EncoderParameterValueTypeShort         = 3,	//16位 無符號整型
+  EncoderParameterValueTypeLong          = 4,	//32...
+  EncoderParameterValueTypeRational      = 5,	//兩個32位... 第一個是分子 第二個是分母
+  EncoderParameterValueTypeLongRange     = 6,	//整數區間 由兩個32位 無符號整型 構成 [最小,最大]
+  EncoderParameterValueTypeUndefined     = 7,	//字節數組 可代表任意型別
+  EncoderParameterValueTypeRationalRange = 8};	//分數區間 由4個 32位無符號整型構成
+  
+<font color="#FF0000">Value</font>
+參數值數組 void*
+</pre>
+</p>
+</div>
+
+<div class="div_box"><a name="Save"></a>
+<p><font color="#FF0000">Save</font>
+<pre>GDI+ 在使用Image打開圖像時 會自動根據圖像格式 使用正確方式打開
+Image 的 Save保存時 若指定編碼器 GDI+將自動 保存為正確的 格式
+
+Status Save(          const WCHAR *filename,
+    const CLSID *clsidEncoder,
+    const EncoderParameters *encoderParams
+);
+Status Save(          IStream *stream,
+    const CLSID *clsidEncoder,
+    const EncoderParameters *encoderParams
+);
+
+//第一個參數 指定了保存 的位置
+//第二個參數 指定編碼器標識 若不指定 使用 和打開時相同的 標識
+//第三個參數 指定具體的編碼器參數 若傳入NULL使用默認值
+</pre>
+</p>
+
+<p><font color="#FF0000">example</font>
+<pre>使用Save可以把 數據保存到 IStream中 之後可用IStream數據 轉到 char* 用於網絡存儲 或 寫入文件
+
+	//COM 接口
+	IStorage* pIStorage	=	NULL;
+	IStream* pIStream	=	NULL;
+
+	try
+	{
+		Gdiplus::Image image(L"test.jpg");
+
+		//創建一個複合文檔的 OLE 接口
+		HRESULT hr;
+		hr	=	StgCreateDocfile(NULL
+			,STGM_READWRITE|STGM_CREATE|STGM_SHARE_EXCLUSIVE
+			,0
+			,&amp;pIStorage
+			);
+		if(FAILED(hr))
+		{
+			throw 1;
+		}
+
+		//為OLE創建 一個IStream接口
+		hr = pIStorage->CreateStream(L"StreamImage"
+			 ,STGM_READWRITE|STGM_SHARE_EXCLUSIVE
+			 ,0
+			 ,0
+			 ,&amp;pIStream);
+		if(FAILED(hr))
+		{
+			throw 1;
+		}
+
+		//將Image 保存到IStream
+		CLSID png_clsid;
+		if(!dark::gdiplus::tools::get_encoder_clsid(L"image/png",png_clsid))
+		{
+			throw 1;
+		}
+		image.Save(pIStream,&amp;png_clsid);
+
+		//返回 IStream 數據 大小
+		STATSTG myStreamStats;
+		pIStream->Stat(&myStreamStats,0);
+		ULONG size	=	(ULONG)myStreamStats.cbSize.QuadPart,dw;
+		
+		//分配動態內存
+		boost::scoped_array&lt;char&gt; buffer(new char[size]);
+		//移動到IStream起始位置
+		pIStream->Seek(LARGE_INTEGER(),STREAM_SEEK_SET,0);
+		//讀取IStream到動態內存
+		pIStream->Read(buffer.get(),size,&dw);
+		
+		//保存到文件
+		std::ofstream outf("test.png",std::ios::binary | std::ios::trunc | std::ios::out);
+		outf.write(buffer.get(),size);
+		outf.close();
+	}
+	catch(const int)
+	{
+	}
+
+	//釋放COM接口
+	if(pIStream)
+	{
+		pIStream->Release();
+	}
+	if(pIStorage)
+	{
+		pIStorage->Release();
+	}
+</pre>
+</p>
+
+<p><font color="#FF0000">注意</font>
+<pre>上面代碼使用了 COM接口 應該初始化COM組件 否則 可能會出現錯誤
+CoInitialize(NULL);
+CoUninitialize();
+</pre>
+</p>
+</div>
+
+</td></tr></table>
+</body>
+</html>

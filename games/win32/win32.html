@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#hungry">hungry 匈牙利符號表示法</a>
+		<a href="#win32">win32</a>
+		<a href="#resource">win32資源</a>
+		
+	</div>
+
+	<div class="note"><a name="hungry"></a>
+		<p><span class="flag">hungry 匈牙利符號表示法</span>
+<pre>微軟 使用 匈牙利符號表示法 編寫API
+</pre>
+		</p>
+
+		<p><span class="flag">前綴</span>
+<pre>c	Char 字符
+by		BYTE字節(無符號字節)
+n		Short短整型和整數
+i		int整數
+x,y		Short短整型(通常表示 x y 坐標)
+cy,cy	...(通常表示x,y的長度 c表示計數)
+b		BOOL
+w		UINT/WORD
+l		LONG
+dw		DWORD
+fn		函數指針
+s		字符串
+sz,str	以0結尾的字符串
+lp		32位指針
+h		wind32對象句柄
+msg		消息
+</pre>
+		</p>
+		<p><span class="flag">命名</span>
+<pre>以 前綴 加 單詞首字幕大寫 命名 變量
+szFileName
+
+以 g_*/g* 命名全局變量 
+
+函數命名類似變量
+
+以大寫 C 加 類名首字母大寫命名類
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="win32"></a>
+		<p><span class="flag">win32</span>
+<pre>win32 以 WinMain 作為 入口函數
+
+1	註冊窗口類(其中指定 消息處理函數)
+2	實例化窗口類 並顯示窗口
+3	構造 消息循環
+4	處理 消息
+
+
+//註冊窗口類
+ATOM MyRegisterClass(HINSTANCE hInstance)
+{
+	WNDCLASSEX wcex;
+
+	wcex.cbSize = sizeof(WNDCLASSEX);
+
+	//窗口風格
+	wcex.style			= CS_HREDRAW | CS_VREDRAW;
+	//指定消息 處理函數
+	wcex.lpfnWndProc	= WndProc;
+	wcex.cbClsExtra		= 0;
+	wcex.cbWndExtra		= 0;
+	wcex.hInstance		= hInstance;
+	//設置應用程序圖標
+	wcex.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_TEST_WIN32));
+	//設置光標
+	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
+	//設定背景畫刷
+	wcex.hbrBackground	= (HBRUSH)(COLOR_WINDOW+1);
+	wcex.lpszMenuName	= MAKEINTRESOURCE(IDC_TEST_WIN32);
+	wcex.lpszClassName	= szWindowClass;
+	wcex.hIconSm		= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+
+	return RegisterClassEx(&wcex);
+}
+
+</pre>
+		</p>
+
+		<p><span class="flag">消息循環</span>
+<pre>//獲取消息
+while (GetMessage(&msg, NULL, 0, 0))
+{
+	//處理菜單中的 加速鍵
+	if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+	{
+		//翻譯 派發消息
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+}
+</pre>
+		</p>
+
+		<p><span class="flag">遊戲 使用消息循環</span>
+<pre>while(TRUE)
+{
+	//檢查是否有消息
+	if(PeekMessage(&msg,NULL,0,0,PM_REMOVE))
+	{
+		//有消息 則 翻譯 派發消息
+		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	}
+
+	//執行 遊戲 邏輯
+}
+</pre>
+		</p>
+
+		<p><span class="flag">窗口風格</span>
+<pre>CS_HREDRAW	若移動/改變窗口寬度 刷新整個窗口
+CS_VREDRAW	若移動/改變窗口高度 刷新整個窗口
+CS_OWNDC	為該類中每個窗口分配一個單值得設備描述符
+CS_DBLCLKS	當用戶雙擊鼠標時發送一個雙擊消息
+CS_PARENTDC	在母窗口中設定一個子窗口剪切區，以便子窗口能夠在母窗口中
+CS_SAVEBITS	在母窗口中保存用戶圖像 以便在該窗口被遮擋 移動時不必每次刷新屏幕(此或者用更多內存 且比人工同樣操作慢得多)
+CS_NOCLOSE	禁用系統菜單上的關閉按鈕
+</pre>
+		</p>
+
+		<p><span class="flag">預定義圖標</span>
+<pre>LoadIcon(NULL, IDI_ASTERISK);
+
+IDI_APPLICATION	默認應用程序圖標
+IDI_ASTERISK	星号
+IDI_EXCLAMATION	驚嘆號
+IDI_HAND	手行圖標
+IDI_QUESTION	問號
+IDI_WINLOGO	win logo
+</pre>
+		</p>
+
+		<p><span class="flag">預定義光標</span>
+<pre>IDC_ARROW	標準箭頭
+IDC_APPSTARTING	標準箭頭和小沙漏
+IDC_CROSS	橫標線
+IDC_IBEAM	文本I型標
+IDC_NO		帶正斜線的圓圈
+IDC_SIZEALL	四向箭頭
+IDC_SIZENESW	指向東北-西南的雙向箭頭
+IDC_SIZENS	... 南-北 ...
+IDC_SIZENWSE	... 東南-西北 ...
+IDC_SIZEWE	... 東-西 ...
+IDC_UPARROW	垂直方向箭頭
+IDC_WAIT	沙漏
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="resource"></a>
+		<p><span class="flag">win32資源</span>
+<pre>win32 程序中除了代碼 還可以包含 代碼需要使用的 各種資源
+
+//使用 圖標 資源
+LoadIcon(hInstance, MAKEINTRESOURCE(IDI_TEST_WIN32));
+
+//使用光標資源
+LoadCursor(NULL, IDC_ARROW);
+
+//... 字符串
+int LoadString(          HINSTANCE hInstance,
+    UINT uID,
+    LPTSTR lpBuffer,
+    int nBufferMax
+);
+
+//菜單
+HMENU LoadMenu(          HINSTANCE hInstance,
+    LPCTSTR lpMenuName
+);
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

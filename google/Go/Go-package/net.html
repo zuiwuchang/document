@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#net">網絡編程</a>
+		<a href="#API">其他常用API</a>
+		
+			
+	</div>
+
+	<div class="note"><a name="net"></a>
+		<p><span class="flag">網絡編程</span>
+<pre>net 提供了 對網絡編程的 封裝
+並且簡化了傳統的 網絡編程
+
+<span class="care">server</span>
+1	調用 Listen 監聽端口
+2	調用 Accept 接受 連接
+3	調用 Read Write 收發數據
+4	調用 Close 關閉 socket
+<span class="care">client</span>
+1	調用 Dial 連接服務器
+2	調用 Read Write 收發數據
+3	調用 Close 關閉 socket
+</pre>
+		</p>
+
+		<p><span class="flag">導出API</span>
+<pre>//返回 使用指定協議(net) 工作在指定地址(laddr) 的監聽器
+func Listen(net, laddr string) (Listener, error)
+	//Listen 其實是對 ListenTCP ListenUDP 的封裝
+
+//接受 socket 連接
+func (Listener)Accept() (c Conn, err error)
+
+//使用指定協議 連接 服務器
+func Dial(network, address string) (Conn, error)
+	Dial("tcp", "12.34.56.78:80")
+	Dial("tcp", "google.com:http")
+	Dial("tcp", "[2001:db8::1]:http")
+	Dial("tcp", "[fe80::1%lo0]:80")
+	//Dial 其實是對 DialTCP DialUDP DialIP DialUnix 的封裝
+
+//讀取數據
+func (Conn)Read(b []byte) (n int, err error)
+//寫入數據
+func (Conn)Write(b []byte) (n int, err error)
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre><span class="care">server</span>
+package main
+
+import (
+	"fmt"
+	"net"
+)
+
+func main() {
+	s, e := net.Listen("tcp", ":1102")
+	if e != nil {
+		fmt.Println("Listen :", e)
+		return
+	}
+	for {
+		c, e := s.Accept()
+		if e != nil {
+			fmt.Println("Accept :", e)
+			continue
+		}
+		fmt.Println("Accepted :", c.RemoteAddr())
+		go doRead(c)
+	}
+}
+func doRead(c net.Conn) {
+	defer c.Close()
+	buf := make([]byte, 1024, 1024)
+	for {
+		n, e := c.Read(buf)
+		if e != nil {
+			fmt.Printf("client close : %v\n", c.RemoteAddr())
+			break
+		}
+		fmt.Printf("%v send(%v) : %v\n", c.RemoteAddr(), n, string(buf[:n]))
+	}
+}
+
+
+
+<span class="care">client</span>
+package main
+
+import (
+	"fmt"
+	"net"
+)
+
+func main() {
+	c, e := net.Dial("tcp", "127.0.0.1:1102")
+	if e != nil {
+		fmt.Println("connect :", e)
+		return
+	}
+	defer c.Close()
+	str := "test"
+	c.Write([]byte(str))
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="API"></a>
+		<p><span class="flag">其他常用API</span>
+<pre>//返回 字符串 的IP 對象(如果不是ip返回nil)
+func ParseIP(s string) IP
+
+//查詢域名端口 對應的ip地址 net要查詢的地址格式 tcp/tcp4/tcp6
+func ResolveTCPAddr(net, addr string) (*TCPAddr, error)
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+

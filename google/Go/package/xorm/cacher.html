@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#cacher">緩存</a>
+
+	</div>
+
+	<div class="note"><a name="cacher"></a>
+		<p><span class="flag">緩存</span>
+<pre>xorm 提供了 內存 緩衝功能
+
+
+
+//使用一個 1000 條記錄的 LRU算法緩存
+cacher := xorm.NewLRUCacher(xorm.NewMemoryStore(), 1000)
+//engine.MapCacher(&user, cacher) 只針對部分表緩存
+//engine.MapCacher(&user, nil) 排除要換成的表
+engine.SetDefaultCacher(cacher)
+
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>xorm 只針對 有 pk 的表建立 緩存
+
+如果 調用 Exec 方法 會調用 數據庫 和 緩存不一致 
+此時需要手動 調用ClearCache 
+engine.Exec("update user set name = ? where id = ?", "xlw", 1)
+engine.ClearCache(new(User))
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

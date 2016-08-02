@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>特殊容器</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#stack">stack</a>
+		<a href="#queue">queue</a>
+		<a href="#priority_queue">priority_queue</a>
+		<a href="#bitset">bitset</a>
+		
+	</div>
+
+	<div class="note"><a name="stack"></a>
+		<p><span class="flag">stack</span>
+<pre>#include &lt;stack&gt;
+
+namespace std{
+	template&lt;calss T,class Container=deque&lt;T&gt;&gt;
+	class stack; 
+	}
+stack只是单纯的吧操作 转化为对内部对应容器的调用 故只有内部容器支持back push_back pop_back等就行
+</pre>
+		</p>
+		<p><span class="flag">function</span>
+<pre>push()	//压入一个元素
+top()	//返回栈顶元素 不会检查存在元素 调用者处理
+pop()	//弹出一个元素 ...
+empty()
+size()
+
+==
+!=
+<
+>
+<
+>
+两个stack 需要元素size相等 且对应元素相等 才等 (采用字典比较)
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="queue"></a>
+		<p><span class="flag">queue</span>
+<pre>#include &lt;queue&gt;
+namespace std{
+	template&lt;calss T,class Container=deque&lt;T&gt;&gt;
+	class queue; 
+	}
+queue只是单纯的吧操作 转化为对内部对应容器的调用 故只有内部容器支持front back push_back pop_front等就行
+		</p>
+		<p><span class="flag">function</span>
+<pre>push()	//压入一个元素
+front()	//返回队列第一个元素 不会检查存在元素 调用者处理
+back()	//返回队列最后一个元素 ... pop()	//弹出第一个元素 ...
+empty()
+size()
+		</p>
+	</div>
+	<div class="note"><a name="priority_queue"></a>
+		<p><span class="flag">priority_queue</span>
+<pre>namespace std{
+	template&lt;calss T,class Container=vector&lt;T&gt;,class Compare=&lt;less&gt;typename Container::value_type&gt;
+	class priority_queue; 
+	}
+priority_queue带优先级队列 对元素以 <(此为默认) 排序 每次返回最大值元素 若多个元素值无法确定返回谁
+
+priority_queue只是单纯的转化为对内部容器的调用 故需要容器支持 front push_back pop_bak 随机迭代器(采用了heap算法)
+</pre>
+		</p>
+		<p><span class="flag">function</span>
+<pre>push()	//压入一个元素
+top()	//返回下一个元素 既容器尾 pop()	//弹出下一个元素 从容器尾 ...
+empty()
+size()
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="bitset"></a>
+		<p><span class="flag">bitset</span>
+<pre>#include &lt;bitset&gt;
+namespace std{
+	template&lt;size_t Bits&gt;
+	class bitset; 
+	}
+用以表示固定长度的位 1 0 序列
+</pre>
+		</p>
+		<p><span class="flag">function</span>
+<pre>std::bitset&lt;10&gt; bits(1102);	//int到 bits转化 (其实是构造)
+<span class="care">std::cout&lt;&lt;bits&lt;&lt;std::endl; //bitset到字符串转化</span>
+std::bitset&lt;10&gt; bits(1102);	//由字符串构造 <span class="care">只能包含 1 0 否则引发未定义行为</span>
+
+size()			返回位个数
+count()			返回被置1的个数
+any()			返回是否有位被置1
+none()			返回是否没有位被置1
+test(n)			返回指定位是否被置1 最右边(最低位)为第一位
+set()			所有位置1
+set(n)			指定为置1
+set(n,true)		设置某位是否被设置 true设置
+reset（）			设置所有位为0
+reset(n)		指定位置0
+flip()			反转所有位
+flip(n)			反转指定位
+
+to_string()		转化为二进制字符串
+to_ulong()		转化为unsigned long
+
+==
+!=
+
+^=
+|=
+&amp;=
+&lt;&lt;=
+&gt;&gt;=
+[]
+
+～
+&amp;
+|
+^
+
+istream operator &gt;&gt;	接受一个 1 0 序列的字符串
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

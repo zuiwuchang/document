@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>MFC線程</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1>
+    	<a href="#MFC">MFC線程</a><br />
+    	<a href="#worker">worker線程</a><br />
+        <a href="#UI">UI線程</a><br />
+        <a href="#PostThreadMessage">PostThreadMessage</a><br />
+       <a href="#care">注意</a><br />
+		
+    </h1></p>
+    
+    <div class="div_box"><a name="MFC"></a><h2>
+    	<p><font color="#FF0000">MFC線程</font><br />
+		MFC程序應該使用 MFC的線程機制 而非CreateThread 否則 任何對於MFC函數的調用 都可能出錯<br />
+        MFC啟動線程 應該以 AfxBeginThread 或 CWinThread::CreateThread()<br /><br />
+        
+        CWinThread包含了對win32線程api的封裝 
+        </p>
+   	</h2></div>
+    
+    <div class="div_box"><a name="worker"></a><h2>
+    	<p><font color="#FF0000">worker線程</font><br />
+		無消息響應
+        </p>
+        <p><font color="#FF0000">AfxBeginThread 方式啟動</font><br />
+<pre>//創建一個線程 成功返回CWinThread* 否則返回NULL
+CWinThread* AfxBeginThread(
+   AFX_THREADPROC pfnThreadProc,				//線程函數
+   LPVOID pParam,						//傳入參數
+   int nPriority = THREAD_PRIORITY_NORMAL,			//線程優先權 默認同目前線程
+   UINT nStackSize = 0,						//線程堆棧大小 
+   DWORD dwCreateFlags = 0,					//允許產生一個暫時掛起的線程 0(立即執行) CREATE_SUSPENDED(掛起)
+   LPSECURITY_ATTRIBUTES lpSecurityAttrs = NULL 		//安全描述符
+);
+
+//線程函數聲明
+typedef UINT (AFX_CDECL *AFX_THREADPROC)(LPVOID);
+#define AFX_CDECL __cdecl
+</pre>
+        </p>
+        
+        <p><font color="#FF0000">派生CWinThread 方式啟動</font>
+<pre><font color="#FF0000">AfxBeginThread只是對CWinThread做了如下操作</font>
+	1在heap配置一個新的CWinThread對象
+	2調用CWinThread::CWinThread() 並設置屬性，使線程處於掛起
+	3設定線程優先權
+	4調用CWinThread::ResumeThread()運行線程
+
+//派生類
+class CMyWorkerThread : public CWinThread
+{
+public:
+	CMyWorkerThread(LPVOID param)
+		:CWinThread(ThreadFun	//指定線程函數
+		,param					//指定傳入線程函數 參數
+	)
+	{
+		//是否關閉自動delete
+		//m_bAutoDelete=FALSE;
+
+		//也可以在此用m_pThreadParams設置傳入線程函數參數 此時CWinThread第二個參數傳入NULL
+		//m_pThreadParams=this;
+	}
+
+	//線程函數
+	static UINT AFX_CDECL ThreadFun(LPVOID param)
+	{
+		return 0;
+	}
+
+	/*
+	自定義 其他可用數據
+	*/
+};
+
+//分配一個CWinThread子類
+//構造函數 初始化 參數 並掛起線程
+CWinThread *lp=new CMyWorkerThread((LPVOID)2);
+	
+//運行線程
+lp->CreateThread();
+</pre>
+        </p>
+        
+        <p><font color="#FF0000">注意</font><br />
+        由 CWinThread 派生並非必須 只是派生類中 可以包含其他成員<br />
+<pre>CWinThread *lp=new CWinThread(ThreadFun,(LPVOID)2);
+lp->CreateThread();</pre>
+        </p>
+   	</h2></div>
+    <div class="div_box"><a name="UI"></a><h2>
+    	<p><font color="#FF0000">UI線程</font><br />
+		MFC啟用一個UI線程 需要同時用的 AfxBeginThread 和 CWinThread
+        </p>
+        
+        <p><font color="#FF0000">相關API</font><br />
+<pre>//創建UI線程 成功返回CWinThread* 否則返回NULL
+CWinThread* AfxBeginThread(
+   CRuntimeClass* pThreadClass,					//指向一個CWinThread的子類
+   int nPriority = THREAD_PRIORITY_NORMAL,			//線程優先權
+   UINT nStackSize = 0,						//線程堆棧大小
+   DWORD dwCreateFlags = 0,					//允許產生一個暫時掛起的線程 0(立即執行) CREATE_SUSPENDED(掛起)
+   LPSECURITY_ATTRIBUTES lpSecurityAttrs = NULL			//安全描述符
+);
+
+pThreadClass需要重寫 InitInstance 在其中初始化其他ui代碼
+
+//啟動UI線程
+CMyThread* lp=(CMyThread*)AfxBeginThread(RUNTIME_CLASS(CMyThread));
+</pre>
+        </p>
+        
+        <p><font color="#FF0000">注意</font><br />
+		若需要向UI線程傳遞參數 應該以CREATE_SUSPENDED方式創建 UI線程<br />
+        之後通過設置成員變量值 
+        </p>
+   	</h2></div>
+    <div class="div_box"><a name="PostThreadMessage"></a><h2>
+    	<p><font color="#FF0000">PostThreadMessage</font>
+<pre>PostThreadMessage向線程 投遞一個消息 對於同UI線程通信 是個不錯的注意
+
+BOOL PostThreadMessage(  
+	DWORD idThread,   
+	UINT Msg,   
+	WPARAM wParam, 
+	LPARAM lParam ); </pre>
+        </p>
+  	</h2></div>
+    <div class="div_box"><a name="care"></a><h2>
+    	<p><font color="#FF0000">注意</font><br />
+        MFC線程 返回的CWinThread對象 默認不需要 delete <br />
+        因為 MFC安插了自己的啟動函數 以便於在線程結束時 delete CWinThread對象<br /><br />
+        
+        MFC在 delete CWinThread對象時 還會CloseHandle 故線程結束後 其HANDLE將無效 故而用wait...函數將等待無效handle<br />
+        解決之道是關閉自動delete CWinThread 和 CloseHandle功能(在線程運行前 設置m_bAutoDelete=FALSE)<br />
+        (無論是否設置 m_bAutoDelete=FALSE 線程HANDLE在 CWinThread析構時都會被CloseHandle <br />
+        <font color="#FF0000">設置了 m_bAutoDelete=FALSE 需要自己delete CWinThread*)</font><br /><br />
+        
+        m_hThread,m_nThreadID 分別存儲了線程HANDLE 和id
+        </p>
+        
+        <p><font color="#FF0000">注意二</font><br />
+        MFC對象 如 CWnd CDC CPen CDialog...對象與 HANDLE的對應關係存儲在TLS上<br />
+        故無法將此類對象 在線程間共享 傳遞<br />
+        解決辦法是 直接傳遞其 win32句柄
+        </p>
+        
+        <p><font color="#FF0000">同步</font><br />
+        MFC對win32同步機制 亦有封裝 但其降低了許多高級特性 故不推薦使用
+        </p>
+  	</h2></div>
+</td></tr></table>
+</body>
+</html>

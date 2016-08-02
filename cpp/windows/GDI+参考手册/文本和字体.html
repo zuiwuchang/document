@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>文本和字体</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1><a href="#class">主要的类</a></h1></p>
+    <p><h1><a href="#FontFamily">字体系 FontFamily</a></h1></p>
+    <p><h1><a href="#Font">字体 Font</a></h1></p>
+    <p><h1><a href="#install">列举安装的字体</a></h1></p>
+    <p><h1><a href="#box">字体轮廓平滑处理</a></h1></p>
+    <p><h1><a href="#private">私有字体 PrivateFontCollection</a></h1></p>
+    
+    
+    
+    <div class="div_box"><a name="class"><h2>
+    <p><font color="#FF0000">主要的类</font></p>
+    <table border="2">
+    <tr><td>类名</td><td>描述</td></tr>
+    <tr><td>FontFamily</td><td>字体系</td></tr>
+    <tr><td>Font</td><td>字体</td></tr>
+    <tr><td>StringFormat</td><td>字符串格式(对齐居中等)</td></tr>
+    <tr><td>InstalledFontCollection</td><td>已安装字体信息</td></tr>
+    <tr><td>PrivateFontCollection</td><td>私有字体信息</td></tr>
+    </table>
+    </h2></a></div>
+
+	<div class="div_box"><a name="FontFamily"><h2>
+    <p><font color="#FF0000">字体系 FontFamily</font></p>
+    <p><font color="#FF0000">描述 </font>用以指定字体系列(如 楷体 行书等)</p>
+    
+    <p><font color="#FF0000">构造函数</font>
+    <pre>
+    FontFamily(          const WCHAR *name,		//字体系名
+    const FontCollection *fontCollection		//默认NULL 可用于指定私有字体
+);
+    </pre>
+    BOOL IsAvailable(VOID) const;返回字体是否可见
+    </p>
+    </h2>
+    <p><font color="#FF0000">FontStyle 字体风格</font>
+    <table border="2"> 
+    <tr><td>typedef enum {</td></tr>
+    <tr><td>FontStyleRegular = 0,</td><td>常规</td></tr>
+    <tr><td>FontStyleBold = 1,</td><td><b>加粗</b></td></tr>
+    <tr><td>FontStyleItalic = 2,</td><td><i>斜体</i></td></tr>
+    <tr><td>FontStyleBoldItalic = 3,</td><td><i><b>粗斜</b></i></td></tr>
+    <tr><td>FontStyleUnderline = 4,</td><td><U>下划线</U></td></tr>
+    <tr><td>FontStyleStrikeout = 8</td><td><strike>删除线</strike></td></tr>
+	<tr><td>} FontStyle;</td></tr>
+	</table>可字体风格 和 线风格 |</p>
+    
+   FontFamily的成员函数 BOOL IsStyleAvailable(          INT style<br />
+) const; 返回字体指定风格是否可用
+    <h2>
+    
+    <p><font color="#FF0000">Unit 字体大小单位</font>
+	<pre>    
+    typedef enum {
+    UnitWorld = 0,	//	世界坐标，非物理上的单位
+    UnitDisplay = 1,	//	使用和输出设备相同的单位,如显示器为像素
+    UnitPixel = 2,	//	像素
+    UnitPoint = 3,	//	点(磅),1点=1/72英寸
+    UnitInch = 4,	//	英寸
+    UnitDocument = 5,	//	1/300英寸
+    UnitMillimeter = 6	//	毫米
+} Unit;
+	</pre></p>
+    
+    
+    <p><font color="#FF0000">GDI字体系描述 LOGFONTA LOGFONTW</font>
+    <pre>
+    typedef struct {
+    LONG lfHeight;			//	字高
+    LONG lfWidth;			//	字宽
+    LONG lfEscapement;			//	字体旋转角度
+    LONG lfOrientation;			//	字体方向
+    LONG lfWeight;			//	字体轻重
+    BYTE lfItalic;			//	是否为斜体
+    BYTE lfUnderline;			//	是否有下划线
+    BYTE lfStrikeOut;			//	是否有删除线
+    BYTE lfCharSet;			//	字符集
+    BYTE lfOutPrecision;		//	输出精度
+    BYTE lfClipPrecision;		//	剪裁精度
+    BYTE lfQuality;			//	输出质量
+    BYTE lfPitchAndFamily;		//	间距和字体系列
+    WCHAR lfFaceName[LF_FACESIZE];	//	字体名
+} LOGFONTW;
+
+    </pre>
+    </p>
+    </h2></a></div>
+
+	<div class="div_box"><a name="Font"><h2>
+    <p><font color="#FF0000">字体 Font</font></p>
+    <p><font color="#FF0000">构造函数</font>
+    <pre>
+    Font(const FontFamily *family,REAL emSize,INT style,Unit unit);	//	style由FontStyle枚举 emSize字体高度
+    Font(const WCHAR *familyName,REAL emSize,INT style,Unit unit,const FontCollection *fontCollection);
+    Font(HDC hdc,const HFONT hfont);	//	hfont由CFont类强制转化而来
+    Font(HDC,LOGFONTA*)
+    Font(HDC,LOGFONTW*)
+    Font(HDC)
+    </pre>
+    </p>
+    </h2></a></div>
+    
+    <div class="div_box"><a name="install"><h2>
+    <p><font color="#FF0000">列举安装的字体</font></p>
+    通过InstalledFontCollection类实例的GetFamilyCount 和 GetFamilies函数
+    <pre><font color="#FF0000">example</font>
+    Gdiplus::InstalledFontCollection install;
+	int count=install.GetFamilyCount();
+	Gdiplus::FontFamily *family=new Gdiplus::FontFamily[count];
+
+	INT total;
+	install.GetFamilies(count,family,&total);
+	wchar_t buffer[100],b[100]={0};
+	for(int i=0;i&lt;total;++i)<br />	{<br />		memset(buffer,0,_countof(buffer)*sizeof(wchar_t));<br />		memset(b,0,_countof(buffer)*sizeof(wchar_t));<br />		family[i].GetFamilyName(buffer);<br />		swprintf(b,_countof(buffer),L&quot;%-4d%s&quot;,i,buffer);<br />		m_combox.InsertString(m_combox.GetCount(),b);<br />	}<br />	delete [] family;
+    </pre>
+    </h2></a></div>
+    
+    <div class="div_box"><a name="box"><h2>
+    <p><font color="#FF0000">字体轮廓平滑处理</font></p>
+    <p><font color="#FF0000">描述 </font>当文字过大时 会产生锯齿 此主要用于消除锯齿</p>
+    通过Gdiplus的Status SetTextRenderingHint(TextRenderingHint newMode);函数<br />和TextRenderingHint GetTextRenderingHint(VOID) const;函数 <br />设置 或 获取轮廓风格<br />
+    
+    <table border="2">
+    <tr><td>TextRenderingHint取值</td><td>描述</td></tr>
+    <tr><td>typedef enum {</td></tr>
+    <tr><td>TextRenderingHintSystemDefault = 0,</td><td>使用与系统相同的处理方式</td></tr>
+    <tr><td>TextRenderingHintSingleBitPerPixelGridFit = 1,</td><td>不消除锯齿，使用网格匹配</td></tr>
+    <tr><td>TextRenderingHintSingleBitPerPixel = 2,</td><td>不使用锯齿，不使用网格匹配</td></tr>
+    <tr><td>TextRenderingHintAntiAliasGridFit = 3,</td><td>消除锯齿使用网格匹配</td></tr>
+    <tr><td>TextRenderingHintAntiAlias = 4,</td><td>消除锯齿，不使用网格匹配</td></tr>
+    <tr><td>TextRenderingHintClearTypeGridFit = 5</td><td>在液晶显示器上使用ClearType技术增强字体清晰度</td></tr>
+    <tr><td>} TextRenderingHint;</td></tr>
+    </table>
+	</h2></a></div>
+	
+    <div class="div_box"><a name="private"><h2>
+    <p><font color="#FF0000">私有字体 PrivateFontCollection</font></p>
+	<p><font color="#FF0000">描述</font>同InstalledFontCollection只是这个字体集合 由程序员自定义 <br />
+    通过AddFontFile和AddMemoryFont把字体加入到集合 GetFamilies返回字体集合</p> 
+    <p>
+    Status AddMemoryFont(          const VOID *memory,//指向字体内存指针<br />
+    INT length);//内存大小
+    </p>
+    <p><font color="#FF0000">example</font>
+    <pre> Gdiplus::PrivateFontCollection p;<br />	<br />	p.AddFontFile(L&quot;e:/YaHei.Consolas.1.12.ttf&quot;);<br />	int count=p.GetFamilyCount();<br />	Gdiplus::FontFamily *family=new Gdiplus::FontFamily[count];<br />	p.GetFamilies(count,family,&amp;count);<br />	Gdiplus::Graphics g(m_hWnd);<br />	//Gdiplus::Font font(L&quot;楷体&quot;,100);<br />	Gdiplus::Font font(&amp;family[0],50,0,Gdiplus::UnitPixel);<br />	Gdiplus::SolidBrush brush(Gdiplus::Color(0,0,0));<br />	Gdiplus::PointF pf(0,0);<br />	std::wstring wcs=L&quot;this is a test&quot;;<br />	g.DrawString(wcs.data(),wcs.length(),&amp;font,pf,&amp;brush);<br />	delete [] family;
+    </pre>
+    </p>  
+    </p></h2></a></div>
+
+</td></tr></table>
+</body>
+</html>

@@ -1,0 +1,52 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>dark</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#core">core</a>
+		<a href="#namespace">namespace</a>
+	</div>
+
+	<div class="note"><a name="core"></a>
+		<p><span class="flag">core</span>
+<pre>dark.core.js
+
+dark.*.js 是餘封裝的 javascript庫 其依賴於jQuery(1.8.3)
+core 組件是所有 其他組件的 基礎 
+要使用其他組件 必須包含 core組件
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="namespace"></a>
+		<p><span class="flag">namespace</span>
+<pre>//模擬 名字空間
+var dark_namespace_object	=	{};		//記錄使用的	namespace
+
+function dark_namespace(name){			//定義一個 namespace
+	if(undefined	==	dark_namespace_object.name){
+		dark_namespace_object.name	=	{};
+	}
+	return dark_namespace_object.name;
+}
+
+function dark_using_namespace(name){	//返回一個已經定義的 namespace
+	return dark_namespace_object.name
+}
+
+function dark_check_namespace(name){	//檢查 namespace 是否存在
+	return undefined	==	dark_namespace_object.name;
+}
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>design-pattern</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#observer-pattern">observer-pattern 觀察模式</a>
+		<a href="#example">example</a>
+	</div>
+
+	<div class="note"><a name="observer-pattern"></a>
+		<p><span class="flag">observer-pattern 觀察模式</span>
+<pre>觀察模式 定義了 1對多 的依賴關係
+當1個對象的狀態 改變 所有依賴它的對象 都將 得到通知
+(以松耦合的方式 實現 組件 交互)
+
+
+此模式下 存在 所謂 推/拉 數據
+推	在主題(被觀察者) 改變時 通知 觀察者 並將所有數據 傳給觀察者
+拉	...	不傳數據給觀察者 觀察者 使用 主題引用的get方法 獲取自己需要的數據
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="example"></a>
+		<p><span class="flag">example</span>
+<pre>設想 你計劃通過 網絡賭場 立業興邦
+你 開設一個 在線 骰子 賭博(作為主題)
+
+下注 的正將(作為觀察者) 
+
+每當 荷官開寶 都需要 將 骰子點數 通知 所有 下注的 正將
+為了吸引 更多 賭客 在同一局中 可以有 不同的玩法/不同的觀察者
+(為正將準備的 齊全的 注類
+為新人準備的 只有 大/小 註碼
+以後可能還會 增加新的 買法 ...)
+</pre>
+		</p>
+		<p><span class="flag">example code</span>
+<pre>package main
+
+import (
+	"fmt"
+	"math/rand"
+	"time"
+)
+
+//定義 主題 接口
+type SubjectInterface interface {
+	AddObserver(observer ObserverInterface)
+	DeleteObserver(observer ObserverInterface)
+	NotifyObserver()
+}
+
+//定義 觀察者 接口
+type ObserverInterface interface {
+	Update(l, m, r int)
+}
+
+//實現 荷官
+type Dealer struct {
+	l, m, r int
+
+	observers map[ObserverInterface]bool
+}
+
+func (d *Dealer) AddObserver(observer ObserverInterface) {
+	if d.observers == nil {
+		d.observers = make(map[ObserverInterface]bool)
+	}
+	d.observers[observer] = true
+}
+func (d *Dealer) DeleteObserver(observer ObserverInterface) {
+	if _, ok := d.observers[observer]; ok {
+		delete(d.observers, observer)
+	}
+}
+func (d *Dealer) NotifyObserver() {
+
+	for k, _ := range d.observers {
+		k.Update(d.l, d.m, d.r)
+	}
+}
+
+func (d *Dealer) SetValue(l, m, r int) {
+	d.l = l
+	d.m = m
+	d.r = r
+
+	d.NotifyObserver()
+}
+
+//實現 大小 註
+type Private struct {
+}
+
+func (p *Private) Update(l, m, r int) {
+	sum := l + m + r
+	//沒玩過 骰子的 可別 以為 10是 大哦 (10是小 因為1 2 點不存在)
+	if sum > 10 {
+		fmt.Printf("Private 大	%v,%v,%v\n", l, m, r)
+	} else {
+		fmt.Printf("Private 小	%v,%v,%v\n", l, m, r)
+	}
+}
+
+//實現 專業 賭注
+type Gamester struct {
+}
+
+func (g *Gamester) Update(l, m, r int) {
+	sum := l + m + r
+	//沒玩過 骰子的 可別 以為 10是 大哦 (10是小 因為1 2 點不存在)
+	fmt.Printf("Gamester %v	%v,%v,%v\n", sum, l, m, r)
+
+}
+
+func main() {
+	//定義主題
+	d := &Dealer{}
+
+	//註冊 觀察者
+	p := &Private{}
+	d.AddObserver(p)
+
+	d.AddObserver(&Gamester{})
+
+	fmt.Println("AddObserver test")
+	d.SetValue(1, 2, 3)
+
+	fmt.Println("DeleteObserver test")
+	d.DeleteObserver(p)
+	d.SetValue(1, 2, 3)
+
+	r := rand.New(rand.NewSource(time.Now().Unix()))
+	for {
+		//每 [1,4) 秒 開一次 寶
+		time.Sleep(time.Duration((r.Intn(3) + 1)) * time.Second)
+
+		l := r.Intn(6) + 1
+		m := r.Intn(6) + 1
+		r := r.Intn(6) + 1
+		d.SetValue(l, m, r)
+	}
+}
+
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

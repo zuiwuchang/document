@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>CListCtrl</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+    <p><h1><font color="#FF0000">CListCtrl</font></h1></p>
+    
+    <h2>
+    <a href="#icon">icon 图标样式</a><br />
+    <a href="#small">small 小图标样式</a><br />
+    <a href="#list">list 列表样式</a><br />
+    <a href="#report">report 报表样式</a><br />
+    
+    </h2>
+    
+    <div class="div_box"><a name="icon"></a><p><h3>
+    	<p><h2><font color="#FF0000">icon 图标样式</font></h2><br />
+        <img src="img/clistctrl/icon.PNG" />
+    	</p>
+   	</h3></p></div>
+    
+     <div class="div_box"><a name="small"></a><p><h3>
+    	<p><h2><font color="#FF0000">small 小图标样式</font></h2><br />
+        <img src="img/clistctrl/small.PNG" />
+    	</p>
+   	</h3></p></div>
+    
+     <div class="div_box"><a name="list"></a><p><h3>
+    	<p><h2><font color="#FF0000">list 列表样式</font></h2><br />
+        <img src="img/clistctrl/list.PNG" />
+    	</p>
+   	</h3></p></div>
+    
+     <div class="div_box"><a name="report"></a><p><h3>
+    	<p><h2><font color="#FF0000">report 报表样式</font></h2><br />
+        <img src="img/clistctrl/report.PNG" />
+    	</p>
+        <p><h2><font color="#FF0000">使用步骤</font></h2><br />
+        1 设置控件 view 属性为 report<br />
+        2 调用InsertColumn插入列<br />
+        <pre>int InsertColumn(int nCol,		//插入第几列
+                 LPCTSTR lpszColumnHeading,	//列名
+                 int nFormat = LVCFMT_LEFT,	//文字对齐风格 LVCFMT_LEFT LVCFMT_RIGHT LVCFMT_CENTER
+                 int nWidth = -1,			//列宽
+                 int nSubItem = -1			//与列相关联的子项的索引。如果该参数为-1，那么没有子项与列相关。 
+                )</pre>
+        </p>
+        <p><h2><font color="#FF0000">成员函数</font></h2><br />
+        <table border="2">
+        <tr><td>function</td><td>note</td></tr>
+        <tr><td><font color="#FF0000">InsertColumn(...)</font></td><td>插入列</td></tr>
+        <tr><td>BOOL SetColumnWidth（int index,int with）</td><td>设置列宽</td></tr>
+        <tr><td>int GetColumnWidth(int index)</td><td>获取列宽</td></tr>
+        <tr><td>BOOL GetColumn(int nCol,LVCOLUMN* pColumn)</td><td>获取指定列的列结构到pColumn</td></tr>
+        <tr><td>BOOL SetColumn(int nCol,const LVCOLUMN* pColumn)</td><td>获取指定列的列结构为pColumn</td></tr>
+        <tr><td>...</td><td>...</td></tr>
+        <tr><td>int InsertItem(int nItem,LPCTSTR lpszItem)<br />int InsertItem(int nItem, LPCTSTR lpszItem,int nImage)<br />...</td><td>插入一行</td></tr>
+        <tr><td>BOOL SetItemText(int nItem,int nSubItem,LPTSTR lpszText)</td><td>设置某行某列的文本</td></tr>
+        <tr><td>UNIT GetSelectedCount() const</td><td>返回选中行数</td></tr>
+        <tr><td>int GetSelectionMark()</td><td>返回最后选中行的索引</td></tr>
+        <tr><td>GetExtendedStyle()</td><td>獲取擴展風格</td></tr>
+        <tr><td><font color="#FF0000">DWORD SetExtendedStyle(DWORD dwNewStyle)</font></td><td><font color="#FF0000">設置擴展風格<br />LVS_EX_FULLROWSELECT(整行選中) | LVS_EX_GRIDLINES(網格)</font></td></tr>
+        <tr><td><font color="#FF0000">BOOL SetItemState(int nItem, UINT nState, UINT nMask)</font>
+</td><td>設置某行狀態<br /> SetItemState(n, LVIS_SELECTED, LVIS_SELECTED);選中行</td></tr>
+        <tr><td><font color="#FF0000">UNIT GetItemState(int nItem,UNIT nMask) const</font></td><td>返回行狀態<br />是否選中GetItemState(n, LVIS_SELECTED) == LVIS_SELECTED</td></tr>
+        <tr><td>function</td><td>note</td></tr>
+        </table>
+     
+      	 </p>
+         
+         <p><h2><font color="#FF0000">全選 反選</font></h2>
+<pre>//全選
+for(int index=0;index&lt;m_listctrl.GetItemCount();++index)
+	{
+		m_listctrl.SetItemState(index,LVIS_SELECTED,LVIS_SELECTED);
+	}
+	m_listctrl.SetFocus();
+
+//反選
+for(int index=0;index&lt;m_listctrl.GetItemCount();++index)
+	{
+		if(m_listctrl.GetItemState(index,LVIS_SELECTED)==LVIS_SELECTED)
+		{
+			m_listctrl.SetItemState(index,0,LVIS_SELECTED);
+		}
+		else
+		{
+			m_listctrl.SetItemState(index,LVIS_SELECTED,LVIS_SELECTED);
+		}
+	}
+	m_listctrl.SetFocus();
+</pre>         
+         </p>
+         
+         <p><h2><font color="#FF0000">遍歷選中的多行</font></h2>
+<pre>POSITION pos	=	m_listctrl.GetFirstSelectedItemPosition();
+	int index;
+	while(pos)
+	{
+		index=m_listctrl.GetNextSelectedItem(pos);	
+		//m_listctrl ... index
+	}</pre>         
+         </p>
+         
+         <p><h2><font color="#FF0000">編輯(只能編輯第一列)</font></h2>
+         單擊選中項 使控件進入編輯狀態 或者調用 CEdit* EditLabel(int nItem)<br /><br /> 
+         
+         將屬性中的 Edit Labels 設置為 True(添加 LVS_EDITLABELS風格)<br />
+         為控件添加 LVN_EDNLABELEDIT 事件處理 (當編輯結束 此處理程序被調用)
+<pre>void CDPlayerDlg::OnLvnEndlabeleditList3(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	NMLVDISPINFO *pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	CString wcs;
+	//返回文本
+	/*CEdit* edit=*/m_listctrl_main.GetEditControl()->GetWindowText(wcs);
+	//更新數據
+	m_listctrl_main.SetItemText(pDispInfo->item.iItem, pDispInfo->item.iSubItem, wcs);
+	*pResult = 0;
+}</pre>         
+         </p>
+         
+         <p><h2><font color="#FF0000">滾動條</font></h2>
+<pre>//滾動到 指定項目
+BOOL EnsureVisible(
+	int nItem,			//索引
+	BOOL bPartialOK		//是否可接受只有部分顯示
+)
+
+//直接控制滾動條 size.cx 水平 size.cy 垂直(+下 -上) 以像素為單位
+BOOL Scroll(CSize size)
+    </pre>         
+         </p>
+   	</h3></p></div>
+  	
+</td></tr></table>
+</body>
+</html>

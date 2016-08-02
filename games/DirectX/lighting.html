@@ -1,0 +1,217 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>光照</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="DirectX"><tr><td>
+<p>
+	<font color="#FF0000">光照</font>
+</p>
+
+<p>
+	<a href="#lighting">光照</a><br />
+    <a href="#materials">材質</a><br />
+    <a href="#vector">頂點法線</a><br />
+    <a href="#lights">光源</a><br />
+    <a href="#using">使用光照</a><br />
+    
+</p>
+
+
+<div class="mydiv"><a name="lighting"></a>
+	<p><font color="#FF0000">光照</font>
+<pre>光照 和 材質 模擬量現實的 光線效果 
+通過 光照 材質 創建了更加真實的 顏色效果 
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">光照類型</font>
+<pre>Direct3D 支持以下光照效果
+
+環境光	此類光 由其他表面 反射到達物體 並照亮整個場景
+
+漫射光	此光沿著特點方向傳播 當達到某一表面 將沿著各個方向均勻 反射
+
+鏡面光	這類光沿著特特定方向傳播 當到達一個表面時 嚴格沿著某個方向反射
+
+鏡面光 需要更多的計算 故Direct3D默認關閉了此功能
+使用
+HRESULT IDirect3DDevice9::SetRenderState(
+  [in]  D3DRENDERSTATETYPE State,	//D3DRS_SPECULARENABLE
+  [in]  DWORD Value			//TRUE FALSE
+);
+
+開啟/關閉 鏡面光 
+
+使用 
+class D3DXCOLOR
+class D3DCOLORVALUE
+表示光顏色 alpha參數被忽略
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="materials"></a>
+	<p><font color="#FF0000">材質</font>
+<pre>之所以能夠 看見物體的顏色 是因為光照射到不同材質上 發生了反射
+
+Direct3D 使用
+typedef struct D3DMATERIAL9 {
+  D3DCOLORVALUE Diffuse;	//對漫射光 的反射率
+  D3DCOLORVALUE Ambient;	//對環境光 的反射率
+  D3DCOLORVALUE Specular;	//對鏡面光 的反射率
+  D3DCOLORVALUE Emissive;	//用於增強物體亮度 以使其看起來像是自己會 發光
+  float         Power;		//指定鏡面高光點點 銳度
+} D3DMATERIAL9, *LPD3DMATERIAL9;
+定義材質(以指定 對光的反射 效果)
+
+頂點結構中 不包含材質 屬性
+需要在每次繪製前使用
+HRESULT IDirect3DDevice9::SetMaterial(
+  [in]  const D3DMATERIAL9 *pMaterial
+);
+//draw...
+指定材質
+</pre>
+	</p>
+</div>
+  
+<div class="mydiv"><a name="vector"></a>
+	<p><font color="#FF0000">頂點法線</font>
+<pre>面法線 用於描述 多邊形的 朝向
+頂點法線 用於描述 點點 朝向(光照 針對點計算 故故需要知道 點點朝向)
+<img src="image/lighting/vector.PNG" />
+
+如下 重新定義的 點
+struct Vertex
+{
+	float x_;
+	float y_;
+	float z_;
+	
+	float nx_;
+	float ny_;
+	float nz_;
+
+	static const DWORD FVF;
+	Vertex()
+	{
+		x_	=	y_	=	z_	=	0.0f;
+		nx_	=	ny_	=	nz_	=	0.0f;
+	}
+	Vertex(const float x,const float y,const float z,const D3DCOLOR color,const float nx,const float ny,const float nz)
+	{
+		x_	=	x;
+		y_	=	y;
+		z_	=	z;
+		
+		nx_	=	nx;
+		ny_	=	ny;
+		nz_	=	nz;
+	}
+};
+const DWORD Vertex::FVF	=	D3DFVF_XYZ | D3DFVF_NORMAL;
+
+Vertex中多了 法線nx ny nz 的定義
+沒有顏色 是因為 顏色 使用 光照 和 材質 決定
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">法線計算</font>
+<pre>已知三角形 點 p0 p1 p2 求其法線
+p1-p0	=	u
+p2-p0	=	v
+面法線n	=	u*v
+因為是是三角形 故 點法線 等於面法線
+
+//如下自定義函數 計算一個頂點的 順時針 法線(若逆時針 和此法線相反)
+void ComputeNormal(D3DXVECTOR3* out,D3DXVECTOR3&amp; p0,D3DXVECTOR3&amp; p1,D3DXVECTOR3&amp; p2)
+{
+	D3DXVECTOR3 u = p1 - p0;
+	D3DXVECTOR3 v = p2 - p0;
+
+	D3DXVec3Cross(out,&amp;u,&amp;v);
+	D3DXVec3Normalize(out,out);
+}
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">曲面法線</font>
+<pre>當使用 上述法線 去逼近曲面時 是無法產生 平滑效果的
+
+更好的 法線計算方式是 求共享此點的法線平均值
+
+若有點a 被三個三角形共享 先分別求出 每個三角形的 法線 a1 a2 a3
+(a1+a2+a3) /3 為法線
+
+在變換過程中 頂點法線可能不再規範化 可以使用
+HRESULT SetRenderState::SetRenderState(
+  [in]  D3DRENDERSTATETYPE State,	//D3DRS_NORMALIZENORMALS
+  [in]  DWORD Value			//TRUE
+);
+使所有法線重新 規範化
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="lights"></a>
+	<p><font color="#FF0000">光源</font>
+<pre>Direct3D  使用 如下三種 光源
+點光源	位於世界中固定位置 向所有方向發射光線
+
+方向光	沒有位置 所有發射光 相互平行 沿著某一 特定方向傳播
+
+聚光燈	與手電類似 具有光源位置 發射光線呈 錐形沿特定方向傳播 使用兩個弧度描述 錐形
+
+Direct3D 使用
+typedef struct D3DLIGHT9 {
+  D3DLIGHTTYPE  Type;		//光源類型 D3DLIGHT_POINT(點光源) D3DLIGHT_SPOT(聚光燈) D3DLIGHT_DIRECTIONAL(方向光)
+  D3DCOLORVALUE Diffuse;	//漫射光	顏色
+  D3DCOLORVALUE Specular;	//鏡面光	顏色
+  D3DCOLORVALUE Ambient;	//環境光	顏色
+  D3DVECTOR     Position;	//光源位於世界的位置	方向光忽略此值
+  D3DVECTOR     Direction;	//光傳播方向	點光源忽略此值
+  float         Range;		//光線能夠傳播的最大光程 最大值為 sqrt(FLT_MAX)	方向光忽略此值
+  float         Falloff;	//僅用於聚光燈 從內錐到外錐的衰減方式 一般為1.0f
+  float         Attenuation0;	
+  float         Attenuation1;
+  float         Attenuation2;
+  float         Theta;		//僅用於聚光燈 定義內部圓錐 圓錐角
+  float         Phi;		//僅用於聚光燈 定義外部圓錐 圓錐角
+} D3DLIGHT9, *LPD3DLIGHT;
+描述光源
+
+Attenuation0 Attenuation1 Attenuation2 定義了光強衰減方式(方向光忽略此值)
+分別表示了 常量 線性 2次距離衰減係數
+衰減公式為 1/(a0+a1*d+a2*d*d)
+d為距離 a0 a1 a2 為 Attenuation0 Attenuation1 Attenuation2
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="using"></a>
+	<p><font color="#FF0000">使用光照</font>
+<pre>實現使用
+HRESULT IDirect3DDevice9::SetLight(
+  [in]  DWORD Index,		//定義一個索引 代表這個光
+  [in]  const D3DLIGHT9 *pLight	//光描述
+);
+註冊一個 光照
+
+之後使用
+HRESULT LightEnable(
+  [in]  DWORD LightIndex,	//註冊的索引
+  [in]  BOOL bEnable	//TRUE(打開)
+);
+開啟/關閉 燈光
+
+可以支持多個燈光
+</pre>
+	</p>
+</div>        
+</td></tr></table>
+</body>
+</html>

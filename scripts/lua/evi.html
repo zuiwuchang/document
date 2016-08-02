@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>lua</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#evi">環境</a>
+		<a href="#var">變量聲明</a>
+		<a href="#local">非全局環境</a>
+		
+	</div>
+
+	<div class="note"><a name="evi"></a>
+		<p><span class="flag">環境</span>
+<pre>lua 將所有 全局變量 保存在一個 table  _G 中
+創建一個變量 只是使用此變量名為key 加入一個元素 到 _G 中
+
+x	=	1
+name	=	'x'
+print(_G[name])
+
+_G 是一個 table 故可以先 table 一樣操作他 比如 設置元表
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="var"></a>
+		<p><span class="flag">變量聲明</span>
+<pre>lua 是弱類型語言 在使用變量其不需要聲明 
+然 變量是 存儲在 _G 的table中 只需要 為其定義 元方法 __index ___newindex 
+並對為聲明的 變量訪問 返回錯誤 即可
+
+此時通過 rawset 聲明 變量
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>function var(name)
+	rawset(_G,name,0);
+end
+
+setmetatable(_G,{
+	__index	=	function (_,key)
+			error("attempt to read undeclared variable" .. key ,2)
+		end
+	----[[
+	,__newindex = function (_,key)
+			error("attempt to write to undeclared variable" .. key ,2)
+		end
+	--]]
+})
+
+--abc = 1
+var "abc"
+print(abc)
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>可能需要 為被聲明變量 依然賦值為 nil 
+此時 可以使用一個 table  記錄 所有被聲明過的變量
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="local"></a>
+		<p><span class="flag">非全局環境</span>
+<pre>lua5開始 允許每個函數聲明一個 自己的環境 來查找全局變量
+
+使用
+setfenv(f,table)
+可以改變 一個 函數的 環境 
+f   為1(當前函數) 為2(調用當前函數的函數)
+table 為一個 新的 環境
+
+使用setmetatable設置原方法 __index = _G
+當訪問 不存在變量時 即可 到 全局變量中去訪問 
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>a	=	0;
+setfenv(1,{g	=	_G})
+g.print(a)		--nil 已經丟失了原來的 環境 
+g.print(g.a)
+
+
+
+--繼承
+a	=	1
+local newgt	={}
+setmetatable(newgt,{__index = _G}
+setfenv(1,newgt)
+print(a)
+</pre>
+		</p>
+
+		<p><span class="flag">example lua5.2</span>
+<pre>do
+	print(os)
+	local _ENV = {print = print}--覆蓋當全局訪問 既產生了新環境
+	print(os)	--nil
+end
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>_G 並不存在任何 特別意義 只是當lua 運行時 
+會聲明一個全局變量 並且 存儲全局變量 table的引用
+
+在setfenv 設置 新的 環境時 lua不會 為新環境 聲明一個 _G 變量
+
+5.2 已經取消了 setfenv
+而使用 變量 _ENV 存儲環境
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

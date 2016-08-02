@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>容器算法</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#Collection">容器算法</a>
+		<a href="#Collections">容器</a>
+		<a href="#Algorithm">算法</a>
+	</div>
+
+	<div class="note"><a name="Collection"></a>
+		<p><span class="flag">容器算法</span>
+<pre>c++ 的STL 開創了 泛型編程的 新時代 boost 的補充更加是神來之筆
+
+java 妄圖實現類似 的美好世界 結果只是畫貓不成是條蟲
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Collections"></a>
+		<p><span class="flag">容器</span>
+<pre>java sb的容器只能存儲 Object的及其子類(既不可存儲基本型別)
+
+import java.util.*
+Collection 是其他容器的 基類
+
+java 提供了 容器 
+ArrayList 		//std::vector
+LinkedList 		//std::list
+HashSet			//boost::unordered_set
+HashMap			//boost::unordered_map
+TreeMap			//std::map
+...
+容器
+
+對於 Hash* 	存儲型別 必須首先 hashCode 返回 hash值
+</pre>
+		</p>
+		<p><span class="flag">接口</span>
+<pre>add 方法 增加一個 元素到容器尾巴
+get(int n)	返回容器元素(即使是鍊錶亦可 真是SB行為)
+remove(i)	//刪除一個元素
+
+//map 插入元素
+put(T,T)
+
+
+//返回一個迭代器類 使用其hasnext next 遍歷容器
+iterator()	//map不提供此方法
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>        LinkedList&lt;String&gt; col   =   new LinkedList&lt;String&gt;() {};
+     
+        for(int i=0;i&lt;10;++i)
+        {
+            col.add(Integer.toString(i));
+        }
+        Iterator&lt;String&gt; iterator = col.iterator();
+        while(iterator.hasNext())
+        {
+            System.out.println(iterator.next());
+        }
+</pre>
+		</p>
+		<p><span class="flag">泛型編程</span>
+<pre>java 亦可自己實現 泛型算法 語法類似 c++ 不過 不需要template聲明
+    class test&lt;T&gt;
+    {
+        T t;
+        //...
+    }
+</pre>
+		</p>
+		<p><span class="flag">不得不說</span>
+<pre>java 的容器 真是 讓人想死
+Google android 應用還是必須用java包裝 ? Google你裝SB嗎 ?
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Algorithm"></a>
+		<p><span class="flag">算法</span>
+<pre>Collections 提供了一些static算法 用於容器
+包括 逆序 排序 搜索  亂序 替換 返回最大/小值...
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

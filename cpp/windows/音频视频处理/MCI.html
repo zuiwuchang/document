@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>MCI</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+    <p><h1><font color="#FF0000">DirectSound</font></h1></p>
+    
+    <h2>
+    <a href="#MCI">MCI</a><br />
+    <a href="#open">打開設備</a><br />
+    <a href="#using">使用設備</a><br />
+    <a href="#close">關閉設備</a><br />
+    </h2>
+    
+    <div class="div_box"><a name="MCI"></a><p><h3>
+    	<p><h2><font color="#FF0000">MCI</font></h2>
+       	MCI（Media Control Interface） 是windows提供的一個在高層次控制媒體設備的接口<br />
+        使程序員可以不必關心具體的設備對對模特進行控制<br /><br />
+        
+        #include&lt;mmsystem.h&gt;<br />
+        #include&lt;Digitalv.h&gt;<br />
+#pragma comment(lib,"winmm.lib")
+        </p>
+        
+        <p><h2><font color="#FF0000">MCI 控制</font></h2>
+        通過 mciSendString 或 mciSendCommand 控制<br />
+<pre>成功返回0
+MCIERROR mciSendCommand(  
+	MCIDEVICEID IDDevice,		//設備id 打開設備時不需要傳入
+	UINT        uMsg,       	//命令消息
+	DWORD       fdwCommand,		//命令消息標誌	
+	DWORD_PTR   dwParam     	//指向命令消息參數
+);
+
+</pre>
+        </p>
+        <p><h2><font color="#FF0000">一般步驟</font></h2>
+        打開設備<br />
+		使用設置<br />
+		關閉設備
+        </p>
+        
+        <p><h2><font color="#FF0000">MCI_WAIT MCI_NOTIFY</font></h2>
+        fdwCommand 設置消息標誌 可以設置 MCI_WAIT 或 MCI_NOTIFY<br />
+        (此外fdwCommand還被用於設置 dwParam中哪些參數有效)<br /><br />
+        
+        mci 命令實際上是將 操作提交給設備之後立刻返回 <br />
+        使用 <font color="#FF0000">MCI_WAIT</font> 可以一直等待設備處理完數據之後 函數才返回<br /><br />
+        
+        使用 <font color="#FF0000">MCI_NOTIFY</font>	在設備處理完數據後 應用程序窗口將收到<font color="#FF0000">MM_MCINOTIFY</font>消息<br />     
+        dwParam 指向的結構中的 dwCallback 用於指定接受 MM_MCINOTIFY 消息的窗口句柄
+<pre>M_MCINOTIFY 
+wParam = (WPARAM) wFlags 
+lParam = (LONG) lDevID
+
+wFlags
+MCI_NOTIFY_ABORTED
+MCI_NOTIFY_FAILURE
+MCI_NOTIFY_SUCCESSFUL
+MCI_NOTIFY_SUPERSEDED
+</pre>
+        </p>
+    </h3></p></div>
+    
+    <div class="div_box"><a name="open"></a><p><h3>
+    	<p><h2><font color="#FF0000">打開設備</font></h2>
+<pre>	//設置參數
+	MCI_OPEN_PARMS mciOpen; 
+	//mciOpen.wDeviceID				//若打開成功返回設備id
+	//mciOpen.lpstrDeviceType=L"waveaudio";		//不填mci自動更具擴展名判斷設備類型
+	mciOpen.lpstrElementName = L"爱是没余地.wav";
+	
+	//打開設備
+	if(mciSendCommand(NULL,MCI_OPEN,MCI_OPEN_ELEMENT,(DWORD_PTR)&mciOpen))
+	{
+		MessageBox(L"無法打開");
+	}</pre>        
+        </p>
+  	</h3></p></div>
+     <div class="div_box"><a name="using"></a><p><h3>
+    	<p><h2><font color="#FF0000">使用設備</font></h2>     
+        </p>
+        
+        <p><h2><font color="#FF0000">MCI_PLAY 播放</font></h2>     
+<pre>MCI_PLAY_PARMS mciPlay;
+	//mciPlay.dwFrom=10000;		//設置播放位置		MCI_FROM
+	//mciPlay.dwTo=12000;		//設置播放結束位置	MCI_TO
+	
+	if(mciSendCommand(deviceId,MCI_PLAY,
+		NULL/*MCI_FROM | MCI_TO*/	//NULL當前位置播放
+		,(DWORD_PTR)&mciPlay))
+	{
+		MessageBox(L"播放失敗");
+	}</pre>        
+        </p>
+        
+        <p><h2><font color="#FF0000">MCI_PAUSE 暫停播放</font></h2>  
+<pre>if(mciSendCommand(deviceId,MCI_PAUSE,NULL,NULL))
+	{
+		MessageBox(L"暫停失敗");
+	}</pre>        
+        </p>
+        <p><h2><font color="#FF0000">MCI_STOP 停止播放</font></h2>  
+<pre>if(mciSendCommand(deviceId,MCI_STOP,NULL,NULL))
+	{
+		MessageBox(L"停止失敗");
+	}</pre>        
+        </p>
+        
+        <p><h2><font color="#FF0000">MCI_SEEK 設置播放位置</font></h2>  
+<pre>DWORD seek=GetDlgItemInt(IDC_EDIT_SEEK);
+	MCI_SEEK_PARMS mciSeek;
+	mciSeek.dwTo=seek;
+	if(mciSendCommand(deviceId,MCI_SEEK,MCI_TO,(DWORD_PTR)&mciSeek))
+	{
+		MessageBox(L"seek失敗");
+	}
+    
+    //seek到開始
+	//mciSendCommand (deviceId, MCI_SEEK, MCI_SEEK_TO_START, NULL);
+	//seek到末尾
+	//mciSendCommand (deviceId, MCI_SEEK, MCI_SEEK_TO_END, NULL); </pre>        
+        </p>
+     
+     <p><h2><font color="#FF0000">MCI_STATUS 返回狀態</font></h2>  
+<pre>MCI_STATUS_PARMS mciStatus;
+	//設置要查詢的狀態
+	mciStatus.dwItem	=	MCI_STATUS_POSITION;
+	if(mciSendCommand(deviceId,MCI_STATUS,MCI_STATUS_ITEM/*MCI_STATUS_START*/,(DWORD_PTR)&mciStatus))
+	{
+		MessageBox(L"MCI_STATUS失敗");
+	}
+	//mciStatus.dwItem	返回狀態值
+	//mciStatus.dwTrack 返回狀態值   
+</pre>
+<table border="2">
+<tr><td>mciStatus.dwItem取值</td><td>mciStatus.dwItem返回值</td></tr>
+<tr><td>MCI_STATUS_LENGTH </td><td>文件長度</td></tr>
+<tr><td><font color="#FF0000">MCI_STATUS_POSITION</font> </td><td>當前播放位置</td></tr>
+<tr><td>MCI_STATUS_NUMBER_OF_TRACKS </td><td>可播放曲目總數</td></tr>
+<tr><td><font color="#FF0000">MCI_STATUS_MODE</font> </td><td>播放狀態<br />MCI_MODE_NOT_READY<br />
+MCI_MODE_PAUSE<br />
+<font color="#FF0000">MCI_MODE_PLAY</font><br />
+MCI_MODE_STOP<br />
+MCI_MODE_OPEN<br />
+MCI_MODE_RECORD<br />
+MCI_MODE_SEEK</td></tr>
+<tr><td>MCI_STATUS_CURRENT_TRACK </td><td>當前曲目</td></tr>
+<tr><td>... </td><td>...</td></tr>
+</table>
+     </p>   
+     
+     <p><h2><font color="#FF0000">MCI_SET 設置時間格式 播放速度</font></h2>  
+<pre>MCI_SET_PARMS mciSet;
+	mciSet.dwTimeFormat	=	MCI_FORMAT_MILLISECONDS;
+	if(mciSendCommand(deviceId,MCI_SET,MCI_SET_TIME_FORMAT/*MCI_STATUS_START*/,(DWORD_PTR)&mciSet))
+	{
+		MessageBox(L"MCI_SET失敗");
+	} 
+	//MCI_SEQ_SET_TEMPO 设置播放速度， 
+	//PQRN类型，此值为节拍/分， 
+	//SMPTE类型，此值为祯/秒 </pre>     
+     </p>
+     
+     
+        <p><h2><font color="#FF0000">注意</font></h2>  
+        MCI_STOP會停止所有操作 釋放緩衝區等 但不會設置當前播放位置到播放開始 故下次調用MCI_PLAY播放 依然是從此刻的位置播放<br />
+        MCI_SEEK會停止播放 若需要繼續播放 要調用MCI_PLAY
+        </p>
+  	</h3></p></div>
+    
+    <div class="div_box"><a name="close"></a><p><h3>
+    	<p><h2><font color="#FF0000">關閉設備</font></h2>
+<pre>
+	if(mciSendCommand(deviceId,MCI_CLOSE,NULL,NULL))
+	{
+		MessageBox(L"關閉設備失敗");
+	}</pre>        
+        </p>
+  	</h3></p></div>
+</td></tr></table>
+</body>
+</html>

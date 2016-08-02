@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Base64</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1>
+    	<p><font color="#FF0000">描述</font><br />
+        	由于历史原因e-mail只能传输ascill码文件<br /> 
+            Base64用于把事件加密为固定的64个ascill字符(故叫Base64)以解决此问题<br />
+            sun默认实现了此算法但其未完全安照标准 故不推荐用 可选择BouncyCastle的实现
+            
+		</p>
+        <a href="#Base64">Base64</a> <br />
+    	<a href="#UrlBase64">UrlBase64</a> <br />
+        
+    </h1></p>
+    
+    <div class="div_box"><a name='Base64'><h3>
+    	<p><font color="#FF0000">Base64</font><br />
+        	org.bouncycastle.util.encoders.Base64<br /><br />
+    		
+            System.out.println("this is Base64");<br />
+            String de="Base64";<br />
+            String en="解密后";<br />
+            System.out.println("原文:"+de);<br />
+            <font color="#FF0000">date=Base64.encode(de.getBytes());</font><br />
+            en=new String(date);<br />
+            System.out.println("密文:"+en);<br />
+            <font color="#FF0000">date=Base64.decode(en.getBytes());</font><br />
+            de=new String(date);<br />
+            System.out.println("解密:"+de);<br />
+            System.out.println();
+  	  	</p>
+    </h3></a></div>
+    
+    <div class="div_box"><a name='UrlBase64'><h3>
+    	<p><font color="#FF0000">UrlBase64</font><br />
+        UrlBase64用其他符号替代了url中不允许存在的符号 以用于在url中传递二进制数据 但可用于替代的符号实在有限故不同版本实现的替代符可能不同<br />
+        org.bouncycastle.util.encoders.UrlBase64;<br /><br />
+        
+        System.out.println("this is UrlBase64");<br />
+		de="UrlBase64";<br />
+		en="解密后";<br />
+		System.out.println("原文:"+de);<br />
+		<font color="#FF0000">date=UrlBase64.encode(de.getBytes());</font><br />
+		en=new String(date);<br />
+		System.out.println("密文:"+en);<br />
+		<font color="#FF0000">date=UrlBase64.decode(en.getBytes());</font><br />
+		de=new String(date);<br />
+		System.out.println("解密:"+de);<br />
+		System.out.println();
+        </p>
+   	</h3></a></div>
+    
+  
+</td></tr></table>
+</body>
+</html>

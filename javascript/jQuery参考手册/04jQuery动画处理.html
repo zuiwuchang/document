@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>jQuery动画处理</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#show">隐藏 显示</a>
+		<a href="#fade">淡入 淡出</a>
+		<a href="#slide">滑出 滑入</a>
+		<a href="#animate">自定义动画</a>
+	</div>
+
+
+	<div class="note"><a name="show"></a>
+		<p><span class="flag">隐藏 显示</span>
+<pre>hide show toggle 动态改变元素 高 宽 不透明度 最终使元素是隐藏或显示;
+
+
+
+//隐藏 slow(0.6秒) normal(0.4秒) fast(0.2秒) 最终修改display属性为none
+$(selector).hide("slow");
+
+//显示单位毫秒 最终恢复display属性
+$(selector).show(200);
+
+//切换显示状态 最终效果display属性
+$(selector).toggle(200);
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="fade"></a>
+		<p><span class="flag">淡入 淡出</span>
+<pre>fadeOut fadeIn fadeToggle 动态改变 不透明度 最终使元素是隐藏或显示
+
+
+
+//隐藏 slow(0.6秒) normal(0.4秒) fast(0.2秒) 最终修改display属性为none
+$(selector).fadeOut("slow");
+
+//显示单位毫秒 最终恢复display属性
+$(selector).fadeIn(200);
+
+//切换显示状态 最终修改display属性
+$(selector).fadeToggle(200);
+
+//修改透明度到指定值 0完全透明 1完全不透明
+$(selector).fadeTO("slow",0.5);
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="slide"></a>
+		<p><span class="flag">滑出 滑入</span>
+<pre>slideUp slideDown slideToggle 动态改变元素 高度 最终使元素是隐藏或显示
+
+
+
+//由下向上滑出 直到隐藏 slow(0.6秒) normal(0.4秒) fast(0.2秒) 最终修改display属性为none
+$(selector).slideUp("slow");
+
+//由上向下滑入 直到显示完全 显示单位毫秒 最终恢复display属性
+$(selector).slideDown(200);
+
+//切换显示状态 最终修改display属性
+$(selector).slideToggle(200);
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="animate"></a>
+		<p><span class="flag">自定义动画</span>
+<pre>//在指定时间duration内将properties指定是css属性改变为指定值
+animate(properties,duration,function)
+	<span class="care">duration 可为 slow(0.6秒) normal(0.4秒) fast(0.2秒) 或 数字(以毫秒为单位)
+
+	properties只能指定数字形式的css属性 如 
+	{
+		"width":"200px",
+		"height":"20%",
+		...
+	}
+	其次属性值除200px...还可用 hide show tooggle代表隐藏 显示 切换
+
+	function为回调函数</span>
+
+
+
+//终止动画 clearQueue jumptoEnd默认false
+$("p").stop([clearQueue],[jumptoEnd]);
+	<span class="care">clearQueue	是否清空未执行的动画队列
+			false 只终止当前动画 true余下所有动画都不会执行
+	jumptoEnd	是否将未执行的动画跳转到末状态</span>
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>//在0.2秒内使p的width为0
+$("p").animate({"width":"hide"},200);
+
+//延迟0.6秒后 在0.2秒内使p的width为0
+$("p").delay(slow).animate({"width":"hide"},200);
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>animate会把调用次序放入一个队列中依次执行
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

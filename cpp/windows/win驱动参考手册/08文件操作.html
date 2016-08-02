@@ -1,0 +1,229 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>文件操作</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1><a href="#create">创建文件</a></h1></p>
+    <p><h1><a href="#open">打开文件</a></h1></p>
+    <p><h1><a href="#getset">获取设置文件属性</a></h1></p>
+    <p><h1><a href="#write">读写文件</a></h1></p>
+    
+    <div class="div_box"><a name="create"></a><h2>
+    <p><font color="#FF0000">创建文件</font><br />
+      	<pre>NTSTATUS //成功返回STATUS_SUCCESS 
+  ZwCreateFile(
+    <font color="#FF0000">__out PHANDLE  FileHandle,			//返回文件句柄
+    __in ACCESS_MASK  DesiredAccess,		//打开权限 读(GENERIC_READ) 或 写(GENERIC_WRITE)
+    __in POBJECT_ATTRIBUTES  ObjectAttributes, 	//一个结构指针 指明了具体文件位置等</font>
+    __out PIO_STATUS_BLOCK  IoStatusBlock,    	//返回文件操作结果
+    __in_opt PLARGE_INTEGER  AllocationSize,  	//文件初始化大小 为NULL 文件从0开始增长
+    __in ULONG  FileAttributes,			//文件属性FILE_ATTRIBUTE_NORMAL 同sdk
+    __in ULONG  ShareAccess,			//文件共享属性FILE_SHARE_READ 同sdk
+    <font color="#FF0000">__in ULONG  CreateDisposition,  		//如何创建文件 FILE_OPEN_IF </font>
+    __in ULONG  CreateOptions,			//附加标志FILE_SYNCHRONOUS_IO_NONALERT(同步)
+    __in_opt PVOID  EaBuffer,			//NULL  对于设备和中间驱动程序 此参数必须是NULL
+    __in ULONG  EaLength			//0	对于设备和中间驱动程序 此参数必须是0
+    );
+<p><font color="#FF0000">ObjectAttributes 初始化</font>
+VOID 
+  InitializeObjectAttributes(				//初始化ObjectAttributes结构
+    OUT POBJECT_ATTRIBUTES  InitializedAttributes, 	//ObjectAttributes指针
+    IN PUNICODE_STRING  ObjectName,			//设备名 或符号名 
+    IN ULONG  Attributes,				//额外标志OBJ_CASE_INSENSITIVE (忽略文件名大小写)
+    IN HANDLE  RootDirectory,				//暂时不解 一般可为NULL
+    IN PSECURITY_DESCRIPTOR  SecurityDescriptor		//安全描述符 NULL 为默认
+    );
+</p>
+<p><font color="#FF0000">CreateDisposition取值</font>
+<table border="2">
+<tr><td>取值</td><td>文件存在</td><td>文件不存在</td></tr>
+<tr><td>FILE_SUPERSEDE</td><td>替换文件</td><td>创建文件</td></tr>
+<tr><td>FILE_CREATE</td><td>返回错误</td><td>创建文件</td></tr>
+<tr><td><font color="#FF0000">FILE_OPEN</font></td><td><font color="#FF0000">打开文件</font></td><td><font color="#FF0000">返回错误</font></td></tr>
+<tr><td><font color="#FF0000">FILE_OPEN_IF</font></td><td><font color="#FF0000">打开文件</font></td><td><font color="#FF0000">创建文件</font></td></tr>
+<tr><td>FILE_OVERWRITE</td><td>打开文件 并覆盖文件</td><td>返回错误</td></tr>
+<tr><td>FILE_OVERWRITE_IF</td><td>打开文件 并覆盖文件</td><td>创建文件</td></tr>
+</table>
+</p>
+</pre>
+    	     
+   	</p>
+    <p><font color="#FF0000">example</font><br />
+    <pre>NTSTATUS status;
+	
+	OBJECT_ATTRIBUTES object_attributes;
+
+	IO_STATUS_BLOCK io_status;
+
+	HANDLE handle_file;
+	UNICODE_STRING file_symbol;
+	//初始化文件符号名 或者用设备名 \device\harddiskvolume1\test.txt
+	RtlInitUnicodeString(&file_symbol,L"\\??\\c:\\test.txt");
+
+	//初始化设备属性
+	InitializeObjectAttributes(&object_attributes,&file_symbol,OBJ_CASE_INSENSITIVE,NULL,NULL);
+
+	//创建文件
+	status=ZwCreateFile(&handle_file,
+		GENERIC_WRITE,//写
+		&object_attributes,
+		&io_status,
+		NULL,FILE_ATTRIBUTE_NORMAL,FILE_SHARE_READ,
+		FILE_OPEN_IF,	//创建文件 FILE_OPEN(打开文件)
+		FILE_SYNCHRONOUS_IO_NONALERT,NULL,0);
+
+	if(STATUS_SUCCESS==status)
+	{
+		KdPrint(("创建文件成功\n"));
+	}
+	else
+	{
+		KdPrint(("创建文件失败\n"));
+	}
+
+	//文件操作
+	//......
+
+	//关闭文件
+	if(STATUS_SUCCESS==status && STATUS_SUCCESS==ZwClose(handle_file))
+	{
+		KdPrint(("文件成功关闭\n"));
+	}</pre>
+    </p>
+   	</h2></div>
+   
+    <div class="div_box"><a name="open"></a><h2>
+    <p><font color="#FF0000">打开文件</font><br />
+    <pre><font color="#FF0000">参见ZwCreateFile </font>
+    NTSTATUS
+  ZwOpenFile(
+    OUT PHANDLE  FileHandle,
+    IN ACCESS_MASK  DesiredAccess,
+    IN POBJECT_ATTRIBUTES  ObjectAttributes,
+    OUT PIO_STATUS_BLOCK  IoStatusBlock,
+    IN ULONG  ShareAccess,
+    IN ULONG  OpenOptions
+    );</pre>
+    </p>
+    </h2></div>
+    
+    <div class="div_box"><a name="getset"></a><h2>
+    <p><font color="#FF0000">获取设置文件属性</font><br />
+    <pre>//读取文件属性
+    NTSTATUS 
+  ZwQueryInformationFile(
+    IN HANDLE  FileHandle,				//文件句柄
+    OUT PIO_STATUS_BLOCK  IoStatusBlock,		//返回操作状态结构 一般没用
+    <font color="#FF0000">OUT PVOID  FileInformation,				//返回文件属性
+    IN ULONG  Length,					//FileInformation所指结构大小
+    IN FILE_INFORMATION_CLASS  FileInformationClass	//指定要返回的文件属性FileInformation</font>
+    );
+    
+    //设置文件属性 参数同读取
+    NTSTATUS 
+  ZwSetInformationFile(
+    IN HANDLE  FileHandle,
+    OUT PIO_STATUS_BLOCK  IoStatusBlock,
+    IN PVOID  FileInformation,
+    IN ULONG  Length,
+    IN FILE_INFORMATION_CLASS  FileInformationClass
+    );
+    </pre>
+    </p>
+    <p><font color="#FF0000">注意</font><br />
+    在设置属性时 应该先 获取属性 否则需要手动将要设置的属性结构中每个成员添上正确的值
+    </p>
+    
+    <p><font color="#FF0000">example</font><br />
+    <pre>//读文件长度
+	FILE_STANDARD_INFORMATION file_standard_information;
+
+	if(STATUS_SUCCESS==ZwQueryInformationFile(handle_file,&io_status,&file_standard_information,sizeof(FILE_STANDARD_INFORMATION),FileStandardInformation))
+	{
+		KdPrint(("文件长度为%d字节\n",file_standard_information.EndOfFile.QuadPart));
+
+	}
+	
+	//读出文件属性 隐藏 只读等
+	FILE_BASIC_INFORMATION file_basic_information;
+	  
+	if(STATUS_SUCCESS==ZwQueryInformationFile(handle_file,&io_status,&file_basic_information,sizeof(FILE_BASIC_INFORMATION),FileBasicInformation))
+	{
+		
+		//修改文件属性
+		file_basic_information.FileAttributes=FILE_ATTRIBUTE_READONLY;//|FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM|FILE_ATTRIBUTE_NORMAL;
+		status = ZwSetInformationFile(handle_file,&io_status,&file_basic_information,sizeof(FILE_BASIC_INFORMATION),FileBasicInformation);
+
+		if(STATUS_SUCCESS==status)
+		{
+			KdPrint(("设置文件 属性成功 \n"));
+		}
+		else	
+		{	
+			KdPrint(("设置文件 属性失败\n")); 
+		}  
+
+	}</pre>
+    </p>
+    </h2></div>
+    <div class="div_box"><a name="write"></a><h2>
+    <p><font color="#FF0000">读写文件</font><br />
+    <pre>//写文件 
+NTSTATUS 
+  ZwWriteFile(
+    IN HANDLE  FileHandle,			//文件句柄
+    IN HANDLE  Event  OPTIONAL,			//一般为NULL
+    IN PIO_APC_ROUTINE  ApcRoutine  OPTIONAL,	//一般为NULL
+    IN PVOID  ApcContext  OPTIONAL,		//一般为NULL
+    OUT PIO_STATUS_BLOCK  IoStatusBlock,	//返回操作结果 一般未使用 不能为NULL
+    IN PVOID  Buffer,				//写入缓冲区
+    IN ULONG  Length,				//写入长度
+    IN PLARGE_INTEGER  ByteOffset  OPTIONAL,	//写入地址 偏移
+    IN PULONG  Key  OPTIONAL			//对于驱动设备应该设置此值为NULL
+    );
+    
+//读文件 用法同写
+NTSTATUS 
+  ZwReadFile(
+    IN HANDLE  FileHandle,
+    IN HANDLE  Event  OPTIONAL,
+    IN PIO_APC_ROUTINE  ApcRoutine  OPTIONAL,
+    IN PVOID  ApcContext  OPTIONAL,
+    OUT PIO_STATUS_BLOCK  IoStatusBlock,
+    OUT PVOID  Buffer,
+    IN ULONG  Length,
+    IN PLARGE_INTEGER  ByteOffset  OPTIONAL,
+    IN PULONG  Key  OPTIONAL
+    );
+
+    </pre>
+    </p>
+    <p><font color="#FF0000">example</font><br />
+    <pre>//定义写入缓冲区
+	UNICODE_STRING buffer;
+	RtlInitUnicodeString(&buffer,L"this is a write test");
+	//length是字节长 非字符长
+	buffer.Buffer[buffer.Length]=0;
+	buffer.Buffer[buffer.Length+1]=0;
+	
+	//设置写入位置
+	LARGE_INTEGER byte_offset;
+	byte_offset.QuadPart=8;
+
+	//写文件
+	if(STATUS_SUCCESS==ZwWriteFile(handle_file,NULL,NULL,NULL,&io_status,buffer.Buffer,buffer.Length+2,&byte_offset,0))
+	{
+		KdPrint(("写入文件成功 写入%d个字节\n",io_status.Information));
+	}</pre>
+    </p>
+    
+    </h2></div>
+    
+</td></tr></table>
+</body>
+</html>

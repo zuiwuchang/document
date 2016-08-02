@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>基本命令</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#date">时间 日期</a>
+		<a href="#bc">计算器</a>
+		<a href="#shutdown">关机</a>
+		<a href="#init">切换执行等级</a>
+		<a href="#root">忘记root密码</a>
+		<a href="#man">man</a>
+	</div>
+	
+	<div class="note"><a name="date"></a>
+		<p><span class="flag">时间 日期</span>
+<pre>date	//	显示当前时间 日期
+date +%Y/%m/%d	//	2013/03/24
+date +%H:%M	//	13:23
+
+cal	//显示本月日历
+cal 2013	//显示2013年整个月历
+cal 1 2013	//显示2013年 1月 月历
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="bc"></a>
+		<p><span class="flag">计算器</span>
+<pre>+
+-
+*
+/
+^	指数
+%
+
+scale	//查看小数位数
+scale=number	//设置小数位数 不会四舍五入 直接舍去
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="shutdown"></a>
+		<p><span class="flag">关机</span>
+<pre>sync	//同步写入磁盘
+reboot	//重启
+halt	//硬件关机 不建议 
+poweroff	//硬件关机 不建议
+</pre>
+		</p>
+		<p><span class="flag">shutdown 时间 警告信息</span>
+<pre>-t sec	//过多少秒后关机
+-k	//不真的关机 指数发出警告消息
+-r	//重启
+-h	//关机
+-n	//不经过init程序 直接以 shutdown 关键
+-f	//关机并开机后 强制略过fsck磁盘检查
+-F	//系统重启后 强制fsck磁盘检查
+-c	//取消shutdown操作
+时间	//关键时间 如 now [现在] 20：30 [二十点 三十分] 10 [10分钟后]
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="init"></a>
+		<p><span class="flag">切换执行等级</span>
+<pre>init 0	//切换到等级0
+	0	//关键
+	3	//纯命令行
+	5	//图像界面
+	6	//重启
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="root"></a>
+		<p><span class="flag">忘记root密码</span>
+<pre>启动系统读秒时按下任意键 进入启动引导程序选择
+点e 进入编辑模式
+选择 kernel /vm... 此行 点e 编辑此行
+在 kernel /vm... 最后添加single 之后 [enter](单用户模式)
+点 b 此此选项进入 单用户模式
+passwd 修改root 密码
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="man"></a>
+		<p><span class="flag">man 命令 //查询命令用法</span>
+<pre>man的查询文件在 
+/etc/man.config(一些版本 为 man.conf 或 manpath.conf)
+</pre>
+		</p>
+		<p><span class="flag">类型代号</span>
+<pre>PASSWD(1) User Commands PASSWD(1)
+
+1	用户在shel中可操作的命令或可执行文件
+2	系统内核调用的函数与工具等
+3	常用的函数 函数库 (大部分为c函数库)
+4	设备文件说明
+5	配置文件 或某些格式文件
+6	游戏
+7	惯例与协议等
+8	系统管理员可用的命令
+9	跟kernel有关
+</pre>
+		</p>
+		<p><span class="flag">说明代号</span>
+<pre>NAME	//简短命令 数据名称说明
+SYNOPSIS	//简短的命令执行语法简介
+DESCRIPTION	//完整说明
+OPTIONS	//针对SYNOPSIS列举所有可用选项说明
+COMMANDS	//当此软件在执行时 可在此软件中执行的命令
+FILES	//此程序或数据所使用或参考或连接到的某些文件
+SEE ALSO	//相关的其他说明
+EXAMPLE	//范例
+BUGS	//是否有相关错误
+</pre>
+		</p>
+		<p><span class="flag">info</span>
+<pre>同man 查询文件在 /usr/share/info
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#Engine">創建 xorm 引擎</a>
+		<a href="#Care">Session 注意</a>
+		
+
+	</div>
+
+	<div class="note"><a name="Engine"></a>
+		<p><span class="flag">創建 xorm 引擎</span>
+<pre>xorm 在使用前 需要為 其創建一個 引擎(用於維護到數據庫的連接)
+
+通常 只需要創建 1個 engine
+但需要操作多個 不同數據庫時 可以為之 創建 多個
+
+<span class="care">xorm engine 是線程安全的</span>
+
+
+
+<span class="care">連接字符串 同 sql.Open</span>
+[username[:password]@][protocol[(address)]]/dbname[?param1=value1&...&paramN=valueN]
+
+"dark:***/dark?charset=utf8"
+"dark:***@tcp(10.0.2.2:3306)/dark?charset=utf8"
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-xorm/xorm"
+	"os"
+	"time"
+)
+
+func main() {
+	//創建 xorm 引擎 傳入參數 同 sql.Open
+	//var engine *xorm.Engine
+	//engine 是 線程 安全的
+	engine, err := xorm.NewEngine("mysql", "dark:*********@/dark?charset=utf8")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	//設置 連接池 最大 空閒數
+	//engine.SetMaxIdleConns(10)
+	//設置 最大 打開 連接數
+	//engine.SetMaxOpenConns(10)
+
+	//打開 日誌 默認為 false
+	engine.ShowSQL = true   //在控制台打印生成的 sql
+	engine.ShowDebug = true //...調試信息
+	engine.ShowErr = true   //...錯誤信息
+	engine.ShowWarn = true  //...警告信息
+
+	//將 日誌 寫入到 文件
+	f, err := os.Create("sql.log")
+	if err != nil {
+		println(err.Error())
+		return
+	}
+	defer f.Close()
+	engine.Logger = xorm.NewSimpleLogger(f)
+
+	//測試到數據庫的 連接
+	err = engine.Ping()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	//啟動一個 線程 保證到數據庫的連接鮮活 (避免數據庫的 超時 斷開連接)
+	go func() {
+		for true {
+			//每 6 小時 ping 數據庫
+			time.Sleep(6 * time.Hour)
+			engine.Ping()
+		}
+	}()
+
+	fmt.Println("ok")
+
+	//此函數可手動關閉 xorm 引擎 一般不需要調用
+	//而是由程序退出時 自動關閉
+	//engine.Close()
+}
+
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Care"></a>
+		<p><span class="flag">Session 注意</span>
+<pre>Engine 的 Where OrderBy ... 等創建的 Session 會自動釋放(IsAutoClose = true)
+
+Engine 的 NewSession 創建的 Session 需要手動調用 Close 釋放(IsAutoClose = false)
+
+<span class='care'>github.com/go-xorm/xorm/session.go</span>
+175	// New a session
+176	func (engine *Engine) NewSession() *Session {
+177		session := &Session{Engine: engine}
+178		session.Init()
+179		return session
+180	}
+
+51	func (session *Session) Init() {
+	...
+56		session.IsAutoClose = false
+	...
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

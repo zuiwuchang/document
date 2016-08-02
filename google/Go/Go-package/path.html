@@ -1,0 +1,139 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#path">path</a>
+		
+			
+	</div>
+
+	<div class="note"><a name="path"></a>
+		<p><span class="flag">path</span>
+<pre>path 包 提供了 對 路徑的 處理功能
+
+//返回 最後的 路徑
+func Base(path string) string
+	path 為 空 返回 .
+	Base不會 計算 ./.. 而是直接返回 ./..
+
+
+
+//計算 ./.. 後返回的 路徑
+func Clean(path string) string
+	./.. 可以在任意位置
+
+
+
+//返回 文件夾路徑
+func Dir(path string) string
+	會計算 ./..
+
+
+
+//返回 文件(如果是文件 且有擴展名) 擴展名(包含 . 號)
+func Ext(path string) string
+
+
+//返回是否是 絕對路徑
+func IsAbs(path string) bool
+
+//連接 路徑
+func Join(elem ...string) string
+
+
+
+//返回文件是否符合指定 匹配模式
+func Match(pattern, name string) (matched bool, err error)
+	<span class="care">pattern:
+		{ term }
+	term:
+		'*'         matches any sequence of non-/ characters
+		'?'         matches any single non-/ character
+		'[' [ '^' ] { character-range } ']'
+		            character class (must be non-empty)
+		c           matches character c (c != '*', '?', '\\', '[')
+		'\\' c      matches character c
+
+	character-range:
+		c           matches character c (c != '\\', '-', ']')
+		'\\' c      matches character c
+		lo '-' hi   matches character c for lo <= c <= hi
+	</span>
+
+
+//分割 文件夾 最後一個文件/文件夾 (如果存在最後一個的話 比如 /)
+func Split(path string) (dir, file string)
+</pre>
+		</p>
+
+		<p><span class="flag">path</span>
+<pre>package main
+
+import (
+	"fmt"
+	"os"
+	"os/exec"
+	"path"
+	"path/filepath"
+)
+
+func main() {
+
+	p, _ := exec.LookPath(os.Args[0])
+	p, _ = filepath.Abs(p)
+
+	fmt.Println(p)
+
+	fmt.Println("Base test")
+	fmt.Println(path.Base(p))
+
+	fmt.Println("Clean test")
+	p1 := p + "/../../."
+	fmt.Println(path.Clean(p1))
+
+	fmt.Println("Dir test")
+	fmt.Println(path.Dir(p1))
+	p1 += "/123"
+	fmt.Println(path.Dir(p1))
+
+	fmt.Println("Ext test")
+	fmt.Println(path.Ext(p1))
+	p1 += ".exe"
+	fmt.Println(path.Ext(p1))
+
+	fmt.Println("IsAbs test")
+	fmt.Println(path.IsAbs(p1))
+
+	fmt.Println("Join test")
+	p1 = path.Join(p, "123", "abc")
+	fmt.Println(p1)
+
+	fmt.Println("Match test")
+	pattern := "g*"
+	fmt.Println(path.Match(pattern, "golang"))
+
+	fmt.Println("Splite test")
+	d, f := path.Split(p)
+	fmt.Println(d, f)
+	p = "/"
+	d, f = path.Split(p)
+	fmt.Println(d, f)
+}
+</pre>
+		<p><span class="flag">注意</span>
+<pre>path 不會管 文件是否存在 其只是更具 語義進行計算
+</pre>
+		</p>
+
+	</div>
+
+</div>
+</body>
+</html>
+

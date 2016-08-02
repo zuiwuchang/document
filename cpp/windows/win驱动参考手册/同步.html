@@ -1,0 +1,202 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>同步</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1><a href="#wait">KeWaitForSingleObject</a></h1></p>
+     <p><h1><a href="#thread">创建线程</a></h1></p>
+    <p><h1><a href="#FAST_MUTEX">FAST_MUTEX 快速互斥体</a></h1></p>
+    <p><h1><a href="#KEVENT">KEVENT 事件对象</a></h1></p>
+    <p><h1><a href="#KMUTEX">KMUTEX 互斥体</a></h1></p>
+    <p><h1><a href="#OTHER">OTHER</a></h1></p>
+    
+      <div class="div_box"><a name="wait"></a><h2>
+        <p><font color="#FF0000">KeWaitForSingleObject</font><br />
+     	类型于应用层的WaitForSingleObject
+        <pre>
+NTSTATUS 
+  KeWaitForSingleObject(
+    IN PVOID  Object,					//同步对象指针
+    IN KWAIT_REASON  WaitReason,			//驱动程序应该设置为 Executive
+    IN KPROCESSOR_MODE  WaitMode,			//一般为 KernelMode 表示是在用户模式 还是内核模式
+    IN BOOLEAN  Alertable,				//一般为 FALSE 是否警惕
+    IN PLARGE_INTEGER  Timeout OPTIONAL			//等待超时 NULL 一直等待  为正表示距离1601年1月1日所经过多时间 为负表示从现在开始经过多时间 以100ns(纳米)为单位
+    );
+    
+    同步对象变为激发态 返回 STATUS_SUCESS 
+    超时 返回 STATUS_TIMEOUT</pre>  
+        </p>
+        
+ 	</h2></div>
+     <div class="div_box"><a name="thread"></a><h2>
+        <p><font color="#FF0000">创建线程</font><br />
+<pre>//创建线程
+NTSTATUS 
+  PsCreateSystemThread(							
+    OUT PHANDLE  ThreadHandle,						//传出 新线程句柄
+    IN ULONG  DesiredAccess,						//创建权限
+    IN POBJECT_ATTRIBUTES  ObjectAttributes  OPTIONAL,			//线程属性 一般为NULL
+    IN HANDLE  ProcessHandle  OPTIONAL,					//线程所属于进程句柄 NULL系统进程 NtCurrentProcess()当前进程
+    OUT PCLIENT_ID  ClientId  OPTIONAL,
+    IN PKSTART_ROUTINE  StartRoutine,					//新线程地址
+    IN PVOID  StartContext						//给线程的参数
+    );
+    
+//线程函数声明
+VOID 
+  ThreadStart( 
+    __in PVOID  StartContext
+    )
+    
+//结束线程
+NTSTATUS 
+  PsTerminateSystemThread(
+    IN NTSTATUS  ExitStatus
+    );
+</pre>
+        </p>
+          <p><font color="#FF0000">注意</font><br />
+          内核下 线程中需要调用PsTerminateSystemThread 才能结束线程
+          </p>
+    </h2></div>
+    <div class="div_box"><a name="FAST_MUTEX"></a><h2>
+        <p><font color="#FF0000">FAST_MUTEX 快速互斥体</font><br />
+     	似乎就是win32 应用层的 临界区
+        
+        </p>
+        
+        <p><font color="#FF0000">example</font>
+<pre>FAST_MUTEX fast_mutex;			//定义一个快速互斥体
+ExInitializeFastMutex(&fast_mutex);	//初始化互斥体	类似于初始化临界区	一般在DriverEntry执行
+					//不需要关闭互斥体之类的操作 除非是动态申请了内存动态释放它 临界区的释放似乎也只是释放了动态申请的内存
+
+ExAcquireFastMutex(&fast_mutex);	//获取互斥体	类似于进入临界区
+ExReleaseFastMutex(&fast_mutex);	//释放互斥体	类似于离开临界区
+</pre>
+        </p>
+        
+  	</h2></div>
+	<div class="div_box"><a name="KEVENT"></a><h2>
+        <p><font color="#FF0000">KEVENT 事件对象</font><br />
+        类似于应用层的事件对象
+<pre>//初始化事件对象
+VOID 
+  KeInitializeEvent(
+    IN PRKEVENT  Event,		//事件对象指针
+    IN EVENT_TYPE  Type,	//类型	NotificationEvent(通知事件)	NotificationEvent (同步事件)
+    IN BOOLEAN  State		//事件对象初始化状态 TRUE(激发态) FALSE(非激发) 
+    );
+<font color="#FF0000">通知事件 需要程序员手动调整事件对象状态
+同步事件 当事件对象为激发态时遇到KeWait...等待函数时 自动变为非激发态</font> 
+
+//设置非激活	返回以前状态
+LONG 
+  KeResetEvent(
+    IN PRKEVENT  Event
+    );
+    
+//设置激活	返回以前状态
+LONG 
+  KeSetEvent(
+    IN PRKEVENT  Event,
+    IN KPRIORITY  Increment,	//IO_NO_INCREMENT
+    IN BOOLEAN  Wait		//FALSE
+    );
+ <font color="#FF0000">Increment: 预备给被唤醒线程临时提升线程优先级的增量。一般情况下均为IO_NO_INCREMENT 0，但针对不同的子系统及对响应快慢的不同要求，会有不同的取值。如网络相关：IO_NETWORK_INCREMENT=2；键盘、鼠标涉及用户界面交互部分：取值为6 （IO_KEYBOARD_INCREMENT， IO_MOUSE_INCREMENT）；声音相关，IO_SOUND_INCREMENT=8
+ 
+ Wait 允许在内部快速的把控制从一个线程传递到另一个线程
+ 若为 TRUE 权限将被提升到IRQL <= APC_LEVEL (故函数需要在非分页内存中 ) 后面必须跟上 KeWait...函数 用以降低权限
+ 若为 FALSE IRQL <= DISPATCH_LEVEL</font>
+</pre>
+        </p>
+        
+        
+         <p><font color="#FF0000">ring0使用 ring3创建的事件对象</font>
+<pre>先由 DeviceIoControl 获取到事件对象句柄
+         
+//由句柄获取指针 此函数会使引用计数+1
+NTSTATUS 
+  ObReferenceObjectByHandle(
+    IN HANDLE  Handle,							//句柄
+    IN ACCESS_MASK  DesiredAccess,					//访问权限 EVENT_MODIFY_STATE
+    IN POBJECT_TYPE  ObjectType  OPTIONAL,				//句柄类型 比如事件对象为 *ExEventObjectType
+    IN KPROCESSOR_MODE  AccessMode,					//驱动程式需要设置为 KernelMode
+    OUT PVOID  *Object,							//传出 对象指针
+    OUT POBJECT_HANDLE_INFORMATION  HandleInformation  OPTIONAL		//驱动程式需设置为 NULL
+    );
+    
+//使引用计数-1
+VOID 
+  ObDereferenceObject(
+    IN PVOID  Object
+    );    
+</pre>        
+         </p>
+         
+         <p><font color="#FF0000">不同驱动 同步</font>
+         创建带名字的事件对象 
+<pre>//创建 或 打开 通知事件对象
+PKEVENT  
+  IoCreateNotificationEvent(
+    IN PUNICODE_STRING  EventName,
+    OUT PHANDLE  EventHandle
+    );
+
+//创建 或 打开 同步事件对象
+PKEVENT 
+  IoCreateSynchronizationEvent(
+    IN PUNICODE_STRING  EventName,
+    OUT PHANDLE  EventHandle
+    );
+    
+需要通过ObReferenceObjectByHandle将句柄转化为指针
+</pre>
+         </p>
+  	</h2></div>
+    <div class="div_box"><a name="KMUTEX"></a><h2>
+        <p><font color="#FF0000">KMUTEX 互斥体</font><br />
+        类似于应用层的互斥体
+<pre>//初始化 互斥体
+VOID 
+  KeInitializeMutex(
+    IN PRKMUTEX  Mutex,
+    IN ULONG  Level			//保留 一般为0
+    );
+    
+//获取互斥体
+KeWait...
+
+//释放互斥体
+LONG 
+  KeReleaseMutex(
+    IN PRKMUTEX  Mutex,
+    IN BOOLEAN  Wait		//FALSE 类似KeSetEvent
+    );    
+</pre>
+        </p>
+  	</h2></div>
+    <div class="div_box"><a name="OTHER"></a><h2>
+        <p><font color="#FF0000">OTHER</font><br />
+        其他同步函数
+<pre>//自加1
+LONG 
+  InterlockedIncrement(
+    IN PLONG  Addend
+    );
+    
+//自减1
+LONG 
+  InterlockedDecrement(
+    IN PLONG  Addend
+    );
+Interlocked...</pre>
+        </p>
+  	</h2></div>
+</td></tr></table>
+</body>
+</html>

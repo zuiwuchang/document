@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>jsoncpp</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#jsoncpp">jsoncpp</a>
+    <a href="#example">example</a>
+	</div>
+
+	<div class="note"><a name="jsoncpp"></a>
+		<p><span class="flag">jsoncpp</span>
+<pre>jsoncpp 是一個開源 跨平台的 c++ json 解析庫
+
+官網 <a href="https://github.com/open-source-parsers/jsoncpp" target="_blank">https://github.com/open-source-parsers/jsoncpp</a>
+</pre>
+		</p>
+	</div>
+
+  <div class="note"><a name="example"></a>
+    <p><span class="flag">example</span>
+<pre>// test_json.cpp : 定义控制台应用程序的入口点。
+//
+
+#include "stdafx.h"
+#include &lt;iostream&gt;
+
+#include &lt;json/json.h&gt;
+#pragma comment(lib,"json_vc100_libmdd.lib")
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+  /****** write *******/
+  Json::Value root;
+  {
+    //base
+    root["name"] = "dark";
+    root["lv"] = 666;
+    root["king"] = true;
+
+    //array
+    Json::Value arrs;
+    for(int i=0;i&lt;5;++i)
+    {
+      arrs.append(i);
+    }
+    root["arrs"] = arrs;
+
+    //obj
+    Json::Value obj;
+    obj["work"] = "cerberus";
+    obj["idea"] = "cerberus it's an idea";
+    root["obj"] = obj;
+  }
+  /*
+  //無格式 未縮進 json 字符串 
+  Json::FastWriter writer;  
+  std::cout&lt;&lt;writer.write(root)&lt;&lt;"\n";
+  */
+  std::string str = root.toStyledString();
+  std::cout&lt;&lt;str&lt;&lt;"\n";
+  
+  /****** read *******/
+  {
+    Json::Value root;
+    Json::Reader reader;
+    //reader.parse("test.json");
+    //reader.parse(istream);
+    if(reader.parse(str.data(),str.data() + str.size(),root))
+    {
+      //base
+      std::cout&lt;&lt;root["name"].asString()&lt;&lt;"\n";
+      std::cout&lt;&lt;root["lv"].asInt()&lt;&lt;"\n";
+      std::cout&lt;&lt;root["king"].asBool()&lt;&lt;"\n";
+
+      //未定義的值為 null
+      std::cout&lt;&lt;root["unknow"].isNull()&lt;&lt;"\n";
+
+      //array
+      Json::Value arrs = root["arrs"];
+      if(arrs.isArray())
+      {
+        for(Json::Value::ArrayIndex i=0;i&lt;arrs.size();++i)
+        {
+          std::cout&lt;&lt;arrs[i].asInt()&lt;&lt;"\n";
+        }
+
+        for(Json::ValueIterator iter=arrs.begin();iter!=arrs.end();++iter)
+        {
+          std::cout&lt;&lt;"index:"&lt;&lt;iter.index()&lt;&lt;"  value:"&lt;&lt;iter-&gt;asInt()&lt;&lt;"\n";
+        }
+      }
+
+      //obj
+      Json::Value obj = root["obj"];
+      std::cout&lt;&lt;obj["work"].asString()&lt;&lt;"\n";
+      std::cout&lt;&lt;obj["idea"].asString()&lt;&lt;"\n";
+
+      for(Json::ValueIterator iter=obj.begin();iter!=obj.end();++iter)
+      {
+        std::cout&lt;&lt;"key:"&lt;&lt;iter.key().asString()&lt;&lt;" value:"&lt;&lt;iter-&gt;asString()&lt;&lt;"\n";
+      }
+    }
+  }
+  return 0;
+}
+</pre>
+    </p>
+  </div>
+	
+</div>
+</body>
+</html>

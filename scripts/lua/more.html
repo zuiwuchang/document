@@ -1,0 +1,177 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>lua</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#table">table操作</a>
+		<a href="#function">調用lua函數</a>
+		<a href="#c">lua調用c函數</a>
+		<a href="#cm">c模塊</a>
+	</div>
+
+	<div class="note"><a name="table"></a>
+		<p><span class="flag">table操作</span>
+<pre>//宏lua_newtable	創建一個 table 並入棧
+#define lua_newtable(L)		lua_createtable(L, 0, 0)
+
+
+
+//將棧頂彈出 並以之為key 查找table對應key的值 將值入棧
+void  lua_gettable (lua_State *L
+	, int idx);	//table在棧中位置
+    
+//將字符串 作為key 在table中 查找值 並將值入棧
+void  lua_getfield(lua_State *L, int idx, const char *k);    
+
+
+
+//設置table key的值 棧頂為值 棧-2為key 並將key value 出棧
+void  lua_settable(lua_State *L, int idx);
+
+//將棧頂彈出 並作為value 設置到 table中的 key值
+void  lua_setfield(lua_State *L, int idx, const char *k);
+
+
+
+//宏lua_getglobal 獲取一個lua全局變量 並入棧
+#define lua_getglobal(L,s)	lua_getfield(L, LUA_GLOBALSINDEX, (s))
+
+//宏lua_setglobal 設置一個lua全局變量值為 棧頂值 並將棧頂彈出
+#define lua_setglobal(L,s)	lua_setfield(L, LUA_GLOBALSINDEX, (s))
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="function"></a>
+		<p><span class="flag">調用lua函數</span>
+<pre>要調用 lua函數 只需要 先將函數 入棧 再將參數 從左到右入棧
+之後調用 lua_pcall 即可	
+(lua_pcall無聊是否成功都會將 函數 和 參數 出棧)
+(lua_pcall 執行後 會將 返回值 入棧 第一個返回值 最先入棧)
+
+//執行 棧中 lua函數
+int   lua_pcall (lua_State *L
+, int nargs		//函數參數 數量
+, int nresults	//需要的返回值數量
+, int errfunc	//錯誤處理函數 棧中位置 0 不使用錯誤處理
+);
+
+當errfunc為非0時 其值應該指向 棧中的一個 函數 
+當lua_pcall 出錯時 lua 會先調用之
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="c"></a>
+		<p><span class="flag">lua調用c函數</span>
+<pre>lua可以調用的 c函數 
+c函數必須從棧中 獲取 參數(每次函數調用 都擁有私有的棧 同彙編)
+從左到右 第一個參數 在棧中索引為 1
+函數返回值 依次壓入棧中
+
+函數簽名為 
+static int fun(lua_State* L)
+其返回值 為 函數 為lua在棧中 返回了多少個值
+
+函數定義完之後 還需要 使用
+#define lua_pushcfunction(L,f)	lua_pushcclosure(L, (f), 0)
+宏壓入 函數
+以及 將函數 設置到一個 lua全局 變量 以便lua調用
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>//c
+
+//函數定義
+static int sum(lua_State* L)
+{
+	int left	=	lua_tointeger(L,1);
+	int right	=	lua_tointeger(L,2);
+	lua_pushinteger(L,left+right);
+	return 1;
+}
+int _tmain(int argc, _TCHAR* argv[])
+{
+	/*打開lua*/
+	lua_State* L	=	luaL_newstate();
+	//打開標準庫
+	luaL_openlibs(L);
+
+	//為lua註冊函數
+	lua_pushcfunction(L,sum);
+	lua_setglobal(L,"sum");
+
+	luaL_loadfile(L,"test.lua");
+	lua_pcall(L,0,0,0);
+	
+	lua_close(L);	//釋放環境
+
+	std::system("pause");
+	return 0;
+}
+
+
+
+--lua
+print(sum(1,2))
+</pre>
+		</p>
+	</div>
+	
+	<div class="note"><a name="cm"></a>
+		<p><span class="flag">c模塊</span>
+<pre>c模塊 和lua 模塊 沒什麼不同
+只是 c模塊 需要完成 一個 luaopen_模塊名 的函數
+在此函數中 完成 對lua函數的註冊(註冊方式 同lua模塊)
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>//*.cpp
+#include&lt;lua.hpp&gt;
+
+extern "C"
+{
+    static int sum(lua_State* L)
+    {
+        int left	=	lua_tointeger(L,1);
+        int right	=	lua_tointeger(L,2);
+        lua_pushinteger(L,left+right);
+        return 1;
+    }
+    __declspec(dllexport) int  luaopen_libmylib(lua_State *L)
+    {
+        lua_newtable(L);
+        lua_pushstring(L,"sum");
+        lua_pushcfunction(L,sum);
+        lua_settable(L,-3);
+
+        //lua_setglobal(L,"libmylib");
+        //return 0
+
+        return 1;
+    }
+}
+
+--*.lua
+my = require  "libmylib"
+print(my.sum(1,2))
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>一般 非lua 標準庫的 模塊 最好 都返回到匿名 table 中
+以避免和其他模塊 衝突	
+</pre>
+		</p>
+	</div>	
+</div>
+</body>
+</html>
+

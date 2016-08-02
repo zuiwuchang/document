@@ -1,0 +1,198 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>圖像編程</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">圖像編程</font>
+</p>
+
+<p>
+	<a href="#picture">圖像編程</a><br />
+    <a href="#wxBitma">wxBitma</a><br />
+    <a href="#wxImage">wxImage</a><br />
+    <a href="#care">注意</a><br />
+   
+</p>
+
+
+<div class="mydiv"><a name="picture"></a>
+	<p><font color="#FF0000">圖像編程</font>
+<pre>wxWidgets 支持4種位圖相關的 類 wxBitmap wxIcon wxCursor wxImage
+
+wxBitmap 是平台相關的類 支持透明繪畫 wxBitmap可以和 wxImage 相互轉換
+
+wxIcon 實現各平台上的圖標
+
+wxCursor 是一個展現鼠標指針的圖像
+
+wxImage 是4個類中 唯一一個 平台無關實現 支持 24bit位圖 以及可選 alpha通道 wxImage可用 wxBitmap::ConvertToImage 轉換
+	亦可直接從 文件 加載
+	   wxImage不可直接在dc上使用 需要先將 wxImage 轉化為  wxBitmap 之後 在 wxBitmap上 繪圖
+</pre>
+    </p>
+</div>
+
+<div class="mydiv"><a name="wxBitma"></a>
+	<p><font color="#FF0000">wxBitma</font>
+<pre>wxBitma	常用作绘制到指定dc
+
+wxBitma	亦常作为双缓冲的内存缓冲区 之后使用设备dc 的DrawBitmap 绘制到设备
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">相關接口</font>
+<pre>wxBitmap()		//需要 create 或 loadfile後才能使用
+wxBitmap(const wxBitmap& bitmap)
+wxBitmap(const char bits[], int width, int height
+int depth = 1)
+wxBitmap(int width, int height, int depth = -1)
+wxBitmap(const wxString& name, wxBitmapType type)	//加載文件
+wxBitmap(const wxImage& img, int depth = -1)
+
+type
+wxBITMAP_TYPE_ANY	//只能用于读取 让wxWidgets自己判断格式
+wxBITMAP_TYPE_BMP	 Load a Windows bitmap file.
+wxBITMAP_TYPE_BMP_RESOURCE	 Load a Windows bitmap resource from the executable. Windows only.
+wxBITMAP_TYPE_PICT_RESOURCE	 Load a PICT image resource from the executable. Mac OS only.
+wxBITMAP_TYPE_GIF	 Load a GIF bitmap file.
+wxBITMAP_TYPE_XBM	 Load an X bitmap file.
+wxBITMAP_TYPE_XPM	 Load an XPM bitmap file.
+
+bool LoadFile(const wxString& name, wxBitmapType type)
+bool SaveFile(const wxString& name, wxBitmapType type, wxPalette* palette = NULL)
+
+wxImage ConvertToImage()
+
+//通過圖標 創建
+bool CopyFromIcon(const wxIcon& icon)
+virtual bool Create(int width, int height, int depth = -1)
+virtual bool Create(const void* data, int type, int width, int height, int depth = -1)
+...
+
+//返回是否 正确加载图片
+bool Ok()
+</pre>
+	</p>  
+    
+    <p><font color="#FF0000">绘制wxBitmap</font>
+<pre>方法一	使用 dc 的DrawBitmap 绘制
+
+方法二	将位图 载入 内存dc 使用 Blit 将内存dc 绘制到 指定设备dc
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>    wxBitmap bmp;
+    bmp.LoadFile(_("test.bmp"),wxBITMAP_TYPE_ANY);
+
+    wxClientDC dc(this);
+
+    wxMemoryDC dc_cache;
+    dc_cache.SelectObject(bmp);
+    wxRect rect =   GetClientRect();
+    dc.Blit(0,0,rect.GetWidth(),rect.GetHeight()
+            ,&dc_cache
+            ,0,0
+            ,wxCOPY
+            );
+
+    dc_cache.SelectObject(wxNullBitmap);
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">注意</font>
+<pre>在某些平台 如 win32 限制了 wxBitmap 的數量
+故 若 需要大量 wxBitmap 可 將其保存為 wxImage 而在需要時 再轉化為 wxBitmap
+
+使用 wxBitmap() 構造 後需要 Create 或 LoadFile 才能使用
+
+wxBitmap 可以使用 wxImage 支持的所有 圖片格式
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="wxImage"></a>
+	<p><font color="#FF0000">wxImage</font>
+<pre>wxImage	是平台无关图形 其对于每个像素 使用一个 RGB 分量 保存其值
+若 图像存在 alpha 则会再多一个 字节
+
+wxImage	常用于加载 或 保存图片的中间 步骤 以及缩放图形
+
+type 支持格式
+
+May be one of the following:
+wxBITMAP_TYPE_BMP	 Load a Windows bitmap file.
+wxBITMAP_TYPE_GIF	 Load a GIF bitmap file.
+wxBITMAP_TYPE_JPEG	 Load a JPEG bitmap file.
+wxBITMAP_TYPE_PNG	 Load a PNG bitmap file.
+wxBITMAP_TYPE_PCX	 Load a PCX bitmap file.
+wxBITMAP_TYPE_PNM	 Load a PNM bitmap file.
+wxBITMAP_TYPE_TIF	 Load a TIFF bitmap file.
+wxBITMAP_TYPE_TGA	 Load a TGA bitmap file.
+wxBITMAP_TYPE_XPM	 Load a XPM bitmap file.
+wxBITMAP_TYPE_ICO	 Load a Windows icon file (ICO).
+wxBITMAP_TYPE_CUR	 Load a Windows cursor file (CUR).
+wxBITMAP_TYPE_ANI	 Load a Windows animated cursor file (ANI).
+wxBITMAP_TYPE_ANY	 Will try to autodetect the format.
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">相关接口</font>
+<pre>//大部分 同wxBitmap
+
+//传入 高 宽 缩放图像 到新的 wxImage
+wxImage Scale(int width, int height, int quality = wxIMAGE_QUALITY_NORMAL) const
+//传入 高 宽 缩放当前图像
+wxImage &amp; Rescale(int width, int height, int quality = wxIMAGE_QUALITY_NORMAL)
+
+//返回一个图象的 副本
+wxImage wxImage::Copy()
+
+//wxImage wxBitmap相互 转换
+wxImage wxBitmap::ConvertToImage()
+wxBitmap(wxImage);
+
+//指定一個顏色 使用透明遮照(此顏色透明)
+void SetMaskColour(unsigned char red, unsigned char green, unsigned char blue)
+//是否啟用 透明遮照
+void SetMask(bool hasMask = true)
+</pre>
+	</p>
+</div> 
+    
+<div class="mydiv"><a name="care"></a>
+	<p><font color="#FF0000">注意</font>
+<pre>所有 绘图工具 包括 前面的 wxPen ... 
+以及此节点 wxImage wxBitmap
+都实现了引用计数 其Copy语义 都只是 增加了 引用计数 而没真实的复制数据 
+最后一个使用资源的 类 会再析构时 释放 占用的真实资源
+
+如果要复制真实的 图象数据 需要使用 wxImage::Copy
+
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">格式</font>
+<pre>wxWidgets	雖然支持很多格式 但默認並未全打開
+對於未打開支持的 格式 需要 調用一次 
+wxImage::AddHandler(new wxPNGHandler); 	//打開PNG支持
+wxImage::AddHandler(new wxJPEGHandler);
+wxImage::AddHandler(new wxGIFHandler);
+wxImage::AddHandler(new wxXPMHandler);
+...
+或
+wxInitAllImageHandlers();	//打開所有支持格式
+
+對於wxBitmap 調用wxImage::AddHandler 亦會打開 對應的格式支持
+而無需 一定要調用 wxBitmap::AddHandler
+</pre>
+	</p>
+</div>    
+</td></tr></table>
+</body>
+</html>

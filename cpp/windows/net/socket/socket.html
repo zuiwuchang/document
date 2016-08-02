@@ -1,0 +1,231 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>同步socket</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+
+    <p><h1><font color="#FF0000">同步socket</font></h1></p>
+    
+    <h2>
+    <a href="#init">初始化</a><br />
+    <a href="#fun">基本函数</a><br />
+    <a href="#care">注意</a><br />
+    <a href="#server">server example</a><br />
+    <a href="#client">client example</a><br />
+    
+    </h2>
+    
+    <div class="div_box"><a name="init"></a><p><h3>
+    	<p><h2><font color="#FF0000">初始化</font></h2><br />
+        #include &lt;WinSock2.h&gt;<br />
+        #pragma comment(lib,"ws2_32.lib")
+        </p>
+        
+        <p><h2><font color="#FF0000">初始化 套接字库</font></h2><br />
+        需在其他套接字函数被调用前 调用之
+        <pre>   WORD wVersionRequested;
+	WSADATA wsaData;
+	int err;
+
+	wVersionRequested = MAKEWORD( 2, 2 );
+ 
+	err = WSAStartup( wVersionRequested, &wsaData );
+	if ( err != 0 )
+	{
+                    
+		return 1;
+	}
+ 
+ 
+	if ( LOBYTE( wsaData.wVersion ) != 2 || HIBYTE( wsaData.wVersion ) != 2 ) 
+	{                     
+		WSACleanup( );
+		return 1; 
+	}</pre>
+    	
+        </p>
+        
+        <p><h2><font color="#FF0000">释放套接字资源</font></h2><br />
+        WSACleanup( );
+        </p>
+       
+        
+   	</h3></p></div>
+    
+     <div class="div_box"><a name="fun"></a><p><h3>
+    	<p><h2><font color="#FF0000">基本函数</font></h2><br />
+        </p>
+        
+        <p><h2><font color="#FF0000">socket</font></h2>
+        创建套接字(處於阻塞模式) <font color="#FF0000">(失敗返回INVALID_SOCKET )</font>
+        <pre>SOCKET socket(  int af,  //地址族族 现在一般用AF_INET
+        int type,  	//SOCK_STREAM(流 tcp) SOCK_DGRAM (数据包 udp) 
+        int protocol); //协议 IPPROTO_TCP ... 为0 系统自动判断协议
+        </pre>
+        </p>
+        
+         <p><h2><font color="#FF0000">bind</font></h2>
+        将一个未使用的套接字和 一个地址想关联 <font color="#FF0000">(失敗返回SOCKET_ERROR)</font>
+        <pre>int bind(  SOCKET s, 
+         const struct sockaddr FAR* name, 
+         int namelen);
+        </pre>
+		
+        <p><h2><font color="#FF0000">listen</font></h2>
+        将一个未使用的套接字和 一个地址想关联<font color="#FF0000">(失敗返回SOCKET_ERROR)</font>
+        <pre>     int listen(
+      __in  SOCKET s,
+      __in  int backlog  //连接队列中最大数值 最大5 SOMAXCONN系统自定义最合理值
+	);
+
+        </pre>
+        
+        <p><h2><font color="#FF0000">accept</font></h2>
+       接受一个socket连接 并将新建的socket返回 <font color="#FF0000">(失敗返回INVALID_SOCKET )</font>
+        <pre>    SOCKET accept(
+  __in     SOCKET s,
+  __out    struct sockaddr* addr,	//SOCKADDR_IN  SOCKADDR
+  __inout  int* addrlen
+);
+
+//將網絡地址 轉化為ip
+char* FAR inet_ntoa(
+  __in  struct   in_addr in	//addr.sin_addr
+);
+        </pre>
+  		</p>
+        
+         <p><h2><font color="#FF0000">connect</font></h2>
+        连接socket	<font color="#FF0000">(失敗返回SOCKET_ERROR )</font>
+        <pre>int connect(  
+        SOCKET s,  
+        const struct sockaddr FAR* name,  
+        int namelen);
+   		</pre>
+        </p>
+        <p><h2><font color="#FF0000">recv</font></h2>
+       接受数据 <font color="#FF0000">(返回失敗實際接收數據大小  [SOCKET_ERROR(-1) 網絡錯誤] <br />
+       [==0 socket已經關閉]  )</font>
+        <pre>int recv(
+  __in   SOCKET s,
+  __out  char* buf,
+  __in   int len,
+  __in   int flags
+);
+</pre></p>
+    
+    	<p><h2><font color="#FF0000">send</font></h2>
+       	发送数据 <font color="#FF0000">返回值同recv</font>
+        <pre>int send(  SOCKET s,  
+        const char FAR* buf,  
+        int len,
+          int flags);
+        </pre></p>
+        
+        <p><h2><font color="#FF0000">closesocket</font></h2>
+       	关闭套接字  <font color="#FF0000">(失敗返回SOCKET_ERROR )</font>
+        <pre>int closesocket(
+  __in  SOCKET s
+);
+        </pre></p>
+        
+         <p><h2><font color="#FF0000">ioctlsocket</font></h2>
+<pre>//設置socket為非阻塞
+u_long ul=1; 
+ioctlsocket(sock,FIONBIO,&amp;ul)
+
+//設置socket為阻塞
+u_long ul=0; 
+ioctlsocket(sock,FIONBIO,&amp;ul)</pre>        
+         </p>
+        <p><h2><font color="#FF0000">shutdown</font></h2>
+       	禁止套接字进行某项操作  <font color="#FF0000">(失敗返回SOCKET_ERROR )</font>
+        <pre>int shutdown(
+  __in  SOCKET s,
+  __in  int how		//SD_RECEIVE(禁止讀) SD_SEND(禁止寫) SD_BOTH(兩者都禁)
+);
+        </pre></p>
+        
+    </h3></p></div>
+  	 <div class="div_box"><a name="care"></a><p><h3>
+    	<p><h2><font color="#FF0000">注意</font></h2><br />
+        對於socket在關閉之前 應該先調用 shutdown 以禁止再在此socket上操作 之後在closesocket<br />
+        以完成一次優雅的socket<br /><br />
+        
+         shutdown只是禁止讀寫 但其讀寫狀態已然會觸發 select 等異步等待
+        </p>
+ 	</h3></p></div>
+    
+	 <div class="div_box"><a name="server"></a><p><h3>
+    	<p><h2><font color="#FF0000">server example</font></h2><br />
+<pre>
+//创建监听套接字
+				socket_listen=::socket(AF_INET,SOCK_STREAM ,IPPROTO_TCP );
+				if(INVALID_SOCKET == socket_listen)
+				{
+					dark::debug::wexception e(L"创建套接字失败",WSAGetLastError());
+					throw e;
+				}
+
+				//绑定套接字
+				SOCKADDR_IN sockaddr_server;
+				memset(&sockaddr_server,0,sizeof(SOCKADDR_IN));
+				sockaddr_server.sin_family = AF_INET;
+				sockaddr_server.sin_addr.s_addr = htonl(INADDR_ANY);
+				sockaddr_server.sin_port = htons(1102);
+				if(SOCKET_ERROR==bind(socket_listen,(SOCKADDR*)&sockaddr_server,sizeof(SOCKADDR_IN)))
+				{
+					closesocket(socket_listen);
+					socket_listen=INVALID_SOCKET;
+					dark::debug::wexception e(L"绑定套接字失败",WSAGetLastError());
+					throw e;
+				}
+
+				//监听套接字失败
+				if(SOCKET_ERROR ==::listen(socket_listen,SOMAXCONN))
+				{
+					closesocket(socket_listen);
+					socket_listen=INVALID_SOCKET;
+					dark::debug::wexception e(L"监听套接字失败",WSAGetLastError());
+					throw e;
+				}
+                /*
+                ...accept
+                ...recv
+                ...send
+                */</pre>
+        
+        </p>
+    </h3></p></div>
+ 	<div class="div_box"><a name="client"></a><p><h3>
+    	<p><h2><font color="#FF0000">client example</font></h2><br />
+<pre>
+	client_addr.sin_addr .S_un .S_addr=inet_addr(domain.c_str());
+				client_addr.sin_family =AF_INET;	
+				client_addr.sin_port =htons(port);
+
+				socket_client=::socket(AF_INET,SOCK_STREAM,0);
+				if(INVALID_SOCKET == socket_client)
+				{
+					dark::debug::wexception e(L"创建套接字失败",WSAGetLastError());
+					throw e;
+				}
+				//设置为同步阻塞方式 
+				 ULONG   ulArg=0;  
+				 int iRet = ioctlsocket(socket_client,FIONBIO,&ulArg);
+                 connect(socket_client,(SOCKADDR *)&client_addr,sizeof(SOCKADDR);
+				
+                 /*
+                 ...send
+                 ...recv
+                 */
+                 </pre> 
+        </p>
+ 	</h3></p></div>
+</td></tr></table>
+</body>
+</html>

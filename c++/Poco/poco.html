@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>poco</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#poco">poco</a>
+		<a href="#win32">環境配置 win32</a>
+		<a href="#mingw">環境配置 mingw</a>
+	</div>
+
+
+	<div class="note"><a name="poco"></a>
+		<p><span class="flag">poco</span>
+<pre>Poco	一個開源 跨平台 的c++庫 提供了豐富的功能 
+很好的彌補了 c++標準 以及boost庫 未提供的能力 如一致的 數據庫訪問 網絡組件 zip打包算法
+
+官網 <a href="http://pocoproject.org/">http://pocoproject.org/</a>
+
+Poco	提供了兩個版本 基本版 完整版 
+故名完整版提供了更多功能 主要是對 SSL MySql ODBC 的支持 
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="win32"></a>
+		<p><span class="flag">環境配置 win32</span>
+<pre>對於win32 Poco提供了批處理 文件 build_vs*.cmd 直接運行 即可完成 動態庫的編譯 
+之後從 bin\中 拷貝出 *.dll 從 lib\中 拷貝出*.lib 即可
+
+build_vs*.cmd 將使用 不同版本vs 調用 buildwin.cmd 進行編譯
+若需要 NetSSL_OpenSSL 編輯 buildwin.cmd 38行 設置OpenSSL安裝目錄(Poco對SSL的支持 依靠OpenSSL 故若需要SSL 還需要先安裝OpenSSL)
+一般 此行默認為 set OPENSSL_DIR=c:\OpenSSL
+
+亦可到 指定庫目錄下 運行對於版本 *.sin 進行只編譯指定庫 或靜態庫
+
+最後 將 各庫目錄下的 include 複雜出來並加入 vsinclude目錄
+</pre>
+		</p>
+		<p><span class="flag">编译 静态库</span>
+<pre>方式 同 上文 只是需要编辑 build_vs*.cmd 
+将最后一行中的 shared 参数 修改为 static_mt/static_md 
+
+默認使用Poco庫將 鏈接動態庫 要連接靜態庫 在include *.h前
+#define POCO_STATIC
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>vs编译器支持 自动链接 不用关心 链接文件名
+
+Poco 默认链接 动态库 如果需要链接 静态库 在 #include 之前 #define POCO_STATIC 
+
+Poco 对mysql 的支持 依靠 mysql提供的c api 对SSL的支持 依靠 openssl 故需要先配置之
+
+Poco 要求 mysql c pi 版本是5.5及以前的版本 而非最新(5.6后 mysql api可能发生了改变)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="mingw"></a>
+		<p><span class="flag">環境配置 mingw</span>
+<pre>configure --help
+usage: configure {options}
+Configure the POCO C++ Libraries.
+
+Options:
+  --help
+    Display this help screen.
+
+  --config=&lt;config_name&gt;   
+    Use the given build configuration.
+    Available configurations are:
+
+AIX		       Darwin64		      QNX
+ARM-Linux	       Darwin64-clang	      SH-Linux
+Android		       Darwin64-clang-libc++  SSV-LINUX
+Angstrom	       Darwin64-gcc	      SunOS
+BeagleBoard	       DigiEL		      SunOS-GCC
+CEGCCARM	       ELDK		      SunOS-SunForte
+CYGWIN		       FreeBSD		      SunOS-SunStudio
+CygLinux	       GCCEMBEDLINUX	      SunOS-SunStudio11
+Darwin		       HP-UX		      SunOS-stdcxx-x86_64
+Darwin-clang	       Linux		      iPhone
+Darwin-clang-libc++    Linux-stlport	      iPhone-clang
+Darwin-gcc	       MinGW		      iPhone-clang-libc++
+Darwin32	       MinGW-CrossEnv	      iPhoneSimulator
+Darwin32-clang	       NIOS2-Linux	      iPhoneSimulator-clang
+Darwin32-clang-libc++  OSF1		      iPhoneSimulator-clang-libc++
+Darwin32-gcc	       PPC-Linux
+
+  --prefix=&lt;install_prefix&gt;
+    Use the given install directory for make install.
+    Default is /usr/local.
+
+  --stdcxx-base=&lt;apache_stdcxx_install_prefix&gt;
+    If (and only if) the /e/poco-1.4.6p2-all/build/config selected with --config
+    uses the Apache stdcxx library, then apache_stdcxx_install_prefix
+    specifies the base directory where stdcxx is installed.
+
+  --no-tests
+    Do not build testsuites.
+
+  --no-samples
+    Do not build samples.
+
+  --no-wstring
+    Compile with -DPOCO_NO_WSTRING.
+    Useful if your C++ compiler does not support std::wstring
+    (such as uClibc-based systems).
+
+  --no-fpenvironment
+    Compile with -DPOCO_NO_FPENVIRONMENT.
+    Useful if your C++ compiler has incomplete floating-point support
+    (such as uClibc-based systems).
+
+  --no-sharedmemory
+    Compile with -DPOCO_NO_SHAREDMEMORY.
+    For systems that don't support shared memory API's,
+    like uClibc-based Linux systems.
+
+  --no-sharedlibs
+    Compile with -DPOCO_NO_SHAREDLIBS.
+    For systems that don't support shared library loading.
+
+  --omit=&lt;component&gt;{,&lt;component&gt;}
+    Do not build the specified component(s).
+    Example: --omit=Data/MySQL,Data/ODBC,Zip
+    
+  --include-path=&lt;path&gt;
+    Add search path for header files.
+    
+  --library-path=&lt;path&gt;
+    Add search path for library files.
+
+  --cflags=&lt;flags&gt;
+    Pass additional flags to compiler.
+    Example: --cflags=-wall
+
+  --poquito
+    Omit a few features for smaller codesize when linking
+    statically for embedded targets.
+
+  --unbundled
+    Use system-provided zlib, pcre, expat and sqlite instead of 
+    bundled ones.
+    
+  --static
+    Build static libraries. Overrides default mode, which
+    depends upon target. Can be specified together
+    with --shared to build both.
+    
+  --shared
+    Build shared libraries. Overrides default mode, which
+    depends upon target. Can be specified together
+    with --static to build both.
+</pre>
+		</p>
+		<p><span class="flag">編譯</span>
+<pre>configure --omit=Data/MySQL,Crypto,NetSSL_OpenSSL,
+make
+
+Data/MySQL				依賴mysql
+Crypto,NetSSL_OpenSSL	...openssl
+PageCompiler
+如果要編譯這些組件 需要 先安裝好 依賴環境
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

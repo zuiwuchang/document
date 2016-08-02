@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>jQuery参考手册2</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#share">多版本共存</a>
+	</div>
+
+
+	<div class="note"><a name="share"></a>
+		<p><span class="flag">多版本共存</span>
+<pre>jQuery 使用 $ 调用函数 然 若和不同版本jquery 或其他javascript库一起使用
+$可能冲突 jQuery可以 使用 $.noConflict(true) 改变变量名
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>&lt;script src="http://code.jquery.com/jquery-1.8.2.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript"&gt;
+        var j$182 = $.noConflict(true);
+        &lt;/script&gt;
+&lt;script type="text/javascript" src="jqueryui1.9.0.js"&gt;&lt;/script&gt;
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

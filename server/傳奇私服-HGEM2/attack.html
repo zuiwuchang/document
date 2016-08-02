@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>沙巴克</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#attack">沙巴克</a>
+		
+		
+	</div>
+
+	<div class="note"><a name="attack"></a>
+		<p><span class="flag">沙巴克</span>
+<pre>//初始化 沙城配置
+ReLoadCastle
+
+//設置 所有行會 攻城 0 是城堡編號
+AddAttackSabukAll 0
+
+//強行 開始/結束 攻沙 (沙巴克 是城堡名) (2小時後自動結束)
+@ForcedWallConQuestWar 沙巴克
+
+//判斷 是否在 攻沙期間
+#IF
+	CheckCastleWar 沙巴克
+
+//返回 是否是 行會 老大
+#IF
+	IsGuildMaster
+
+//返回 是否是 沙城 成員
+#IF
+	IsCastleGuild
+
+//返回 是否是 沙城 老大
+#IF
+	IsCastleMaster
+
+//返回 是否是 沙城 守方
+#IF
+	IsDefenseGuild
+
+//返回 是否是 沙城 守方盟友
+#IF
+	IsDefenseAllyGuild
+
+//返回 是否是 沙城 攻方
+#IF
+	IsAttackGuild
+
+//返回 是否是 沙城 攻方盟友
+#IF
+	IsAttackAllyGuild
+</pre>
+		</p>
+      
+	</div>
+</div>
+</body>
+</html>
+

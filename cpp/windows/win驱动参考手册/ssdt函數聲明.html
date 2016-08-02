@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>ssdt函數聲明</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1>
+    	<a href="#NtGetContextThread">NtGetContextThread 0x87</a><br />
+        <a href="#NtQueryInformationProcess">NtQueryInformationProcess 0xEA</a><br />
+        <a href="#NtSetContextThread">NtSetContextThread 0x13C</a><br />
+        
+        
+ 	</h1></p>
+    
+    
+      <div class="div_box"><a name="NtGetContextThread"></a><h2>
+        <p><font color="#FF0000">NtGetContextThread 0x87</font>
+<pre>typedef
+NTSTATUS
+(NTAPI	*NtGetContextThread)(
+	IN	HANDLE	ThreadHandle,
+	OUT	PCONTEXT	pContext);</pre>  
+        </p>
+        
+ 	</h2></div>
+    
+    <div class="div_box"><a name="NtQueryInformationProcess"></a><h2>
+        <p><font color="#FF0000">NtQueryInformationProcess 0xEA</font>
+<pre>typedef 
+NTSTATUS 
+(NTAPI *NtQueryInformationProcess)(
+  __in       HANDLE ProcessHandle,
+  __in       PROCESSINFOCLASS ProcessInformationClass,		//為 ProcessDebugPort=7 代表查詢Debug_Port 是否被調試
+  __out      PVOID ProcessInformation,
+  __in       ULONG ProcessInformationLength,
+  __out_opt  PULONG ReturnLength);</pre>  
+        </p>
+        
+ 	</h2></div>
+    
+    <div class="div_box"><a name="NtSetContextThread"></a><h2>
+        <p><font color="#FF0000">NtSetContextThread 0x13C</font>
+<pre>typedef
+NTSTATUS
+(NTAPI	*NtSetContextThread)(
+	IN	HANDLE	ThreadHandle,
+	IN	PCONTEXT	pContext);</pre>  
+        </p>
+        
+ 	</h2></div>
+    	
+     
+   
+</td></tr></table>
+</body>
+</html>

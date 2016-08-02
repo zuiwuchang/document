@@ -1,0 +1,158 @@
+﻿<!DOCTYPE html >
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>algorithm</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#binary_search">二分查找法</a>
+		<a href="#base64">base64</a>
+		
+	</div>
+
+	<div class="note"><a name="binary_search"></a>
+		<p><span class="flag">二分查找法</span>
+<pre>//递归版本
+int binary_search( const int arr[], int low, int high, int key)
+{
+   int mid = low+(high-low)/2; // Do not use (low+high)/2 which might encounter overflow issue
+   if(low>high)
+       return -1;   //no find
+   else
+     {
+       if(arr[mid]==key)
+          return mid;       //find
+       else if(arr[mid]>key)
+          return binary_search(arr,low,mid-1,key);
+       else 
+          return binary_search(arr,mid+1,high,key);
+     }
+}
+</pre>
+	</div>
+
+	<div class="note"><a name="base64"></a>
+		<p><span class="flag">base64</span>
+<pre>#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;cstdio&gt;
+
+const char arrays[] =   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+std::string encryption(const char* data,std::size_t size);
+std::string encryption_loop(const char* data);
+
+std::string decryption(std::string data);
+std::string decryption_loop(const char* data);
+char find_char(char c);
+int main()
+{
+    std::string str = "BC";
+
+    std::string en  =   encryption(str.data(),str.size());
+    std::string de = decryption(en);
+
+    std::cout &lt;&lt; str &lt;&lt; "\n"
+              &lt;&lt; en &lt;&lt; "\n"
+              &lt;&lt; de &lt;&lt; "\n"
+              ;
+
+    return 0;
+}
+std::string encryption(const char* data,std::size_t size)
+{
+    std::string rs;
+
+    std::size_t fill = size %3;
+    std::size_t left_size = size - fill;
+
+    for(std::size_t i=0; i&lt;left_size; i+=3)
+    {
+        rs += encryption_loop(data + i);
+    }
+
+    if(fill == 1)
+    {
+        char buffer[3] = {0};
+        buffer[0]   =   data[left_size];
+        rs += encryption_loop(buffer).substr(0,2);
+        rs += "==";
+    }
+    else if(fill == 2)
+    {
+        char buffer[3] = {0};
+        buffer[0]   =   data[left_size];
+        buffer[1]   =   data[left_size + 1];
+        rs += encryption_loop(buffer).substr(0,3);
+        rs += "=";
+    }
+
+    return rs;
+}
+std::string encryption_loop(const char* data)
+{
+    std::string rs;
+    char indexs[4] = {0};
+
+    indexs[0]   =   data[0] &gt;&gt; 2;
+    indexs[1]   =	((data[0] & 0x3) &lt;&lt; 4 )  | (data[1] &gt;&gt; 4) ;
+    indexs[2]   =   ((data[1] & 0xF) &lt;&lt; 2) | (data[2] &gt;&gt; 6);
+    indexs [3]   =   data[2] & 0x3F;
+
+    for(int i=0; i&lt;4; ++i)
+    {
+        rs.push_back(arrays[indexs[i]]);
+    }
+    return rs;
+}
+std::string decryption(std::string data)
+{
+    std::string rs;
+    for(int i=0; i&lt;data.size(); i+=4)
+    {
+        rs += decryption_loop(data.data() + i);
+    }
+    return rs;
+}
+std::string decryption_loop(const char* data)
+{
+    std::string rs;
+    char indexs[4] = {find_char(data[0]),
+                      find_char(data[1]),
+                      find_char(data[2]),
+                      find_char(data[3])
+                     };
+    rs += (indexs[0] &lt;&lt; 2 ) | (indexs[1] &gt;&gt; 4 );
+    if(indexs[2]!=-1)
+    {
+        rs += (indexs[1] &lt;&lt; 4) | (indexs[2] &gt;&gt; 2);
+        if(indexs[3]!=-1)
+        {
+            rs += (indexs[2] &lt;&lt; 6) | (indexs[3] );
+        }
+    }
+    return rs;
+}
+char find_char(char c)
+{
+    for(char i=0; i&lt;sizeof(arrays) / sizeof(char); ++i)
+    {
+        if(arrays[i]==c)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+</pre>
+	</p>
+
+	</div>
+
+</div>
+</body>
+</html>
+

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Tomcat</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#Tomcat">Tomcat</a>
+		<a href="#install">安裝 Tomcat</a>
+		<a href="#config">配置網頁</a>
+		<a href="#safe">安全配置</a>
+		<a href="#linux">linux隨系統啟動</a>
+		<a href="#care">注意</a>
+	</div>
+
+	<div class="note"><a name="Tomcat"></a>
+		<p><span class="flag">Tomcat</span>
+<pre>Tomcat 是Apache下 Jakarta項目開發的一個 開源 跨平台 的Servlet容器 
+其實現了對Servlet 和 JavaServer Page(JSP)的支持
+
+Tomcat包含了一個http服務器 故亦被視為Web服務器
+其和  apache web server 是各自單獨的組件
+
+官網 <a target="_blank" href="http://tomcat.apache.org/">http://tomcat.apache.org/</a>
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="install"></a>
+		<p><span class="flag">安裝 Tomcat</span>
+<pre>從官網 下載最新版本 解壓
+
+按java運行環境
+
+設置環境變量 JRE_HOME
+
+運行 Tomcat 目錄下 startup.bat/startup.sh 啟動服務 shutdown.bat/shutdown.sh 關閉服務
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="config"></a>
+		<p><span class="flag">配置網頁</span>
+<pre>將 網頁代碼 複製到 tomcat的webapps目錄下
+重啟 tomcat
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>網頁 不能直接存放在 webapps 目錄下 
+必須在 webapps 目錄下 至少創建一個文件夾 將代碼放在文件夾中
+</pre>
+		</p>
+	</div>
+	
+	<div class="note"><a name="safe"></a>
+		<p><span class="flag">安全配置</span>
+<pre>修改 tomcat下 conf/tomcat-users.xml 設置web管理
+
+manager-gui		- allows access to the HTML GUI and the status pages
+manager-script	- allows access to the text interface and the status pages
+manager-jmx		- allows access to the JMX proxy and the status pages
+manager-status	- allows access to the status pages only
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>&lt;!--增加一個 管理員帳號--&gt;
+&lt;role rolename="manager-gui"/&gt;
+&lt;user username="Cerberus" password="***" roles="manager-gui"/&gt;
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>舊版本tomcat 存在默認帳號 tomcat tomcat 
+若使用舊版本 應該至少修改此密碼(似乎是6.0以及以前版本)
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="linux"></a>
+		<p><span class="flag">linux隨系統啟動</span>
+<pre>在 /etc/rc.d/rc.loacl 中 增加啟動項即可 
+若需要sudo到其他用戶 需要設置sudo可以在tty中使用
+</pre>
+		</p>
+		<p><span class="flag">exampel</span>
+<pre><span class="care">/etc/rc.d/rc.loacl</span>
+/home/dark/tomcat.sh start
+
+<span class="care">tomcat.sh</span>
+#!/bin/bash
+#       Program:
+#               this program is run tomcat as no root ar system reboot shell script
+#       History:
+#               2014-08-10 illusive_man first release 1.0
+#       e-mail:
+#               zuiwuchang@gmail.com
+
+LANG=zh_CN.UTF-8
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
+export LANG PATH
+#JRE_HOEM=/user
+#export JRE_HOME
+
+
+#此處修改為 使用的用戶名 和 tomcat 安裝路徑
+user=dark
+path=/home/dark/server/apache-tomcat-7.0.55
+
+rs=0
+case $1 in
+ "")
+ echo state start stop restart
+;;
+ "state")
+ ps -aux | grep tomcat
+;;
+ "start")
+ path="$path"/bin/startup.sh
+ sudo -u $user $path
+ rs=$?
+;;
+ "stop")
+ path="$path"/bin/shutdown.sh
+ sudo -u $user $path
+ rs=$?
+;;
+ "restart")
+ path_stop="$path"/bin/shutdown.sh
+ sudo -u $user $path_stop
+ path_start="$path"/bin/startup.sh
+ sudo -u $user $path_start
+ rs=$?
+;;
+esac
+
+exit $rs
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="care"></a>
+		<p><span class="flag">注意</span>
+<pre>Linux 下非root是不能啟用[1,1024] 端口的
+故要以非root運行tomcat 而使用80端口只能使用 iptable 將1024以上端口 轉發到80
+且在iptable中 要同時運行訪問 80 和 tomcat使用的端口
+
+iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
+sudo iptables -I INPUT 1 -p tcp -m tcp --dport 8080 -j ACCEPT
+sudo iptables -I INPUT 1 -p tcp -m tcp --dport 80 -j ACCEPT
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>若 iptable 設置為空 可如下設置防火牆
+sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
+
+sudo iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+sudo iptables -A INPUT -p icmp -j ACCEPT
+sudo iptables -A INPUT -i lo -j ACCEPT
+sudo iptables -A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
+sudo iptables -A INPUT -p tcp -m tcp --dport 8080 -j ACCEPT
+sudo iptables -A INPUT -p tcp -m tcp --dport 3306 -j ACCEPT
+sudo iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+sudo iptables -A INPUT -j REJECT --reject-with icmp-host-prohibited
+sudo iptables -A FORWARD -j REJECT --reject-with icmp-host-prohibited
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

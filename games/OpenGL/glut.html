@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>glut</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="OpenGL"><tr><td>
+<p>
+	<font color="#FF0000">glut</font>
+</p>
+
+<p>
+	<a href="#glut">glut</a><br />
+    <a href="#example1">example</a><br />
+   
+</p>
+
+
+<div class="mydiv"><a name="glut"></a>
+	<p><font color="#FF0000">glut</font>
+<pre>glut 是OpenGL一個 擴展 用於 實現簡單 的 窗口處理 很適合用於 示例代碼
+
+#include&lt;glut.h&gt;
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="example"></a>
+	<p><font color="#FF0000">example</font>
+<pre>#include&lt;iostream&gt;
+
+#include&lt;glut.h&gt;
+
+#define DARK_WINDOW_WIDTH	640
+#define DARK_WINDOWHEIGHT	480
+
+void init()
+{
+	//設置背景擦除顏色
+	glClearColor(0,0,0,1);
+
+	glMatrixMode(GL_PROJECTION);
+	
+	//glLoadIdentity();
+	glOrtho(0,1,0,1,-1,1);	//指定使用的坐標系統
+}
+
+void draw()
+{
+	//擦除背景
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	//設置當前使用顏色
+	glColor3f(1,0,0);
+
+	glLoadIdentity();
+	glOrtho(0,1,0,1,-1,1);
+	//繪製矩形
+	/*glBegin(GL_POLYGON);
+		glVertex3f(0.25,0.25,0);
+		glVertex3f(0.75,0.25,0);
+		glVertex3f(0.75,0.75,0);
+		glVertex3f(0.25,0.75,0);
+	glEnd();*/
+	glRectf(0.25,0.25,0.75,0.75);
+
+	//GLUT_SINGLE 使用 glFlush()
+	//GLUT_DOUBLE 使用 glutSwapBuffers() 交換繪製緩存 之後自動glFlush()
+	glutSwapBuffers();
+
+}
+
+void resize(int w,int h)
+{
+	puts("resize window");
+}
+void key_down(unsigned char c,int x,int y)
+{
+	printf("key_down %c x = %d y = %d\n",c,x,y);
+}
+void key_up(unsigned char c,int x,int y)
+{
+	printf("key_up %c x = %d y = %d\n",c,x,y);
+}
+void mouse(int button,int state,int x,int y)
+{
+	printf("mouse = %d state = %d x = %d y = %d\n",button,state,x,y);
+}
+void motion(int x,int y)
+{
+	printf("motion x = %d y = %d\n",x,y);
+}
+int main(int argc,char** argv)
+{
+	//初始化glut
+	glutInit(&argc,argv);
+	//指定使用的 顏色模式
+	glutInitDisplayMode(GLUT_DOUBLE		//雙緩存	GLUT_SINGLE(但緩存)
+		| GLUT_RGB						//RGBA
+		//| GLUT_DEPTH					//帶深度緩存
+		);
+
+	//設置窗口位置大小
+	glutInitWindowSize(DARK_WINDOW_WIDTH,DARK_WINDOWHEIGHT);
+	glutInitWindowPosition(50,50);
+
+	//創建窗口 並初始化 平台相關 渲染設備
+	/*int id	=	*/
+		glutCreateWindow("yes OpenGL no DirectX");
+
+		//進行其他初始化設置
+		init();
+
+		//綁定事件處理回調函數
+		glutDisplayFunc(draw);		//需要重繪窗口時
+		glutReshapeFunc(resize);	//窗口大小變化
+		glutKeyboardFunc(key_down);
+		glutKeyboardUpFunc(key_up);
+		glutMouseFunc(mouse);		//鼠標按下 抬起
+		glutMotionFunc(motion);		//鼠標按下後 移動鼠標
+		//...
+
+	//進入事件循環
+	glutMainLoop();
+	return 0;
+}
+</pre>
+	</p>
+</div>
+
+    
+</td></tr></table>
+</body>
+</html>

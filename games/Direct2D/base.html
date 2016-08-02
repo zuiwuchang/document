@@ -1,0 +1,458 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Direct2D</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="Direct2D"><tr><td>
+<p>
+	<font color="#FF0000">base</font>
+</p>
+
+<p>
+	<a href="#base">base</a><br />
+    <a href="#simple">繪製簡單圖形</a><br />
+    <a href="#PATH">繪製PATH圖形</a><br />
+ 	<a href="#GROUP">圖形組</a><br />
+    <a href="#MATRIX">圖形變化</a><br />
+</p>
+
+
+<div class="mydiv"><a name="base"></a>
+	<p><font color="#FF0000">base</font>
+<pre>1	創建工廠接口(用於創建其他設備資源)	ID2D1Factory*
+2	創建繪製目標(用以渲染圖像)		ID2D1HwndRenderTarget*
+3	創建畫刷等 繪製工具			
+4	在WM_PAIN中 ID2D1HwndRenderTarget::BeginDraw  ID2D1HwndRenderTarget::EndDraw 間繪製
+5	釋放接口
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">相關API</font>
+<pre>//創建 設備工廠 (成功 返回 S_OK)
+HRESULT D2D1CreateFactory(
+    __in D2D1_FACTORY_TYPE factoryType,		//D2D1_FACTORY_TYPE_SINGLE_THREADED(需要自己同步訪問此設備 以及其創建的子資源) D2D1_FACTORY_TYPE_MULTI_THREADED(在線程安全模式下進程)
+    __out Factory **factory			//ID2D1Factory** 返回設備工廠接口
+);
+
+//創建渲染目標
+HRESULT CreateHwndRenderTarget(
+  [ref]  const D2D1_RENDER_TARGET_PROPERTIES &amp;renderTargetProperties,			//渲染模式 像素格式 ... D2D1::RenderTargetProperties()返回默認屬性設置
+  [ref]  const D2D1_HWND_RENDER_TARGET_PROPERTIES &amp;hwndRenderTargetProperties,		//D2D1_HWND_RENDER_TARGET_PROPERTIES結構 包括窗口句柄 大小 Present D2D1::HwndRenderTargetProperties(句柄,大小) 生成D2D1_HWND_RENDER_TARGET_PROPERTIES結構
+  [out]  ID2D1HwndRenderTarget **hwndRenderTarget					//返回渲染目標接口
+);
+
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>ID2D1Factory* d2d_factory_ptr	=	NULL;
+ID2D1HwndRenderTarget* d2d_target_ptr	=	NULL;
+ID2D1SolidColorBrush* d2d_brush_ptr = NULL;
+int APIENTRY _tWinMain(HINSTANCE hInstance,
+                     HINSTANCE hPrevInstance,
+                     LPTSTR    lpCmdLine,
+                     int       nCmdShow)
+{
+	...
+	// 执行应用程序初始化:
+	if (!InitInstance (hInstance, nCmdShow))
+	{
+		d2d_factory_ptr &amp;&amp; d2d_factory_ptr->Release();
+		d2d_target_ptr &amp;&amp; d2d_target_ptr->Release();
+		d2d_brush_ptr &amp;&amp; d2d_brush_ptr->Release();
+		return FALSE;
+	}
+
+	...    
+	d2d_brush_ptr->Release();
+	d2d_target_ptr->Release();
+	d2d_factory_ptr->Release();
+
+	return (int) msg.wParam;
+}
+BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
+{
+	...
+	//創建設備工廠
+   HRESULT	hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED,&d2d_factory_ptr);
+   if(hr	!=	S_OK)
+   {
+	   return FALSE;
+	
+   }
+   RECT rect;
+   GetWindowRect(hWnd,&rect);
+	//創建繪製目標
+   hr	=	d2d_factory_ptr->CreateHwndRenderTarget(D2D1::RenderTargetProperties()
+	   ,D2D1::HwndRenderTargetProperties(hWnd
+			,D2D1::SizeU(rect.right-rect.left,rect.bottom-rect.top)
+			)
+		,&d2d_target_ptr
+		);
+   if(hr != S_OK)
+   {
+	   return FALSE;
+   }
+	//創建畫刷
+   hr	=	d2d_target_ptr->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Red)
+	   ,&d2d_brush_ptr
+	   );
+   if(hr != S_OK)
+   {
+	   return FALSE;
+   }
+	ShowWindow(hWnd, nCmdShow);
+   UpdateWindow(hWnd);	//產生WM_PAIN
+}
+
+	...
+case WM_PAINT:
+		
+		d2d_target_ptr->BeginDraw();
+		d2d_target_ptr->Clear(D2D1::ColorF(D2D1::ColorF::DarkBlue));	//以指定顏色 清除背景
+			d2d_target_ptr->DrawRectangle(D2D1::RectF(100.0f,100.0f,500.0f,500.0f)
+				,d2d_brush_ptr
+				);
+		d2d_target_ptr->EndDraw();	//成功繪製返回 S_OK
+		break;
+	...
+</pre>
+    </p>
+    
+    <p><font color="#FF0000">注意</font>
+<pre>Direct2D 的接口都是 com 接口 故需要Release
+
+因為Direct2D是在 WM_PAIN中 進行繪製 故在UpdateWindow之前 應該創建好所有設備資源
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="simple"></a>
+	<p><font color="#FF0000">繪製簡單圖形</font>
+<pre>Direct2D 支持4中簡單圖形的(線 矩形 圆角矩形 椭圆)
+繪製 使用ID2D1HwndRenderTarget::Draw...繪製
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">相關API</font>
+<pre>//繪製直線
+virtual void DrawLine(
+                  D2D1_POINT_2F point0,
+                  D2D1_POINT_2F point1,
+  [in]            ID2D1Brush *brush,
+                  FLOAT strokeWidth = 1.0f,	//線寬
+  [in, optional]  ID2D1StrokeStyle *strokeStyle = NULL	//線條樣式
+) = 0;
+
+//繪製矩形
+void DrawRectangle(
+  [ref]           const D2D1_RECT_F &amp;rect,
+  [in]            ID2D1Brush *brush,
+                  FLOAT strokeWidth = 1.0f,
+  [in, optional]  ID2D1StrokeStyle *strokeStyle = NULL
+);
+
+//繪製圓角矩形
+D2D1_ROUNDED_RECT RoundedRect(
+  __in  const D2D1_RECT_F &amp;rect,
+        FLOAT radiusX,	//圓角x半徑
+        FLOAT radiusY	//圓角y半徑
+);
+
+//繪製橢圓
+void DrawEllipse(
+    [ref] const D2D1_ELLIPSE &amp;ellipse,
+    [in] ID2D1Brush *brush,
+    FLOAT strokeWidth =1.0f,
+    [in, optional] ID2D1StrokeStyle *strokeStyle = NULL
+);
+
+struct D2D1_ELLIPSE {
+    D2D1_POINT_2F point;	//圓心
+    FLOAT radiusX;		//x半徑
+    FLOAT radiusY;		//y半徑
+};
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">注意</font>
+<pre>Draw...函數的線寬是向外擴充的(既不會影響 填充區域大小)
+</pre>
+	</p>
+</div>    
+
+<div class="mydiv"><a name="PATH"></a>
+	<p><font color="#FF0000">繪製簡單圖形</font>
+<pre>Direct2D 支持繪製 PATH圖形 使用ID2D1PathGeometry接口表示
+
+首先使用 工廠設備 ID2D1Factory::CreatePathGeometry 創建一個PATH
+之後使用ID2D1PathGeometry::Open 返回 ID2D1GeometrySink接口(負責添加 路徑)
+在 ID2D1GeometrySink::BeginFigure ID2D1GeometrySink::EndFigure 間 添加 Add... 路徑
+ID2D1GeometrySink::Close 關閉 ID2D1GeometrySink
+
+使用 ID2D1HwndRenderTarget::DrawGeometry ID2D1HwndRenderTarget::FillGeometry 繪製/填充 路徑
+</pre>
+	</p>
+    <p><font color="#FF0000">相關API</font>
+<pre>//創建PATH
+virtual HRESULT ID2D1Factory::CreatePathGeometry(
+  [out]  ID2D1PathGeometry **pathGeometry
+) = 0;
+
+//返回 ID2D1GeometrySink 接口
+virtual HRESULT ID2D1PathGeometry::Open(
+  [out]  ID2D1GeometrySink **geometrySink
+) = 0;
+
+//開始定義路徑
+virtual void ID2D1GeometrySink::BeginFigure(
+    D2D1_POINT_2F startPoint,		//路徑起點
+    D2D1_FIGURE_BEGIN figureBegin	//D2D1_FIGURE_BEGIN_FILLED(填充) D2D1_FIGURE_BEGIN_HOLLOW(中空 只有輪廓)
+) = 0;
+
+//結束路徑定義
+virtual void ID2D1GeometrySink::EndFigure(
+    D2D1_FIGURE_END figureEnd
+) = 0;
+
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">ID2D1GeometrySink增加路徑API</font>
+<pre>//增加直線 以上一個結束點為 起始位置
+virtual void AddLine(
+    D2D1_POINT_2F point
+) = 0;
+virtual void AddLines(
+  [in]  const D2D1_POINT_2F *points,
+        UINT pointsCount
+) = 0;
+
+//增加兩點間的圓弧	以上一個終點為圓弧起點
+void AddArc(
+  [ref]  const D2D1_ARC_SEGMENT &amp;arc
+);
+struct D2D1_ARC_SEGMENT {
+  D2D1_POINT_2F        point;		//圓弧終點
+  D2D1_SIZE_F          size;		//圓弧 X Y 半徑
+  FLOAT                rotationAngle;	//圓弧相對當前坐標系選擇度數
+  D2D1_SWEEP_DIRECTION sweepDirection;	//rotationAngle是順時針否
+  D2D1_ARC_SIZE        arcSize;		//是否超過180度
+};
+
+//增加貝塞爾曲線 以上一個終點為起點
+void AddBezier(
+  [ref]  const D2D1_BEZIER_SEGMENT &bezier
+);
+virtual void AddBeziers(
+  [in]  const D2D1_BEZIER_SEGMENT *beziers,
+        UINT beziersCount
+) = 0;
+struct D2D1_BEZIER_SEGMENT {
+  D2D1_POINT_2F point1;		//終點
+  D2D1_POINT_2F point2;		//控制點1
+  D2D1_POINT_2F point3;		//控制點2
+};
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>	case WM_PAINT:
+		{
+			//創建ID2D1PathGeometry接口
+			ID2D1PathGeometry* path_ptr	=	NULL;
+			HRESULT hr	=	d2d_factory_ptr->CreatePathGeometry(&amp;path_ptr);
+			assert(S_OK == hr);
+
+			//返回ID2D1GeometrySink接口
+			ID2D1GeometrySink* sink_ptr;
+			hr	=	path_ptr-&gt;Open(&amp;sink_ptr);
+			assert(S_OK == hr);
+				D2D1_POINT_2F points[]	=	{D2D1::Point2F(200,100)
+					,D2D1::Point2F(200,200)
+					,D2D1::Point2F(100,200)
+				};
+				//開始定義路徑
+				sink_ptr->BeginFigure(D2D1::Point2F(100,100),D2D1_FIGURE_BEGIN_HOLLOW);
+					sink_ptr->AddLines(points,_countof(points));
+				sink_ptr->EndFigure(D2D1_FIGURE_END_CLOSED);
+
+				//開始定義另外一個路徑
+				sink_ptr->BeginFigure(D2D1::Point2F(300,300),D2D1_FIGURE_BEGIN_HOLLOW);
+					sink_ptr->AddArc(D2D1::ArcSegment(
+						D2D1::Point2F(500, 500), // end point
+						D2D1::SizeF(85, 85),
+						0.0f, // rotation angle
+						D2D1_SWEEP_DIRECTION_CLOCKWISE,
+						D2D1_ARC_SIZE_SMALL
+						)); 
+				sink_ptr->EndFigure(D2D1_FIGURE_END_CLOSED);
+			sink_ptr->Close();	//必須Close ID2D1GeometrySink
+			sink_ptr->Release();
+
+			d2d_target_ptr->BeginDraw();
+			d2d_target_ptr->Clear(D2D1::ColorF(D2D1::ColorF::White));	//以指定顏色 清除背景
+				d2d_target_ptr->DrawGeometry(path_ptr,d2d_brush_ptr);
+			
+			d2d_target_ptr->EndDraw();	//成功繪製返回 S_OK
+			
+			path_ptr->Release();
+		}
+		break;
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="GROUP"></a>
+	<p><font color="#FF0000">圖形組</font>
+<pre>ID2D1GeometryGroup 表示 圖形組 對組操作 將影響 全部 成員
+</pre>
+	</p>
+    <p><font color="#FF0000">example</font>
+<pre>	case WM_PAINT:
+		{
+			//創建多個同心圓
+			ID2D1EllipseGeometry* ellipse_ptrs[4];
+			for(int i=0;i&lt;_countof(ellipse_ptrs);++i)
+			{
+				d2d_factory_ptr-&gt;CreateEllipseGeometry(D2D1::Ellipse(D2D1::Point2(300.0f,300.0f)
+					,(FLOAT)30 * i
+					,(FLOAT)30 * i)
+					,&amp;ellipse_ptrs[i]);
+			}
+			ID2D1Geometry* geometry_ptrs[] ={ellipse_ptrs[0]
+				,ellipse_ptrs[1]
+				,ellipse_ptrs[2]
+				,ellipse_ptrs[3]
+			};
+			
+			//創建 圖形組
+			ID2D1GeometryGroup* group_ptr;
+			assert(d2d_factory_ptr->CreateGeometryGroup(D2D1_FILL_MODE_ALTERNATE
+				,geometry_ptrs
+				,_countof(geometry_ptrs)
+				,&amp;group_ptr
+				)
+				== S_OK);
+
+
+			d2d_target_ptr->BeginDraw();
+			d2d_target_ptr->Clear(D2D1::ColorF(D2D1::ColorF::White));	//以指定顏色 清除背景
+			d2d_target_ptr->FillGeometry(group_ptr,d2d_brush_ptr);
+			
+			d2d_target_ptr->EndDraw();	//成功繪製返回 S_OK
+			
+			//釋放com接口
+			for(int i=0;i&lt;_countof(ellipse_ptrs);++i)
+			{
+				ellipse_ptrs[i]-&gt;Release();
+			}
+			group_ptr-&gt;Release();
+		}
+		break;
+</pre>
+	</p>
+    <p><font color="#FF0000">相關API</font>
+<pre>//創建圖形組
+virtual HRESULT CreateGeometryGroup(
+         D2D1_FILL_MODE fillMode,		//填充模式 D2D1_FILL_MODE_ALTERNATE(間斷填充) D2D1_FILL_MODE_WINDING(完全填充)
+  [in]   ID2D1Geometry **geometries,	//圖形接口數組
+         UINT geometriesCount,
+  [out]  ID2D1GeometryGroup **geometryGroup	//返回ID2D1GeometryGroup
+) = 0;
+
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="MATRIX"></a>
+	<p><font color="#FF0000">圖形組</font>
+<pre>
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">相關API</font>
+<pre>//變化 繪製目標
+void ID2D1RenderTarget::SetTransform(
+  [ref]  const D2D1_MATRIX_3X2_F &amp;transform	
+);
+
+//變化圖形
+virtual HRESULT CreateTransformedGeometry(
+  [in]            ID2D1Geometry *sourceGeometry,		//圖形接口
+  [in, optional]  const D2D1_MATRIX_3X2_F *transform,	//變換矩陣
+  [out]           ID2D1TransformedGeometry **transformedGeometry	//輸出變換後的圖形接口
+) = 0;
+
+
+//創建2D平移矩陣
+static Matrix3x2F Translation(
+    FLOAT x,
+    FLOAT y
+);
+static Matrix3x2F Translation(
+    D2D1_SIZE_F size
+);
+
+//創建2D縮放矩陣
+static Matrix3x2F Scale(
+    FLOAT x,		//x軸縮放比例 1(原始大小) 2(2倍) ...
+    FLOAT y,
+    D2D1_POINT_2F centerPoint = D2D1::Point2F()
+);
+static Matrix3x2F Scale(
+    D2D1_SIZE_F size,
+    D2D1_POINT_2F centerPoint = D2D1::Point2F()
+);
+
+//創建2D旋轉矩陣
+static Matrix3x2F Rotation(
+    FLOAT angle,	//旋轉角度
+    D2D1_POINT_2F centerPoint = D2D1::Point2F()	//旋轉 點
+);
+
+//創建傾斜矩陣
+static Matrix3x2F Skew(
+    FLOAT angleX,	//x軸傾斜角度  逆時針
+    FLOAT angleY,	//y軸傾斜角度  順時針
+    D2D1_POINT_2F centerPoint = D2D1::Point2F()	//傾斜點
+);
+
+</pre>
+	</p>
+    
+     <p><font color="#FF0000">example</font>
+<pre>	case WM_PAINT:
+		{
+			//創建原始圖形
+			ID2D1RectangleGeometry* geometry_ptr;
+			assert(d2d_factory_ptr-&gt;CreateRectangleGeometry(D2D1::RectF(100,100,200,200),&amp;geometry_ptr)
+				== S_OK);
+			
+			//變換圖形
+			ID2D1TransformedGeometry* trans_ptr;
+			d2d_factory_ptr-&gt;CreateTransformedGeometry(geometry_ptr
+				,D2D1::Matrix3x2F::Translation(100,0)
+				,&amp;trans_ptr
+				);
+			geometry_ptr-&gt;Release();
+			d2d_target_ptr-&gt;BeginDraw();
+			d2d_target_ptr-&gt;Clear(D2D1::ColorF(D2D1::ColorF::White));	//以指定顏色 清除背景
+
+		
+				d2d_target_ptr-&gt;DrawGeometry(trans_ptr,d2d_brush_ptr);
+			
+			d2d_target_ptr-&gt;EndDraw();	//成功繪製返回 S_OK	
+			
+			trans_ptr-&gt;Release();
+		}
+		break;</pre>
+	</p>    
+</div>
+
+</td></tr></table>
+</body>
+</html>

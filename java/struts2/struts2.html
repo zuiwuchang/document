@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>struts2</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">struts2</font>
+</p>
+
+<p>
+	<a href="#struts2">struts2</a><br />
+    <a href="#get">環境配置</a><br />
+    <a href="#Controller">實現控制器</a><br />
+    <a href="#care">注意</a><br />
+    
+    
+    
+</p>
+
+
+<div class="mydiv"><a name="struts2"></a>
+	<p><font color="#FF0000">struts2</font>
+<pre>struts2 是一個apache下開源的 java ee MVC 框架
+
+官網<a href="http://struts.apache.org/development/2.x/">http://struts.apache.org/development/2.x/</a>
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="get"></a>
+	<p><font color="#FF0000">環境配置</font>
+<pre>1	從官網下載 最新版本 得到struts-2.3.16.3-all.zip
+
+2	解壓 將lib下 struts2-core-2.3.16.3.jar xwork-core-2.3.16.3.jar ognl-3.0.6.jar等 必備庫 複製到 項目的 WEB-INF/lib 路徑下
+(struts2 含有許多庫 一般 只包含必須庫 在需要更多功能時 才添加相應的庫)
+
+3	編輯web.xml 配置Filter
+web.xml
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0"&gt;
+  
+  &lt;!--定義struts2 的 FilterDispatcher 的 Filter--&gt;
+  &lt;filter>&gt;
+  		&lt;filter-name&gt;struts2&lt;/filter-name&gt;
+  		&lt;filter-class&gt;org.apache.Struts2.dispatcher.FilterDispatcher&lt;/filter-class&gt;
+  &lt;/filter&gt;
+  &lt;!--FilterDispatcher用來初始化 struts2 和處理所有web請求--&gt;
+  &lt;filter-mapping&gt;
+  		&lt;filter-name&gt;struts2&lt;/filter-name&gt;
+  		&lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+  &lt;/filter-mapping&gt;
+&lt;/web-app&gt;
+
+4	在WEB-INF下創建 classes文件夾 並創建(struts.xml)
+
+5	實現控制器
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">壓縮包 內容</font>
+<pre>apps	struts2示例
+docs	struts2相關文檔
+j4		包含讓struts2支持JDK1.4的jar文件
+lib		struts2核心類庫 第三方插件
+src		struts2全部源碼
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="Controller"></a>
+	<p><font color="#FF0000">實現控制器</font>
+<pre>當用戶 提交請求時 請求交給 struts2控制器處理 控制器依據處理結果 決定將哪個頁面呈現給客戶端
+
+struts2 的控制器(Action) 就是一個 包含有 execute 方法的普通 java類
+struts2 的攔截機制負責 解析用戶請求參數 並且將值設置到Action對應屬性中
+</pre>
+	</p>
+    <p><font color="#FF0000">example</font>
+<pre>package controller;
+
+public class LoginAction {
+	private String name;
+	private String password;
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getPassword() {
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	
+	//控制器execute方法
+	public String execute(){
+		if(getName().equals("dark")
+				&amp;&amp; getPassword().equals("dark")
+				){
+			return "success";
+		}
+		return "error";
+	}
+
+}
+
+
+
+//實現controller後 還需要 在 struts.xml中配置 Action
+        &lt;action name="login" class="controller.LoginAction"&gt;
+            &lt;result name="success"&gt;welcome.jsp&lt;/result&gt;
+            &lt;result name="error"&gt;error.jsp&lt;/result&gt;
+        &lt;/action&gt;
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="care"></a>
+	<p><font color="#FF0000">注意</font>
+<pre>最好 不要手動配置 struts2 設置
+將 apps 下任意示例項目 配置和jar 複製到項目 之後修改
+</pre>
+	</p>
+</div>
+    
+</td></tr></table>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>使用線程</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1>
+    	<a href="#API">線程api</a><br />
+        <a href="#thread">線程</a><br />
+        <a href="#care">線程成功關鍵</a><br />
+		
+    </h1></p>
+    
+    <div class="div_box"><a name="API"></a><h2>
+    	<p><font color="#FF0000">線程api</font>
+<pre>//CreateThread後 線程核心對象計數最少為2 因為 CreateThread使其+1(返回的HANDLE被線程擁有) 線程本身亦(擁有此核心對象)+1 
+//故要線程結束 且 CloseHandle 一次之後 線程核心對象才被清除
+<font color="#FF0000">//創建線程</font>
+HANDLE WINAPI CreateThread(					//失敗返回 FALSE 否則返回線程句柄	
+  __in_opt   LPSECURITY_ATTRIBUTES lpThreadAttributes,		//安全描述符 一般為NULL
+  __in       SIZE_T dwStackSize,				//新線程擁有自己的堆棧 0表示默認(1MB)
+  __in       LPTHREAD_START_ROUTINE lpStartAddress,		<font color="#FF0000">//新線程起始地址</font>
+  __in_opt   LPVOID lpParameter,				<font color="#FF0000">//傳入線程參數</font>
+  __in       DWORD dwCreationFlags,				<font color="#FF0000">//允許產生一個暫時掛起的線程 0(立即執行) CREATE_SUSPENDED(掛起)</font>
+  __out_opt  LPDWORD lpThreadId					//返回線程id 可為NULL	由於安全考慮 未提供由id到handle的取得方法
+);	PostThreadMessage	AttachThreadInput
+
+<font color="#FF0000">//線程函數聲明</font>
+DWORD WINAPI ThreadProc(
+  __in  LPVOID lpParameter
+);
+
+
+<font color="#FF0000">//使一個核心對象 引用計數減1</font>
+BOOL WINAPI CloseHandle(
+  __in  HANDLE hObject
+);
+
+
+//獲取線程返回代碼
+BOOL WINAPI GetExitCodeThread(
+  __in   HANDLE hThread,
+  __out  LPDWORD lpExitCode		//返回線程函數的返回值 若線程未結束返回STILL_ACTIVE  259
+);
+
+//強制結束當前線程	不推薦 這不會釋放線程資源 之後線程的任何代碼都無法執行
+VOID WINAPI ExitThread(
+  __in  DWORD dwExitCode		//指定線程退出碼
+);
+
+//恢復線程
+DWORD WINAPI ResumeThread(
+  __in  HANDLE hThread
+);
+
+//掛起線程
+DWORD WINAPI SuspendThread(
+  __in  HANDLE hThread
+);
+
+</pre>
+        </p>
+    </h2></div>
+    <div class="div_box"><a name="thread"></a><h2>
+    	<p><font color="#FF0000">主線程</font><br />
+        主線程數程序啟動後就執行的那個線程<br />
+        特點一	必須負責GUI 程序中的主要消息循環<br />
+        特點二	此線程結束 程序便結束 其他線程將沒有機會做清理工作
+        </p>
+        
+        <p><font color="#FF0000">線程分類</font><br />
+<pre>GUI線程負責創建窗口 以及處理主消息循環 。 一般而言GUI線程絕對不會去做那些不能夠馬上完成的工作
+worker線程負責執行純粹的運算工作
+
+gui線程:擁有消息隊列的線程，任何一個特點窗口的消息總是被產生這一窗口的線程抓取並處理。所以對此窗口的
+改變也都應該由該線程完成
+
+如果worker線程創建了一個窗口 那麼就會有消息隊列被扶著與此線程 於是worker線程變成了GUI線程
+如果worker線程需要輸入輸出 應該授權給UI線程來做 並且將結果通知給worker線程
+</pre>        
+        </p>
+	</h2></div>
+    
+    <div class="div_box"><a name="care"></a><h2>
+    	<p><font color="#FF0000">線程成功關鍵</font><br />
+1	各線程數據分開 避免使用全局變量<br />
+2	不要在線程之間共享GDI對象<br />
+3	確定了解線程狀態 不要徑直結束程序而不等待它們結束<br />
+4	讓主線程處理用戶界面(UI)
+        </p>
+ 	</h2></div>
+     
+    
+</td></tr></table>
+</body>
+</html>

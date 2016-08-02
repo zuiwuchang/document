@@ -1,0 +1,293 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>web</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">請求與響應</font>
+</p>
+
+<p>
+	<a href="#web">請求與響應</a><br /><br />
+    
+    <a href="#HttpServletRequest">HttpServletRequest</a><br />
+    <a href="#utf">參數亂碼</a><br />
+    <a href="#getReader">getReader 獲取body</a><br />
+    <a href="#getInputStream">getInputStream 上傳文件</a><br />
+    <a href="#getPart">getPart getParts 上傳文件</a><br />
+    <a href="#ajax">axaj 上傳文件</a><br />
+    <a href="#getRequestDispatcher">getRequestDispatcher 調派請求</a><br /><br />
+    
+    <a href="#HttpServletResponse">HttpServletResponse</a><br />
+</p>
+
+
+<div class="mydiv"><a name="web"></a>
+	<p><font color="#FF0000">請求與響應</font>
+<pre>http請求	到達	http服務器
+http服務器 將請求轉交給	容器
+容器	創建代表當次請求的 HttpServletRequest對象 並創建一個用於響應的HttpServletResponse對象
+容器找到響應的 Servlet 調用Servlet的 service 並傳入 HttpServletRequest HttpServletResponse
+service根據http請求方式 調用 對於的 do* 方法
+在do*中 使用 HttpServletRequest 獲取參數 HttpServletResponse.getWriter() 取得 PrintWriter對象
+使用PrintWriter輸出(可選)
+http 將 響應 回歸得 瀏覽器
+容器 銷毀  HttpServletRequest HttpServletResponse
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="HttpServletRequest"></a>
+	<p><font color="#FF0000">HttpServletRequest</font>
+<pre>HttpServletRequest 提供了接口用戶 獲取 請求參數 和 標頭
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">獲取請求參數</font>
+<pre>//返回 指定參數名 的參數值
+String param	=	request.getParameter("name");
+
+//返回 指定參數名 的參數值 (可能有多個同名參數 如url中指定多個同名參數 複選框 ...)
+String param[]	=	request.getParameterValues("name");
+
+//以map返回參數 參數值 (參數值為 String[] 可能有同名參數)
+Map&lt;String, String[]&gt; param	=	request.getParameterMap(); 
+param.get("name").length;
+
+//返回所有參數名
+Enumeration&lt;String&gt; names	=	request.getParameterNames();
+while(names.hasMoreElements())
+{
+	String name = names.nextElement();
+}
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">獲取請求參數</font>
+<pre>//返回 標題 值
+String value	=	request.getHeader("name");
+Enumeration&lt;String&gt; values	=	request.getHeaders("name");
+
+//返回所有表頭名
+Enumeration&lt;String&gt; names	=	request.getHeaderNames();
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="utf"></a>
+	<p><font color="#FF0000">參數亂碼</font>
+<pre>亂碼的原因在於 發出請求的頁面 和 獲取參數時使用了 不同編碼方式
+瀏覽器發送請求時 相當於做了 java.net.URLEncoder.encode(str,"UTF-8"); 加密
+服務器獲取請求時 相對於做了 java.net.URLDecoder.decode(str,"ISO-8859-1"); 解密
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">解決方式一</font>
+<pre>獲取參數 當前使用編碼的 byte 數組 
+之後 使用 請求頁面相同的編碼 重新構造 字符串
+
+//請求頁面使用 UTF-8	Servlet使用ISO-8859-1
+new String(request.getParameter("name").getBytes("ISO-8859-1"),"UTF-8");
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">解決方式二</font>
+<pre>使用 
+request.setCharacterEncoding("UTF-8");
+設置 獲取參數時 使用的編碼
+
+此方法對GET無效 setCharacterEncoding只對 body的內容有效
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="getReader"></a>
+	<p><font color="#FF0000">getReader 獲取body</font>
+<pre>使用  getReader 可以返回一個 BufferedReader 其中包含了所有 
+客戶端傳來的 body內容
+</pre>
+	</p>
+    <p><font color="#FF0000">example</font>
+<pre>request.setCharacterEncoding("UTF-8");
+		BufferedReader reader = request.getReader();
+		String body	=	"";
+		String tmp;
+		while((tmp	=	reader.readLine())	!=	null)
+		{
+			body	+=	tmp;
+		}
+		response.getWriter().println(body);
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="getInputStream"></a>
+	<p><font color="#FF0000">getInputStream 上傳文件</font>
+<pre>設置form 的enctype='multipart/form-data 即可 上傳文件
+
+服務的 通過 getInputStream 獲取文件數據
+然很 麻煩 Servlet3 提供了 getPart() getParts() 取得上次文件
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="getPart"></a>
+	<p><font color="#FF0000">getPart getParts 上傳文件</font>
+<pre>要使用 getPart getParts 需要在Servlet 前 增加標籤 @MultipartConfig
+
+@MultipartConfig
+@WebServlet("/ServletTest")
+
+
+對於多個文件上傳 可以使用 getParts() 返回 Collection&lt;Part&gt; 
+</pre>
+	</p>
+    
+	<p><font color="#FF0000">example</font>
+<pre>@MultipartConfig
+@WebServlet("/ServletTest")
+
+public class ServletTest extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       int x=0;
+ 
+ 	//...
+    
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		Part part = request.getPart("filename");
+		String name	=	getFileName(part);
+		
+		//當前項目路徑
+		String path	=	request.getSession().getServletContext().getRealPath("");
+		
+		path	+=	"/image/";
+		path	+=	name;
+		saveFile(path,part);
+	}
+	
+	//獲取文件名
+	private String getFileName(Part part)
+	{
+		String header	=	part.getHeader("Content-Disposition");
+		String name	=	header.substring(header.indexOf("filename=\"") + 10
+				,header.lastIndexOf("\"")
+				);
+		return name;
+	}
+	//寫入到文件
+	private void saveFile(String path,Part part)
+	{
+		InputStream in;
+		try {
+			in = part.getInputStream();
+			FileOutputStream out = new FileOutputStream(path);
+			byte[] buffer	=	new byte[1024];
+			int length	=	-1;
+			while((length = in.read(buffer))	!=	-1)
+			{
+				out.write(buffer,0, length);
+			}
+			in.close();
+			out.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+}
+
+
+//html
+	&lt;form method="post" action="ServletTest" name = "index" enctype='multipart/form-data'&gt;
+	文件名:&lt;input type='file' name = 'filename'&gt;
+	&lt;button type="submit"&gt;submit&lt;/button&gt;	
+	&lt;/form&gt;
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="ajax"></a>
+	<p><font color="#FF0000">ajax 上傳文件</font>
+<pre>ajax 上傳 之不過是 動態生成一個 iframe 然後使用此iframe 上傳
+
+</pre>
+	</p>
+    
+</div>
+
+<div class="mydiv"><a name="getRequestDispatcher"></a>
+	<p><font color="#FF0000">getRequestDispatcher 調派請求</font>
+<pre>request.getRequestDispatcher("other servlet")	可以返回一個RequestDispatcher 接口
+
+使用 RequestDispatcher.include 可以將 另外一個頁面的 響應 包含到當前位置
+(就像 使用 其相應代碼 替換了 include 一樣)
+RequestDispatcher r = request.getRequestDispatcher("ServletTest");
+r.include(request, response);
+		
+        
+使用 RequestDispatcher.forward 可以將 響應操作 轉交給 另外一個頁面(就像 一開始 就在請求 那個頁面一樣)
+RequestDispatcher r = request.getRequestDispatcher("ServletTest");
+r.forward(request, response);
+
+
+
+在include forward時 只有字符串參數 會被 傳遞給 另外一個 Servlet
+對於其他 參數 需要 使用 request 的 
+setAttribute(name, Object)			//設置屬性 名 值
+getAttribute(name)				//返回屬性名 對應值
+Enumeration&lt;String&gt; getAttributeNames();	//返回所有設置屬性名
+removeAttribute(name);				//移除屬性
+來傳遞
+(Servlet 在一個響應結束後 將自動清除 這些屬性 故 其生存期 只有一個響應期間)
+</pre>
+	</p>
+    
+   
+</div>
+
+<div class="mydiv"><a name="HttpServletResponse"></a>
+	<p><font color="#FF0000">HttpServletResponse</font>
+<pre>HttpServletResponse 用於 向客戶端 做出響應
+
+通常響應需要 先
+response.setCharacterEncoding("UTF-8");					//設置使用的字符編碼
+response.setContentType("text/html;charset=UTF-8");		//設置標題 瀏覽器需要根據標題 呈現服務器返回的數據
+
+之後使用
+response.getWriter()		//返回 字符輸出 流
+或
+response.getOutputStream()	//返回 二進制輸出 流
+想客戶端 返回數據
+
+
+//response讓瀏覽器 重新使用 get請求一個新的 頁面(重定向) 網頁顯示地址會改變
+//若不想地址欄變化 可以 使用 RequestDispatcher  的forward 轉發請求
+response.sendRedirect("url");
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	
+		response.setCharacterEncoding("UTF-8");
+		response.setContentType("text/html;charset=UTF-8");
+		
+		PrintWriter out = response.getWriter();
+		for(int i=0;i<10;++i)
+		{
+
+			out.println(i);
+		}
+	}
+</pre>
+	</p>
+</div>
+         
+</td></tr></table>
+</body>
+</html>

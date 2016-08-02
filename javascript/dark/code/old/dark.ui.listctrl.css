@@ -1,0 +1,25 @@
+@charset "utf-8";
+.dark_ui_listctrl {
+    margin: 0px;
+    width: 170px;
+    padding: 5px;
+    border: 1px solid #CCC;
+    border-radius: 5px;
+    background: #FCFCFC;
+	overflow-y: auto;
+	height:	300px;
+}
+
+.dark_ui_listctrl_list{
+	margin: 0px;
+}
+
+.dark_ui_listctrl_list_item[selected]{
+    background: rgba(112, 147, 216, 0.5);
+}
+
+.dark_ui_listctrl_list_item:hover{
+    background: rgba(112, 147, 216, 0.9);
+}
+
+

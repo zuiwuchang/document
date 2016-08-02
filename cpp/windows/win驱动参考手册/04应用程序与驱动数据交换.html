@@ -1,0 +1,378 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>应用程序与驱动数据交换</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1><a href="#DeviceIoControl">DeviceIoControl 方法</a></h1></p>
+    <p><h1><a href="#DeviceIoControlExample">DeviceIoControl example</a></h1></p>
+    <p><h1><a href="#buffer">DeviceIoControl example 缓冲区</a></h1></p>
+    <p><h1><a href="#other">DeviceIoControl example 其他</a></h1></p>
+    
+    <div class="div_box"><a name="DeviceIoControl"></a><h2>
+        <p><font color="#FF0000">DeviceIoControl方法</font><br />
+        CreateFile 打开驱动符号连接<br />
+        (驱动响应 IRP_MJ_CREATE irp)<br /><br />
+        
+        DeviceIoControl 定义操作 <br />
+        (驱动响应 IRP_MJ_DEVICE_CONTROL irp)<br /><br />
+        
+        CloseHandle 关闭句柄<br />
+        (驱动响应 IRP_MJ_CLOSE irp)
+        </p>
+        
+         <p><font color="#FF0000">DeviceIoControl函数声明</font><br />
+         <pre>BOOL WINAPI DeviceIoControl(
+  __in         HANDLE hDevice,  //要操作的设备句柄 由CreateFile返回
+  __in         DWORD dwIoControlCode, //控制码 驱动irp通过控制码 实现不同功能
+  __in_opt     LPVOID lpInBuffer,     //输入缓冲区
+  __in         DWORD nInBufferSize,   //...大小
+  __out_opt    LPVOID lpOutBuffer,    //输出缓冲区
+  __in         DWORD nOutBufferSize,  //...大小
+  __out_opt    LPDWORD lpBytesReturned,  //驱动实际操作字节 <font color="#FF0000">不能为NULL</font>
+  __inout_opt  LPOVERLAPPED lpOverlapped //重叠结构 一般为NULL
+);
+</pre>
+		</p>
+ 		<p><font color="#FF0000">dwIoControlCode控制码</font><br />
+ 		<pre>[Common |Device Type|Required Access|Custom|Function Code|Transfer Type]
+   31     30      16 15          14   13    12          2  1            0
+
+Common              31       用来设置用户设备类型
+Device Type         [16,30]  设备类型 
+Required Access     [14,15]  设备权限 如FILE_READ_DATA FILE_WRITE_DATA ...
+Custom              13       为1 用户定义 为0系统定义
+Function code       [2,12]   函数码
+Tranfer Type        [0,1]    传输类型 METHOD_IN_DIRECT(直接写入) METHOD_OUT_DIRECT(直接读取) METHOD_NEITHER(其他) METHOD_BUFFERED(缓冲区)
+
+</pre>
+         </p>
+         <p><font color="#FF0000">CTL_CODE宏 用于定义控制码</font><br />
+         <pre>#define CTL_CODE(DeviceType, Function, Method, Access) (
+  ((DeviceType) &lt;&lt; 16) | ((Access) &lt;&lt; 14) | ((Function) &lt;&lt; 2) | (Method))
+
+DeviceType 定义[16,31]设备类型
+Function   定义[2,13]函数代码 最高为为1才为用户自定义 故0x800开始为用户自定义
+Method     定义[0,1]传输类型
+Access     定义[14,15]权限</pre>
+         </p>
+         <p><font color="#FF0000">CTL_CODE宏 example</font><br />
+         <pre>//直接读写
+#define IOCTL_DIRECT_IN  CTL_CODE(FILE_DEVICE_UNKNOWN,0x800,METHOD_IN_DIRECT,FILE_WRITE_DATA | FILE_READ_DATA)
+#define IOCTL_DIRECT_OUT CTL_CODE(FILE_DEVICE_UNKNOWN,0x801,METHOD_OUT_DIRECT,FILE_WRITE_DATA | FILE_READ_DATA)
+//缓冲区读写
+#define IOCTL_DIRECT_BUFFER_IN  CTL_CODE(FILE_DEVICE_UNKNOWN,0x802,METHOD_BUFFERED,FILE_WRITE_DATA | FILE_READ_DATA)
+#define IOCTL_DIRECT_BUFFER_OUT CTL_CODE(FILE_DEVICE_UNKNOWN,0x803,METHOD_BUFFERED,FILE_WRITE_DATA | FILE_READ_DATA)
+//其他读写
+#define IOCTL_DIRECT_NEITHER_IN  CTL_CODE(FILE_DEVICE_UNKNOWN,0x804,METHOD_NEITHER,FILE_WRITE_DATA | FILE_READ_DATA)
+#define IOCTL_DIRECT_NEITHER_OUT CTL_CODE(FILE_DEVICE_UNKNOWN,0x805,METHOD_NEITHER,FILE_WRITE_DATA | FILE_READ_DATA)
+</pre>
+         </p>
+    </h2></div>
+	
+    <div class="div_box"><a name="DeviceIoControlExample"></a><h2>
+        <p><font color="#FF0000">DeviceIoControl example</font><br />
+        对于DeviceIoControl指定的<br />
+        输入缓冲区内容会被复制到 pIrp->AssociatedIrp.SystemBuffer<br />
+        传入长度在lpIoStack->Parameters.DeviceIoControl.InputBufferLength<br /><br />
+        输出缓冲区(pIrp->MdlAddress) 系统会将其锁定 并被映射到内核中(映射操作由程序员调用MmGetSystemAddressForMdlSafe完成)<br /> 
+        输出长度在lpIoStack->Parameters.DeviceIoControl.OutputBufferLength<br /><br />
+        数据操作长度由 pIrp->IoStatus.Information 设置
+        </p>
+        
+         <p><font color="#FF0000"><h1>driver example</h1></font><br />
+         <pre><font color="#FF0000">pDriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] = ControlDispatchRoutine;</font>
+         
+<font color="#FF0000">         #pragma PAGE_MEMORY
+NTSTATUS ControlDispatchRoutine(IN PDEVICE_OBJECT pDevObj,IN PIRP pIrp)</font>
+{
+	KdPrint(("ControlDispatchRoutine begin\n"));
+	
+	NTSTATUS status = STATUS_NOT_SUPPORTED;
+	pIrp->IoStatus.Information=0; //设置返回的实际操作字节数 无实意(既程序员自定)
+
+	//从irp堆栈结构中 获取设备对象的 irp 结构
+	PIO_STACK_LOCATION lpIoStack=IoGetCurrentIrpStackLocation(pIrp);
+
+	//如果成功获取到 irp 结构
+	if(lpIoStack)
+	{
+		//判断控制码
+		switch(lpIoStack->Parameters.DeviceIoControl.IoControlCode)
+		{
+		case IOCTL_DIRECT_IN://写如到驱动
+
+			KdPrint(("case IOCTL_DIRECT_IN\n"));
+			status=WriteDirectIn(pIrp,lpIoStack->Parameters.DeviceIoControl.InputBufferLength,lpIoStack->Parameters.DeviceIoControl.OutputBufferLength);
+			break;
+		case IOCTL_DIRECT_OUT://从驱动读数据到用户层
+			status=ReadDirectOut(pIrp,lpIoStack->Parameters.DeviceIoControl.InputBufferLength,lpIoStack->Parameters.DeviceIoControl.OutputBufferLength);
+			break;
+		}
+
+	}
+
+	//设置pIrp状态 否则驱动无法继续进行其他工作
+	pIrp->IoStatus.Status=STATUS_SUCCESS;//返回成功
+	IoCompleteRequest( pIrp, IO_NO_INCREMENT );
+	KdPrint(("ControlDispatchRoutine end\n"));
+	return status;
+}
+
+<font color="#FF0000">
+#pragma PAGE_MEMORY
+NTSTATUS WriteDirectIn(IN PIRP pIrp,ULONG inSize,ULONG outSize)</font>
+{
+	KdPrint(("WriteDirectIn begin\n"));
+	NTSTATUS status = STATUS_SUCCESS;
+
+	//获取用户层传入的 输入缓冲区内容拷贝 的地址
+	PVOID lp_input_buffer=pIrp->AssociatedIrp.SystemBuffer,
+		lp_output_buffer=NULL;
+
+	//如果传入了输出缓冲区
+	if(pIrp->MdlAddress)
+	{
+		//锁定输出缓冲区 并映射到内核以供 驱动使用
+		lp_output_buffer=MmGetSystemAddressForMdlSafe(pIrp->MdlAddress,NormalPagePriority );
+	}
+
+	KdPrint(("WriteDirectIn inSize=%d outSize=%d %S\n",inSize,outSize,lp_input_buffer));
+	
+	UNICODE_STRING unicode_string;
+	RtlInitUnicodeString(&unicode_string,L"写入数据成功");
+	RtlCopyMemory(lp_output_buffer,unicode_string.Buffer,unicode_string.Length);
+	
+	
+	pIrp->IoStatus.Information=unicode_string.Length;
+
+	KdPrint(("WriteDirectIn end%d\n"));
+
+	return status;
+}
+
+<font color="#FF0000">
+#pragma PAGE_MEMORY
+NTSTATUS ReadDirectOut(IN PIRP pIrp,ULONG inSize,ULONG outSize)</font>
+{
+	KdPrint(("ReadDirectOut begin\n"));
+	NTSTATUS status = STATUS_SUCCESS;
+
+	
+	PVOID lp_output_buffer=NULL;
+
+	//如果传入了输出缓冲区
+	if(pIrp->MdlAddress)
+	{
+		//锁定输出缓冲区 并映射到内核以供 驱动使用
+		lp_output_buffer=MmGetSystemAddressForMdlSafe(pIrp->MdlAddress,NormalPagePriority );
+	}
+
+	KdPrint(("ReadDirectOut inSize=%d outSize=%d\n",inSize,outSize));
+	
+	UNICODE_STRING unicode_string;
+	RtlInitUnicodeString(&unicode_string,L"读取数据成功");
+	RtlCopyMemory(lp_output_buffer,unicode_string.Buffer,unicode_string.Length);
+	
+	pIrp->IoStatus.Information=unicode_string.Length;
+
+	KdPrint(("ReadDirectOut end%d\n"));
+
+	return status;
+}
+         </pre>
+         </p>
+         
+          <p><font color="#FF0000"><h1>user example</h1></font><br />
+          <pre>#include&lt;WinIoCtl.h&gt;
+<font color="#FF0000">void CloaderDriverDlg::OnBnClickedButtonWrite()</font>
+{
+	CString wcs,link_name;
+	GetDlgItemText(IDC_EDIT_WRITE,wcs);
+	GetDlgItemText(IDC_EDIT2,link_name);
+	wcs.Trim();
+	link_name.Trim();
+	if(wcs.IsEmpty() || link_name.IsEmpty() || wcs.GetLength()>BUFFER_SIZE-1)
+	{
+		return;
+	}
+
+	HANDLE handle_file = CreateFile(link_name.GetBuffer(),GENERIC_WRITE | GENERIC_READ,0,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0);
+
+	if( handle_file ==INVALID_HANDLE_VALUE)
+	{
+		MessageBox(L"无法打开指定设备");
+		return;
+	}
+	
+	wchar_t in_buffer[BUFFER_SIZE]={0},
+		out_buffer[BUFFER_SIZE]={0};
+	wcscpy_s(in_buffer,_countof(in_buffer),wcs.GetBuffer());
+	
+	DWORD out_size;
+	if(!DeviceIoControl(handle_file, IOCTL_DIRECT_IN, in_buffer, (wcslen(in_buffer)+1)*sizeof(wchar_t), out_buffer, sizeof(wchar_t)*BUFFER_SIZE, &out_size, NULL))
+	{
+		wcs.Format(L"DeviceIoControl 失败 ErrorCode=%d",GetLastError());
+		MessageBox(wcs);
+	}
+
+	CloseHandle(handle_file);
+	wcs.Format(L"%d output %s",out_size,out_buffer);
+	SetDlgItemText(IDC_EDIT_OUT,wcs);
+}
+    
+<font color="#FF0000">void CloaderDriverDlg::OnBnClickedButtonRead()</font>
+{
+	CString wcs,link_name;
+	GetDlgItemText(IDC_EDIT2,link_name);
+	link_name.Trim();
+	if(link_name.IsEmpty())
+	{
+		return;
+	}
+
+	HANDLE handle_file = CreateFile(link_name.GetBuffer(),GENERIC_WRITE | GENERIC_READ,0,NULL,OPEN_EXISTING,0,0);
+
+	if( handle_file ==INVALID_HANDLE_VALUE)
+	{
+		MessageBox(L"无法打开指定设备");
+		return;
+	}
+	wchar_t out_buffer[BUFFER_SIZE]={0};
+	
+	DWORD out_size;
+	if(!DeviceIoControl(handle_file, IOCTL_DIRECT_OUT, NULL, 0, out_buffer, sizeof(wchar_t)*BUFFER_SIZE, &out_size, NULL))
+	{
+		wcs.Format(L"DeviceIoControl 失败 ErrorCode=%d",GetLastError());
+		MessageBox(wcs);
+	}
+
+	CloseHandle(handle_file);
+	wcs.Format(L"%d output %s",out_size,out_buffer);
+	SetDlgItemText(IDC_EDIT_READ,wcs);
+}
+          </pre>
+          </p>
+	</h2></div>
+	 <div class="div_box"><a name="buffer"></a><h2>
+        <p><font color="#FF0000">DeviceIoControl example 缓冲区</font><br />
+        缓冲区模式下 系统先把写入 内容 拷贝到 pIrp->AssociatedIrp.SystemBuffer<br />
+        同时 输出时将 pIrp->AssociatedIrp.SystemBuffer 指向的内容拷贝给 用户输出缓冲区
+        </p>
+        
+        <pre>#pragma PAGE_MEMORY
+NTSTATUS WriteDirectBufferIn(IN PIRP pIrp,ULONG inSize,ULONG outSize)
+{
+	KdPrint(("WriteDirectBufferIn begin\n"));
+	NTSTATUS status = STATUS_SUCCESS;
+	
+	//获取用户层传入的 输入缓冲区内容拷贝 的地址
+	PVOID lp_input_buffer=pIrp->AssociatedIrp.SystemBuffer,
+		lp_output_buffer=pIrp->AssociatedIrp.SystemBuffer; //缓冲区模式 输入输出 是同一地址
+
+
+	UNICODE_STRING unicode_string;
+	RtlInitUnicodeString(&unicode_string,L"写入数据成功");
+	RtlCopyMemory(lp_output_buffer,unicode_string.Buffer,unicode_string.Length);
+	
+	pIrp->IoStatus.Information=unicode_string.Length;
+
+
+	KdPrint(("WriteDirectBufferIn end\n"));
+	return status;
+}
+
+#pragma PAGE_MEMORY
+NTSTATUS ReadDirectBufferOut(IN PIRP pIrp,ULONG inSize,ULONG outSize)
+{
+	KdPrint(("ReadDirectBufferOut begin\n"));
+	NTSTATUS status = STATUS_SUCCESS;
+	
+	PVOID lp_output_buffer=pIrp->AssociatedIrp.SystemBuffer;
+
+	UNICODE_STRING unicode_string;
+	RtlInitUnicodeString(&unicode_string,L"读取数据成功");
+	RtlCopyMemory(lp_output_buffer,unicode_string.Buffer,unicode_string.Length);
+	
+	pIrp->IoStatus.Information=unicode_string.Length;
+
+	KdPrint(("ReadDirectBufferOut end\n"));
+	return status;
+}</pre>
+   	 </h2></div>
+	 <div class="div_box"><a name="other"></a><h2>
+        <p><font color="#FF0000">DeviceIoControl example 其他</font><br />
+       <pre>#pragma PAGE_MEMORY
+NTSTATUS WriteDirectNettherIn(IN PIRP pIrp,ULONG inSize,ULONG outSize)
+{
+	KdPrint(("WriteDirectNettherIn begin\n"));
+	NTSTATUS status = STATUS_SUCCESS;
+	
+	//从irp堆栈结构中 获取设备对象的 irp 结构
+	PIO_STACK_LOCATION lpIoStack=IoGetCurrentIrpStackLocation(pIrp);
+
+	__try
+	{
+		//获取输入缓冲区
+		PVOID lp_input_buffer=lpIoStack->Parameters.DeviceIoControl.Type3InputBuffer;
+		//判断缓冲区是否可读 不可读 抛出异常
+		ProbeForRead(lp_input_buffer,inSize,
+			1);//内存对齐
+
+		//获取输出缓冲区
+		PVOID lp_output_buffer=pIrp->UserBuffer;
+		ProbeForWrite(lp_output_buffer,outSize,1);
+
+		UNICODE_STRING unicode_string;
+		RtlInitUnicodeString(&unicode_string,L"写入数据成功");
+		RtlCopyMemory(lp_output_buffer,unicode_string.Buffer,unicode_string.Length);
+		
+		pIrp->IoStatus.Information=unicode_string.Length;
+
+	}
+	__except(EXCEPTION_EXECUTE_HANDLER)
+	{
+		KdPrint(("缓冲区不可访问"));
+	}
+	
+	
+	KdPrint(("WriteDirectNettherIn begin\n"));
+	return status;
+}
+#pragma PAGE_MEMORY
+NTSTATUS ReadDirectNettherOut(IN PIRP pIrp,ULONG inSize,ULONG outSize)
+{
+	KdPrint(("ReadDirectNettherOut begin\n"));
+	NTSTATUS status = STATUS_SUCCESS;
+	
+	//从irp堆栈结构中 获取设备对象的 irp 结构
+	PIO_STACK_LOCATION lpIoStack=IoGetCurrentIrpStackLocation(pIrp);
+	__try
+	{
+		//获取输出缓冲区
+		PVOID lp_output_buffer=pIrp->UserBuffer;
+		ProbeForWrite(lp_output_buffer,outSize,1);
+
+		UNICODE_STRING unicode_string;
+		RtlInitUnicodeString(&unicode_string,L"写入数据成功");
+		RtlCopyMemory(lp_output_buffer,unicode_string.Buffer,unicode_string.Length);
+		
+		pIrp->IoStatus.Information=unicode_string.Length;
+
+	}
+	__except(EXCEPTION_EXECUTE_HANDLER)
+	{
+		KdPrint(("缓冲区不可访问"));
+	}
+	KdPrint(("ReadDirectNettherOut begin\n"));
+	return status;
+}</pre>
+        </p>
+  	</h2></div>
+</td></tr></table>
+</body>
+</html>

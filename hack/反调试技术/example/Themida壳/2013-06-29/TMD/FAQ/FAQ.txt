@@ -1,0 +1,5 @@
+win7 32
+复制anti.txt 到 c:\
+
+修改anti.txt 内容为 进程名
+anti.txt是以 unicode 保存的 且内容不能有空格

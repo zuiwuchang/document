@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>design-pattern</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#command-pattern">command-pattern 命令模式</a>
+		<a href="#example">example</a>
+	</div>
+
+	<div class="note"><a name="command-pattern"></a>
+		<p><span class="flag">command-pattern 命令模式</span>
+<pre>命令模式 將請求封裝成對象 
+以使用 不同的 請求 隊列 日誌 來參數數其對象
+命令模式也 可以支持 撤消操作
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="example"></a>
+		<p><span class="flag">example</span>
+<pre>設想 你要完成1個 遊戲 過場
+過場中 可能需要 對不同的 元素 執行 不同的 操作
+</pre>
+		</p>
+		<p><span class="flag">example code</span>
+<pre>package main
+
+import (
+	"fmt"
+)
+
+//命令 接口
+type CommandInterface interface {
+	Execute()
+}
+type RoleInterface interface {
+	Talk()
+	Move()
+}
+type Npc struct {
+}
+
+func (n *Npc) Talk() {
+	fmt.Println("NPC talk")
+}
+func (n *Npc) Move() {
+	fmt.Println("NPC Move")
+}
+
+type Monster struct {
+}
+
+func (m *Monster) Talk() {
+	fmt.Println("Monster talk")
+}
+func (m *Monster) Move() {
+	fmt.Println("Monster Move")
+}
+
+//定義 命令
+type CommandTalk struct {
+	r RoleInterface
+}
+
+func (c *CommandTalk) Execute() {
+	c.r.Talk()
+}
+
+type CommandMove struct {
+	r RoleInterface
+}
+
+func (c *CommandMove) Execute() {
+	c.r.Move()
+}
+
+func main() {
+	var c CommandInterface
+	c = &CommandTalk{&Npc{}}
+	c.Execute()
+	c = &CommandMove{&Npc{}}
+	c.Execute()
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

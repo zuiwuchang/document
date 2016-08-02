@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>傳奇私服</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">触发功能</font>
+</p>
+
+<p>
+	<a href="#server">触发功能</a><br />
+    <a href="#child">調用子腳本</a><br />
+    <a href="#Trigger">觸發</a><br />
+    <a href="#open">自动解包</a><br />
+   
+</p>
+
+
+<div class="mydiv"><a name="server"></a>
+	<p><font color="#FF0000">触发功能</font>
+<pre>E:\MirServer\Mir200\Envir\Market_Def\QFunction-0.txt 中定義 功能 代碼 如 觸發指令
+</pre>
+	</p>
+</div>    
+
+<div class="mydiv"><a name="child"></a>    
+    <p><font color="#FF0000">調用子腳本</font>
+<pre>#CALL [\path] @code
+(調用子 腳本
+#CALL [\装备回收.txt] @装备回收)
+
+path 為子腳本相對E:\MirServer\Mir200\Envir\QuestDiary路徑
+@code 為被調用 程序段
+(<font color="#FF0000">被調用程序段 必須 以 {} 擴起來</font>)
+
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>;MirServer\Mir200\Envir\Market_Def\QFunction-0.txt
+;此脚为功能脚本，用于实现各种与脚本有关的功能
+;人物升级触发
+[@PlayLevelUp]
+#ACT
+	#CALL	[back30.txt] @main
+
+
+;MirServer\Mir200\Envir\QuestDiary\back30.txt
+[@main]
+{
+#IF
+	CheckMapName	SELF	G008
+#ACT
+	GOTO @lv20	
+BREAK
+
+
+[@lv20]
+#IF
+	CHECKLEVELEX > 30
+#ACT
+	mapmove	3	330	330
+BREAK
+
+}
+</pre>
+	</p>
+</div>    
+
+<div class="mydiv"><a name="Trigger"></a>    
+    <p><font color="#FF0000">觸發</font>
+<pre>
+</pre>
+	</p>
+    
+     <p><font color="#FF0000">双机物品 触发</font>
+<pre>修改 物品数据库 对应物品 STDMODE 字段值为 31/2	
+(为2 的物品可以使用多次 duramax/1000為可使用次數)
+编辑 Mir200\Envir\market_def\QFunction-0.txt
+
+//X为 物品数据库 中AniCount字段值
+[@StdModeFuncX]		
+</pre>
+	</p>
+</div>    
+
+<div class="mydiv"><a name="open"></a>    
+    <p><font color="#FF0000">自动解包</font>
+<pre>//设置数据库 字段
+普通/特殊	药品名称	stdmode		shape		anicount
+
+普通		强效金创药	0		0		100 
+普通		超级金创药	31		100		1 
+
+普通		强效魔法药	0		0		101 
+普通		超级魔法药	31		101		2 
+
+特殊		疗伤药		0		1		112 
+特殊		打捆疗伤药	31		112		3
+
+设置物品类型
+打包物品 stdmode=31	anicount 1（红药） 2（蓝药） 3（特殊）
+普通物品 stdmode=0
+
+打包物品 的shape = 普通物品 的anicount 代表 解包對應
+
+編輯 MirServer\Mir200\Envir\UnbindList.txt 啟用解包設置
+;解开打包文件
+;打包物品shape 解包得到藥品 
+112	疗伤药
+...
+</pre>
+	</p>
+</div>
+
+</td></tr></table>
+</body>
+</html>

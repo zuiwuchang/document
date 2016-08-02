@@ -1,0 +1,274 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>WIN32程序基本概率</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">WIN32程序基本概率</font>
+</p>
+
+<p>
+	<a href="#WIN32">WIN32程序基本概率</a><br />
+    <a href="#program">Windows程序的生與死</a><br />
+    <a href="#OnIdle">空閒時間</a><br />
+</p>
+
+
+<div class="mydiv"><a name="WIN32"></a>
+	<p><font color="#FF0000">WIN32程序基本概率</font>
+<pre>註冊窗口類
+創建窗口
+分發消息
+處理消息
+</pre>
+    </p>
+    
+    <p><font color="#FF0000">基本框架</font><br />
+<pre>
+
+#define MAX_LOADSTRING 100
+
+// 全局变量:
+HINSTANCE hInst;								// 当前实例
+TCHAR szTitle[MAX_LOADSTRING];					// 标题栏文本
+TCHAR szWindowClass[MAX_LOADSTRING];			// 主窗口类名
+
+// 此代码模块中包含的函数的前向声明:
+ATOM				MyRegisterClass(HINSTANCE hInstance);
+BOOL				InitInstance(HINSTANCE, int);
+LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
+
+<font color="#FF0000">//入口點</font>
+int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
+                     _In_opt_ HINSTANCE hPrevInstance,
+                     _In_ LPTSTR    lpCmdLine,
+                     _In_ int       nCmdShow)
+{
+	UNREFERENCED_PARAMETER(hPrevInstance);
+	UNREFERENCED_PARAMETER(lpCmdLine);
+
+ 	// TODO: 在此放置代码。
+	MSG msg;
+	HACCEL hAccelTable;
+
+	// 初始化全局字符串
+	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
+	LoadString(hInstance, IDC_WIN32PROJECT1, szWindowClass, MAX_LOADSTRING);
+	
+	<font color="#FF0000">//註冊窗口類</font>
+	MyRegisterClass(hInstance);
+
+	// 执行应用程序初始化:
+	<font color="#FF0000">//創建窗口</font>
+	if (!InitInstance (hInstance, nCmdShow))
+	{
+		return FALSE;
+	}
+
+	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WIN32PROJECT1));
+
+	// 主消息循环:
+	<font color="#FF0000">//分發消息</font>
+	while (GetMessage(&msg, NULL, 0, 0))	//取得消息
+	{
+		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+		{
+			TranslateMessage(&msg);		//轉換鍵盤消息
+			DispatchMessage(&msg);		//將消息分發到窗口函數
+		}
+	}
+
+	return (int) msg.wParam;
+}
+
+
+
+//
+//  函数: MyRegisterClass()
+//
+//  目的: 注册窗口类。
+//
+//<font color="#FF0000">註冊窗口函數</font>
+ATOM MyRegisterClass(HINSTANCE hInstance)
+{
+	WNDCLASSEX wcex;
+
+	wcex.cbSize = sizeof(WNDCLASSEX);
+
+	wcex.style			= CS_HREDRAW | CS_VREDRAW;
+	wcex.lpfnWndProc	= WndProc;								<font color="#FF0000">//指定消息響應函數</font>
+	wcex.cbClsExtra		= 0;
+	wcex.cbWndExtra		= 0;
+	wcex.hInstance		= hInstance;
+	wcex.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_WIN32PROJECT1));
+	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
+	wcex.hbrBackground	= (HBRUSH)(COLOR_WINDOW+1);
+	wcex.lpszMenuName	= MAKEINTRESOURCE(IDC_WIN32PROJECT1);
+	wcex.lpszClassName	= szWindowClass;					<font color="#FF0000">//指定窗口類名</font>
+	wcex.hIconSm		= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+
+	return RegisterClassEx(&wcex);	//註冊窗口
+}
+
+//
+//   函数: InitInstance(HINSTANCE, int)
+//
+//   目的: 保存实例句柄并创建主窗口
+//
+//   注释:
+//
+//        在此函数中，我们在全局变量中保存实例句柄并
+//        创建和显示主程序窗口。
+//
+//<font color="#FF0000">創建窗口函數</font>
+BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
+{
+   HWND hWnd;
+
+   hInst = hInstance; // 将实例句柄存储在全局变量中
+   //創建窗口
+   hWnd = CreateWindow(szWindowClass		//<font color="#FF0000">註冊的窗口類名</font>
+	   , szTitle, WS_OVERLAPPEDWINDOW,
+      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
+
+   if (!hWnd)
+   {
+      return FALSE;
+   }
+
+   //顯示窗口
+   ShowWindow(hWnd, nCmdShow);
+   //給窗口發送一個 WM_PAIN 以刷新界面
+   UpdateWindow(hWnd);
+
+   return TRUE;
+}
+
+//
+//  函数: WndProc(HWND, UINT, WPARAM, LPARAM)
+//
+//  目的: 处理主窗口的消息。
+//
+//  WM_COMMAND	- 处理应用程序菜单
+//  WM_PAINT	- 绘制主窗口
+//  WM_DESTROY	- 发送退出消息并返回
+//
+//
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	int wmId, wmEvent;
+	PAINTSTRUCT ps;
+	HDC hdc;
+
+	switch (message)
+	{
+	case WM_COMMAND:
+		wmId    = LOWORD(wParam);
+		wmEvent = HIWORD(wParam);
+		// 分析菜单选择:
+		switch (wmId)
+		{
+		case IDM_ABOUT:
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+			break;
+		case IDM_EXIT:
+			DestroyWindow(hWnd);
+			break;
+		default:
+			return DefWindowProc(hWnd, message, wParam, lParam);
+		}
+		break;
+	case WM_PAINT:
+		hdc = BeginPaint(hWnd, &ps);
+		// TODO: 在此添加任意绘图代码...
+		EndPaint(hWnd, &ps);
+		break;
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+	<font color="#FF0000">default:
+		return DefWindowProc(hWnd, message, wParam, lParam);</font>
+	}
+	return 0;
+}
+
+// “关于”框的消息处理程序。
+INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	UNREFERENCED_PARAMETER(lParam);
+	switch (message)
+	{
+	case WM_INITDIALOG:
+		return (INT_PTR)TRUE;
+
+	case WM_COMMAND:
+		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+		{
+			EndDialog(hDlg, LOWORD(wParam));
+			return (INT_PTR)TRUE;
+		}
+		break;
+	}
+	return (INT_PTR)FALSE;
+}
+
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">注意</font><br />
+    所有的消息 都必須被處理 所以 窗口函數中 需要<br />
+<pre>    default:
+		return DefWindowProc(hWnd, message, wParam, lParam);
+</pre>        
+    </p>
+</div>
+<div class="mydiv"><a name="program"></a>
+	<p><font color="#FF0000">WIN32程序基本概率</font>
+<pre>1	程序初始化過程中調用 CreateWindow 創建一個窗口,之後CreateWindow會發出 WM_CREATE 給窗口函數
+	(可以在此進行配置內存 打開文件 讀取數據等操作)
+2	程序不斷調用 GetMessage 從消息隊列獲取消息 如果消息是WM_QUIT GetMessage返回0 結束while循環 進而結束整個程序
+3	DispatchMessage 通過 windows user模塊的協助與監督 把消息分發給窗口函數
+	(窗口函數處理收到的消息)
+4	程序不斷重複 2 3
+
+5	當使用者按下菜單的Close命令時 系統發出WM_CLOSE 通常窗口函數不攔截此消息 於是由DefWindowProc處理
+6	DefWindowProc收到 WM_CLOSE 後 調用DestroyWindow 把窗口清除 DefWindowProc又發出WM_DESTROY
+7	窗口函數對WM_DESTROY的標準反應是調用 PostQuitMessage(0)
+8	PostQuitMessage(0) 發出 WM_QUIT消費 進入步驟2
+</pre>    
+    </p>
+</div>
+<div class="mydiv"><a name="OnIdle"></a>
+	<p><font color="#FF0000">空閒時間</font><br />
+    所謂空閒時間(idle time) 指系統中沒有任何消息等待處理的時間<br /><br />
+    要處理空閒時間 需要以 PeekMessage 取代 GetMessage<br /><br />
+    
+    當沒有消息時 GetMessage會等待消息 而PeekMessage會返回FALSE
+    </p>
+    <p><font color="#FF0000">eaxmple</font>
+<pre>while(true)
+	{
+		if(PeekMessage(&msg, NULL, 0, 0,PM_REMOVE))
+		{
+			if(msg.message	==	WM_QUIT)
+			{
+				break;
+			}
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		else
+		{
+			//處理空閒時間	OnIdle()...
+		}
+	}</pre>    
+    </p>
+</div>
+</td></tr></table>
+</body>
+</html>

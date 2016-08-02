@@ -1,0 +1,298 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>wxwidgets</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#section">代碼段</a>
+		<a href="#var">系統變量</a>
+		<a href="#if">條件 判斷</a>
+		<a href="#lv">等級 相關</a>
+		<a href="#gold">貨幣 相關</a>
+		<a href="#job">職業 相關</a>
+		<a href="#items">裝備 相關</a>
+		<a href="#dogs">寵物相關 相關</a>
+
+		<a href="#effect">特效 相關</a>
+		
+	</div>
+
+	<div class="note"><a name="section"></a>
+		<p><span class="flag">代碼段</span>
+<pre><span class="care">[@段名]</span> 定義一個代碼段
+#ACT	後面代碼 作為腳本 執行
+		<span class="care">GOTO @段名</span> 執行代碼段
+#SAY	... 显示界面
+			使用 <span class="care">&lt;顯示文本/@段名&gt;</span> 執行代碼段
+			使用 <span class="care">\</span>換行
+
+
+BREAK	act 結束標記 (其實似乎沒什麼用)
+CLOSE	<span class="care">後面的代碼依然會執行</span> 關閉對話框
+</pre>
+		</p>
+		<p><span class="flag">調用子腳本</span>
+<pre>//路徑 是以Mir200\Envir\QuestDiary 為當前路徑
+#Call [路徑] 段名
+
+被調用的 段 必須使用 {} 擴起來
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>[@callmob]
+#ACT
+	#CALL [\dark\clock.txt] @test
+	#CALL [\dark\clock.txt] @test2
+
+
+<span class="care">QuestDiary\dark\clock.txt</span>
+[@test]
+{
+#ACT
+	GoTo @show
+
+[@show]
+#SAY
+	yes
+}
+
+[@test2]
+{
+#SAY
+	2
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="var"></a>
+		<p><span class="flag">系統變量</span>
+<pre>P0-P9 私人变量(数字型) 不可保存
+G0-G99 全局变量(数字型) 可保存
+M0-M99 私人变量(数字型) 不可保存
+I0-I99 全局变量(数字型) 不可保存
+D0-D9 私人变量(数字型) 不可保存
+N0-N99 私人变量(数字型) 不可保存
+S0-S99 私人变量(字符型) 不可保存
+A0-A999 全局变量(字符型) 可保存 
+
+注意：自定义变量不要以P、G、M、I、D、N、S、A开头
+</pre>
+		</p>
+		<p><span class="flag">操作</span>
+<pre>使用 類似 彙編的方式 操作(自定義變量 也可這樣 操作)
+//l = r
+MOV l r
+
+//l -= r
+DEC l r
+
+//l += r
+INC l r
+SUM l r
+
+//v = l / r
+DIV v l r
+
+//v = l * r
+MUL v l r
+
+//v = l / r * 100
+PERCENT v l r
+
+
+
+//判斷 l&lt;r 是否為真
+SMALL l r
+
+//判斷 l&gt;r 是否為真
+LARGE l r
+
+//判斷 字符串 是否相等(對於字符串 比較 不區分大小寫)
+EQUAL 變量 字符串
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>EQUAL 操作 的右值 不能是 變量
+
+SMALL LARGE 如果 右值 為 變量 其可能存在 bug 
+(會將 值作為字符串比較 即使 是 數字)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="if"></a>
+		<p><span class="flag">條件 判斷</span>
+<pre>#IF
+	<span class='care'>CheckLevelEx &lt; 20</span>
+	<span class='care'>CheckLevelEx &gt; 10</span>
+#SAY
+	<span class='care'>ture</span> 
+#ELSESAY
+	<span class='care'>false</span> 
+
+
+
+#IF
+	<span class='care'>CheckLevelEx &gt; 998</span>
+#ACT
+	<span class='care'>MapMove 3 296 304</span> 
+#ELSESAY
+	<span class='care'>false</span>
+
+
+
+#IF
+<span class='care'>CheckLevelEx &gt; 998</span>
+#SAY
+	<span class='care'>ture </span>
+#ELSEACT
+	<span class='care'>MapMove 3 296 304</span>
+</pre>
+		</p>
+
+		<p><span class="flag">條件 判斷</span>
+<pre>//隨機產生 判斷結果 為真的機會為 1/n
+Random n
+
+//如果 自己在 指定地圖 坐標 範圍(0 指定點)內 返回 真 
+CheckInMapRange [map] [x] [y] [range]
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>#IF 後 接多個 判斷 相當於 &amp;&amp;
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="lv"></a>
+		<p><span class="flag">等級 相關</span>
+<pre>//檢測等級
+CheckLevelEx &lt;/&gt;/= n
+
+//提升/降低/設置 等級
+ChangeLevel +/-/= n
+
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="gold"></a>
+		<p><span class="flag">貨幣 相關</span>
+<pre>//檢測元寶
+CheckGameGold &lt;/&gt;/= n
+
+//提升/降低/設置 元寶
+GameGold +/-/= n
+
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="job"></a>
+		<p><span class="flag">職業 相關</span>
+<pre>//檢測/轉變 職業
+CheckJob	warrior/wizard/taoist
+ChangeJob	warrior/wizard/taoist
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>
+#IF
+	CheckJob warrior
+#SAY
+	战士
+#ACT
+BREAK
+
+#IF
+	CheckJob wizard
+#SAY
+	法师
+#ACT
+BREAK
+
+#IF
+	CheckJob taoist
+#SAY
+	道士
+#ACT
+BREAK
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="items"></a>
+		<p><span class="flag">裝備 相關</span>
+<pre>
+
+//穿裝備
+TakeOnItem 裝備名 位置
+
+//取下裝備
+TakeOffItem 裝備名 位置
+TakeOffItem not 位置 (不限制名稱)
+
+</pre>
+		</p>
+		<p><span class="flag">裝備 位置</span>
+<pre>0 盔甲
+1 武器
+2 照明物
+3 项链
+4 头盔
+5 右手镯
+6 左手镯
+7 右戒指
+8 右戒指
+9 护身符
+10 腰带
+11 鞋子
+12 宝石
+13 斗笠
+14 鼓
+15 马牌
+16 玉
+17 时装
+</pre>
+		</p>
+
+	</div>
+
+	<div class="note"><a name="dogs"></a>
+		<p><span class="flag">寵物相關 相關</span>
+<pre>//召喚 小狗
+ReCallMob 狗名 [等級(最高7)] [叛變時間(分鐘)] [0/1(是否自動變色)] [固定顏色([1,7])]
+
+
+//檢查 小狗 數量
+ChecksLaveCount &lt;=&gt; n
+
+//殺死 全部 小狗
+KillsLave
+
+//殺死 指定 小狗
+KillsLave 狗名
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="effect"></a>
+		<p><span class="flag">特效 相關</span>
+<pre>//在指定 地圖 位置 製造 指定時間段(單位：秒) 噴泉
+FounTain [map] [x] [y] [time]
+
+//在指定 地圖 位置 製造 指定效果 指定時間段(單位：秒) 的特效
+GmExecute Mobfireburn  [map] [x] [y] [effect] [time] 0
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+

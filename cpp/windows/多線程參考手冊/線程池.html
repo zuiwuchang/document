@@ -1,0 +1,324 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>線程池</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1>
+    	<a href="#pools">線程池</a><br /> 
+    	<a href="#CreateThreadpoolWork">以異步方式調用函數 CreateThreadpoolWork</a><br />
+        <a href="#CreateThreadpoolTimer">每隔一段時間調用一個函數 CreateThreadpoolTimer</a><br />
+        <a href="#CreateThreadpoolWait">在內核對象變為激發態時調用一個函數 CreateThreadpoolWait</a><br />
+        <a href="#CreateThreadpoolIo">當IO完成時調用一個函數 CreateThreadpoolIo</a><br />
+        <a href="#hinstance">回調函數終止操作 </a><br />
+        <a href="#createpool">定制線程池 </a><br />
+        
+    </h1></p>
+    
+    <div class="div_box"><a name="pools"></a><h2>
+    	<p><font color="#FF0000">線程池</font><br />
+		win32提供了線程池函數 用以提供線程池的方便管理<br />
+        應用程序會有一個默認的線程池 不會佔用任何資源 但如果程序調用了線程池函數 系統將為進程初始化線程池<br />
+        並且直到進程結束才能清除線程池資源<br />
+        
+        
+        </p>
+   	</h2></div>
+    
+    <div class="div_box"><a name="CreateThreadpoolWork"></a><h2>
+    	<p><font color="#FF0000">以異步方式調用函數 CreateThreadpoolWork</font><br />
+		使線程池以異步方式來執行一個函數<br />
+        
+        </p>
+        
+        <p><font color="#FF0000">方法一 使用TrySubmitThreadpoolCallback 向線程池提交一個請求</font><br />
+<pre>//失敗返回 FALSE (如 內存不足等)
+BOOL WINAPI TrySubmitThreadpoolCallback(
+  __in         PTP_SIMPLE_CALLBACK pfns,		//線程池執行的函數
+  __inout_opt  PVOID pv,						//傳遞給函數的參數
+  __in_opt     PTP_CALLBACK_ENVIRON pcbe		//NULL(進程默認線程池)	提交到哪個線程池
+);
+
+//線程池執行 函數聲明
+VOID CALLBACK SimpleCallback(
+  __inout      PTP_CALLBACK_INSTANCE Instance,
+  __inout_opt  PVOID Context
+);
+</pre>        
+        </p>
+        
+        <p><font color="#FF0000">方法二 先創建工作項 再把工作項 提交到線程池</font><br />
+<pre>//創建一個工作項 失敗返回NULL
+PTP_WORK WINAPI CreateThreadpoolWork(
+  __in         PTP_WORK_CALLBACK pfnwk,
+  __inout_opt  PVOID pv,
+  __in_opt     PTP_CALLBACK_ENVIRON pcbe
+);
+
+//線程池執行 函數聲明
+VOID CALLBACK WorkCallback(
+  __inout      PTP_CALLBACK_INSTANCE Instance,
+  __inout_opt  PVOID Context,
+  __inout      PTP_WORK Work
+);
+
+//將工作項 提交到線程池
+VOID WINAPI SubmitThreadpoolWork(
+  __inout  PTP_WORK pwk
+);
+
+
+//在不需要項時 應該關閉工作項 
+VOID WINAPI CloseThreadpoolWork(
+  __inout  PTP_WORK pwk
+);
+
+
+//撤銷工作項
+VOID WINAPI WaitForThreadpoolWorkCallbacks(
+  __inout  PTP_WORK pwk,
+  __in     BOOL fCancelPendingCallbacks
+);
+如果工作項尚未提交 函數立刻返回
+
+fCancelPendingCallbacks 取<font color="#FF0000">TRUE</font> 函數會試圖取消提交此工作項
+(如果線程 <font color="#FF0000">正在處理</font>此工作項 函數不做操作 等待線程處理完畢
+如果線程 <font color="#FF0000">未處理</font>此工作項 工作項將被從線程池中 移除 然後函數返回)
+(如果一個工作項 被多次提交 函數將只等待 當前正在處理的工作完成)
+
+fCancelPendingCallbacks 取<font color="#FF0000">FALSE</font>
+(函數等待 此工作項完畢 並且線程也已經回收並準備好處理下一個工作項為止 才返回)
+(如果一個工作項 被多次提交 函數將等待 所有提交的工作項完成)
+
+</pre>        
+        </p>
+        
+        <p><font color="#FF0000">注意</font><br />
+        創建的工作項 可以多次傳遞給SubmitThreadpoolWork<br />
+        <font color="#FF0000">CloseThreadpoolWork 和 線程等內核對象的CloseHandle似乎是不同的 應該在工作項不再被使用時 關閉</font>
+        </p>
+   	</h2></div>
+   	
+    <div class="div_box"><a name="CreateThreadpoolTimer"></a><h2>
+    	<p><font color="#FF0000">每隔一段時間調用一個函數 CreateThreadpoolTimer</font><br />
+		向線程池註冊 一個定時器工作項 以讓線程池 每隔一段時間調用一個函數<br />
+        </p>
+        <p><font color="#FF0000">相關API</font><br />
+<pre>//創建工作項
+PTP_TIMER WINAPI CreateThreadpoolTimer(
+  __in         PTP_TIMER_CALLBACK pfnti,
+  __inout_opt  PVOID pv,
+  __in_opt     PTP_CALLBACK_ENVIRON pcbe
+);
+
+//線程池執行 函數聲明
+VOID CALLBACK TimerCallback(
+  __inout      PTP_CALLBACK_INSTANCE Instance,
+  __inout_opt  PVOID Context,
+  __inout      PTP_TIMER Timer
+);
+
+//向線程池 註冊 定時器
+VOID WINAPI SetThreadpoolTimer(
+  __inout   PTP_TIMER pti,
+  __in_opt  PFILETIME pftDueTime,	//指向 FILETIME 結構 第一次執行回調時間 (-1立刻執行) (&lt;0 以<font color="#FF0000">微秒</font>為單位相對現在時間) (&gt; 以100納秒為單位 相對1600年1月1日時間)
+  __in      DWORD msPeriod,		//0只執行一次 否則為 定時器時間間隔<font color="#FF0000">微妙</font>
+  __in_opt  DWORD msWindowLength	//增加定時器隨機性 定時器 將增加 [0,msWindowLength] 之間隨機的時間間隔誤差
+);
+
+//返回一個 定時器 工作項 是否註冊
+BOOL WINAPI IsThreadpoolTimerSet(
+  __inout  PTP_TIMER pti
+);
+
+
+//在不需時 應該關閉工作項
+VOID WINAPI CloseThreadpoolTimer(
+  __inout  PTP_TIMER pti
+);
+
+//同WaitForThreadpoolWorkCallbacks
+VOID WINAPI WaitForThreadpoolTimerCallbacks(
+  __inout  PTP_TIMER pti,
+  __in     BOOL fCancelPendingCallbacks
+);
+
+</pre>        
+        </p>
+        
+        <p><font color="#FF0000">注意</font><br />
+        SetThreadpoolTimer 的 pftDueTime 傳入 NULL 可以將註冊的定時器 從線程棧中撤銷註冊<br />
+        
+        <font color="#FF0000">CloseThreadpoolTimer 關閉定時器後 線程棧將不再執行回調</font>
+        </p>
+  	</h2></div>
+    
+     <div class="div_box"><a name="CreateThreadpoolWait"></a><h2>
+    	<p><font color="#FF0000">在內核對象變為激發態時調用一個函數 CreateThreadpoolWait</font><br />
+		在內核對象變為激發態時調用一個函數<br />
+        </p>
+        <p><font color="#FF0000">相關API</font><br />
+<pre>//創建一個等待對象
+PTP_WAIT WINAPI CreateThreadpoolWait(
+  __in         PTP_WAIT_CALLBACK pfnwa,
+  __inout_opt  PVOID pv,
+  __in_opt     PTP_CALLBACK_ENVIRON pcbe
+);
+
+//線程池執行 函數
+VOID CALLBACK WaitCallback(
+  __inout      PTP_CALLBACK_INSTANCE Instance,
+  __inout_opt  PVOID Context,
+  __inout      PTP_WAIT Wait,
+  __in         TP_WAIT_RESULT WaitResult	//表示回調被調用的原因 (WAIT_ABANDONED_0 內核對象是一個互斥量 互斥量被遺棄) (WAIT_OBJECT_0 內核對象被觸發) (WAIT_TIMEOUT 超時)
+
+
+);
+
+//註冊一個 句柄到 線程池
+VOID WINAPI SetThreadpoolWait(
+  __inout   PTP_WAIT pwa,
+  __in_opt  HANDLE h,
+  __in_opt  PFILETIME pftTimeout	//等待超時 (NULL一直等待) (&lt;0 相對現在時間) (&gt; 絕對時間)
+);
+
+//等待
+VOID WINAPI WaitForThreadpoolWaitCallbacks(
+  __inout  PTP_WAIT pwa,
+  __in     BOOL fCancelPendingCallbacks
+);
+
+//關閉
+VOID WINAPI CloseThreadpoolWait(
+  __inout  PTP_WAIT pwa
+);
+
+</pre>        
+        </p>
+        
+        <p><font color="#FF0000">注意</font><br />
+        線程池 內部會以 WaitForMultipleObjects 等待句柄<br />
+        WaitForMultipleObjects 不能傳入相同的 HANDLE 故 不可以SetThreadpoolWait 為同一個HANDLE 註冊<br /><br />
+        
+        當一個內核對象 觸發回調後 需要再次調用SetThreadpoolWait 註冊
+        </p>
+  	</h2></div>      
+   <div class="div_box"><a name="CreateThreadpoolIo"></a><h2>
+    	<p><font color="#FF0000">當IO完成時調用一個函數 CreateThreadpoolIo</font><br />
+		當IO完成時調用一個函數<br />
+        </p>
+        
+         <p><font color="#FF0000">相關API</font><br />
+<pre>//創建一個線程池IO對象
+PTP_IO WINAPI CreateThreadpoolIo(
+  __in         HANDLE fl,						//一個以FILE_FLAG_OVERLAPPED打開的io句柄
+  __in         PTP_WIN32_IO_CALLBACK pfnio,
+  __inout_opt  PVOID pv,
+  __in_opt     PTP_CALLBACK_ENVIRON pcbe
+);
+
+//線程池執行	函數
+VOID CALLBACK IoCompletionCallback(
+  __inout      PTP_CALLBACK_INSTANCE Instance,
+  __inout_opt  PVOID Context,
+  __inout_opt  PVOID Overlapped,			//重疊操作時 傳入的重疊結構
+  __in         ULONG IoResult,				//操作結果 io操作成功 為 NO_ERROR
+  __in         ULONG_PTR NumberOfBytesTransferred, //已傳輸字節數
+  __inout      PTP_IO Io
+);
+
+//關聯 線程池 餘 io
+VOID WINAPI StartThreadpoolIo(
+  __inout  PTP_IO pio
+);
+ 
+//發出io請求後 讓線程池停止回調
+VOID WINAPI CancelThreadpoolIo(
+  __inout  PTP_IO pio
+);
+    
+//等待
+VOID WINAPI WaitForThreadpoolIoCallbacks(
+  __inout  PTP_IO pio,
+  __in     BOOL fCancelPendingCallbacks
+);
+
+//關閉
+VOID WINAPI CloseThreadpoolIo(
+  __inout  PTP_IO pio
+);
+</pre>
+         </p>
+         
+         <p><font color="#FF0000">注意</font><br />
+         在每次io前 都需要調用StartThreadpoolIo 否則 回調函數將不會被調用
+         </p>
+         
+   </h2></div>
+   <div class="div_box"><a name="hinstance"></a><h2>
+    	<p><font color="#FF0000">回調函數終止操作</font><br />
+		線程池 回調函數 都會傳入一個 PTP_CALLBACK_INSTANCE Instance 的回調實例<br /><br />
+        通過 傳入此 實例 調用一些函數 以告訴線程池 如何更好地工作
+        </p>
+        <p><font color="#FF0000">可用函數</font><br />
+<pre>//回調結束 時 LeaveCriticalSection
+VOID WINAPI LeaveCriticalSectionWhenCallbackReturns(
+  __inout  PTP_CALLBACK_INSTANCE pci,
+  __inout  PCRITICAL_SECTION pcs
+);
+
+//... ReleaseMutex
+VOID WINAPI ReleaseMutexWhenCallbackReturns(
+  __inout  PTP_CALLBACK_INSTANCE pci,
+  __in     HANDLE mut
+);
+
+//... ReleaseSemaphore
+VOID WINAPI ReleaseSemaphoreWhenCallbackReturns(
+  __inout  PTP_CALLBACK_INSTANCE pci,
+  __in     HANDLE sem,
+  __in     DWORD crel
+);
+
+//... SetEvent
+VOID WINAPI SetEventWhenCallbackReturns(
+  __inout  PTP_CALLBACK_INSTANCE pci,
+  __in     HANDLE evt
+);
+
+//... FreeLibrary
+VOID WINAPI FreeLibraryWhenCallbackReturns(
+  __inout  PTP_CALLBACK_INSTANCE pci,
+  __in     HMODULE mod
+);
+
+//<font color="#FF0000">告訴線程池 此回調可能要很長時間此啊返回</font>
+BOOL WINAPI CallbackMayRunLong(
+  __inout  PTP_CALLBACK_INSTANCE pci
+);
+
+//<font color="#FF0000">告訴線程池 邏輯上自己已經完成了工作 ,使WaitForThreadpool...而被阻塞的線程 返回</font>
+VOID WINAPI DisassociateCurrentThreadFromCallback(
+  __inout  PTP_CALLBACK_INSTANCE pci
+);
+
+</pre>		
+        </p>
+   </h2></div>     
+   
+   <div class="div_box"><a name="createpool"></a><h2>
+    	<p><font color="#FF0000">定制線程池</font><br />
+		除了使用默認線程池外 可以自己創建新的線程池
+        </p>
+        <p><font color="#FF0000">相關API</font><br />
+
+
+        </p>
+  	</h2></div>
+</td></tr></table>
+</body>
+</html>

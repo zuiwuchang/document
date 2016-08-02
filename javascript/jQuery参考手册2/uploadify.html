@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>jQuery参考手册2</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#uploadify">uploadify</a>
+		<a href="#set">配置</a>
+	</div>
+	<div class="note"><a name="uploadify"></a>
+		<p><span class="flag">uploadify</span>
+<pre>uploadify 是一個 JQuery插件 用於支持 文件上傳
+官網 <a target="_blank" href="http://www.uploadify.com/">http://www.uploadify.com/</a>
+
+uploadify 有flash版本 和 html5版本(此版本收費)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="set"></a>
+		<p><span class="flag">配置</span>
+<pre>1	從官網下載 flash版本
+2	解壓 將 uploadify.swf uploadify-cancel.png 複製到項目
+	將jquery1.4以上版本 jquery.uploadify.min.js uploadify.css 引入項目
+3	在html中 編寫一個 intput type = 'file' 元素
+4	使用jquery 綁定 input元素 與 uploadify
+5	編寫後台響應的servlet代碼
+</pre>
+		</p>
+		<p><span class="flag">html example</span>
+<pre>...
+&lt;script src="library/jquery-1.8.3.min.js" type="text/javascript"&gt;&lt;/script&gt;
+&lt;script src="library/uploadify/jquery.uploadify.min.js" type="text/javascript"&gt;&lt;/script&gt;
+&lt;link rel="stylesheet" type="text/css" href="library/uploadify/uploadify.css"&gt;
+
+&lt;script src="scripts/my.js" type="text/javascript"&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+	&lt;input id="uploadify" name="uploadify" type="file"&gt;
+	 
+	&lt;a href="javascript:$('#uploadify').uploadify('upload')"&gt;上傳首個&lt;/a&gt;  
+	&lt;a a href="javascript:$('#uploadify').uploadify('cancel')"&gt;取消上傳首個&lt;/a&gt;    
+	&lt;a href="javascript:$('#uploadify').uploadify('upload','*')"&gt;上傳所有&lt;/a&gt;  
+	&lt;a href="javascript:$('#uploadify').uploadify('cancel','*')"&lt;取消所有上傳&lt;/a&gt; 
+&lt;/body&gt;
+...
+</pre>
+		</p>
+		<p><span class="flag">js example</span>
+<pre>	$('#uploadify').uploadify({'swf': '../scripts/uploadify/uploadify.swf'	,	//上傳flash
+		'uploader' : 'AddImage',						//後台保存文件響應頁面
+		'formData':{'folder':''},						//傳遞給後台的參數 
+		'queueSizeLimit' : 5,							//文件大小限制 單位 mb  
+		'fileDesc' : 'jpg or png or gif',  
+		'fileExt' : '*.jpg;*.png;*.gif', 					//限制上傳擴展名 需同時指定fileDesc  
+		'auto' : true,  							//是否自動上傳(默認true)
+		'multi' : true,  							//是否支持多文件上傳
+		'simUploadLimit' : 2,  
+		'buttonText' : '选择文件',						//按鈕顯示文本
+    		
+    		//事件綁定 可選
+    		'onSelect' : function(file) {					//當文件添加到隊列後  
+	            alert( 'id: ' + file.id  
+	                    + '\n索引: ' + file.index  
+	                    + '\n文件名: ' + file.name  
+	                    + '\n文件大小: ' + file.size  
+	                    + '\n類型: ' + file.type  
+	                    + '\n創建日期: ' + file.creationdate  
+	                    + '\n修改日期: ' + file.modificationdate  
+	                    + '\n文件狀態: ' + file.filestatus);  
+	        },  
+	        'onSelectError' : function(file,errorCode,errorMsg) {		//當選擇出錯時
+                alert('error code: ' + errorCode  
+                    + '\nerror message: ' + errorMsg);  
+            },  
+            'onDialogClose' : function(swfuploadifyQueue) {			//文件選擇框 關閉後  
+                if( swfuploadifyQueue.filesErrored > 0 )
+                {  
+                    alert( '添加至队列时有'  
+                        +swfuploadifyQueue.filesErrored  
+                        +'个文件发生错误n'  
+                        +'错误信息:'  
+                        +swfuploadifyQueue.errorMsg  
+                        +'n选定的文件数:'  
+                        +swfuploadifyQueue.filesSelected  
+                        +'n成功添加至队列的文件数:'  
+                        +swfuploadifyQueue.filesQueued  
+                        +'n队列中的总文件数量:'  
+                        +swfuploadifyQueue.queueLength);  
+                }
+                else
+                {
+                	alert("no error");
+                }
+            },  
+            'onQueueComplete' : function(stats) {									//所有文件上傳完後  
+                alert( '成功上傳文件數:: ' + stats.successful_uploads  
+                    + '\n上傳出錯文件數: ' + stats.upload_errors  
+                    + '\n取消上傳文件數: ' + stats.upload_cancelled  
+                    + '\n出錯文件數' + stats.queue_errors);  
+            },  
+            'onUploadComplete' : function(file,swfuploadifyQueue) {		//當有文件上傳成功後  
+            	 if( swfuploadifyQueue.filesErrored > 0 ){
+            		 alert("unload "+ file.name + "error");
+            	 }
+            	 else{
+            		 alert("unload "+ file.name + "succcess");
+            	 }
+            },  
+            'onUploadError' : function(file,errorCode,errorMsg,errorString,swfuploadifyQueue) {	//每次上傳出錯時  
+            	alert('onUploadError : ' + file.name);
+            },
+            'onUploadProgress' : function(file,fileBytesLoaded,fileTotalBytes,queueBytesLoaded,swfuploadifyQueueUploadSize) {//上传进度发生变更时触发
+            	alert('onUploadProgress : ' + file.name);
+            },
+            'onUploadStart': function(file) {//上传开始时触发（每个文件触发一次） 
+            	alert('onUploadStart : ' + file.name);
+            },
+            'onUploadSuccess' : function(file,data,response) {//上传完成时触发（每个文件触发一次）  
+            	alert('onUploadSuccess : ' + file.name);
+            }
+		});
+	
+	});
+</pre>
+		</p>
+		<p><span class="flag">servlet example</span>
+<pre>...
+protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		//獲取預設的 文件上傳目錄
+		String directory	=	(String) getServletContext().getAttribute("upload_directory");
+		
+		//根據當前項目路徑 獲取文件上傳絕對目錄 
+		String path	=	request.getSession().getServletContext().getRealPath(directory);
+		path	+=	"\\";
+		
+		//跟據參數 獲取上傳位置
+		String folder = request.getParameter("folder");
+		if(folder != null){
+			folder	=	folder.trim();
+			if(!folder.equals("")){
+				path +=  folder +"\\";
+			}
+		}
+		
+		//遍歷上傳文件
+		Collection&lt;Part&gt; parts = request.getParts();		
+		for(Part part:parts){
+			String file	=	getFileName(part);
+			if(file	!=	null)
+			{
+				file	=	path + file;
+				//保存文件
+				saveFile(file,part);
+			}
+		}
+		
+	}
+	private String getFileName(Part part){
+		String header	=	part.getHeader("Content-Disposition");
+		String name = part.getName();
+		if(name.equals("Filedata")){
+			name	=	header.substring(header.indexOf("filename=\"") + 10
+					,header.lastIndexOf("\"")
+					);
+			
+			return name;
+		}
+		return null;
+	}
+	//寫入到文件
+	private void saveFile(String path,Part part){
+		InputStream in;
+		try {
+			in = part.getInputStream();
+			FileOutputStream out = new FileOutputStream(path);
+			byte[] buffer	=	new byte[1024];
+			int length	=	-1;
+			while((length = in.read(buffer))	!=	-1)
+			{
+				out.write(buffer,0, length);
+			}
+			in.close();
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}        
+    ...
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

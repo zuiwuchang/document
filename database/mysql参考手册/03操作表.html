@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>操作表</title>
+</head>
+<body>
+<table align="center"><tr><td>
+	<p>
+	<h2>
+    <a href="#create">创建表</a><br />
+    <a href="#modify">修改表</a><br />
+    <a href="#drop">删除表</a><br />
+    </h2>
+    </p>
+    
+    <p>
+    <h3>
+    <a name='create'>
+    <font color="#FF0000">创建表</font><br />
+    create table name(id int primary key auto_increment,test int not null unique default 123)engine=innodb;<br />
+	create table name(id int,id1 int,primary key(id,id1));<br />
+    外键 constraint 外键别名 foreign key (属性1,属性2,...) references 表名(属性1,属性2,...);<br />
+    查看表结构<br />
+    desc 表名<br />
+    show create table 表名<br />
+    </a>
+    </h3>
+    </p>
+    
+    <p>
+    <h3>
+    <a name='modify'>
+    <font color="#FF0000">修改表</font>
+    <table border="2">
+    <tr><td>作用</td><td>语法</td></tr>
+    <tr><td>修改表名</td><td>alter table 旧表名 rename 新表名</td></tr>
+    <tr><td>修改字段名</td><td>alter table 表名 change 旧字段名 新字段名 新数据类型</td></tr>
+    <tr><td>修改字段数据类型</td><td>alter table 表名 modify 字段名 数据类型</td></tr>
+    <tr><td>修改完整约束</td><td>alter table 表名 modify 字段名 数据类型 完整约束</td></tr>
+    <tr><td>修改字段位置</td><td>alter table 表名 modify 字段名 数据类型 after 字段名;/(first)</td></tr>
+    <tr><td>删除字段</td><td>alter table 表名 drop 字段名</td></tr>
+    <tr><td>增加字段</td><td>alter table 表名 add 字段 数据类型 完整约束 ;/first /after 字段</td></tr>
+    <tr><td>删除外键约束</td><td>alter table 表名 drop foreign key 外键别名</td></tr>
+    <tr><td>更改存储引擎</td><td>alter table 表名 engine=存储引擎名</td></tr>
+    
+    </table>
+    </a>
+    </h3>
+    </p>
+    
+    <p>
+    <h3>
+    <a name="drop">
+    <font color="#FF0000">删除表</font>
+    <br />drop table 表名
+    <br />若待删除的表是其他表的父表 需先删除外键约束 或子表
+    </a>
+    </h3>
+    </p>
+    
+</td></tr></table>
+</body>
+</html>

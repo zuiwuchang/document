@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>dark</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">bitmap</font>
+</p>
+
+<p>
+	<a href="#bitmap">bitmap</a><br />
+   	<a href="#bitmap16">16位位圖</a><br />
+    <a href="#bitmap8">8位位圖</a><br />
+   
+</p>
+
+
+<div class="mydiv"><a name="bitmap"></a>
+	<p><font color="#FF0000">bitmap</font>
+<pre>BMP既BitMap 是windows圖形系統下內部使用的一種位圖格式
+其由三部分組成
+	位圖文件頭(14字節)
+	位圖信息頭(40字節)
+	位圖信息(調色板等 根據位圖格式變化而不同)
+	像素信息    
+
+		typedef struct _BITMAP_HEADER_
+		{
+			char[2]		sign;			//位圖標記一般為 ASCII BM 0x42 0x4D
+			DWORD		file_size;		//文件大小
+			WORD		reserved1;		//保留 未使用
+			WORD		reserved2;		//保留 未使用
+			DWORD		data_offset;	//位圖數據 偏移
+		}BITMAP_HEADER,*PBITMAP_HEADER;
+
+
+    
+typedef struct tagBITMAPINFOHEADER{
+  DWORD  biSize; 			//信息頭大小 40
+  LONG   biWidth; 			//圖像寬(像素)
+  LONG   biHeight; 			//圖像高(像素)
+  WORD   biPlanes; 			//位平面數 為1
+  WORD   biBitCount; 		//每像素位數 1/4/8/16/24
+  DWORD  biCompression; 	//壓縮類型 0(不壓縮)
+  DWORD  biSizeImage; 		//壓縮圖像大小
+  LONG   biXPelsPerMeter; 	//水平分辨率
+  LONG   biYPelsPerMeter; 	//垂直分辨率
+  DWORD  biClrUsed; 		//使用色彩數
+  DWORD  biClrImportant; 	//重複色彩數
+} BITMAPINFOHEADER, *PBITMAPINFOHEADER; 
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="bitmap16"></a>
+	<p><font color="#FF0000">16位位圖	565</font>
+<pre>16位位圖 每個像素使用16位存儲 
+在信息頭之後是 3個DWORD的 紅綠藍顏色掩碼(556才使用)
+(XRGB555)555格式的DWORD值為	0x7C00	0x03E0	0x001F
+(RGB565)556格式的DWORD值為	0xF800	0x07E0	0x001F
+
+若biCompression 為BI_RGB (#define BI_RGB        0L)	
+則最高位保留設為0 最低5位表示藍 中間5位表示綠 剩下5位表示紅 (此格式被稱為 555 16位位圖)
+否則為565格式
+
+若讀取到一556格式顏色為x則
+r	=	x &amp; 0xF800 &gt;&gt; 8
+g	=	x &amp; 0x07E0 &gt;&gt; 3
+b	=	x &amp; 0x001F &lt;&lt; 3
+
+556格式常用與遊戲 因為其顏色最接近真彩 而又比真彩文件小很多
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="bitmap8"></a>
+	<p><font color="#FF0000">8位位圖</font>
+<pre>8位位圖 在學校頭之後 緊跟 DWORD[256] 的調色板 
+再之後是圖像數據 每個圖像數據使用 8位表示 其值代表 顏色 在調色板中 的索引
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>void CMAPDlg::OnBnClickedButton1()
+{
+	int index	=	GetDlgItemInt(IDC_EDIT1);
+
+	std::pair&lt;int,int&gt; size	=	wix.GetImageSize(index);
+	
+	Gdiplus::Graphics graphics(m_hWnd);
+
+	Gdiplus::Bitmap bitmap(size.first,size.second);
+	
+	boost::shared_ptr&lt;Gdiplus::BitmapData&gt; bitmap_data_ptr	=	boost::make_shared&lt;Gdiplus::BitmapData&gt;();
+
+	//設置調色板 sizeof(Gdiplus::ColorPalette) + (調色板顏色-1) *sizeof(DWORD)
+	Gdiplus::ColorPalette* palette_ptr	=	(Gdiplus::ColorPalette*)malloc(sizeof(Gdiplus::ColorPalette) + 255 *sizeof(DWORD));
+	palette_ptr-&gt;Count	=	256;
+	palette_ptr-&gt;Flags	=	0;
+	for(int i=0;i&lt;256;++i)
+	{
+		palette_ptr->Entries[i]	=	wix.wil_header_.palette[i] | 0xFF000000;	//增加A分量
+	}
+	bitmap.SetPalette(palette_ptr);
+	free(palette_ptr);
+	
+	bitmap.LockBits(&amp;Gdiplus::Rect(0,0,size.first,size.second),Gdiplus::ImageLockModeWrite,PixelFormat8bppIndexed,bitmap_data_ptr.get());
+	memcpy(bitmap_data_ptr-&gt;Scan0,wix.GetImageData(index)-&gt;data(),wix.GetImageData(index)-&gt;size());
+	bitmap.UnlockBits(bitmap_data_ptr.get());
+
+	//數據是直接從文件讀取的 故需要翻轉圖片
+	bitmap.RotateFlip(Gdiplus::Rotate180FlipX);		//文件存儲數據和內存數據正好相反(故相當於旋轉了180度)
+	
+	graphics.DrawImage(&amp;bitmap
+		,Gdiplus::Point(50,50)
+		);
+}
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">注意</font>
+<pre>8位調色板 一般不包含A分量 而現在 GDI+等操作 多了個A(透明分量) 屬性需要為調色板顏色增加分量
+</pre>
+	</p>
+</div>
+    
+</td></tr></table>
+</body>
+</html>

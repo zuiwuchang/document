@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>事件</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#keyboard">键盘</a>
+		<a href="#often">常用事件</a>
+	</div>
+	<div class="note"><a name="keyboard"></a>
+		<p><span class="flag">键盘</span>
+<pre>function onKeyUp(_e){
+	//获取有效键盘事件
+	var e=_e?_e:window.event;
+
+	//判断具体哪个键 13是回车
+	if(e.keyCode==13);{
+}
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="often"></a>
+		<p><span class="flag">常用事件</span>
+			<table>
+				<tr><td>事件</td><td>描述</td></tr>
+				<tr><td>onblur</td><td>失去焦点</td></tr>
+				<tr><td>onchange</td><td>对象改变</td></tr>
+				<tr><td>onclick</td><td>鼠标单击</td></tr>
+				<tr><td>onfocus</td><td>获得焦点</td></tr>
+				<tr><td>onload</td><td>载入网页</td></tr>
+				<tr><td>onmouseout</td><td>鼠标移出</td></tr>
+				<tr><td>onmouseover</td><td>鼠标移入</td></tr>
+				<tr><td>onselect</td><td>选取对象</td></tr>
+				<tr><td>onsubmit</td><td>提交表单</td></tr>
+				<tr><td>onunload</td><td>卸载网页</td></tr>
+			</table>
+		</p>
+	</div>
+</div>
+</body>
+</html>

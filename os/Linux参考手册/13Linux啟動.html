@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Linux啟動</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1>
+    	<p><font color="#FF0000">13Linux啟動</font><br />  	
+		</p>
+        
+        <a href="#start">啟動流程</a> <br />
+        <a href="#init">init配置文件</a> <br />
+        <a href="#runlevel">runlevel n切換執行等級</a> <br />
+        <a href="#module">內核模塊</a> <br />
+        
+    </h1></p>
+    
+    <div class="div_box"><a name='start'></a><h3>
+    	<p><font color="#FF0000">啟動流程</font><br />
+      	1.加載BIOS的硬件信息與自我檢查，並取得第一個可啟動設備<br />
+        2.讀取第一個啟動設備內MBR的boot loader<br />
+        3.依據boot loader加載kerbel,檢查硬件 加載驅動<br />
+        4.在驅動加載成功後，kernel調用init進程<br />
+        5.init執行 /etc/rc.d/rc.sysinit 文件準備軟件執行環境<br />
+        6.init執行 run-level的各個服務<br />
+        <font color="#FF0000">7.init執行 /etc/rc.d/rc.local 文件內命令(故可在此增加 自定義啟動項)</font><br />
+        8.init執行 終端機模擬程序 mingetty啟動 login進程,等待用戶登錄
+        </p>
+ 
+  	</h3></div>
+    
+    <div class="div_box"><a name='init'></a><h3>
+	    <p><font color="#FF0000">init配置文件</font><br />
+        init會依據/etc/inittab進程 工作
+
+<pre>#默認啟動等級
+id:<font color="#FF0000">5</font>:initdefault:
+</pre>
+        </p>
+    </h3></div>
+    <div class="div_box"><a name='runlevel'></a><h3>
+    	<p><font color="#FF0000">runlevel n切換執行等級</font><br />
+        對於不同的執行等級 會啟動不同的 服務 切換到相應等級 會關閉非本級別指定的服務 打開本級別指定的服務<br />
+<pre>0 - halt (Do NOT set initdefault to this)	系統直接關機
+1 - Single user mode	單用戶維護模式 用在系統出問題時的維護
+2 - Multiuser, without NFS (The same as 3, if you do not have networking)	類似runlevel3 但無NFS服務
+3 - Full multiuser mode	包含完整網絡功能的純文本模式
+4 - unused	系統保留功能
+5 - X11		與runlevel3類似 但包含 X Window
+6 - reboot (Do NOT set initdefault to this)	重啟
+
+</pre>
+        </p>
+  	</h3></div>
+    <div class="div_box"><a name='module'></a><h3>
+    	<p><font color="#FF0000">內核模塊</font><br />
+<pre>內核模塊一般放置在 /lib/modules/$(uname -r)/kernel 中 其中又有如下幾個主要目錄
+arch		與硬件平台相關 如cpu等級
+crypto		內核支持的加密技術 md5 des 等
+drivers		一些硬件驅動 如網卡 顯卡 pci等
+fs		內核支持的文件系統 如vfat reiserfs nfs等
+lib		一些函數庫
+net		網絡協議等 如防火牆
+sound		音效相關</pre>
+    
+        </p>
+ 
+ 		<p><font color="#FF0000">檢查內核模塊依賴項</font><br />
+<pre>檢查 /lib/modules/$(uname -r)/modules.deb 文件
+depmod [-Ane]	//創建modules.deb 文件
+-A		//不加參數 depmod會主動分析內核模塊 並更新modules.deb  -A 檢查到比modules.deb更新的模塊 才跟新modules.deb 
+-n		//不寫入modules.deb 而顯示到屏幕
+-e		//顯示目前已加載的不可執行的模塊名稱
+
+<font color="#FF0000">example</font>
+cp a.ko /lib/modules/$(uname -r)/kernel/drivers/net
+depmod
+</pre>	
+        </p>
+        
+        <p><font color="#FF0000">lsmod	//顯示目前加載的內核模塊</font><br />
+        模塊名	大小 	被使用數
+        </p>
+        
+        <p><font color="#FF0000">modinfo [-adln] [module_name|filename]	//顯示模塊信息</font><br />
+        -a	//僅列出作者名稱<br />
+        -d	//僅顯示modules的說明<br />
+        -l	//僅列出授權<br />
+        -n	//僅列出模塊詳細路徑
+        </p>
+        
+        <p><font color="#FF0000">insmod	模塊名	//加載模塊</font><br />
+        </p>
+        <p><font color="#FF0000">rmsmod	模塊名	//刪除模塊</font><br />
+        -f	強制刪除<br />
+        -w	若模塊正在使用 等其使用完畢才刪除
+        </p>
+        
+        <p><font color="#FF0000">modprobe -[lcfr]	模塊名	//推薦的模塊加載方法</font><br />
+        -c	列出目前系統所有模塊<br />
+        -l	列出目前在 /lib/modules/'uname -r'/kernel 中所有模塊完整文件名<br />
+        -f	強制加載模塊<br />
+        -r	刪除模塊<br />
+        <font color="#FF0000">example</font><br />
+cp a.ko /lib/modules/$(uname -r)/kernel/drivers/net<br />
+depmod<br />
+modprobe a.ko
+        </p>
+        
+  	</h3></div>
+</td></tr></table>
+</body>
+</html>

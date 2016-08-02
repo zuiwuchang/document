@@ -1,0 +1,244 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>lua</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#cv">cv</a>
+		<a href="#struct">struct</a>
+		<a href="#Mat">Mat</a>
+		<a href="#iterator">遍歷Mat</a>
+		<a href="#fun">導出函數</a>
+		
+	</div>
+
+	<div class="note"><a name="cv"></a>
+		<p><span class="flag">cv</span>
+<pre>cv 模塊 是 lua 對 opencv 的一個 封裝
+大部分 參數 函數 同 opencv
+
+
+//創建table的一個 副本
+table:clone()
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="struct"></a>
+		<p><span class="flag">struct</span>
+<pre>local cv = require  "cv"
+
+
+Rect	是一個矩形 包括 x y w h 四個 屬性
+
+Rect cv.Rect(x=0,y=0,w=0,h=0)
+
+int Rect:x()
+Rect:x(int)
+
+int Rect:y()
+Rect:y(int)
+
+int Rect:w()
+Rect:w(int)
+
+int Rect:h()
+Rect:h(int)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>local cv = require  "cv"
+
+local r = cv.Rect(0,0,48,48)
+print(r:x(),r:y(),r:w(),r:h())
+r:x(1)
+r:y(2)
+r:w(3)
+r:h(4)
+print(r:x(),r:y(),r:w(),r:h())
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="Mat"></a>
+		<p><span class="flag">Mat</span>
+<pre>Mat 是容內圖像數據的容器
+</pre>
+		</p>
+		<p><span class="flag">導出接口</span>
+<pre>local cv = require  "cv"
+
+
+
+//加載位圖
+Mat cv.imread(str_p,int_f=1)
+	<span class="care">flags 
+	<table>
+		<tr><th>flag</th><th>note</th></tr>
+		<tr><td>CV_LOAD_IMAGE_ANYDEPTH  2 </td><td> If set, return 16-bit/32-bit image <br>when the input has the corresponding depth, <br>otherwise convert it to 8-bit.</td></tr>
+		<tr><td>CV_LOAD_IMAGE_COLOR   1</td><td> If set, always convert image to the color one</td></tr>
+		<tr><td>CV_LOAD_IMAGE_GRAYSCALE 0</td><td>If set, always convert image to the grayscale one</td></tr>
+	</table>
+	&gt;  0	返回3通道圖像數據
+	== 0	返回單通道的灰度圖
+	&lt;  0	返回帶 alpha 的4通道圖像數據
+	</span>
+
+//保存位圖
+bool cv.imwrite(str_p,Mat),int_k,int_v)
+	<span class="care"><table>
+		<tr><th>key</th><th>value</th></tr>
+		<tr><td>CV_IMWRITE_JPEG_QUALITY 1 (保存為jpg)</td><td>[0,100] 默認95</td></tr>
+		<tr><td>CV_IMWRITE_PNG_COMPRESSION  16 (保存為png)</td><td>[0,9] 默認3</td></tr>
+		<tr><td>CV_IMWRITE_PXM_BINARY  32 (保存為PPM, PGM, or PBM)</td><td>[0,1] 默認1</td></tr>
+	</table>
+	</span>
+
+
+
+//創建 空 Mat
+Mat cv.Mat()
+
+//創建到指定Mat Rect區域的引用
+Mat cv.Mat(Mat,Rect)
+
+//創建 指定 高 寬 數據通道 的 圖像
+Mat cv.Mat(int_rows,int_cols,int_type)
+	<span class="care">Array type. Use CV_8UC1, ..., CV_64FC4 to create 1-4 channel matrices, or CV_8UC(n), ..., CV_64FC(n) to create multi-channel (up to CV_CN_MAX channels) matrices.
+
+	CV_8UC1	0	1通道 灰度圖
+	CV_8UC2	8
+	CV_8UC3	16	3通道
+	CV_8UC4	24	4通道 alpha
+	</span>
+
+
+//是否存在 圖像數據
+cv:ok()
+
+//返回 圖像 高度 寬度
+cv:rows()
+cv:cols()
+
+
+
+//複製當前 數據 到指定 Mat
+Mat:copyTo(Mat)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>local cv = require  "cv"
+
+--創建 空 mat
+local mat = cv.Mat()
+
+--加載 圖像
+mat = cv.imread("1.png",-1)
+print("imread",mat:ok())
+
+--返回 尺寸
+print(mat:cols(),mat:rows())
+
+--引用 子mat
+local r = cv.Rect(0,0,48,48)
+local m0 = cv.Mat(mat,r)
+r:y(4 * 48)
+local m1 = cv.Mat(mat,r)
+
+--創建 內存 緩存
+local cache = cv.Mat(96,48,24)
+r:y(0)
+local c0 = cv.Mat(cache,r)
+r:y(48)
+local c1 = cv.Mat(cache,r)
+
+--複製 真實 數據
+m0:copyTo(c0)
+
+--翻轉圖像
+cv.flip(m1,c1,1)
+
+--保存 圖像
+print("imwrite",cv.imwrite("2.png",cache))
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="iterator"></a>
+		<p><span class="flag">遍歷Mat</span>
+<pre>local cv = require  "cv"
+
+
+//返回圖像 通道數
+int Mat:channels()
+
+//返回/設置 指定 行 列 通道 的 像素 數據 
+uint8 mat:data(row,col,channel)
+mat:data(row,col,channel,uint8_v)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>local cv = require  "cv"
+
+--創建 空 mat
+local mat = cv.Mat()
+
+--加載 圖像
+mat = cv.imread("1.png",-1)
+print("imread",mat:ok())
+
+local channels = mat:channels()
+print("channels",channels)
+
+local rows = mat:rows()
+local cols = mat:cols()
+
+--ARGB(4) RGB(3)
+for i=0,rows-1 do
+	for j=0,cols-1 do
+		
+		local b = mat:data(i,j,0)
+		local g = mat:data(i,j,1)
+		local r = mat:data(i,j,2)
+		local a = mat:data(i,j,3)
+		
+		if  b == 255 and g == 255 and r == 255 then
+			mat:data(i,j,0,0)
+			mat:data(i,j,3,255)
+		end
+		
+		--[[
+		
+		d[0]	B
+		d[1]	G
+		d[2]	R
+		D[3]	A	[0,255]	0全透明
+		--]]
+	end
+end
+
+
+--保存 圖像
+print("imwrite",cv.imwrite("2.png",mat,16,3))
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="fun"></a>
+		<p><span class="flag">導出函數</span>
+<pre>local cv = require  "cv"
+
+
+//翻轉圖像 1(X) 0(Y) -1(XY)
+cv.flip(Mat_s,Mat_d,int_flip)
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

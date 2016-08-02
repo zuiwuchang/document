@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>绘图</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#DC">设备上下文</a>
+		<a href="#ERASE">擦除窗口背景 wxClientDC</a>
+		<a href="#wxEVT_PAINT">wxEVT_PAINT wxPaintDC</a>
+		<a href="#wxMemoryDC">wxMemoryDC</a>
+		<a href="#wxScreenDC">wxScreenDC</a>
+		<a href="#tools">繪圖工具</a>
+		<a href="#wxColour">wxColour</a>
+		<a href="#wxPen">wxPen</a>
+		<a href="#wxBrush">wxBrush</a>
+		<a href="#wxFont">wxFont</a>
+		<a href="#draw">DC繪製函數</a>
+	</div>
+
+	<div class="note"><a name="DC"></a>
+		<p><span class="flag">设备上下文</span>
+<pre>所谓设备上下文 既dc 代表了一个 绘图的 环境
+类似于 现实中的 画布和 绘画工具
+
+不同的dc 能够将 图像 绘制到不同的 设备 
+例如 一个 窗口 或 打印机
+
+wxWidgets 所有绘图操作 需要先 创建一个dc 之后使用 这个dc 进行绘图
+
+</pre>
+		</p>
+		<p><span class="flag">映射模式</span>
+<pre>映射模式 即每个逻辑单位 到 设备单位的 转换方式 默认wxMM_TEXT(wxPostScriptDC只支持此模式)
+<table>
+	<tr><td>模式</td><td>含义</td></tr>
+	<tr><td>wxMM_TWIPS</td><td>每个逻辑单位为 1/20点 或 1/1440英寸</td></tr>
+	<tr><td>wxMM_POINTS</td><td>... 1点 或 1/72英寸</td></tr>
+	<tr><td>wxMM_METRIC</td><td>... 1毫米</td></tr>
+	<tr><td>wxMM_LOMETRIC</td><td>... 1/10毫米</td></tr>
+	<tr><td>wxMM_TEXT</td><td>... 1像素</td></tr>
+</table>
+使用 void wxDC::SetUserScale(double xScale, double yScale) 可以设置一个缩放比例
+比例 * 映射模式 = 实际单位/逻辑单位
+
+
+使用
+wxDC::SetClippingRegion
+void SetClippingRegion(wxCoord x, wxCoord y, wxCoord width, wxCoord height)
+void SetClippingRegion(const wxPoint& pt, const wxSize& sz)
+void SetClippingRegion(const wxRect& rect)
+void SetClippingRegion(const wxRegion& region)
+可以 设置一个 绘图区域 超出区域的 范围 都不会被 绘制
+
+使用
+void wxDC::DestroyClippingRegion()
+清除当前 指定的 区域
+</pre>
+		</p>
+
+		<p><span class="flag">常用dc</span>
+<pre>wxDC	所有dc的基类 定义了 dc的 基本能力 和 操作 接口 无法直接使用
+
+wxClientDC				用来在一个窗口的 客户区 绘制
+wxBufferedDC			傳入一個 wxDC 以替換為 双缓冲 版本
+
+wxWindowDC				用来在一个窗口的 客户区 非客户区 绘制
+
+wxPaintDC				仅用在 重绘事件中 用来 重绘客户区
+wxBufferedPaintDC		替代 wxPaintDC 的 双缓冲 版本
+
+wxScreenDC				用来在屏幕上绘制
+
+wxMemoryDC				用来在 图片 上 绘制
+
+wxMetafileDC			绘制图元文件 (只 支持 windows 和 mac os x)
+
+wxPrinterDC				用来在 打印机上 绘制
+wxPostScriptDC			用来在 PostScript 文件 或支持 PostScript的 打印机上 绘制
+
+注 以上 双缓冲版本 
+其在 绘图时 将 绘制到 内部的缓冲区 等待自己析构时 才 绘制到设备
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="ERASE"></a>
+		<p><span class="flag">擦除窗口背景</span>
+<pre>窗口通常會收到 
+wxEVT_PAINT  	繪製窗口
+wxEVT_ERASE_BACKGROUND	擦除窗口背景(默認使用 wxWindow::SetBackgroundColour 設置的顏色 擦除窗口背景)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>BEGIN_EVENT_TABLE(wxtest1Frame, wxFrame)
+...
+EVT_ERASE_BACKGROUND(wxtest1Frame::OnEraseBackground)
+...
+END_EVENT_TABLE()
+
+void wxtest1Frame::OnEraseBackground(wxEraseEvent& event)
+{
+    //返回客戶區區域
+    wxRect rect =   GetClientRect();
+    //wxClientDC dc(this);
+    wxBufferedDC dc(event.GetDC()   //要創建雙緩衝的dc
+                    ,wxSize(rect.GetWidth(),rect.GetHeight())   //一個wxSize以供wxBufferedDC構造一個wxBitmap緩衝區 或已經創建好的wxBitmap緩衝區
+                    );
+    //設置畫筆 畫刷
+    dc.SetPen(*wxBLACK_PEN);
+    dc.SetBrush(*wxRED_BRUSH);
+
+    //繪製背景
+    dc.DrawRectangle(rect);
+
+    //還原dc
+    dc.SetPen(wxNullPen);
+    dc.SetBrush(wxNullBrush);
+
+    //wxBufferedDC 析構 自動將 緩存繪製到 設備
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>對於某些平台 攔截wxEVT_ERASE_BACKGROUND 還不能完全控制 系統重繪背景 操作
+此時應該使用 wxWindow::SetBackgroundStyle 設置 wxBG_STYLE_CUSTOM 風格 
+告訴wxWidgets 將所有背景繪製 留給程序自己處理(wxEVT_ERASE_BACKGROUND )
+
+為了避免閃屏 可以在 wxEVT_ERASE_BACKGROUND 中 什麼都 不做 
+而在 wxEVT_PAINT 中 繪製 背景和前景 
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="wxEVT_PAINT"></a>
+		<p><span class="flag">wxEVT_PAINT</span>
+<pre>在需要 重繪窗口時 會收到 wxEVT_PAINT 事件 
+//可返回某點 矩形區域 是否需要 重繪
+bool IsExposed(int x, int y) const
+bool IsExposed(wxPoint &pt) const
+bool IsExposed(int x, int y, int w, int h) const
+bool IsExposed(wxRect &rect) const
+
+//刷新指定 區域 eraseBackground 是否擦除背景
+virtual void Refresh(bool eraseBackground = true, const wxRect* rect = NULL)
+void RefreshRect(const wxRect& rect, bool eraseBackground = true)
+
+//Refresh RefreshRect 後 並不保證 窗口立刻重繪 調用 此函數 可確保立刻重繪
+virtual void Update()
+
+//返回需要重繪的區域
+virtual wxRegion GetUpdateRegion() const
+
+//在滾動屏幕中 滾動dc 以使dc的繪製原點 在左上角
+PrepareDC(wxDC&amp;)
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>默認情況下 改變窗口大小 只有需要的部分才會重繪 
+設置wxFULL_REPAINT_ON_RESIZEI 窗口風格 可改變此特性
+
+wxBufferedPaintDC默認以 wxBUFFER_CLIENT_AREA風格創建
+wxBufferedPaintDC(wxWindow *window, wxBitmap& buffer, int style = wxBUFFER_CLIENT_AREA)
+wxBufferedPaintDC(wxWindow *window, int style = wxBUFFER_CLIENT_AREA)
+此時 PrepareDC無效 需要以wxBUFFER_VIRTUAL_AREA創建
+
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="wxMemoryDC"></a>
+		<p><span class="flag">wxMemoryDC</span>
+<pre>wxMemoryDC用以在內存設備上 繪製一個與位圖綁定的 設備上下文
+使用同 其他dc 只是在構造時以無參構造 
+之後 使用 SelectObject將一個位圖綁定 
+繪製完後使用 SelectObject傳入 wxNullBitmap移除綁定的位圖
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>    //創建dc
+    wxMemoryDC dc;
+    wxBitmap bmp(100,100);
+    //綁定位圖
+    dc.SelectObject(bmp);
+    //繪製操作
+    //dc.Draw...
+
+    //移除位圖
+    dc.SelectObject(wxNullBitmap);
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="wxScreenDC"></a>
+		<p><span class="flag">wxScreenDC</span>
+			wxScreenDC 用以在屏幕繪圖
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>    //創建dc
+    wxScreenDC dc;
+    //返回屏幕大小
+    wxSize screen_size =   wxGetDisplaySize();
+
+    //繪製操作
+    //dc.draw ...
+
+    //截圖
+    wxBitmap bmp(screen_size.x,screen_size.y);
+    wxMemoryDC bmp_dc;
+    bmp_dc.SelectObject(bmp);
+    bmp_dc.Blit(0,0,screen_size.x,screen_size.y,&dc,0,0);
+    bmp_dc.SelectObject(wxNullBitmap);
+
+    //保存截圖
+    bmp.SaveFile(_("test.bmp"),wxBITMAP_TYPE_BMP);
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="tools"></a>
+		<p><span class="flag">繪圖工具</span>
+<pre>繪圖時需要 工作畫筆 畫刷 工具
+在設備上下文中 繪圖 亦然如此
+
+在使用dc繪圖 前 先要 設置 畫筆 畫刷 之後draw...將 使用設置的 畫筆 畫刷 進行繪製
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="wxColour"></a>
+		<p><span class="flag">wxColour</span>
+<pre>wxColour 用以表示一個顏色 
+#define wxColor wxColour
+
+wxColour()
+wxColour(unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha=wxALPHA_OPAQUE)
+wxColour(const wxString& colourNname)
+wxColour(const wxColour& colour)
+
+//宏 RGB(r,g,b) 用以構造一個 RGB 顏色 
+
+wxNullColour	為一個預訂的顏色
+
+以下 宏 為一個 預定義的 wxColour*
+wxBLACK		黑
+wxWHITE		白
+wxRED		紅
+wxBLUE		藍
+wxGREEN		綠
+wxCYAN		青
+wxLIGHT_GREY	淺灰
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="wxPen"></a>
+		<p><span class="flag">wxPen</span>
+<pre>wxPen 用以指定 繪製操作中 所有 線條的顏色 風格
+wxPen()
+wxPen(const wxColour&amp; colour, int width = 1, int style = wxSOLID)
+wxPen(const wxString&amp; colourName, int width, int style)
+wxPen(const wxBitmap&amp; stipple, int width)
+wxPen(const wxPen&amp; pen)
+//設置返回 線條風格
+int GetStyle() const
+void SetStyle(int style)
+<table>
+<tr><td>風格</td><td>效果</td><td>描述</td></tr>
+<tr><td>wxSOLID</td><td><img src="image/绘图/wxSOLID.PNG" /></td><td>實線</td></tr>
+<tr><td>wxTRANSPARENT</td><td></td><td>透明</td></tr>
+<tr><td>wxDOT</td><td><img src="image/绘图/wxDOT.PNG" /></td><td>點線</td></tr>
+<tr><td>wxLONG_DASH</td><td><img src="image/绘图/wxLONG_DASH.PNG" /></td><td>長虛線</td></tr>
+<tr><td>wxSHORT_DASH</td><td><img src="image/绘图/wxLONG_DASH.PNG" /></td><td>短虛線 windows同wxLONG_DASH</td></tr>
+<tr><td>wxDOT_DASH</td><td><img src="image/绘图/wxDOT_DASH.PNG" /></td><td>點線間隔</td></tr>
+<tr><td>wxSTIPPLE</td><td></td><td>以位圖替代 點 的 點線 位圖為構造時傳入</td></tr>
+<tr><td>wxUSER_DASH</td><td></td><td>自定義虛線</td></tr>
+<tr><td>wxBDIAGONAL_HATCH</td><td></td><td>反斜線虛線</td></tr>
+<tr><td>wxCROSSDIAG_HATCH</td><td></td><td>交叉虛線</td></tr>
+<tr><td>wxFDIAGONAL_HATCH</td><td></td><td></td></tr>
+<tr><td>wxCROSS_HATCH</td><td></td><td></td></tr>
+<tr><td>wxHORIZONTAL_HATCH</td><td></td><td></td></tr>
+<tr><td>wxVERTICAL_HATCH</td><td></td><td></td></tr>
+</table>
+
+wxNullPen 為一個預訂的筆
+
+以下 宏 為一個 預定義的 wxPen*
+wxRED_PEN			紅
+wxCYAN_PEN			青
+wxGREEN_PEN			綠
+wxBLACK_PEN			黑
+wxWHITE_PEN			白
+<span class="care">wxTRANSPARENT_PEN	透明</span>
+wxBLACK_DASHED_PEN  黑虛線
+wxGREY_PEN			灰色
+wxMEDIUM_GREY_PEN	中灰
+wxLIGHT_GREY_PEN	淺灰
+
+</pre>
+		</p>
+		<p><span class="flag">其他接口</span>
+<pre>//設置 線條末端 
+void SetCap(int capStyle)
+wxCAP_ROUND			默認 圓形
+wxCAP_PROJECTING 	方形 凸起
+wxCAP_BUTT			方形
+
+//設置線段 連接方式
+void SetJoin(int join_style)
+wxJOIN_ROUND		默認 轉角圓形
+wxJOIN_BEVEL
+wxJOIN_MITER
+
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="wxBrush"></a>
+		<p><span class="flag">wxBrush</span>
+<pre>wxBrush 用以指定 繪製操作中 所有 填充的 畫刷
+
+wxBrush()
+wxBrush(const wxColour&amp; colour, int style = wxSOLID)
+wxBrush(const wxString&amp; colourName, int style)
+wxBrush(const wxBitmap&amp; stippleBitmap)
+wxBrush(const wxBrush&amp; brush)
+
+//設置 獲取 畫刷風格
+void SetStyle(int style)
+int GetStyle() const
+
+	<table>
+	<tr><td>風格</td><td>效果</td><td>描述</td></tr>
+    <tr><td>wxSOLID</td><td></td><td>存色</td></tr>
+    <tr><td>wxTRANSPARENT</td><td></td><td>透明</td></tr>
+    <tr><td>wxBDIAGONAL_HATCH</td><td></td><td>反斜線</td></tr>
+    <tr><td>wxCROSSDIAG_HATCH</td><td></td><td></td></tr>
+    <tr><td>wxFDIAGONAL_HATCH</td><td></td><td></td></tr>
+    <tr><td>wxCROSS_HATCH</td><td></td><td></td></tr>
+    <tr><td>wxHORIZONTAL_HATCH</td><td></td><td></td></tr>
+    <tr><td>wxVERTICAL_HATCH</td><td></td><td></td></tr>
+    <tr><td>wxSTIPPLE</td><td></td><td>位圖畫刷</td></tr>
+    <tr><td>wxSTIPPLE_MASK_OPAQUE</td><td></td><td></td></tr>
+    </table>
+
+wxNullBrush	預設畫刷
+
+以下 宏 為一個 wxBrush*
+wxBLUE_BRUSH		藍
+wxGREEN_BRUSH		綠
+wxWHITE_BRUSH		白
+wxBLACK_BRUSH		黑
+wxGREY_BRUSH		灰
+wxMEDIUM_GREY_BRUSH	中灰
+wxLIGHT_GREY_BRUSH	淺灰
+wxTRANSPARENT_BRUSH	透明
+wxCYAN_BRUSH		青
+wxRED_BRUSH		紅
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="wxFont"></a>
+		<p><span class="flag">wxFont</span>
+<pre>wxFont 用以表示 繪製時的 文本字體
+wxFont(const wxFont& font)
+
+wxFont(int pointSize, wxFontFamily family, int style, wxFontWeight weight, const bool underline = false, const wxString& faceName = "", wxFontEncoding encoding = wxFONTENCODING_DEFAULT)
+
+wxFont(const wxSize& pixelSize, wxFontFamily family, int style, wxFontWeight weight, const bool underline = false, const wxString& faceName = "", wxFontEncoding encoding = wxFONTENCODING_DEFAULT)
+
+pointSize	指定字體大小 參考值而
+wxSize	指定字體大小 參考值而
+family	指定一個家族系 
+style	
+	wxFONTSTYLE_NORMAL		
+	wxFONTSTYLE_SLANT
+	wxFONTSTYLE_ITALIC
+
+faceName	指定字體名 (可選 不能保證字體在所有os上存在)
+underline 	底線
+
+
+wxNullFont	一個預訂字體
+
+以下宏 指向一個 wxFont*
+wxNORMAL_FONT
+wxSMALL_FONT
+wxITALIC_FONT
+wxSWISS_FONT
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>wxFont  font(12,wxFONTFAMILY_DEFAULT,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL);
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>在進行任何字體相關操作前 應該先 設置需要的 字體
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="draw"></a>
+		<p><span class="flag">DC繪製函數</span>
+<pre><span class="care">//將 另外一個dc 複製到本dc
+bool Blit(wxCoord xdest, wxCoord ydest, wxCoord width, wxCoord height //複製到本dc的 位置 大小
+	, wxDC* source, wxCoord xsrc, wxCoord ysrc	//源dc 及複製位置
+	, int logicalFunc = wxCOPY	//複製模式
+	, bool useMask = false, wxCoord xsrcMask = -1, wxCoord ysrcMask = -1)
+
+logicalFunc 取值    
+wxAND                 src AND dst
+wxAND_INVERT          (NOT src) AND dst
+wxAND_REVERSE         src AND (NOT dst)
+wxCLEAR               0
+wxCOPY                src
+wxEQUIV               (NOT src) XOR dst
+wxINVERT              NOT dst
+wxNAND                (NOT src) OR (NOT dst)
+wxNOR                 (NOT src) AND (NOT dst)
+wxNO_OP               dst
+wxOR                  src OR dst
+wxOR_INVERT           (NOT src) OR dst
+wxOR_REVERSE          src OR (NOT dst)
+wxSET                 1
+wxSRC_INVERT          NOT src
+wxXOR                 src XOR dst
+</span>
+
+//使用當前背景畫刷 刷新背景
+void Clear()
+
+<span class="care">//設置 繪圖區域 (區域外的繪製將被忽略)</span>
+void SetClippingRegion(wxCoord x, wxCoord y, wxCoord width, wxCoord height)
+void SetClippingRegion(const wxPoint& pt, const wxSize& sz)
+void SetClippingRegion(const wxRect& rect)
+void SetClippingRegion(const wxRegion& region)
+<span class="care">//取消 繪圖區域 限制</span>
+void DestroyClippingRegion()
+//返回 繪圖區域 所在矩形
+void GetClippingBox(wxCoord *x, wxCoord *y, wxCoord *width, wxCoord *height)
+
+//繪製圓弧 傳入 起點 終點 圓心
+void DrawArc(wxCoord x1, wxCoord y1, wxCoord x2, wxCoord y2, wxCoord xc, wxCoord yc)
+<span class="care">//繪製橢圓 或 扇形 傳入 所在矩形 位置 大小 
+//start end 使用[-360,360] 的角度 表示要繪製的 橢圓包含的角度 (用於 繪製圓弧)</span>
+void DrawEllipticArc(wxCoord x, wxCoord y, wxCoord width, wxCoord height, double start, double end)
+//繪製圓 傳入 圓心 變長
+void DrawCircle(wxCoord x, wxCoord y, wxCoord radius)
+void DrawCircle(const wxPoint& pt, wxCoord radius)
+//繪製橢圓 傳入所在 矩形
+void DrawEllipse(wxCoord x, wxCoord y, wxCoord width, wxCoord height)
+void DrawEllipse(const wxPoint& pt, const wxSize& size)
+void DrawEllipse(const wxRect& rect)
+
+//繪製線 最後一個點上 不會顯示的
+void DrawLine(wxCoord x1, wxCoord y1, wxCoord x2, wxCoord y2)
+void DrawLines(int n, wxPoint points[], wxCoord xoffset = 0, wxCoord yoffset = 0)
+void DrawLines(wxList *points, wxCoord xoffset = 0, wxCoord yoffset = 0)
+
+//繪製點
+void DrawPoint(wxCoord x, wxCoord y)
+//通過 多個點 繪製封包多邊形
+void DrawPolygon(int n, wxPoint points[], wxCoord xoffset = 0, wxCoord yoffset = 0,
+int fill_style = wxODDEVEN_RULE)
+void DrawPolygon(wxList *points, wxCoord xoffset = 0, wxCoord yoffset = 0,
+int fill_style = wxODDEVEN_RULE)
+
+//繪製矩形 圓角矩形
+void DrawRectangle(wxCoord x, wxCoord y, wxCoord width, wxCoord height)
+void DrawRoundedRectangle(wxCoord x, wxCoord y, wxCoord width, wxCoord height, double radius)
+
+//繪製文本 或旋轉文本
+void DrawText(const wxString& text, wxCoord x, wxCoord y)
+void DrawRotatedText(const wxString& text, wxCoord x, wxCoord y, double angle)
+//返回繪製文本 需要的大小
+void GetTextExtent(const wxString& string, wxCoord *w, wxCoord *h,
+	wxCoord *descent = NULL, wxCoord *externalLeading = NULL, wxFont *font = NULL) const
+wxSize GetTextExtent(const wxString& string) const
+bool GetPartialTextExtents(const wxString& text, wxArrayInt& widths) const
+//設置獲取 文本 前景 背景色
+const wxColour& GetTextForeground() const
+void SetTextForeground(const wxColour& colour)
+const wxColour& GetTextBackground() const
+void SetTextBackground(const wxColour& colour)
+//設置 獲取 文本繪製 背景模式 wxTRANSPARENT(透明背景)
+void SetBackgroundMode(int mode)
+int GetBackgroundMode() const
+
+//繪製平滑曲線
+void DrawSpline(int n, wxPoint points[])
+void DrawSpline(wxList *points)
+void DrawSpline(wxCoord x1, wxCoord y1, wxCoord x2, wxCoord y2, wxCoord x3, wxCoord y3)
+
+//繪製 位圖 圖標
+void DrawBitmap(const wxBitmap& bitmap, wxCoord x, wxCoord y, bool transparent)
+void DrawIcon(const wxIcon& icon, wxCoord x, wxCoord y)
+</pre>
+		</p>
+
+		<p><span class="flag">其他函數</span>
+<pre>//返回 dc是否準備好 用於繪製
+bool Ok()
+
+//設置 返回 背景畫刷
+void SetBackground(const wxBrush& brush)
+const wxBrush& GetBackground() const
+
+//設置 畫筆 畫刷 字體 調色板
+SetBrush
+GetBrush
+SetPen
+GetPen
+SetFont
+GetFont
+SetPalette
+GetPalette
+
+//設置 畫筆 畫刷繪製時 採用的模式 默認wxCOPY 同 Blit 的複製模式
+void SetLogicalFunction(int function)
+int GetLogicalFunction()
+
+//設置 獲取 映射模式
+void SetMapMode(int )
+int GetMapMode()
+
+//設置 返回 縮放比例
+void SetUserScale(double xScale, double yScale)
+void GetUserScale(double *x, double *y)
+
+<span class="care">//設置 繪製原點</span>
+void SetDeviceOrigin(wxCoord x, wxCoord y)
+
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>wxWidgets	没提供类似StretchBlt 的释放绘制函数
+要縮放一个 图象 必须先将其 保存 到 wxImage 类 之后使用 wxImage::Scale 或 wxImage::Rescale 缩放整个图象
+详见image
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

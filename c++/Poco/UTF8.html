@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>poco</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#UTF8">UTF8</a>
+		<a href="#UTF8Encoding">UTF8Encoding</a>
+		<a href="#UnicodeConverter">UnicodeConverter</a>
+	</div>
+
+
+	<div class="note"><a name="UTF8"></a>
+		<p><span class="flag">UTF8</span>
+<pre>Library: Foundation
+Package: Text
+Header: Poco/UTF8String.h
+
+Poco 使用 utf8編碼 的字符串 其一般存儲在std::string中
+class UTF8 的static 方法 提供了 utf8字符 相關的 處理函數
+</pre>
+		</p>
+		<p><span class="flag">function</span>
+<pre>//比較 相等(返回0)
+static int icompare(
+    const std::string & str,
+    std::string::size_type pos,
+    std::string::size_type n,
+    std::string::const_iterator it2,
+    std::string::const_iterator end2
+);
+static int icompare(
+    const std::string & str1,
+    const std::string & str2
+);
+static int icompare(
+    const std::string & str1,
+    std::string::size_type n1,
+    const std::string & str2,
+    std::string::size_type n2
+);
+static int icompare(
+    const std::string & str1,
+    std::string::size_type n,
+    const std::string & str2
+);
+static int icompare(
+    const std::string & str1,
+    std::string::size_type pos,
+    std::string::size_type n,
+    const std::string & str2
+);
+static int icompare(
+    const std::string & str1,
+    std::string::size_type pos1,
+    std::string::size_type n1,
+    const std::string & str2,
+    std::string::size_type pos2,
+    std::string::size_type n2
+);
+static int icompare(
+    const std::string & str1,
+    std::string::size_type pos1,
+    std::string::size_type n,
+    const std::string & str2,
+    std::string::size_type pos2
+);
+static int icompare(
+    const std::string & str,
+    std::string::size_type pos,
+    std::string::size_type n,
+    const std::string::value_type * ptr
+);
+static int icompare(
+    const std::string & str,
+    std::string::size_type pos,
+    const std::string::value_type * ptr
+);
+static int icompare(
+    const std::string & str,
+    const std::string::value_type * ptr
+);
+
+
+//轉小寫
+static std::string toLower(
+    const std::string & str
+);
+
+//... 返回結果的同時 改變傳入參數為 結果
+static std::string & toLowerInPlace(
+    std::string & str
+);
+
+//轉大寫
+static std::string toUpper(
+    const std::string & str
+);
+static std::string & toUpperInPlace(
+    std::string & str
+);
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;iostream&gt;
+#include&lt;cstdio&gt;
+
+#include&lt;Poco/UTF8String.h&gt;
+
+int main()
+{
+   std::string utf8    =   "This is utf8 test";
+
+   puts("************   utf8    *************");
+   std::cout&lt;&lt;utf8&lt;&lt;"\n";
+
+   std::cout&lt;&lt;Poco::UTF8::icompare(utf8,"This is utf8 test")&lt;&lt;"\n";
+
+   puts("************   toLower    *************");
+   std::string str  = Poco::UTF8::toLower(utf8);
+   std::cout&lt;&lt;str&lt;&lt;"\n"&lt;&lt;utf8&lt;&lt;"\n";
+
+   puts("************   toLowerInPlace    *************");
+   str  = Poco::UTF8::toLowerInPlace(utf8);
+   std::cout&lt;&lt;str&lt;&lt;"\n"&lt;&lt;utf8&lt;&lt;"\n";
+
+   puts("************   toUpper    *************");
+   str  = Poco::UTF8::toUpper(utf8);
+   std::cout&lt;&lt;str&lt;&lt;"\n"&lt;&lt;utf8&lt;&lt;"\n";
+
+   puts("************   toUpperInPlace    *************");
+   str  = Poco::UTF8::toUpperInPlace(utf8);
+   std::cout&lt;&lt;str&lt;&lt;"\n"&lt;&lt;utf8&lt;&lt;"\n";
+
+   return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="UTF8Encoding"></a>
+		<p><span class="flag">UTF8Encoding</span>
+<pre>Library: Foundation
+Package: Text
+Header: Poco/UTF8Encoding.h
+
+class UTF8Encoding 實現了 utf8編碼
+</pre>
+		</p>
+		<p><span class="flag">function</span>
+<pre>//返回編碼名稱 UTF-8
+const char * canonicalName() const;
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="UnicodeConverter"></a>
+		<p><span class="flag">UnicodeConverter</span>
+<pre>Library: Foundation
+Package: Text
+Header: Poco/UnicodeConverter.h
+
+class UnicodeConverter 的static function 提供了 utf8 到utf16 的轉換
+</pre>
+		</p>
+		<p><span class="flag">function</span>
+<pre>static void toUTF16(
+    const std::string & utf8String,
+    std::wstring & utf16String
+);
+
+static void toUTF16(
+    const char * utf8String,
+    int length,
+    std::wstring & utf16String
+);
+
+static void toUTF16(
+    const char * utf8String,
+    std::wstring & utf16String
+);
+
+
+
+static void toUTF8(
+    const std::wstring & utf16String,
+    std::string & utf8String
+);
+
+static void toUTF8(
+    const wchar_t * utf16String,
+    int length,
+    std::string & utf8String
+);
+
+static void toUTF8(
+    const wchar_t * utf16String,
+    std::string & utf8String
+);
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

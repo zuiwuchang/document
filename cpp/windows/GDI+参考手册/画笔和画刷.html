@@ -1,0 +1,338 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>画笔和画刷</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1><a href="#pen">画笔</a></h1></p>
+    <p><h1><a href="#SolidBrush">单色画刷 SolidBrush</a></h1></p>
+    <p><h1><a href="#HatchBrush">影线画刷 HatchBrush</a></h1></p>
+    <p><h1><a href="#TextureBrush">纹理画刷 TextureBrush</a></h1></p>
+   	<p><h1><a href="#LinearGradientBrush">线性变换画刷 LinearGradientBrush</a></h1></p>
+    <p><h1><a href="#GraphicsPath">路径渐变画刷 GraphicsPath</a></h1></p>
+   
+   
+    <div class="div_box"><a name="pen"> <h2>
+       <p><font size="+3" color="#FF0000">画笔</font></p>
+       
+        <p><font color="#FF0000">构造函数</font><br />
+        Pen
+        ::Pen(Brush*,REAL with)<br />
+	    Pen::Pen(Color&,REAL)
+        </p>
+  		
+        <p><font color="#FF0000">设置线条风格</font><br />
+        Status SetDashStyle(DashStyle dashStyle);
+
+        <table border="2">
+        <tr><td>dashStyle取值</td><td>含义</td><td>效果</td></tr>
+        <tr><td>Gdiplus::DashStyleSolid</td><td>直线</td><td><img src="image/pen/DashStyleSolid.PNG" /></td></tr>
+        <tr><td>Gdiplus::DashStyleDash</td><td>虚线</td><td><img src="image/pen/DashStyleDash.PNG" /></td></tr>
+        <tr><td>Gdiplus::DashStyleDot</td><td>点线</td><td><img src="image/pen/DashStyleDot.PNG" /></td></tr>
+        <tr><td>Gdiplus::DashStyleDashDot</td><td>点虚线</td><td><img src="image/pen/DashStyleDashDot.PNG" /></td></tr>
+        <tr><td>Gdiplus::DashStyleDashDotDot</td><td>双点虚线</td><td><img src="image/pen/DashStyleDashDotDot.PNG" /></td></tr>
+        <tr><td>Gdiplus::DashStyleCustom</td><td>自定 线性风格</td><td>需要调用 SetDashPattern函数设置线性风格<br /><img src="image/pen/DashStyleCustom.PNG" /></td></tr>
+        </table>
+        <pre>
+        Status SetDashPattern(  
+ //长度数组 其中每个元素分别表示 线段长 相邻下一个为空白长 相邻下一个为线段长...        
+         const REAL *dashArray, 
+    INT count//数组长
+);
+
+//获取线性风格
+Status GetDashPattern(          REAL *dashArray,
+    INT count
+);
+
+        </pre>
+        </p>    
+        
+        <p><font color="#FF0000">设置对齐风格</font><br />
+        Status SetAlignment(PenAlignment penAlignment);
+		<table border="2">
+        <tr><td>penAlignment取值</td><td>含义</td><td>效果</td></tr>
+        <tr><td>Gdiplus::PenAlignmentCenter</td><td>画笔中心点居中</td><td><img src="image/pen/center.PNG" /></td></tr>
+        <tr><td>Gdiplus::PenAlignmentInset</td><td>嵌入</td><td><img src="image/pen/insert.PNG" /></td></tr> 
+        </table>
+        </p> 
+        
+         <p><font color="#FF0000">线帽风格</font><br />
+         起点外观 Status SetStartCap(LineCap startCap);<br />
+         终点外观 Status SetEndCap(LineCap endCap);
+         <table border="2">
+         <tr><td>LineCap取值</td><td>含义</td><td>效果</td></tr>
+         <tr><td>Gdiplus::LineCapFlat</td><td>平直</td><td><img src="image/pen/flat.PNG" /></td></tr>
+         <tr><td>Gdiplus::LineCapSquare</td><td>矩形</td><td><img src="image/pen/square.PNG" /></td></tr>
+         <tr><td>Gdiplus::LineCapRound</td><td>圆形</td><td><img src="image/pen/round.PNG" /></td></tr>
+         <tr><td>Gdiplus::LineCapTriangle</td><td>三角形</td><td><img src="image/pen/triangle.PNG" /></td></tr>
+         <tr><td>Gdiplus::LineCapNoAnchor</td><td>没有</td><td><img src="image/pen/no.PNG" /></td></tr>
+         <tr><td>Gdiplus::LineCapSquareAnchor</td><td>矩形 高度大于pen的宽</td><td><img src="image/pen/sa.PNG" /></td></tr>
+         <tr><td>Gdiplus::LineCapRoundAnchor</td><td>圆形 直径大于pen的宽</td><td><img src="image/pen/ea.PNG" /></td></tr>
+         <tr><td>Gdiplus::LineCapDiamondAnchor</td><td>菱形</td><td><img src="image/pen/ssa.PNG" /></td></tr>
+         <tr><td>Gdiplus::LineCapArrowAnchor</td><td>三角形 直线端点为三角形一角</td><td><img src="image/pen/tt.PNG" /></td></tr>
+         <tr><td>Gdiplus::LineCapCustom</td><td>自定义风格(调用SetCustomEndCap/SetCustomStartCap)确定风格</td><td></td></tr>
+         </table>
+         <pre>
+         Status SetCustomStartCap(          const CustomLineCap *customCap);
+         
+         CustomLineCap(          const GraphicsPath *fillPath,
+    const GraphicsPath *strokePath,
+    LineCap baseCap,
+    REAL baseInset
+);
+         </pre>
+         </p>
+         
+         <p><font color="#FF0000">画笔透明</font><br />
+         构造Pen时传入的Color带入alpha参数 Color(a,r,g,b);
+         </p>
+         
+         <p><font color="#FF0000">画笔连接点</font><br />
+         调用pen的SetLineJoin函数设置<br />
+         Status SetLineJoin(LineJoin lineJoin);<br />
+         <table border="2">
+         <tr><td>lineJoin取值</td><td>含义</td><td>效果</td></tr>
+         <tr><td>Gdiplus::LineJoinMiter</td><td>斜接</td><td><img src="image/pen/miter.PNG" /></td></tr>
+         <tr><td>Gdiplus::LineJoinBevel</td><td>斜切</td><td><img src="image/pen/bevel.PNG" /></td></tr>
+         <tr><td>Gdiplus::LineJoinRound</td><td>圆角</td><td><img src="image/pen/rd.PNG" /></td></tr>
+         <tr><td>Gdiplus::LineJoinMiterClipped</td><td>剪切斜接</td><td><img src="image/pen/cm.PNG" /></td></tr>
+         </table>
+         </p>
+    </h2></a></div>
+	
+    <div class="div_box"><a name="SolidBrush"> <h2>
+       <p><font size="+3" color="#FF0000">单色画刷 SolidBrush</font></p>
+       <p><font color="#FF0000">描述</font>使用单一颜色的画刷</p>
+       
+       <p><font color="#FF0000">构造函数</font><br />
+       SolidBrush(const Color &color);<br />
+       <img src="image/pen/SolidBrush.PNG" />
+       </p>
+       
+    </h2></a></div>
+    
+    <div class="div_box"><a name="HatchBrush"> <h2>
+       <p><font size="+3" color="#FF0000">影线画刷 SolidBrush</font></p>
+       <p><font color="#FF0000">描述</font>以重复的小正方体 填充区域的画刷</p>
+       <p><font color="#FF0000">构造函数</font><br />
+       <pre>
+       HatchBrush(          HatchStyle hatchStyle,//风格
+    const Color &foreColor,		//前景色
+    const Color &backColor		//背景色
+);
+       </pre>
+       hatchStyle值在枚举Gdiplus::HatchStyle中
+       <table border="2">
+       <tr><td>取值</td><td>效果</td></tr>
+       <tr><td>HatchStyle10Percent</td><td><img src="image/pen/hatch10.PNG" /></td></tr>
+       <tr><td>...</td><td>数字(代表百分之多少)越大点越密集(05,10,20,25,30,40,50,60,70,75,80,90)</td></tr>
+       <tr><td>HatchStyle30Percent</td><td><img src="image/pen/hatch30.PNG" /></td></tr>
+       <tr><td>取值</td><td>效果</td></tr>
+       <tr><td>HatchStyleBackwardDiagonal</td><td><img src="image/pen/HatchStyleBackwardDiagonal.PNG" /></td></tr>
+       <tr><td>HatchStyleCross</td><td><img src="image/pen/HatchStyleCross.PNG" /></td></tr>
+       <tr><td>HatchStyleDarkDownwardDiagonal</td><td><img src="image/pen/HatchStyleDarkDownwardDiagonal.PNG" /></td></tr>
+       <tr><td>HatchStyleDarkHorizontal</td><td><img src="image/pen/HatchStyleDarkHorizontal.PNG" /></td></tr>
+       <tr><td>HatchStyleDarkUpwardDiagonal</td><td><img src="image/pen/HatchStyleDarkUpwardDiagonal.PNG" /></td></tr>
+       <tr><td>HatchStyleDarkVertical</td><td><img src="image/pen/HatchStyleDarkVertical.PNG" /></td></tr>
+       <tr><td>HatchStyleDashedDownwardDiagonal</td><td><img src="image/pen/HatchStyleDashedDownwardDiagonal.PNG" /></td></tr>
+       <tr><td>HatchStyleDashedHorizontal</td><td><img src="image/pen/HatchStyleDashedHorizontal.PNG" /></td></tr>
+       <tr><td>HatchStyleDashedUpwardDiagonal</td><td><img src="image/pen/HatchStyleDashedUpwardDiagonal.PNG" /></td></tr>
+       <tr><td>HatchStyleDashedVertical</td><td><img src="image/pen/HatchStyleDashedVertical.PNG" /></td></tr>
+       <tr><td>HatchStyleDiagonalBrick</td><td><img src="image/pen/HatchStyleDiagonalBrick.PNG" /></td></tr>
+       <tr><td>HatchStyleDiagonalCross</td><td><img src="image/pen/HatchStyleDiagonalCross.PNG" /></td></tr>
+       <tr><td>HatchStyleDivot</td><td><img src="image/pen/HatchStyleDivot.PNG" /></td></tr>
+       <tr><td>HatchStyleDottedDiamond</td><td><img src="image/pen/HatchStyleDottedDiamond.PNG" /></td></tr>
+       <tr><td>HatchStyleDottedGrid</td><td><img src="image/pen/HatchStyleDottedGrid.PNG" /></td></tr>
+       <tr><td>HatchStyleForwardDiagonal</td><td><img src="image/pen/HatchStyleForwardDiagonal.PNG" /></td></tr>
+       <tr><td>HatchStyleHorizontal</td><td><img src="image/pen/HatchStyleHorizontal.PNG" /></td></tr>
+       <tr><td>HatchStyleHorizontalBrick</td><td><img src="image/pen/HatchStyleHorizontalBrick.PNG" /></td></tr>
+       <tr><td>HatchStyleLargeCheckerBoard</td><td><img src="image/pen/HatchStyleLargeCheckerBoard.PNG" /></td></tr>
+       <tr><td>HatchStyleLargeConfetti</td><td><img src="image/pen/HatchStyleLargeConfetti.PNG" /></td></tr>
+       <tr><td>HatchStyleLargeGrid</td><td><img src="image/pen/HatchStyleLargeGrid.PNG" /></td></tr>
+       <tr><td>HatchStyleLightDownwardDiagonal</td><td><img src="image/pen/HatchStyleLightDownwardDiagonal.PNG" /></td></tr>
+       <tr><td>HatchStyleLightHorizontal</td><td><img src="image/pen/HatchStyleLightHorizontal.PNG" /></td></tr>
+       <tr><td>HatchStyleLightUpwardDiagonal</td><td><img src="image/pen/HatchStyleLightUpwardDiagonal.PNG" /></td></tr>
+       <tr><td>HatchStyleLightVertical</td><td><img src="image/pen/HatchStyleLightVertical.PNG" /></td></tr>
+       <tr><td>HatchStyleMax</td><td><img src="image/pen/HatchStyleMax.PNG" /></td></tr>
+       <tr><td>HatchStyleMin</td><td><img src="image/pen/HatchStyleMin.PNG" /></td></tr>
+       <tr><td>HatchStyleNarrowHorizontal</td><td><img src="image/pen/HatchStyleNarrowHorizontal.PNG" /></td></tr>
+       <tr><td>HatchStyleNarrowVertical</td><td><img src="image/pen/HatchStyleNarrowVertical.PNG" /></td></tr>
+       <tr><td>HatchStyleOutlinedDiamond</td><td><img src="image/pen/HatchStyleOutlinedDiamond.PNG" /></td></tr>
+       <tr><td>HatchStylePlaid</td><td><img src="image/pen/HatchStylePlaid.PNG" /></td></tr>
+       <tr><td>HatchStyleShingle</td><td><img src="image/pen/HatchStyleShingle.PNG" /></td></tr>
+       <tr><td>HatchStyleSmallCheckerBoard</td><td><img src="image/pen/HatchStyleSmallCheckerBoard.PNG" /></td></tr>
+       <tr><td>HatchStyleSmallConfetti</td><td><img src="image/pen/HatchStyleSmallConfetti.PNG" /></td></tr>
+       <tr><td>HatchStyleSmallGrid</td><td><img src="image/pen/HatchStyleSmallGrid.PNG" /></td></tr>
+       <tr><td>HatchStyleSolidDiamond</td><td><img src="image/pen/HatchStyleSolidDiamond.PNG" /></td></tr>
+       <tr><td>HatchStyleSphere</td><td><img src="image/pen/HatchStyleSphere.PNG" /></td></tr>
+       <tr><td>HatchStyleTrellis</td><td><img src="image/pen/HatchStyleTrellis.PNG" /></td></tr>
+       <tr><td>HatchStyleVertical</td><td><img src="image/pen/HatchStyleVertical.PNG" /></td></tr>
+       <tr><td>HatchStyleWave</td><td><img src="image/pen/HatchStyleWave.PNG" /></td></tr>
+       <tr><td>HatchStyleWeave</td><td><img src="image/pen/HatchStyleWeave.PNG" /></td></tr>
+       <tr><td>HatchStyleWideDownwardDiagonal</td><td><img src="image/pen/HatchStyleWideDownwardDiagonal.PNG" /></td></tr>
+       <tr><td>HatchStyleWideUpwardDiagonal</td><td><img src="image/pen/HatchStyleWideUpwardDiagonal.PNG" /></td></tr>
+       <tr><td>HatchStyleZigZag</td><td><img src="image/pen/HatchStyleZigZag.PNG" /></td></tr>
+       </table>
+       </p>
+	</h2></a></div>
+
+	<div class="div_box"><a name="TextureBrush"> <h2>
+       <p><font size="+3" color="#FF0000">纹理画刷 TextureBrush</font></p>
+       <p><font color="#FF0000">描述 </font>将图片在目标区域平铺</p>
+       (1)定制纹理画刷使用的基本图案<br />
+       (2)设置画刷图案大小<br />
+       (3)确定图案排列方式
+       
+       <p><font color="#FF0000">构造函数</font>
+       <pre>
+       		TextureBrush::TextureBrush(Image*,wrapMode,RectF&)
+		TextureBrush::TextureBrush(Image*,Rect&,ImageAttributes*)
+		TextureBrush::TextureBrush(Image*,WrapMode,INT x,INT y,INT with,INT height)
+		TextureBrush::TextureBrush(Image*,WrapMode,REAL,REAL,REAL,REAL)
+		TextureBrush::TextureBrush(Image*,RectF&,ImageAttributes*)
+		TextureBrush::TextureBrush(Image*,WrapMode)
+		TextureBrush::TextureBrush(Image*,WrapMode,Rect&)
+       </pre>
+       rect x y with height 等指定从图片中剪切出部分来平铺<font color="#FF0000">(指定区域不在图内不能成功构造画刷)</font><br />
+       wrapMode 指定如何排列图片<br />
+       ImageAttributes 指定图案附加特征
+       </p>
+       
+       
+       <p><font color="#FF0000">缩放</font>
+       调用TextureBrush的SetTransform函数
+       </p>
+       
+       <p><font color="#FF0000">wrapMode取值</font>
+       <table border="2">
+       <tr><td>取值</td><td>描述</td><td>效果</td></tr>
+       <tr><td>Gdiplus::WrapModeTile</td><td>就是直接平铺</td><td><img src="image/pen/WrapModeTile.PNG" /></td></tr>
+       <tr><td>Gdiplus::WrapModeTileFlipX</td><td>平铺 水平相邻位置图片翻转</td><td><img src="image/pen/WrapModeTileFlipX.PNG" /></td></tr>
+       <tr><td>Gdiplus::WrapModeTileFlipY</td><td>平铺 垂直相邻位置图片翻转</td><td><img src="image/pen/WrapModeTileFlipY.PNG" /></td></tr>
+       <tr><td>Gdiplus::WrapModeTileFlipXY</td><td>平铺 水平和垂直相邻位置图片翻转</td><td><img src="image/pen/WrapModeTileFlipXY.PNG" /></td></tr>
+       <tr><td>Gdiplus::WrapModeClamp</td><td>只绘制一个图形 其他部位透明</td><td><img src="image/pen/WrapModeClamp.PNG" /></td></tr>
+       </table>
+       改变图片排列方式 Status SetWrapMode(WrapMode wrapMode);
+       </p>
+       
+       <p><font color="#FF0000">旋转 平移 缩放</font><br />
+       
+       <p>旋转<br /><img src="image/pen/RotateTransform.PNG" />
+       	<pre>
+        Status RotateTransform(          REAL angle,//顺时针旋转角度
+    MatrixOrder order=Gdiplus::MatrixOrderPrepend
+);
+		</pre></p>
+       
+       <p>平移<br /><img src="image/pen/TranslateTransform.PNG" />
+       <pre>
+       Status TranslateTransform(          REAL dx,//水平平移像素
+    REAL dy,//垂直平移像素
+    MatrixOrder order=Gdiplus::MatrixOrderPrepend
+);
+       </pre></p>
+       <p>缩放<br /><img src="image/pen/ScaleTransform.PNG" />
+       <pre>
+       Status ScaleTransform(          REAL sx,//水平放大或缩小倍数 1为不变
+    REAL sy,//垂直放大或缩小倍数
+    MatrixOrder order==Gdiplus::MatrixOrderPrepend
+);
+       </pre>
+       </p>
+       三个函数效果可叠加 同一个函数效果亦可叠加<br />
+       Status ResetTransform(VOID);函数清空效果<br />
+       获取已经设置的风格Status GetTransform(Matrix* matrix);
+       </p>
+       
+	</h2></a></div>       
+
+	<div class="div_box"><a name="LinearGradientBrush"> <h2>
+       <p><font size="+3" color="#FF0000">线性变换画刷 LinearGradientBrush</font></p>
+       <p><font color="#FF0000">描述 </font>用逐渐变换的色彩填充</p>
+       <p><font color="#FF0000">构造函数</font>
+       <pre>
+        LinearGradientBrush::LinearGradientBrush(PointF&,PointF&,Color&,Color&)
+        LinearGradientBrush::LinearGradientBrush(Rect&,Color&,Color&,REAL,BOOL)
+        LinearGradientBrush::LinearGradientBrush(RectF&,Color&,Color&,LinearGradientMode)
+        LinearGradientBrush::LinearGradientBrush(Point&,Point&,Color&,Color&)
+        LinearGradientBrush::LinearGradientBrush(Rect&,Color&,Color&,REAL,BOOL)
+        LinearGradientBrush::LinearGradientBrush(Rect&,Color&,Color&,LinearGradientMode)
+       </pre>
+       两个PointF的直线方向渐变 渐变长度为直线长<br />
+       rect渐变画刷区域<br />
+       BOOL画刷是否旋转<br />
+       REAL画刷旋转的角度<br />
+       LinearGradientMode画刷渐变方向<br /><br />
+       <table border="2">
+       <tr><td>LinearGradientMode取值(c1=(255,0,255))</td><td>方向</td><td>效果</td></tr>
+       <tr><td>Gdiplus::LinearGradientModeVertical</td><td>上到下</td><td><img src="image/pen/LinearGradientModeVertical.PNG" /></td></tr>
+       <tr><td>Gdiplus::LinearGradientModeHorizontal</td><td>左到右</td><td><img src="image/pen/LinearGradientModeHorizontal.PNG" /></td></tr>
+       <tr><td>Gdiplus::LinearGradientModeForwardDiagonal</td><td>左上到右下</td><td><img src="image/pen/LinearGradientModeForwardDiagonal.PNG" /></td></tr>
+       <tr><td>Gdiplus::LinearGradientModeBackwardDiagonal</td><td>右上到左下</td><td><img src="image/pen/LinearGradientModeBackwardDiagonal.PNG" /></td></tr>
+       </table>
+       </p>
+       
+       <p><font color="#FF0000">
+       把渐变画刷的区域看成 一个图片 渐变画刷就相当于纹理画刷 so <br />
+       可以调用SetWrapMode RotateTransform TranslateTransform ScaleTransform ResetTransform等
+       <br />参见纹理画刷 
+       </font></p>
+       
+       <p><font color="#FF0000">多色渐变</font><br />
+       构造LinearGradientModeVertical后调用LinearGradientModeVertical的SetInterpolationColors函数
+       <pre>
+       Status SetInterpolationColors(          const Color *presetColors,//色彩数组
+    const REAL *blendPositions,//颜色合成点位置数组 以n%表示 比如 起点0.0  中点0.5  终点1.0
+    INT count//数组长度
+);
+       </pre>
+       </p>
+       
+       <p><font color="#FF0000">合成因子</font><br />
+       <p><font color="#FF0000">描述</font><br />合成因子定义了颜色渐变程度 100% 完全转换 0丝毫未转换<br />对于多色渐变 代表了每个渐变过程的渐变程度</p>
+       调用SetBlend设置合成因子
+       <pre>
+       Status SetBlend(          const REAL *blendFactors,//合成因子数组
+    const REAL *blendPositions,//合成点位置数组
+    INT count//数组大小
+);
+       </pre>
+       </p>
+    </h2></a></div>
+    
+    <div class="div_box"><a name="GraphicsPath"> <h2>
+       <p><font size="+3" color="#FF0000">路径渐变画刷 GraphicsPath</font></p>
+       <p><font color="#FF0000">描述 </font>由路径指定区域 从区域中心点向周围渐变 区域外的部分透明 <br />将路径画刷的区域看出是纹理画刷的图片so 可调用相应填充函数</p>
+       
+       <p><font size="+3" color="#FF0000">构造函数</font>
+       <pre>
+        PathGradientBrush::PathGradientBrush(Point*,INT,WrapMode)
+        PathGradientBrush::PathGradientBrush(PointF*,INT,WrapMode)
+        PathGradientBrush::PathGradientBrush(GraphicsPath*)
+       </pre></p>
+        <p><font size="+3" color="#FF0000">函数</font>
+        <table border="2">
+        <tr><td>函数</td><td>描述</td></tr>
+        <tr><td>Status SetCenterPoint(const Point &point);</td><td>设置中心点位置</td></tr>
+        <tr><td>Status SetCenterColor(const Color &color);</td><td>设置中心点颜色</td></tr>
+        <tr><td>Status SetSurroundColors(          const Color *colors,<br />
+    INT *count<br />
+);</td><td>设置端点颜色</td></tr>
+        <tr><td>Status SetInterpolationColors(          const Color *presetColors,
+    const REAL *blendPositions,
+    INT count
+);</td><td>多色渐变 详见渐变画刷</td></tr>
+       <tr><td>Status SetGammaCorrection(BOOL useGammaCorrection);</td><td>启用Gamma校正 以保证在不同系统效果一直</td></tr>
+       <tr><td>Status SetFocusScales(          REAL xScale,//水平比例n% 1.0全部  0.5一半<br />
+    REAL yScale
+);</td><td>设置缩放焦点(既中心点颜色所站比例)</td></tr>
+        </table>
+        </p>
+	</h2></a></div>
+</td></tr></table>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>备份还原和导入导出</title>
+</head>
+<body>
+<table align="center"><tr><td>
+    <p>
+    <h2>
+    <a href="#information">mysql数据统计</a><br />
+    <a href="#select">优化查询</a><br />
+	<a href="#struct">优化表结构</a><br />
+    <a href="#insert">优化插入</a><br />
+    <a href="#table">分析表 检查表 优化表</a>
+    </h2>
+    </p>	
+    
+    
+    <a name="information"><h3><p>
+    	<font color="#FF0000">mysql数据统计</font><br />
+        show status like 'value';
+    	<br />value常用取值
+        <table border="2">
+        <tr><td>描述</td><td>取值</td></tr>
+        <tr><td>连接mysql服务器的次数</td><td>connections</td></tr>
+        <tr><td>mysql服务器上线时间</td><td>uptime</td></tr>
+        <tr><td>慢查询次数</td><td>slow_queries</td></tr>
+        <tr><td>查询次数</td><td>com_select</td></tr>
+        <tr><td>插入次数</td><td>com_insert</td></tr>
+        <tr><td>更新次数</td><td>com_update</td></tr>
+        <tr><td>删除次数</td><td>com_delete</td></tr>
+        <tr><td><font color="#FF0000">针对innodb数据库</font></td><td></td></tr>
+        <tr><td>select次数</td><td>innodb_rows_read</td></tr>
+        <tr><td>insert次数</td><td>innodb_rows_inserted</td></tr>
+        <tr><td>update次数</td><td>innodb_rows_updated</td></tr>
+        <tr><td>delete次数</td><td>innodb_rows_deleted</td></tr>
+        <tr><td>...</td><td>...</td></tr>
+        </table>
+    </p></h3></a>
+    
+    
+    <a name="select"><h3><p>
+    <font color="#FF0000">优化查询</font>
+       <P>
+       分析查询语句<br />
+       explain select.... 或 describe select ... (desc select ...)
+       <font color="#FF0000">example</font> desc select * from test;<br />
+       <font color="#FF0000">result</font>
+       <table border="2">
+       <tr><td>id</td><td>select_type</td><td>table</td><td>type</td><td>possible_keys</td><td>key</td><td>key_len</td><td>ref</td><td>rows</td><td>extra</td></tr>
+       <tr><td>表示select语句的编号</td><td>表示select的类型<br /><font color="#FF0000">example</font><br />simple表示是单查询,其中不包括连接和子查询<br />primary表示主查询或最外层查询<br />union表示连接查询的第二个或后面的查询</td><td>查询的表</td><td>表达连接类型<br /><font color="#FF0000">example</font><br />system表示表中只有一条记录<br />const表中有多条记录<br />all对表进行了完整扫描<br />eq_ref多表连接时后面的表使用了unique或primary key<br />ref多表查询时后面的表使用了普通索引<br />unique_suquery子查询中使用了unique或primary key<br />index_subquery子查询中使用了普通索引<br />range查询语句中给出了查询范围<br />index对表中索引进行了完整扫描</td><td>查询中可能使用率索引</td><td>查询使用到的索引</td><td>索引字段长度</td><td>使用了哪个列或常数与索引一起查询记录</td><td>查询的行数</td><td>查询过程的附件信息</td></tr>
+       </table>
+       </P>
+       
+       <p>
+       使用索引<br />
+       like中%位于第一个位置 不会使用索引<br />
+       多列索引只在查询中使用了这些字段的第一个字段时索引才被使用<br />
+       or的两边都使用率索引 索引才被使用
+       </p>
+       
+       <p>
+       以连接代替子查询
+       </p>
+       
+    </p></h3></a>
+    
+    <a name="struct"><h3><p>
+    <font color="#FF0000">优化表结构</font>
+    	<p>将字段很多的表分解为多个表--将不常用的字段放在单独的表中<br />
+        多表常要查询其中字段,新建中间表,把数据插入中间表 在中间表中查询<br />
+        增加冗余字段<br />
+        </p>
+    </p></h3></a>
+   
+   <a name="insert"><h3><p>
+   <font color="#FF0000">优化插入</font>
+   		<p>禁用索引后在插入<br />
+        alter table 表名 disable keys;/*禁用索引*/<br />
+        alter table 表名 enable keys ;/*重启索引*/<br />
+        对于新表 应先不建立索引 待数据插入后再建立索引<br />
+        </p>
+   			
+        <p>
+        禁用唯一性检查<br />
+        set unique_checks=0;/*禁用*/<br />
+        set unique_checks=1;/*重新开启*/<br />
+        </p>
+        
+        <p>
+        insert插入多条记录<br />
+        load data infile比insert快
+        </p>
+   </p></h3></a>
+   
+    <a name="table"><h3><p>
+   <font color="#FF0000">分析表 检查表 优化表</font>
+   			<p>
+            <table border="2">
+            <tr><td>分析表</td><td>分析关键字分布</td></tr>
+            <tr><td>检查表</td><td>检查表是否存在错误</td></tr>
+            <tr><td>优化表</td><td>消除删除 更新造成的空间浪费</td></tr>
+            </table>
+            </p>
+            
+            <p>
+            分析表<br />
+            analyze table 表名[,表名...];/*能分析innodb myisam 分析时会为表加上只读锁*/<br />
+            <font color="#FF0000">result</font>
+            <table border="2">
+            <tr><td>table</td><td>op</td><td>msg_type</td><td>msg_text</td></tr>
+            <tr><td>表名</td><td></td><td></td><td></td></tr>
+            <tr><td>...</td><td></td><td></td><td></td></tr>
+            </table>
+            </p>
+            
+            <p>
+            检查表<br />
+            check table 表名[,表名...][option]
+            </p>
+            <p>
+            优化表<br />
+            optimize table 表名[,表名...]
+            </p>
+   </p></h3></a>
+   
+</td></tr></table>
+</body>
+</html>

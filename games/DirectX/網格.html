@@ -1,0 +1,317 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>網格</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="DirectX"><tr><td>
+<p>
+	<font color="#FF0000">網格</font>
+</p>
+
+<p>
+	<a href="#ID3DXMesh">網格 ID3DXMesh</a><br />
+    <a href="#OptimizeInplace">網格優化</a><br />
+    <a href="#clone">網格克隆</a><br />
+   
+   
+</p>
+
+
+<div class="mydiv"><a name="ID3DXMesh"></a>
+	<p><font color="#FF0000">網格 ID3DXMesh</font>
+<pre>D3DX 使用網格 存儲模型 除了使用D3DXCreate* 創建一個 預定義網格外 
+還可以創建 任意3D網格
+
+ID3DXMesh由多個 子集組成 每個子集以DWORD標識其id
+ID3DXMesh將多個 相同屬性的三角形單元組成一個子集
+ID3DXMesh存在一個 屬性表 DWORD 數組 其餘每個三角形單元對應 其值記錄了此三角形單元 所屬子集id
+
+首先使用
+ HRESULT  D3DXCreateMeshFVF(
+  __in   DWORD NumFaces,		//網格組成的 三角單元 數
+  __in   DWORD NumVertices,		//頂點緩存中 頂點個數數
+  __in   DWORD Options,			//網格創建標記
+  __in   DWORD FVF,			//頂點描述
+  __in   LPDIRECT3DDEVICE9 pD3DDevice,	//設備接口指針
+  __out  LPD3DXMESH *ppMesh		//返回ID3DXMesh接口指針
+);
+創建一個空網格 獲取 ID3DXMesh接口指針
+
+Options取值
+D3DXMESH_32BIT			//使用32位索引
+D3DXMESH_MANAGED		//網格數據被存儲與託管內存池中
+D3DXMESH_WRITEONLY		//網格數據為只讀
+D3DXMESH_DYNAMIC		//網格緩存使用動態內存
+...
+
+
+之後使用
+HRESULT LockVertexBuffer(
+  [in]           DWORD Flags,
+  [out, retval]  LPVOID *ppData
+);
+HRESULT UnlockVertexBuffer();
+
+HRESULT LockIndexBuffer(
+  [in]           DWORD Flags,
+  [out, retval]  LPVOID *ppData
+);
+HRESULT UnlockIndexBuffer();
+鎖定/解鎖 頂點緩存/索引緩存 並寫入 頂點數據/索引數據
+
+使用
+HRESULT LockAttributeBuffer(
+  [in]   DWORD Flags,
+  [out]  DWORD **ppData
+);
+鎖定/解鎖 屬性表 並寫入 每個三角單元所 屬子集id
+
+Flags 鎖定標記取值 參加 頂點緩存 Lock
+
+使用
+HRESULT DrawSubset(
+  [in]  UINT AttribId	//子集id
+);
+繪製 某個子集的 全部 三角單元
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">其他成員函數</font>
+<pre>//返回頂點描述
+DWORD GetFVF();
+
+//返回 頂點緩存中 頂點個數
+DWORD GetNumVertices()
+
+//返回每個頂點 佔用內存大小
+DWORD GetNumBytesPerVertex()
+
+//返回三角形單元數
+DWORD GetNumFaces()
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>//創建 網格
+	D3DXCreateMeshFVF(2 * 6		//12個面
+		,4 * 6					//24個點
+		,D3DXMESH_MANAGED
+		,d3dx::Vertex::FVF
+		,device_ptr
+		,&amp;mesh_ptr_
+		);
+	
+	//寫入點數據
+	d3dx::Vertex* vertexs_ptr;
+	mesh_ptr_-&gt;LockVertexBuffer(0,(void**)&amp;vertexs_ptr);
+
+	vertexs_ptr[0]	=	d3dx::Vertex(D3DXVECTOR3(0,1,-1),D3DXVECTOR3(0,0,-1),D3DXVECTOR2(0,0));
+	vertexs_ptr[1]	=	d3dx::Vertex(D3DXVECTOR3(0,0,-1),D3DXVECTOR3(0,0,-1),D3DXVECTOR2(0,1));
+	vertexs_ptr[2]	=	d3dx::Vertex(D3DXVECTOR3(1,0,-1),D3DXVECTOR3(0,0,-1),D3DXVECTOR2(1,1));
+	vertexs_ptr[3]	=	d3dx::Vertex(D3DXVECTOR3(1,1,-1),D3DXVECTOR3(0,0,-1),D3DXVECTOR2(1,0));
+
+	vertexs_ptr[4]	=	d3dx::Vertex(D3DXVECTOR3(1,1,-1),D3DXVECTOR3(1,0,0),D3DXVECTOR2(0,0));
+	vertexs_ptr[5]	=	d3dx::Vertex(D3DXVECTOR3(1,0,-1),D3DXVECTOR3(1,0,0),D3DXVECTOR2(0,1));
+	vertexs_ptr[6]	=	d3dx::Vertex(D3DXVECTOR3(1,0,0),D3DXVECTOR3(1,0,0),D3DXVECTOR2(1,1));
+	vertexs_ptr[7]	=	d3dx::Vertex(D3DXVECTOR3(1,1,0),D3DXVECTOR3(1,0,0),D3DXVECTOR2(1,0));
+
+	
+	vertexs_ptr[8]	=	d3dx::Vertex(D3DXVECTOR3(0,1,0),D3DXVECTOR3(-1,0,0),D3DXVECTOR2(0,0));
+	vertexs_ptr[9]	=	d3dx::Vertex(D3DXVECTOR3(0,0,0),D3DXVECTOR3(-1,0,0),D3DXVECTOR2(0,1));
+	vertexs_ptr[10]	=	d3dx::Vertex(D3DXVECTOR3(0,0,-1),D3DXVECTOR3(-1,0,0),D3DXVECTOR2(1,1));
+	vertexs_ptr[11]	=	d3dx::Vertex(D3DXVECTOR3(0,1,-1),D3DXVECTOR3(-1,0,0),D3DXVECTOR2(1,0));
+
+	vertexs_ptr[12]	=	d3dx::Vertex(D3DXVECTOR3(0,0,0),D3DXVECTOR3(0,-1,0),D3DXVECTOR2(0,0));
+	vertexs_ptr[13]	=	d3dx::Vertex(D3DXVECTOR3(0,0,-1),D3DXVECTOR3(0,-1,0),D3DXVECTOR2(0,1));
+	vertexs_ptr[14]	=	d3dx::Vertex(D3DXVECTOR3(1,0,-1),D3DXVECTOR3(0,-1,0),D3DXVECTOR2(1,1));
+	vertexs_ptr[15]	=	d3dx::Vertex(D3DXVECTOR3(1,0,0),D3DXVECTOR3(0,-1,0),D3DXVECTOR2(1,0));
+
+
+	vertexs_ptr[16]	=	d3dx::Vertex(D3DXVECTOR3(0,1,0),D3DXVECTOR3(0,1,0),D3DXVECTOR2(0,0));
+	vertexs_ptr[17]	=	d3dx::Vertex(D3DXVECTOR3(0,1,-1),D3DXVECTOR3(0,1,0),D3DXVECTOR2(0,1));
+	vertexs_ptr[18]	=	d3dx::Vertex(D3DXVECTOR3(1,1,-1),D3DXVECTOR3(0,1,0),D3DXVECTOR2(1,1));
+	vertexs_ptr[19]	=	d3dx::Vertex(D3DXVECTOR3(1,1,0),D3DXVECTOR3(0,1,0),D3DXVECTOR2(1,0));
+
+	vertexs_ptr[20]	=	d3dx::Vertex(D3DXVECTOR3(0,1,0),D3DXVECTOR3(0,0,1),D3DXVECTOR2(0,0));
+	vertexs_ptr[21]	=	d3dx::Vertex(D3DXVECTOR3(0,0,0),D3DXVECTOR3(0,0,1),D3DXVECTOR2(0,1));
+	vertexs_ptr[22]	=	d3dx::Vertex(D3DXVECTOR3(1,0,0),D3DXVECTOR3(0,0,1),D3DXVECTOR2(1,1));
+	vertexs_ptr[23]	=	d3dx::Vertex(D3DXVECTOR3(1,1,0),D3DXVECTOR3(0,0,1),D3DXVECTOR2(1,0));
+
+	mesh_ptr_-&gt;UnlockVertexBuffer();
+
+	//寫入索引數據
+	WORD* index_ptr;
+	mesh_ptr_-&gt;LockIndexBuffer(0,(void**)&amp;index_ptr);
+	
+	index_ptr[0]	=	2;
+	index_ptr[1]	=	1;
+	index_ptr[2]	=	0;
+	index_ptr[3]	=	3;
+	index_ptr[4]	=	2;
+	index_ptr[5]	=	0;
+
+	index_ptr[6]	=	6;
+	index_ptr[7]	=	5;
+	index_ptr[8]	=	4;
+	index_ptr[9]	=	7;
+	index_ptr[10]	=	6;
+	index_ptr[11]	=	4;
+
+
+	index_ptr[12]	=	10;
+	index_ptr[13]	=	9;
+	index_ptr[14]	=	8;
+	index_ptr[15]	=	11;
+	index_ptr[16]	=	10;
+	index_ptr[17]	=	8;
+
+	index_ptr[18]	=	12;
+	index_ptr[19]	=	13;
+	index_ptr[20]	=	14;
+	index_ptr[21]	=	12;
+	index_ptr[22]	=	14;
+	index_ptr[23]	=	15;
+
+
+	index_ptr[24]	=	18;
+	index_ptr[25]	=	17;
+	index_ptr[26]	=	16;
+	index_ptr[27]	=	19;
+	index_ptr[28]	=	18;
+	index_ptr[29]	=	16;
+
+	index_ptr[30]	=	20;
+	index_ptr[31]	=	21;
+	index_ptr[32]	=	22;
+	index_ptr[33]	=	20;
+	index_ptr[34]	=	22;
+	index_ptr[35]	=	23;
+
+	mesh_ptr_-&gt;UnlockIndexBuffer();
+
+	//寫入子集屬性id
+	DWORD* ids_ptr;
+	mesh_ptr_->LockAttributeBuffer(0,&amp;ids_ptr);
+	int i=0;
+	for(;i&lt;4;++i)
+	{
+		ids_ptr[i]	=	0;
+	}
+	for(i=0;i&lt;4;++i)
+	{
+		ids_ptr[i + 4]	=	1;
+	}
+	for(i=0;i&lt;4;++i)
+	{
+		ids_ptr[i + 4 * 2]	=	2;
+	}
+
+	mesh_ptr_->UnlockAttributeBuffer();
+
+	//創建紋理
+	textures_[D3DX_BOX_TEXTURE_0]	=	CreateTexture(L"..\\source\\checker.jpg");
+	textures_[D3DX_BOX_TEXTURE_1]	=	CreateTexture(L"..\\source\\brick0.jpg");
+	textures_[D3DX_BOX_TEXTURE_2]	=	CreateTexture(L"..\\source\\brick1.jpg");
+
+	//設置材質
+	materials_[D3DX_BOX_TEXTURE_0]	=	d3dx::white_material;
+    
+    
+    
+	//繪製
+	for(int i=0;i&lt;D3DX_BOX_ATTRIB_COUNT;++i)
+	{
+		device_ptr_-&gt;SetTexture(0,textures_[i].get());
+		mesh_ptr_-&gt;DrawSubset(i);
+	}    
+</pre>
+	</p>
+</div>    
+
+<div class="mydiv"><a name="OptimizeInplace"></a>
+	<p><font color="#FF0000">網格優化</font>
+<pre>為了更高效的繪製一個網格 我們可以對網格中的 頂點 和 索引 重組 
+重組的過程 稱為網格優化
+
+使用
+HRESULT ID3DXMesh::OptimizeInplace(
+  [in]   DWORD Flags,			//優化標記 標識了如何進行優化
+  [in]   const DWORD *pAdjacencyIn,	//指向網格鄰接數組指針
+  [out]  DWORD *pAdjacencyOut,		//NULL(不接受返回值) 返回DWORD數組 此為優化後的 網格鄰接數組
+  [out]  DWORD *pFaceRemap,		//...	返回DWORD數組 記錄了優化後 所以緩存值
+  [out]  LPD3DXBUFFER *ppVertexRemap	//... 返回ID3DXMesh對象指針地址 其中保存了頂點的 重繪信息
+);
+優化網格
+
+Flags取值(D3DXMESHOPT_VERTEXCACHE D3DXMESHOPT_STRIPREORDER 不能同時存在)
+D3DXMESHOPT_COMPACT		//從網格中移除 無用頂點 索引
+D3DXMESHOPT_ATTRSORT		//依據屬性 對三角形單元排序 使DrawSubset繪製 更高效
+D3DXMESHOPT_VERTEXCACHE		//提高頂點高速緩存的 命中率
+D3DXMESHOPT_STRIPREORDER	//對索引重排 使三角形單元帶(strip) 盡可能長
+D3DXMESHOPT_IGNOREVERTS		//僅對索引優化 忽略頂點
+
+//Optimize 同 OptimizeInplace 不過其將 優化後的網格 返回到ppOptMesh 而非改變原網格
+HRESULT ID3DXMesh::Optimize(
+  [in]       DWORD Flags,
+  [in]       const DWORD *pAdjacencyIn,
+  [in, out]  DWORD *pAdjacencyOut,
+  [in, out]  DWORD *pFaceRemap,
+  [out]      LPD3DXBUFFER *ppVertexRemap,
+  [out]      LPD3DXMESH *ppOptMesh
+);
+
+</pre>
+	</p>
+      
+    <p><font color="#FF0000">鄰接數據</font>
+<pre>鄰接數據 中記錄了 與此三角形單元的 鄰接面索引
+三角形單元的每個的每個面 的鄰接數據使用DWORD 記錄
+若此面 無鄰接面 則為 
+#define ULONG_MAX     0xffffffffUL 
+-1
+
+使用
+HRESULT ID3DXBaseMesh::GenerateAdjacency(
+  [in]  FLOAT Epsilon,		//>=0 將小於Epsilon的兩點 認為是一點
+  [in]  DWORD *pAdjacency	//返回 鄰接數據
+);
+獲取鄰接數據
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>	//獲取 鄰接數據
+	boost::scoped_array&lt;DWORD&gt; adjacency_ptr(new DWORD[mesh_ptr_->GetNumFaces() * 3]);
+	mesh_ptr_->GenerateAdjacency(0.0f,adjacency_ptr.get());
+
+	//優化網格
+	mesh_ptr_->OptimizeInplace(D3DXMESHOPT_COMPACT | D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE
+		,adjacency_ptr.get()
+		,NULL,NULL,NULL
+		);
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="clone"></a>
+	<p><font color="#FF0000">網格克隆</font>
+<pre>使用
+HRESULT CloneMeshFVF(
+  [in]           DWORD Options,	//網格創建標記 參見D3DXCreateMeshFVF
+  [in]           DWORD FVF,		//點描述
+  [in]           LPDIRECT3DDEVICE9 pDevice,	//設備
+  [out, retval]  LPD3DXMESH *ppCloneMesh	//返回克隆的副本
+);
+
+複製一份網格副本到 ppCloneMesh 
+可指定與原網格不同的Options FVF 
+</pre>
+	</p>
+</div>
+    
+</td></tr></table>
+</body>
+</html>

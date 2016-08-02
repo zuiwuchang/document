@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>JDBC</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#JDBC">JDBC</a>
+		<a href="#string">基本操作</a>
+		<a href="#PreparedStatement">PreparedStatement 預處理</a>
+		<a href="#setAutoCommit">事物處理</a>
+	</div>
+
+	<div class="note"><a name="JDBC"></a>
+		<p><span class="flag">JDBC</span>
+<pre>java.sql.*
+
+JDBC 是java数据库编程接口
+java未实现 具体的数据库操作 只定义了接口 由数据库厂商提供 实现
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="string"></a>
+		<p><span class="flag">基本操作</span>
+<pre>0	將數據庫驅動包 *.jar(mysql-connector-java-5.1.27-bin.jar) 加入到庫
+1	使用 Class.forName 註冊驅動
+2	使用 DriverManager.getConnection 連接字符串
+3	Statement stm = con.createStatement(); 創建Statement
+4	使用 Statement 的executeQuery執行查詢 executeUpdate更新(execute 即可查詢 又可插入 然 無法返回查詢到的數據)
+5	使用 ResultSet 獲取查詢數據
+</pre>
+		</p>
+		<p><span class="flag">連接字符串</span>
+<pre>	1、Oracle8/8i/9i数据库（thin模式）  
+
+Class.forName("oracle.jdbc.driver.OracleDriver").newInstance();  
+String url="jdbc:oracle:thin:@localhost:1521:orcl"; //orcl为数据库的SID  
+String user="test";  
+String password="test";  
+Connection conn= DriverManager.getConnection(url,user,password);  
+
+　　 2、DB2数据库  
+
+Class.forName("com.ibm.db2.jdbc.app.DB2Driver ").newInstance();  
+String url="jdbc:db2://localhost:5000/sample"; //sample为你的数据库名  
+String user="admin";  
+String password="";  
+Connection conn= DriverManager.getConnection(url,user,password);  
+
+　　 3、Sql Server7.0/2000数据库  
+
+Class.forName("com.microsoft.jdbc.sqlserver.SQLServerDriver").newInstance();  
+String url="jdbc:microsoft:sqlserver://localhost:1433;DatabaseName=mydb";  
+//mydb为数据库  
+String user="sa";  
+String password="";  
+Connection conn= DriverManager.getConnection(url,user,password);  
+
+　　 4、Sybase数据库  
+
+Class.forName("com.sybase.jdbc.SybDriver").newInstance();  
+String url =" jdbc:sybase:Tds:localhost:5007/myDB";//myDB为你的数据库名  
+Properties sysProps = System.getProperties();  
+SysProps.put("user","userid");  
+SysProps.put("password","user_password");  
+Connection conn= DriverManager.getConnection(url, SysProps);  
+
+　　 5、Informix数据库  
+
+Class.forName("com.informix.jdbc.IfxDriver").newInstance();  
+String url = "jdbc:informix-sqli://123.45.67.89:1533/myDB:INFORMIXSERVER=myserver;  
+user=testuser;password=testpassword"; //myDB为数据库名  
+Connection conn= DriverManager.getConnection(url);  
+
+　　 6、MySQL数据库  
+
+Class.forName("com.mysql.jdbc.Driver");  
+String url ="jdbc:mysql://localhost/myDB;
+//myDB为数据库名  
+String user="root";  
+String password="root";  
+Connection conn= DriverManager.getConnection(url,user,password);  
+
+　　 7、PostgreSQL数据库  
+
+Class.forName("org.postgresql.Driver").newInstance();  
+String url ="jdbc:postgresql://localhost/myDB" //myDB为数据库名  
+String user="myuser";  
+String password="mypassword";  
+Connection conn= DriverManager.getConnection(url,user,password);  
+
+　　 8、access数据库直连用ODBC的 
+
+Class.forName("sun.jdbc.odbc.JdbcOdbcDriver") ; 
+String url="jdbc:odbc:Driver={MicroSoft Access Driver (*.mdb)};DBQ="+application.getRealPath("/Data/ReportDemo.mdb"); 
+Connection conn = DriverManager.getConnection(url,"",""); 
+Statement stmtNew=conn.createStatement() ;
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>public class JavaApplication1 {
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        try {
+            // TODO code application logic here
+            //註冊 mysql 驅動
+            Class.forName("com.mysql.jdbc.Driver");
+            
+            //傳入連接字符串 連接數據庫
+            Connection con  =   DriverManager.getConnection("jdbc:mysql://localhost:3306/games"
+                    ,"root"
+                    ,"***");
+            
+            //創建 Statement
+            Statement stm = con.createStatement();
+            String sql ="select id,title from anita";
+            
+            //執行 sql 遍歷結果
+            ResultSet rs = stm.executeQuery(sql);
+            while(rs.next())
+            {
+               System.out.print(rs.getInt("id"));
+               System.out.println(rs.getString("title"));
+            }
+            
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(JavaApplication1.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(JavaApplication1.class.getName()).log(Level.SEVERE, null, ex);
+        }    
+    }
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="PreparedStatement"></a>
+		<p><span class="flag">PreparedStatement 預處理</span>
+<pre>java可以使用 PreparedStatement 替代 Statement
+好處是 PreparedStatement 可以傳入一個 預處理sql指令 其中 以 ? 代表數據
+之後使用 PreparedStatement 的 set* 替換? 為指定數據
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>public class JavaApplication1 {
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        try {
+            // TODO code application logic here
+            //註冊 mysql 驅動
+            Class.forName("com.mysql.jdbc.Driver");
+            
+            //傳入連接字符串 連接數據庫
+            Connection con  =   DriverManager.getConnection("jdbc:mysql://localhost:3306/games"
+                    ,"root"
+                    ,"***");
+            
+            //創建 Statement
+            String sql ="select id,title from anita where album = ? and love > ?";
+            PreparedStatement stm = con.prepareStatement(sql);
+            
+            //設置?值
+            stm.setString(1, "飞耀舞台");
+            stm.setInt(2, 5);
+           
+            //執行 sql 遍歷結果
+            ResultSet rs = stm.executeQuery();
+            while(rs.next())
+            {
+               System.out.print(rs.getInt(1));
+               System.out.println(rs.getString(2));
+            }
+            
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(JavaApplication1.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(JavaApplication1.class.getName()).log(Level.SEVERE, null, ex);
+        }    
+    }
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>set* get* 中 java很sb的以1為索引開始 而非正常人類使用的0
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="setAutoCommit"></a>
+		<p><span class="flag">事物處理</span>
+<pre>使用Connection的 setAutoCommit(false) 關閉自動提交
+之後可以提交多條sql指令 然指令不會執行
+直到使用 setAutoCommit(true) 開啟自動提交 這些指令才會被 依次執行	
+(或者 commit() 手動提交)
+
+<span class="care">一旦發生錯誤 需要調用 rollback() 回滾事務</span>
+
+
+
+原子性	一個事務可由 多個語句單元 組成 一旦失敗 所有都失敗 數據庫恢復到 事務前 狀態
+一致性	一旦事務成功 所有更新更新 成功 失敗 所有失敗
+隔離性	每個用戶 可進行事務 事務間 互相透明
+持續性	一旦成功 所有更新必須 保存下來 不能遺失	
+
+
+Connection/ResultSet 的 getMeteData() 可以返回 數據庫/記錄 本身信息(如字段名 ...)
+</pre>
+		</p>
+
+		<p><span class="flag">Saveopint</span>
+<pre>在 無參rollback()可以 回滾事
+亦可設置一個 回滾 標記 只 回滾到 此處
+Saveopint point	=	null;
+ try
+ {
+ ...
+ stm.exe...
+ point = con.setSavepoint();
+ stm.exe...
+ ...
+ }
+ catch()
+ {
+ 	if(point != null)
+    {
+   	con. rollback( point)
+    }
+ }
+</pre>
+		</p>
+
+		<p><span class="flag">隔離性</span>
+<pre>使用 Connection 的 getTransactionIsolation() setTransactionIsolation(...)//獲取設置 隔離性
+TRANSACTION_NONE				//不設置隔離行為
+TRANSACTION_UNCOMMITTED			//相當於 加鎖
+TRANSACTION_COMMITTED			//讀取 不影響 其他 事務 讀取的數據 必然是已更新到 為更新事務 會影響其他事務
+TRANSACTION_REPEARABLED_READ	//保證 同一事務 讀取的統一記錄數據一定 一樣 相當於 讀寫鎖
+TRANSACTION_SERIALIZABLE		//保證 同一事務 讀取到底數據記錄數 一定相等
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>public class JavaApplication1 {
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        try {
+            // TODO code application logic here
+            //註冊 mysql 驅動
+            Class.forName("com.mysql.jdbc.Driver");
+            
+            //傳入連接字符串 連接數據庫
+            Connection con  =   DriverManager.getConnection("jdbc:mysql://localhost:3306/games"
+                    ,"root"
+                    ,"***");
+            
+            //創建 Statement
+            String sql ="create table test(id int)";
+            PreparedStatement stm = con.prepareStatement(sql);
+            
+            con.setAutoCommit(false);
+            stm.execute();
+            stm.executeUpdate("insert into test values (1)");
+           
+            ResultSet rs = stm.executeQuery("select * from test");
+            con.setAutoCommit(true);
+            while(rs.next())
+            {
+               System.out.println(rs.getInt(1));
+               
+            }
+            
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(JavaApplication1.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(JavaApplication1.class.getName()).log(Level.SEVERE, null, ex);
+        }    
+    }
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>常用</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+   
+    
+    <h2>
+    <a href="#CSplitterWnd">分隔窗口</a><br />
+   
+    </h2>
+    
+    <div class="div_box"><a name="CSplitterWnd"></a><p><h3>
+    <h2><font color="#FF0000">分隔窗口</font></h2><br />
+<pre><font color="#FF0000">1</font>
+	為窗口插入對話框資源 必須為 <font color="#FF0000">IDD_FORMVIEW</font> 資源 並添加類 必須從<font color="#FF0000">CFormView</font>繼承
+
+<font color="#FF0000">2</font>
+	CSplitterWnd m_splitter;	//定義一個分割器
+	CFrameWnd* m_frame;			//一個動態創建的視圖
+
+<font color="#FF0000">3</font>    
+//注册窗口类
+    CString strMyClass = AfxRegisterWndClass(CS_VREDRAW | CS_HREDRAW,  
+                   ::LoadCursor(NULL, IDC_ARROW),    (HBRUSH) ::GetStockObject(WHITE_BRUSH),   
+                  ::LoadIcon(NULL, IDI_APPLICATION));
+    // 創建CFrameWnd
+    m_frame = new CFrameWnd;
+    m_frame->Create(strMyClass,L"", WS_CHILD,   CRect(0,0,300,300), this);
+   
+
+    //創建分隔器
+    m_splitter.CreateStatic(m_frame,1, 2);		//在Frame里切分视图窗口为1*2，就是一行两列
+	//將要顯示的窗體添加到分割器
+	m_splitter.CreateView(0,0, RUNTIME_CLASS(CForm1),   CSize(100,100), NULL);//第一行一列
+    m_splitter.CreateView(0,1, RUNTIME_CLASS(CFrom2), CSize(100,100), NULL);//第一行二列
+
+<font color="#FF0000">4 顯示窗口</font>
+CRect cRect;
+	GetWindowRect(cRect);
+	ScreenToClient(cRect);
+	m_frame->MoveWindow(cRect);
+	m_frame->ShowWindow(SW_SHOW);
+</pre>
+
+    </h3></p></div>
+    
+   
+  	
+</td></tr></table>
+</body>
+</html>

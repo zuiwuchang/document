@@ -1,0 +1,266 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>log4j</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">log4j</font>
+</p>
+
+<p>
+	<a href="#log4j">log4j</a><br />
+    <a href="#using">使用 log4j</a><br />
+    <a href="#setting">配置 log4j</a><br />
+    <a href="#xml">配置文件 xml</a><br />
+    
+   
+</p>
+
+
+<div class="mydiv"><a name="log4j"></a>
+	<p><font color="#FF0000">log4j</font>
+<pre>log4j 是apache下 一個開源的(apache 2) java 日誌庫
+
+官網<a href="http://logging.apache.org/log4j/2.x/manual/customconfig.html">http://logging.apache.org/log4j/2.x/manual/customconfig.html</a>
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">獲取支持</font>
+<pre>1	從官網 下載最新版本(此處是 apache-log4j-2.0-bin)
+2	解壓 將其中 log4j-api-*.jar log4j-core-*.jar 加入庫目錄
+3	配置日誌參數 (可選 不配置使用默認設置) 
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="using"></a>
+	<p><font color="#FF0000">使用 log4j</font>
+<pre>1	加載配置參數(可選)
+2	獲取實例對象
+3	記錄日誌
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">相關API</font>
+<pre>//返回一個 日誌對象的單件實例 (以傳入不同字符串 創建不同單件)
+Logger LogManager.getLogger();
+Logger LogManager.getLogger(String);
+
+//記錄不同級別 日誌 等級從低到高
+Logger.trace
+Logger.debug
+Logger.info
+Logger.warn
+Logger.error
+Logger.fatal
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre> Logger log = LogManager.getLogger();   
+        
+        //輸出不同等級日誌
+        log.trace("trace");  
+        log.debug("debug");  
+        log.info("hello");  
+        log.warn("warn");  
+        log.error("error");  
+        log.fatal("fatal");
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="setting"></a>
+	<p><font color="#FF0000">配置 log4j</font>
+<pre>log4j 支持 xml 或 json 配置文件
+
+log4j 在src目錄下依次查找以下配置文件 並加載配置(等級從高到低)
+log4j2-test.json(或 log4j2-test.jsn)
+log4j2-text.xml
+log4j2.json(或log4j2.jsn)
+log4j2.xml
+
+默都沒有使用 默認配置配置 由DefaultConfiguration提供
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">DefaultConfiguration</font>
+<pre>* Licensed to the Apache Software Foundation (ASF) under one or more  
+package org.apache.logging.log4j.core.config;  
+  
+import java.io.Serializable;  
+  
+import org.apache.logging.log4j.Level;  
+import org.apache.logging.log4j.core.Appender;  
+import org.apache.logging.log4j.core.Layout;  
+import org.apache.logging.log4j.core.appender.ConsoleAppender;  
+import org.apache.logging.log4j.core.layout.PatternLayout;  
+import org.apache.logging.log4j.util.PropertiesUtil;  
+  
+/** 
+ * The default configuration writes all output to the Console using the default logging level. You configure default 
+ * logging level by setting the system property "org.apache.logging.log4j.level" to a level name. If you do not 
+ * specify the property, Log4j uses the ERROR Level. Log Events will be printed using the basic formatting provided 
+ * by each Message. 
+ */  
+public class DefaultConfiguration extends BaseConfiguration {  
+  
+    /** 
+     * The name of the default configuration. 
+     */  
+    public static final String DEFAULT_NAME = "Default";  
+    /** 
+     * The System Property used to specify the logging level. 
+     */  
+    public static final String DEFAULT_LEVEL = "org.apache.logging.log4j.level";  
+  
+    /** 
+     * Constructor to create the default configuration. 
+     */  
+    public DefaultConfiguration() {  
+  
+        setName(DEFAULT_NAME);  
+        final Layout&lt;? extends Serializable&gt; layout =  
+                PatternLayout.createLayout("%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n", null, null, null, null);  
+        final Appender appender =  
+                ConsoleAppender.createAppender(layout, null, "SYSTEM_OUT", "Console", "false", "true");  
+        appender.start();  
+        addAppender(appender);  
+        final LoggerConfig root = getRootLogger();  
+        root.addAppender(appender, null, null);  
+  
+        final String levelName = PropertiesUtil.getProperties().getStringProperty(DEFAULT_LEVEL);  
+        final Level level = levelName != null &amp;&amp; Level.valueOf(levelName) != null ?  
+            Level.valueOf(levelName) : Level.ERROR;  
+        root.setLevel(level);  
+    }  
+  
+    @Override  
+    protected void doConfigure() {  
+    }  
+}  
+
+相當於
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;  
+&lt;Configuration status="WARN"&gt;  
+  &lt;Appenders&gt;  
+    &lt;Console name="Console" target="SYSTEM_OUT"&gt;  
+      &lt;PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/&gt;  
+    &lt;/Console&gt;  
+  &lt;/Appenders&gt;  
+  &lt;Loggers&gt;  
+    &lt;Root level="error"&gt;  
+      &lt;AppenderRef ref="Console"/&gt;  
+    &lt;/Root&gt;  
+  &lt;/Loggers&gt;  
+&lt;/Configuration&gt;
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>package javaapplication7;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import org.apache.logging.log4j.LogManager;  
+import org.apache.logging.log4j.Logger; 
+import org.apache.logging.log4j.core.config.ConfigurationSource;
+import org.apache.logging.log4j.core.config.Configurator;
+
+/**
+ *
+ * @author Administrator
+ */
+public class JavaApplication7 {
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args){
+        //根據指定 配置 文件初始化
+        try {    
+            ConfigurationSource source = new ConfigurationSource(new FileInputStream("E:\\log4j.xml"));
+            Configurator.initialize(null, source);  
+        } catch (IOException ex) {
+        }
+        
+        //實例化 日誌單件
+        Logger log = LogManager.getLogger();   
+        
+        //輸出不同等級日誌
+        log.trace("trace");  
+        log.debug("debug");  
+        log.info("hello");  
+        log.warn("warn");  
+        log.error("error");  
+        log.fatal("fatal");
+    }
+    
+}
+
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="xml"></a>
+	<p><font color="#FF0000">配置文件 xml</font>
+<pre>//File
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;  
+&lt;Configuration status="WARN"&gt;  
+  &lt;Appenders&gt;
+    &lt;!--FileAppender--&gt;
+    &lt;File name="File" fileName="logs/Test01.log"&gt;		//filename 指定文件名
+      &lt;PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/&gt;	//指定日誌信息格式  
+    &lt;/File&gt;
+  &lt;/Appenders&gt;  
+  &lt;Loggers&gt;
+    &lt;Root level="trace"&gt;
+      &lt;AppenderRef ref="File"/&gt;  
+    &lt;/Root&gt;
+  &lt;/Loggers&gt;
+&lt;/Configuration&gt;
+
+
+//RollingFile
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;  
+&lt;Configuration status="WARN"&gt;  
+  &lt;Appenders&gt;
+    &lt;!--RollingFile--&gt;
+    &lt;RollingFile name="RollingFile" fileName="logs/Test.log"  
+                 filePattern="logs/$${date:yyyy-MM}/Test-%d{MM-dd-yyyy}-%i.log.gz"&gt;
+      &lt;PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/&gt;  
+      &lt;Policies&gt;
+        &lt;TimeBasedTriggeringPolicy /&gt;
+        &lt;SizeBasedTriggeringPolicy size="1 KB"/&gt;  	//文件大小超過1kb使用gzip壓縮 壓縮名字由於 filePattern 確定
+      &lt;/Policies&gt;
+      &lt;DefaultRolloverStrategy max="10"/&gt;  			//滾動文件數量上線
+    &lt;/RollingFile&gt;  
+  &lt;/Appenders&gt;  
+  &lt;Loggers&gt;
+    &lt;Root level="trace"&gt;
+      &lt;AppenderRef ref="RollingFile"/&gt;  
+    &lt;/Root&gt;
+  &lt;/Loggers&gt;
+&lt;/Configuration&gt;  
+</pre>
+	</p>
+    <p><font color="#FF0000">配置格式</font>
+<pre>Configuration.Loggers.Root		的level 設置 記錄日誌的最小等級
+
+Configuration.Loggers.AppenderRef	的ref 設置 日誌輸出到何地 可以是 RollingFile(滾動文件) File(文件) Console(控制台)
+
+
+
+Configuration.Appenders 內地標籤 是具體如何 輸入到 目的地
+
+</pre>
+	</p>
+</div>
+
+</td></tr></table>
+</body>
+</html>

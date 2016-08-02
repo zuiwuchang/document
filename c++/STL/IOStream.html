@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>IOStream</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#class">重要的类</a>
+		<a href="#object">重要全局对象</a>
+		<a href="#controller">操控器</a>
+		<a href="#extends">继承图表</a>
+		<a href="#state">stream状态</a>
+		<a href="#noformat">无格式输入输出</a>
+		<a href="#format">格式化</a>
+		<a href="#file">文件存取</a>
+		<a href="#connect">连接io与重定向</a>
+		<a href="#string">string stream</a>
+		<a href="#my">自定义型别</a>
+		<br />
+		<a href="#C">C 文件操作</a>	
+	</div>
+
+	<div class="note"><a name="class"></a>
+		<p><span class="flag">重要的类</span>
+			<table>
+				<tr><td>class</td><td>描述</td></tr>
+				<tr><td>istream</td><td>用于读取数据</td></tr>
+				<tr><td>ostream</td><td>用于写入数据</td></tr>
+			</table>
+		</p>
+	</div>
+	<div class="note"><a name="object"></a>
+		<p><span class="flag">重要全局对象</span>
+			<table>
+				<tr><td>对象名</td><td>描述</td></tr>
+				<tr><td>cin</td><td>标准输入通道,操作系统通常将它和键盘连接</td></tr>
+				<tr><td>cout</td><td>标准输出通道，操作系统通常将它和屏幕连接</td></tr>
+				<tr><td>cerr</td><td>标准错误输出通道，操作系统通常将它和屏幕连接，默认无缓冲装置</td></tr>
+				<tr><td>clog</td><td>标准日志通道，操作系统将它和cerr连接的设备连接，默认有缓冲</td></tr>
+			</table>
+			缺省下这些stream和标准c stream同步。so可混合使用c++ stream和c stream，c++ stream在缓冲区改写前会先刷新c stream缓冲区，反之亦然以保证这种同步。当然会占用一定时间，通过调用sync_with_stdio(false)可关闭这种同步
+		</p>
+	</div>
+	<div class="note"><a name="controller"></a>
+		<p><span class="flag">操控器</span>
+<pre>用来控制stream对象，常常只会改变输入或格式输出的解释方式
+
+<span class="care">#include &lt;iomanip&gt;</span>
+
+<table>
+	<tr><td>操控器名</td><td>类别</td><td>描述</td></tr>
+	<tr><td>endl</td><td>ostream</td><td>输出'\n'，并刷新output</td></tr>
+	<tr><td>ends</td><td>ostream</td><td>输出'\0'</td></tr>
+	<tr><td>flush</td><td>ostream</td><td>刷新output</td></tr>
+	<tr><td>ws</td><td>istream</td><td></td>读入并忽略空格</tr>
+</table>
+
+
+
+自定义操控器
+#include&lt;iostream&gt;
+template&lt;class charT&gt;
+inline std::basic_ostream&lt;charT&gt;& MyEndl(std::basic_ostream&lt;charT&gt;&amp; ostream)
+{
+    ostream&lt;&lt;ostream.widen('\n');
+    ostream.flush();
+    return ostream;
+}
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+    std::cout&lt;&lt;12&lt;&lt;MyEndl&lt;&lt;34&lt;&lt;std::endl;
+    system("pause");
+    return 0;
+}
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="extends"></a>
+		<p><span class="flag">继承图表</span>
+<pre><img src="image/iostream/iostream.PNG" />
+
+<table>
+	<tr><td>class</td><td>描述</td></tr>
+	<tr><td>ios_base<></td><td>定义了所有与字符型别及相应之字符特性无关的属性</td></tr>
+	<tr><td>basic_ios<></td><td>定义出与字符型别及相应之字符特性相关的streamclass共同属性</td></tr>
+	<tr><td>basic_istream<>/basic_ostream</td><td>分别定义出用于读写的对象</td></tr>
+	<tr><td>basic_iostream<></td><td>既可以对亦可写点对象</td></tr>
+	<tr><td>basic_streambuf<></td><td>定义所有可读或可写的stream接口</td></tr>
+</table>
+
+
+
+<span class="care">basic_ios派生类别只处理数据的格式化，
+实际读写操作有basic_ios所维护的stream buffers完成
+stream buffers提供读写时所使用的字符缓冲区
+
+so 
+对新的外部表示(如socket)或对stream重定向
+或是zuhestream以形成pipelines
+(如在改写另一个stream前先压缩数据)
+时需要congbasic_stream&lt;&gt;派生一个新的stream buffer类别
+并定义外部表述的字符读写函数
+某个stream对象以该stream buffer初始化
+则所有I/O格式化操作的选项均可自动失效
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="state"></a>
+		<p><span class="flag">pair</span>
+<pre>ios_base内包含一些常量以表示stream状态
+<table>
+	<tr><td>常量</td><td>含义</td></tr>
+	<tr><td>goodbit</td><td>被设置为0 代表一切都好</td></tr>
+	<tr><td>eofbit</td><td>遇到end-of-file</td></tr>
+	<tr><td>failbit</td><td>错误；某个io未完成</td></tr>
+	<tr><td>badbit</td><td>毁灭性的错误</td></tr>
+</table>
+eofbit和failbit常同时出现 因为遇到到end-of-file读取io没完成
+
+
+
+操作标志函数
+<table>
+	<tr><td>成员函数</td><td>含义</td></tr>
+	<tr><td>good()</td><td>若goodbit设置，返回true</td></tr>
+	<tr><td>eof()</td><td>若eofbit设置，返回true</td></tr>
+	<tr><td>fail()</td><td>若failbit设置，返回true</td></tr>
+	<tr><td>bad()</td><td>若badbit设置，返回true</td></tr>
+	<tr><td>rdstate()</td><td>返回当前设置的所有标志</td></tr>
+	<tr><td>clear()</td><td>清除所有标志</td></tr>
+	<tr><td>clear(state)</td><td>清除所有标准后设置state标志</td></tr>
+	<tr><td>setstate(state)</td><td>加设state标志</td></tr>
+</table>
+
+
+
+判断函数
+<table>
+	<tr><td>成员函数</td><td>含义</td></tr>
+	<tr><td>operator void* ()</td><td>stream是否未出错</td></tr>
+	<tr><td>operator!()</td><td>stream是否出错</td></tr>
+</table>
+if(!std::cin)
+{
+}
+while(std::cin>>a)
+{
+}
+
+
+
+stream默认不抛出异常 但cout.exceptions(failbit)/*或其他标志*/
+函数指定当指定标准设置时抛出ios_base::failure异常 
+若标准已经设置立刻抛出异常 
+
+无参cout.exceptions()返回引发异常的标志
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="noformat"></a>
+		<p><span class="flag">无格式输入输出</span>
+		</p>
+		<p><span class="flag">读字符</span>
+<pre><table>
+	<tr><td>成员函数</td><td>读取，直到...</td><td>字符数</td><td>添加结束符</td><td>返回值</td></tr>
+	<tr><td>get()</td><td>读入下一个字符</td><td>1</td><td>否</td><td>读入的字符或常量EOF</td></tr>
+	<tr><td>get(s,num)</td><td>eof或new line(结果不包含'\n')</td><td>最多num-1</td><td>是</td><td>istream</td></tr>
+	<tr><td>get(s,num,t)</td><td>eof或new line 或t(结果不包含'\n'和t)</td><td>最多num-1</td><td>是</td><td>istream</td></tr>
+	<tr><td>getline(s,num)</td><td>eof或new line(结果包含'\n')</td><td>最多num-1</td><td>是</td><td>istream</td></tr>
+	<tr><td>getline(s,num,t)</td><td>eof或new line 或t(结果包含'\n'和t)</td><td>最多num-1</td><td>是</td><td>istream</td></tr>
+	<tr><td>read(s,num)</td><td>eof(遇到end-of-file出错并设置相应 stream状态)</td><td>最多num</td><td>否</td><td>istream</td></tr>
+	<tr><td>readsome(s,num)</td><td>eof(遇到end-of-file不会出错且不会设置 stream状态)</td><td>最多num</td><td>否</td><td>count</td></tr>
+</table>
+std::streamsize gcount();//返回上次 非格式 读取的字符数
+
+
+
+istream& istream::ignore();//适用于>>和无格式读取 下次读取忽略第一个1个字符
+istream& istream::ignore(streamsize count);//...n个字符
+istream& istream::ignore(streamsize count,int delin);//...n个字符或直到舍弃delin字符
+若count==std::numeric_limits&lt;std::streamsize&gt;::max()将舍弃全部或delin前段所有字符
+
+
+
+int istream::peek();//返回下次将要读取的字符 但不把它读出来 下次还是读取它
+
+
+istream& istream::unget();
+istream& istream::putback(char c);
+//把上次读取的字符放回stream使之可在下次被读出putback会检查c是否是上次的字符
+</pre>
+		</p>
+		<p><span class="flag">写</span>
+<pre>ostream& ostream::put(char c);
+c写入stream、
+
+ostream& ostream::write(const char* str,streamsize count);
+str中的count个字符写入到stream<span class="care">需保证str中至少有count个字符 否则会导致未定义行为</span>
+
+ostream& ostream::flush();
+刷新缓冲区
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="format"></a>
+		<p><span class="flag">格式化</span>
+<pre>std::locale locale=std::wcout.imbue(std::locale("chs",std::locale::all ^ std::locale::numeric));
+
+以std::ios_base::fmtflags表示格式
+
+
+
+<table>
+	<tr><td>成员函数</td><td>含义</td></tr>
+	<tr><td>setf(flags)</td><td>添加flags格式，返回所有原本格式</td></tr>
+	<tr><td>setf(flag,mask)</td><td>配合掩码mask添加格式，返回所有原本格式</td></tr>
+	<tr><td>unsetf(flags)</td><td>清除flags格式</td></tr>
+	<tr><td>flags()</td><td>返回所有已设立格式</td></tr>
+	<tr><td>flags(flags)</td><td>将flags设为新的格式，返回所有原本格式</td></tr>
+	<tr><td>copyfmt(stream)</td><td>从stream中复制格式</td></tr>
+</table>
+用 | 同时设置多个格式
+
+
+
+<table>
+	<tr><td>操控器</td><td>含义</td></tr>
+	<tr><td>setiosflags(flags)</td><td>为stream添加flags格式 相对于setf(flags)</td></tr>
+	<tr><td>resetiosflags(mask)</td><td>清除mask格式 相对于setf(0,mask)</td></tr>
+</table>
+
+
+
+<table>
+	<tr><td>格式</td><td>含义</td><td>默认</td></tr>
+	<tr><td>boolalpha</td><td>设置 则以文字表示bool</td><td>未设置</td></tr>
+	<tr><td>对应操控器</td><td></td><td></td></tr>
+	<tr><td>boolalpha</td><td>设置boolalpha</td><td></td></tr>
+	<tr><td>noboolalpha</td><td>清除boolalpha</td><td></td></tr>
+	<tr><td><h2><span class="care">数值</span></h2></td><td></td><td></td></tr>
+	<tr><td>格式</td><td></td><td></td></tr>
+	<tr><td>showpos</td><td>在正数前加上记号</td><td></td></tr>
+	<tr><td>uppercase</td><td>使用大写字符</td><td></td></tr>
+	<tr><td>oct</td><td>以八进制读写</td><td></td></tr>
+	<tr><td>dec</td><td>以十进制读写</td><td></td></tr>
+	<tr><td>hex</td><td>以十六进制读写</td><td></td></tr>
+	<tr><td>none</td><td>以十进制输出：以字符串中指定格式读写</td><td></td></tr>
+	<tr><td>对应操控器</td><td></td><td></td></tr>
+	<tr><td>oct</td><td></td><td></td></tr>
+	<tr><td>dec</td><td></td><td></td></tr>
+	<tr><td>hex</td><td></td><td></td></tr>
+	<tr><td>格式</td><td></td><td></td></tr>
+	<tr><td>showbase</td>若设置 显示出数字进制<td></td><td></td></tr>
+	<tr><td>对应操控器</td><td></td><td></td></tr>
+	<tr><td>showbase</td><td></td><td></td></tr>
+	<tr><td>noshowbase</td><td></td><td></td></tr>
+	<tr><td><h2><span class="care">浮点</span></h2></td><td></td><td></td></tr>
+	<tr><td>格式</td><td></td><td></td></tr>
+	<tr><td>fixed</td><td>对浮点使用小数计数</td><td></td></tr>
+	<tr><td>scientific</td><td>对于浮点使用科学计数</td><td></td></tr>
+	<tr><td>none</td><td>使用上两者中最合适的计发</td><td></td></tr>
+	<tr><td>相关成员函数</td><td></td><td></td></tr>
+	<tr><td>precision()</td><td>返回浮点精度</td><td></td></tr>
+	<tr><td>precision(val)</td><td>令浮点精度为val</td><td></td></tr>
+	<tr><td>格式</td><td></td><td></td></tr>
+	<tr><td>showpoint</td><td>总是写出小数点</td><td></td></v>
+	<tr><td>对应操控器</td><td></td><td></td></tr>
+	<tr><td>showpoint</td><td></td><td></td></tr>
+	<tr><td>noshowpoint</td><td></td><td></td></v>
+	<tr><td>setprecision(val)</td><td></td><td></td></tr>
+	<tr><td>fixed</td><td></td><td></td></tr>
+	<tr><td>scientific</td><td></td><td></td></tr>
+	<tr><td>格式</td><td></td><td></td></tr>
+	<tr><td>skipws</td><td>调用>>读取数值时自动跳过起始空格</td><td></td></tr>
+	<tr><td>nounitbuf</td><td>每次输出清空output缓冲区</td><td></td></tr>
+	<tr><td><h2><span class="care">字段</span></h2></td><td></td><td></td></tr>
+	<tr><td>成员函数</td><td></td><td></td></tr>
+	<tr><td>width()</td><td>返回当前字段宽度/*所谓字段宽度 只能限制最小字段宽度*/</td><td></td></tr>
+	<tr><td>width(val)</td><td>设置字段宽度 该设置只应用于下次格式化输出 之后stream会自动恢复默认</td><td></td></tr>
+	<tr><td>fill()</td><td>返回当前填充字符</td><td></td></tr>
+	<tr><td>fill(c)</td><td>设置c为填充字符</td><td></td></tr>
+	<tr><td>left</td><td>左对齐</td><td></td></tr>
+	<tr><td>right</td><td>右对齐</td><td></td></tr>
+	<tr><td>internal</td><td>符号靠左 数值靠右</td><td></td></tr>
+	<tr><td>None</td><td></td>右对齐<td>设置</td></tr>
+	<tr><td>对应操控器</td><td></td><td></td></tr>
+	<tr><td>setw(val)</td><td>相当于with(val)</td><td></td></tr>
+	<tr><td>setfill(c)</td><td></td><td></td></tr>
+	<tr><td>left</td><td></td><td></td></tr>
+	<tr><td>right</td><td></td><td></td></tr>
+	<tr><td>internal</td><td></td><td></td></tr>
+	</table>
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="file"></a>
+		<p><span class="flag">文件存取</span>
+<pre>继承图表
+<img src="image/iostream/fstream.PNG" />
+
+
+函数 std::fstream()
+std::fstream(const char * filename)
+std::fstream(const char * filename,std::ios_base::openmode mode);
+open
+close
+is_open
+std::ios_base::openmode mode取值
+<table border="2">
+	<tr><td>值</td><td>含义</td></tr>
+	<tr><td>ios::app</td><td>添加到文件尾</td></tr>
+	<tr><td>ios::trunc</td><td>覆盖文件</td></tr>
+	<tr><td>ios::in</td><td>读取文件</td></tr>
+	<tr><td>ios::out</td><td>写入文件</td></tr>
+	<tr><td>ios::binary</td><td>以二进制打开</td></tr>
+</table>
+<span class="care">若fstream close后 要再open 需要先clear 因为open 和 close都不会清空stream的状态标志 而读取文件可能改变了这些状态</span>
+
+
+tellg()
+seekg(pos)
+seekg(offset,rpos)
+
+tellp()
+seekp(pos)
+seekp(offset,rpos)
+rpos取值
+<table>
+	<tr><td>ios::beg</td></tr>
+	<tr><td>ios::cur</td></tr>
+	<tr><td>ios::end</td></tr>
+</table>
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>文件与class构造打开 析构自动关闭
+对于既可读又可写的stream 不能随便转换读写属性 转换时必须先seek到当前位置再转换
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="connect"></a>
+		<p><span class="flag">连接io与重定向</span>
+		</p>
+		<p><span class="flag">以tie()完成松耦合</span>
+<pre>可以将一个stream连接到一个output stream.两者的缓冲区将同步
+output stream将在另一个stream输入或输出前先清空自己的缓冲区
+
+<table>
+	<tr><td>成员函数</td><td>含义</td></tr>
+	<tr><td>tie()</td><td>返回当前stream连接到的output stream的指针</td></tr>
+	<tr><td>tie(ostream *out)</td><td>将stream连接到out,返回以前的连接</td></tr>
+</table>
+</pre>
+		</p>
+		<p><span class="flag">以stream 缓冲区完成 紧耦合</span>
+<pre>使stram共享缓冲区
+
+<table border="2">
+	<tr><td>成员函数</td><td>含义</td></tr>
+	<tr><td>rdbuf()</td><td>返回stream buffer缓冲区</td></tr>
+	<tr><td>rdbuf(streambuf *)</td><td>将指定缓冲区安装到当前stream，返回先前缓冲区指针</td></tr>
+</table>
+basic_istream和basic_ostream的析构函数不会删除相应的stream<br />
+其他stram都会销毁他们最初分配的stream缓冲区，但不会销毁以rdbuf()安装的缓冲区
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="string"></a>
+		<p><span class="flag">string stream</span>
+<pre>继承图表
+<img src="image/iostream/stringstream.png" />
+类似于文件io 可用seekp等改变流读取或写入位置
+
+<table>
+	<tr><td>成员函数</td><td>含义</td></tr>
+	<tr><td>str()</td><td>将缓冲区内容以string返回</td></tr>
+	<tr><td>str(string)</td><td>将string作为缓冲区的内容</td></tr>
+</table>
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include&lt;sstream&gt;
+#include&lt;iostream&gt;
+int _tmain(int argc, _TCHAR* argv[])
+{
+	std::ostringstream o;
+	o&lt;&lt;12&lt;&lt;"this is a test";
+	o.seekp(0,std::ios::beg);
+	o&lt;&lt;"34";
+	std::cout&lt;&lt;o.str()&lt;&lt;std::endl;
+
+	std::string str;
+	int x;
+	std::stringstream io("12",std::ios::out|std::ios::in);
+	io.seekp(0,std::ios::end);
+	io&lt;&lt;"fuck";
+	io.seekg(0,std::ios::beg);
+	io&gt;&gt;x;
+	io&gt;&gt;str;
+	std::cout&lt;&lt;x&lt;&lt;str&lt;&lt;std::endl;
+	
+	system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="my"></a>
+		<p><span class="flag">自定义型别</span>
+<pre>#include &lt;iostream&gt;
+class A
+{
+public:
+	int a;
+	int b;
+};
+
+template&lt;class charT&gt;
+inline std::basic_ostream&lt;charT&gt;&amp; operator&lt;&lt;( std::basic_ostream&lt;charT&gt;&amp; ostream,const A&amp; a)
+{
+    ostream&lt;&lt;a.a&lt;&lt;ostream.widen('\n')&lt;&lt;a.b&lt;&lt;ostream.widen('\n');
+    return ostream;
+}
+int _tmain(int argc, _TCHAR* argv[])
+{
+    A a;
+    a.a=1;
+    a.b=2;
+    std::cout&lt;&lt;a;
+    system("pause");
+    return 0;
+}
+若class中有私有成员 当提供虚函数 重载&lt;&lt;中调用之
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="C"></a>
+		<p><span class="flag">C 文件操作</span>
+<pre>所谓返璞归真 余还是觉得 用c操作文件最方便 故记录c函数如下
+
+
+<span class="care">打开文件</span>
+FILE *fopen( 
+	const char *filename,
+	const char *mode 
+);
+FILE *_wfopen( 
+	const wchar_t *filename,
+	const wchar_t *mode 
+);
+<span class="care">读写文件</span>
+size_t fwrite(		
+	const void *buffer,
+	size_t size,
+	size_t count,
+	FILE *stream 
+);
+size_t fread(	//<span class="care">返回实际读取count 若最后 一次读取不足size count不会记录 但会读取 实际size大小的数据</span>
+	void *buffer,
+	size_t size,
+	size_t count,
+	FILE *stream 
+);
+
+int getc( 
+	FILE *stream 
+);
+wint_t getwc( 
+	FILE *stream 
+);
+
+<span class="care">读写位置</span>
+long ftell( 
+	FILE *stream 
+);
+int fseek( 
+	FILE *stream,
+	long offset,
+	int origin 
+);
+<span class="care">origin取值</span>
+SEEK_SET 从文件的开始处开始搜索 
+SEEK_CUR 从当前位置开始搜索 
+SEEK_END 从文件的结束处开始搜索 
+
+<span class="care">刷新文件缓冲区</span>
+int fflush( 
+	FILE *stream 
+);
+</pre>
+		</p>
+		<p><span class="flag">文件打开方式 mode</span>
+<pre>mode	含义		文件不存在
+
+r	读		返回NULL 打开失败
+r+	读写		...
+w	写		清空文件
+w+	读写		...
+a	写		创建文件(若存在 写入到文件尾 fseek不影响写位置)
+a+  读写		ftell=0
+
+b	二进制模式打开 不需跟在 上面字符之后如 rb 或 r+b
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html >
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Hadoop</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#Hadoop">Hadoop</a>
+		<a href="#install">安裝</a>
+	</div>
+	
+	<div class="note"><a name="Hadoop"></a>
+		<p><span class="flag">Hadoop</span>
+<pre>Apache Hadoop 是一款 數據密集型分佈式應用的 開源(Apache 2.0)軟體框架
+其以 google 的 MapReduce 和 Google File System 為理論 自行實現
+
+官網 <a href="http://hadoop.apache.org/" target="_blank">http://hadoop.apache.org/</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="install"></a>
+		<p><span class="flag">安裝</span>
+<pre>1	安裝ssh sudo apt-get ssh
+
+2	(最新版本 官方聲明可以使用 openJDK)
+	卸載 openjdk	sudo apt-get purge openjdk*
+	安裝 oracle jdk
+	sudo apt-add-repository ppa:webupd8team/java
+	sudo apt-get update
+	sudo apt-get install oracle-java8-installer
+	export JAVA_HOME=/usr/lib/jvm/java-8-oracle
+
+3	從官網下載 bin版 文件 hadoop-2.7.1.tar.gz
+	並解壓
+	將 hadoop-2.7.1/bin 加入 $PATH
+
+4	顯示版本
+	hadoop version
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

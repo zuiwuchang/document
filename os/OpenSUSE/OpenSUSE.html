@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>UBuntu</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#OpenSUSE">OpenSUSE</a>
+		<a href="#install">硬盤安装</a>
+		
+	</div>
+	
+	<div class="note"><a name="OpenSUSE"></a>
+		<p><span class="flag">OpenSUSE</span>
+<pre>OpenSUSE 一个德國開發的 linux 系统 
+
+<a target="_blank" href="http://www.opensuse.org/">http://www.opensuse.org/</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="install"></a>
+		<p><span class="flag">硬盤安装</span>
+<pre>1	安裝EasyBCD
+2	使用EasyBCD增加引導
+3	編輯引導內容如下
+title Install Ubuntu
+root (hd0,0)
+kernel (hd0,0)/vmlinuz boot=casper iso-scan/filename=/ubuntu-13.10-desktop-i386.iso ro quiet splash locale=zh_CN.UTF-8
+initrd (hd0,0)/initrd.lz
+4	將安裝獎項複製到(hd0,0)
+5	將鏡像中的casper/vmlinuz casper/initrd.lz 複雜到(hd0,0)
+6	重啓計算機 安裝ubuntu
+</pre>
+		</p>
+		<p><span class="flag">刪除</span>
+<pre>MbrFix64.exe /drive 0 fixmbr /yes
+</pre>
+		</p>
+	</div>
+	
+
+</div>
+</body>
+</html>

@@ -1,0 +1,254 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Direct2D</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="Direct2D"><tr><td>
+<p>
+	<font color="#FF0000">more</font>
+</p>
+
+<p>
+	<a href="#compare">圖形計算</a><br />
+    <a href="#SolidColorBrush">單色畫刷</a><br />
+    <a href="#Gradient">漸變畫刷</a><br />
+    
+</p>
+
+
+<div class="mydiv"><a name="compare"></a>
+	<p><font color="#FF0000">圖形計算</font>
+<pre>Direct2D組要有 4中 合併圖形的計算方式
+D2D1_COMBINE_MODE_UNION 		並集
+D2D1_COMBINE_MODE_INTERSECT		交集
+D2D1_COMBINE_MODE_XOR			異或	(並集 - 交集)
+D2D1_COMBINE_MODE_EXCLUDE		差集 (A中 不包括B的部分)
+
+
+ID2D1Geometry  接口的 CombineWithGeometry 提供了 將當前圖形與指定圖形合併的操作
+合併結構返回到 ID2D1PathGeometry 的 ID2D1GeometrySink 接口中
+</pre>
+	</p>
+
+	<p><font color="#FF0000">相關API</font>
+<pre>//合併圖形
+HRESULT ID2D1Geometry::CombineWithGeometry(
+  [in]   ID2D1Geometry *inputGeometry,		//與當前圖形合併的圖形
+         D2D1_COMBINE_MODE combineMode,		//合併模式 D2D1_COMBINE_MODE_UNION ...
+  [ref]  const D2D1_MATRIX_3X2_F &amp;inputGeometryTransform,	//在合併前使用此變換矩陣變換inputGeometry 
+  [in]   ID2D1SimplifiedGeometrySink *geometrySink	//返回合併結果
+) const;
+
+HRESULT CombineWithGeometry(
+  [in]            ID2D1Geometry *inputGeometry,
+                  D2D1_COMBINE_MODE combineMode,
+  [in, optional]  D2D1_MATRIX_3X2_F *inputGeometryTransform,	//NULL(不變換)
+  [in]            ID2D1SimplifiedGeometrySink *geometrySink
+) const;
+
+</pre>
+	</p>
+    
+	<p><font color="#FF0000">example</font>
+<pre>	case WM_PAINT:
+		{
+			//創建待合併圖形
+			ID2D1EllipseGeometry* geometry_0_ptr;
+			ID2D1EllipseGeometry* geometry_1_ptr;
+			assert(S_OK	==
+				d2d_factory_ptr->CreateEllipseGeometry(D2D1::Ellipse(D2D1::Point2F(100,100),50,50),&amp;geometry_0_ptr)
+				);
+			assert(S_OK	==
+				d2d_factory_ptr->CreateEllipseGeometry(D2D1::Ellipse(D2D1::Point2F(170,100),50,50),&amp;geometry_1_ptr)
+				);
+
+			//創建路徑 接受合併後的圖形
+			ID2D1PathGeometry* path_ptr;
+			assert(S_OK ==
+				d2d_factory_ptr->CreatePathGeometry(&amp;path_ptr)
+				);
+			ID2D1GeometrySink* sink_ptr;
+			assert(S_OK ==
+				path_ptr->Open(&sink_ptr)
+				);
+			
+			//合併圖形
+			geometry_0_ptr->CombineWithGeometry(geometry_1_ptr
+				,D2D1_COMBINE_MODE_UNION
+				,NULL
+				,sink_ptr
+				);
+			sink_ptr->Close();
+			
+			geometry_0_ptr->Release();
+			geometry_1_ptr->Release();
+			sink_ptr->Release();
+
+			d2d_target_ptr->BeginDraw();
+			d2d_target_ptr->Clear(D2D1::ColorF(D2D1::ColorF::White));	//以指定顏色 清除背景
+	
+				d2d_target_ptr->DrawGeometry(path_ptr,d2d_brush_ptr);
+			
+			d2d_target_ptr->EndDraw();	//成功繪製返回 S_OK	
+			
+			path_ptr->Release();
+		}
+		break;
+</pre>
+	</p>
+
+
+</div>    
+<div class="mydiv"><a name="SolidColorBrush"></a>
+	<p><font color="#FF0000">單色畫刷</font>
+<pre>Direct2D支持4中 畫刷
+ID2D1Brush					所有畫刷基類
+ID2D1SolidColorBrush		單色畫刷
+ID2D1LinearGradientBrush	線性漸變畫刷
+ID2D1RadialGradientBrush	放射性漸變畫刷
+ID2D1BitmapBrush			位圖畫刷
+</pre>
+	</p>
+    <p><font color="#FF0000">相關API</font>
+<pre>//創建單色畫刷com接口
+HRESULT ID2D1RenderTarget::CreateSolidColorBrush(
+  [ref]  const D2D1_COLOR_F &amp;color,
+  [out]  ID2D1SolidColorBrush **solidColorBrush
+);
+HRESULT ID2D1RenderTarget::CreateSolidColorBrush(
+  [ref]  const D2D1_COLOR_F &amp;color,
+  [ref]  const D2D1_BRUSH_PROPERTIES &amp;brushProperties,		//畫刷屬性
+  [out]  ID2D1SolidColorBrush **solidColorBrush
+);
+virtual HRESULT ID2D1RenderTarget::CreateSolidColorBrush(
+  [in]            const D2D1_COLOR_F *color,
+  [in, optional]  const D2D1_BRUSH_PROPERTIES *brushProperties,
+  [out]           ID2D1SolidColorBrush **solidColorBrush
+) = 0;
+
+//畫刷屬性 結構
+struct D2D1_BRUSH_PROPERTIES {
+  FLOAT             opacity;		//畫刷透明度 0(完全透明) 1(完全不透明)
+  D2D1_MATRIX_3X2_F transform;		//畫刷矩陣變換 只對位圖畫刷有效
+};
+
+//創建畫刷屬性
+D2D1_BRUSH_PROPERTIES BrushProperties(
+    __in FLOAT opacity =1.0,
+    __in const D2D1_MATRIX_3X2_F &amp;transform = D2D1::IdentityMatrix() 
+);
+
+//設置畫刷 透明度
+virtual void ID2D1Brush::SetOpacity(
+    FLOAT opacity
+) = 0;
+//設置畫刷顏色
+void ID2D1Brush::SetColor(
+  [ref]  const D2D1_COLOR_F &amp;color
+);
+//設置畫刷 變換(對單色畫刷 無效)
+void ID2D1Brush::SetTransform(
+  [ref]  const D2D1_MATRIX_3X2_F &amp;transform
+);
+
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="Gradient"></a>
+	<p><font color="#FF0000">漸變畫刷</font>
+<pre>ID2D1LinearGradientBrush	線性漸變畫刷
+ID2D1RadialGradientBrush	放射性漸變畫刷
+
+漸變畫刷 使用
+struct D2D1_GRADIENT_STOP {
+  FLOAT        position;	//點範圍 [0.0,1.0]
+  D2D1_COLOR_F color;		//點顏色
+}; 
+描述漸變的每個控制點
+
+漸變畫刷需要指定 繪製範圍 當繪製實際區域 超過範圍 需要指定如下值確定 如何 繪製
+typedef enum  { 
+  D2D1_EXTEND_MODE_CLAMP   = 0,		//根據邊緣顏色 進行 縮放
+  D2D1_EXTEND_MODE_WRAP    = 1,		//平鋪
+  D2D1_EXTEND_MODE_MIRROR  = 2		//鏡像平鋪
+} D2D1_EXTEND_MODE;
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">相關API</font>
+<pre>//創建漸變控制點集合 接口ID2D1GradientStopCollection*
+HRESULT ID2D1RenderTarget::CreateGradientStopCollection(
+  [in]   D2D1_GRADIENT_STOP *gradientStops,		//控制點集合
+         UINT gradientStopsCount,				//點數量
+  [out]  ID2D1GradientStopCollection **gradientStopCollection	//返回 點集合接口
+);
+virtual HRESULT CreateGradientStopCollection(
+  [in]   const D2D1_GRADIENT_STOP *gradientStops,
+         UINT gradientStopsCount,
+         D2D1_GAMMA colorInterpolationGamma,		//插值算法 D2D1_GAMMA_2_2(標準RGB) D2D1_GAMMA_1_0(線性Gama)
+         D2D1_EXTEND_MODE extendMode,				//指定顏色擴展方式 enum D2D1_EXTEND_MODE
+  [out]  ID2D1GradientStopCollection **gradientStopCollection
+) = 0;
+
+
+//創建線性漸變接口
+HRESULT CreateLinearGradientBrush(
+  [ref]  const D2D1_LINEAR_GRADIENT_BRUSH_PROPERTIES &amp;linearGradientBrushProperties,	//漸變起點 終點
+  [ref]  const D2D1_BRUSH_PROPERTIES &amp;brushProperties,		//畫刷 透明 矩陣變換屬性
+  [in]   ID2D1GradientStopCollection *gradientStopCollection,	//控制點集合接口
+  [out]  ID2D1LinearGradientBrush **linearGradientBrush			//返回接口
+);
+HRESULT CreateLinearGradientBrush(
+  [ref]  const D2D1_LINEAR_GRADIENT_BRUSH_PROPERTIES &amp;linearGradientBrushProperties,
+  [in]   ID2D1GradientStopCollection *gradientStopCollection,
+  [out]  ID2D1LinearGradientBrush **linearGradientBrush
+);
+virtual HRESULT CreateLinearGradientBrush(
+  [in]            const D2D1_LINEAR_GRADIENT_BRUSH_PROPERTIES *linearGradientBrushProperties,
+  [in, optional]  const D2D1_BRUSH_PROPERTIES *brushProperties,
+  [in]            ID2D1GradientStopCollection *gradientStopCollection,
+  [out]           ID2D1LinearGradientBrush **linearGradientBrush
+) = 0;
+
+
+struct D2D1_LINEAR_GRADIENT_BRUSH_PROPERTIES {
+  D2D1_POINT_2F startPoint;
+  D2D1_POINT_2F endPoint;
+};
+
+//創建 放射線畫刷接口
+HRESULT CreateRadialGradientBrush(
+  [ref]  const D2D1_RADIAL_GRADIENT_BRUSH_PROPERTIES &amp;radialGradientBrushProperties,
+  [ref]  const D2D1_BRUSH_PROPERTIES vbrushProperties,
+  [in]   ID2D1GradientStopCollection *gradientStopCollection,
+  [out]  ID2D1RadialGradientBrush **radialGradientBrush
+);
+HRESULT CreateRadialGradientBrush(
+  [ref]  const D2D1_RADIAL_GRADIENT_BRUSH_PROPERTIES &amp;radialGradientBrushProperties,	//放射區域
+  [in]   ID2D1GradientStopCollection *gradientStopCollection,
+  [out]  ID2D1RadialGradientBrush **radialGradientBrush
+);
+virtual HRESULT CreateRadialGradientBrush(
+  [in]            const D2D1_RADIAL_GRADIENT_BRUSH_PROPERTIES *radialGradientBrushProperties,
+  [in, optional]  const D2D1_BRUSH_PROPERTIES *brushProperties,
+  [in]            ID2D1GradientStopCollection *gradientStopCollection,
+  [out]           ID2D1RadialGradientBrush **radialGradientBrush
+) = 0;
+
+struct D2D1_RADIAL_GRADIENT_BRUSH_PROPERTIES {
+  D2D1_POINT_2F center;					//放射圓心
+  D2D1_POINT_2F gradientOriginOffset;	//起始漸變偏移
+  FLOAT         radiusX;				//x半徑
+  FLOAT         radiusY;				//y編輯
+};
+</pre>
+	</p>
+</div>
+
+</td></tr></table>
+</body>
+</html>

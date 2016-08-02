@@ -1,0 +1,327 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>帐号与ACL权限设置</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1>
+    	<p><font color="#FF0000">08帐号与ACL权限设置</font><br />
+        	
+		</p>
+        <a href="#passwd">/etc/passwd</a> <br />
+       	<a href="#shadow">/etc/shadow</a> <br />
+        <a href="#group">/etc/group</a> <br />
+        <a href="#gshadow">/etc/gshadow</a> <br />
+        <a href="#user">用户管理</a> <br />
+        <a href="#groups">用户组管理</a> <br />
+        <a href="#ACL">ACL</a> <br />
+        <a href="#su">身份切换</a> <br />
+        <a href="#who">other</a> <br />
+    </h1></p>
+    
+    <div class="div_box"><a name='passwd'><h3>
+    	<p><font color="#FF0000">/etc/passwd	//记录用户信息</font><br />
+       	信息类似如下 以 : 分隔的 七个字段<br />
+        root:x:0:0:root:/root:/bin/bash<br />
+		illusive_man:x:1000:1000:illusive_man,,,:/home/illusive_man:/bin/bash
+        </p>
+        <p><font color="#FF0000">字段含义</font><br />
+       	<table border="2">
+        <tr><td>example</td><td>field</td><td>note</td></tr>
+        <tr><td>root</td><td>1</td><td>账户名</td></tr>
+        <tr><td>x</td><td>2</td><td>早期用来存储密码 现在用x占位</td></tr>
+        <tr><td>0</td><td>3</td><td>UID<br />0为系统管理员 既root<br />[1,499]系统账号 [1,99]distribution自行创建 [100,499]用户可用</td></tr>
+        <tr><td>0</td><td>4</td><td>初始用户组的GID</td></tr>
+        <tr><td>root</td><td>5</td><td>用户信息说明列 可随便写</td></tr>
+        <tr><td>/root</td><td>6</td><td>主文件夹位置</td></tr>
+        <tr><td>/bin/bash</td><td>7</td><td>取得的shell</td></tr>
+        </table>
+        </p>
+        
+   	</h3></a></div>
+    
+    <div class="div_box"><a name='shadow'><h3>
+    	<p><font color="#FF0000">/etc/shadow	//记录用户密码信息</font><br />
+       	信息类似如下 以 : 分隔的 九个字段<br />
+       	root:$6$rFeWVtoZ:15775:0:99999:7:1::<br />
+		illusive_man:$6$QhLi8YO:15776:0:99999:7:::
+        </p>
+        <p><font color="#FF0000">字段含义</font><br />
+       	<table border="2">
+        <tr><td>example</td><td>field</td><td>note</td></tr>
+        <tr><td>root</td><td>1</td><td>账户名</td></tr>
+        <tr><td>rFeWVtoZ</td><td>2</td><td>密码</td></tr>
+        <tr><td>15775</td><td>3</td><td>最近更动密码时间</td></tr>
+        <tr><td>0</td><td>4</td><td>密码不可被更动时间<br />0随时可变<br />1改动密码后要等1填才能再改</td></tr>
+        <tr><td>99999</td><td>5</td><td>密码更改天数<br />99999 在99999天内必须修改密码 否则密码过期</td></tr>
+        <tr><td>7</td><td>6</td><td>密码过期提醒<br />7 还有7填密码过期 就会提醒用户</td></tr>
+        <tr><td>1</td><td>7</td><td>密码失效天数<br />1密码过期后一天内没登录重新设置密码 密码就会失效</td></tr>
+        <tr><td></td><td>8</td><td>账户失效时间 格式同字段3</td></tr>
+        <tr><td></td><td>9</td><td>保留</td></tr>
+        </table>
+        </p>
+        
+   	</h3></a></div>
+	
+    <div class="div_box"><a name='group'><h3>
+    	<p><font color="#FF0000">/etc/group	//记录用户组信息</font><br />
+       	信息类似如下 以 : 分隔的 四个字段<br />
+        cdrom:x:24:illusive_man,dark
+        </p>
+        
+        <p><font color="#FF0000">字段含义</font><br />
+       	<table border="2">
+        <tr><td>example</td><td>filed</td><td>note</td></tr>
+        <tr><td>cdrom</td><td>1</td><td>组名</td></tr>
+        <tr><td>x</td><td>2</td><td>用户组管理员密码 用x占位 先记录在 /etc/gshadow</td></tr>
+        <tr><td>24</td><td>3</td><td>GID</td></tr>
+        <tr><td>illusive_man,dark</td><td>4</td><td>组中成员</td></tr>
+        </table>
+        </p>
+        
+        <p><font color="#FF0000">常用命令</font><br />
+       	groups //显示自己在的用户组<br />
+        newgrp 组名	//切换有效用户组
+        </p>
+  	</h3></a></div>
+    
+	<div class="div_box"><a name='gshadow'><h3>
+    	<p><font color="#FF0000">/etc/gshadow	//记录用户组密码 管理员信息</font><br />
+       	信息类似如下 以 : 分隔的 四个字段<br />
+        cdrom:*::illusive_man
+        </p>
+        <p><font color="#FF0000">字段含义</font><br />
+        字段 1 4 同 /etc/group<br />
+        字段 3 用户组管理员(的用处在于 可将其他用户加入自己的组)<br />
+        字段 2 密码 开头为!表示无合法密码 无用户组管理员
+        </p>
+  	</h3></a></div>
+    <div class="div_box"><a name='user'><h3>
+    	<p><font color="#FF0000">用户管理</font><br />
+       	</p>
+        <p><font color="#FF0000">useradd 新用户名 //新建用户</font><br />
+       	-u	//后接 UID 给新用户直接指定一个UID<br />
+        -g	//后接 组名 设定初始化用户组(当然也就加入此组了)<br />
+        <font color="#FF0000">-G	//后接 组名 还要加入到用户组</font><br />
+        -M	//不要创建主文件夹 系统账户默认<br />
+        -m	//创建主文件夹	 一般账户默认<br />
+        -M	//不創建主要文件夾
+        -c	//后接 字符串 用户信息说明 随便写<br />
+        -d	//后接目录 指定目录为主文件夹而不用默认值<br />
+        -r	//创建一个系统账户<br />
+        -s	//后接一个shell 默认/bin/bash	（若指向 /sbin/nologin 則無法登陸）<br />
+        -e	//后接一个 "YYYY-MM-DD"格式日期 指定账户失效日期<br />
+        -f	//后接密码失效天数 0 立刻失效 -1 永不失效<br /><br />
+        
+        //創建一個 無法登陸的帳號
+        sudo useradd tomcat  -Ms /sbin/nologin
+        </p>
+        
+        <p><font color="#FF0000">passwd	//修改当前用户密码</font><br />
+        passwd 账户名 //修改指定用户密码 需要root权限<br /><br />
+        
+        --stdin	//从管道接受密码<br />
+        -l	//在 /etc/shadow 字段2 加上 ! 以使密码失效<br />
+        -u	//.....取掉 ! 以恢复密码<br />
+        -n	//后接天数 不可更改密码天数<br />
+        -x	//... 密码过期天数<br />
+        -w	//... 密码后期警告天数<br />
+        -i	//后接日期 设置密码失效日期
+        </p>
+        
+        <p><font color="#FF0000">chage 账户名</font><br />
+        -l	//列出账户详细密码信息<br />
+        -d	//后接"YYYY-MM-DD"日期 修改最近更改密码日期<br />
+        -E	//...	修改账户失效日期<br />
+        -I	//后接天数	设置密码失效天数<br />
+        -m	//... 设置密码不可被更动天数<br />
+        -M	//... 设置密码更改天数<br />
+        -W	//... 设置密码过期警告天数
+        </p>
+        
+        <p><font color="#FF0000">usermod 账户名	//修改账户</font><br />
+        -c	//后接字符串 修改用户说明信息<br />
+        -d	//后接目录 修改用户主文件夹<br />
+        -e	//后接日期 YYYY-MM-DD 修改密码失效日期<br />
+        -f	//后接天数 修改密码失效天数<br />
+        <font color="#FF0000">-g	//后接用户组名 修改初始用户组<br />
+        -G	//... 设置用户组<br />
+        -a	//和 -G配合 不设置 而是为用户添加用户组<br />
+        -l	//后接新账户名 修改账户名<br /></font>
+        -s	//后接shell	修改shell<br />
+        -u	//后接UID	修改UID<br />
+        <font color="#FF0000">-L	//冻结用户 (修改/etc/shadow 密码使之无效罢了)<br />
+        -U	//解除用户冻结<br /></font>
+        </p>
+        
+        <p><font color="#FF0000">userdel 账户名	//删除账户</font><br />
+        -r	//连同主文件夹一起删除
+        </p>
+        
+        <p><font color="#FF0000">other</font><br />
+        chsh [-ls]<br /> 
+        -l	//列出可用shell<br />
+        -s	//后接shell  改变自己的shell<br /><br /> 
+        
+        id 查询自己的UID GID...
+        
+        </p>
+  	</h3></a></div>
+    <div class="div_box"><a name='groups'><h3>
+    	<p><font color="#FF0000">用户组管理</font><br />
+     	</p>
+        <p><font color="#FF0000">groupadd 新的组名	//新建用户组</font><br />
+        -g	//后接GID 以指定GID新建用户组<br />
+        -r	//新建系统用户组
+     	</p>
+        
+        <p><font color="#FF0000">groupmod [-g GID] [-n group_name] 用户组</font><br />
+        -g	//修改组GID<br />
+        -n	//修改组名
+        </p>
+        
+        <p><font color="#FF0000">groupdel 用户组 //删除组</font><br />
+        </p>
+        
+        <p><font color="#FF0000">gpasswd //用户组管理员</font><br />
+        <font color="#FF0000">root权限</font><br />
+        gpasswd groupname	//为组创建密码	<br />
+        gpasswd [-A user1,...] [-M user2,...] groupname<br />
+        gpasswd [-rR] groupname<br />
+        -A	//将用户设置为组管理员	<br />
+        -M	//将某些用户加入此组<br />
+        -r	//删除组密码<br />
+       	-R	//让组的密码失效<br /><br />
+        
+        <font color="#FF0000">组管理员</font><br />
+        gpasswd [-ad] user groupname<br />
+        -a	//将某用户加入组<br />
+        -d	//将某用户从此组中删除
+        </p>
+        
+     </h3></a></div>
+     <div class="div_box"><a name='ACL'><h3>
+    	<p><font color="#FF0000">ACL</font><br />
+        传统的linux权限 只能对 u g o 设置 r w x 权限 ACL可以针对指定的用户和组设置权限 而不影响传统权限
+        </p>
+        
+        <p><font color="#FF0000">查看是否启用ACL</font><br />
+        illusive_man@Cerberus:~/document$ sudo dumpe2fs -h /dev/sda9 | grep acl		//执行命令查看是否启用ACL<br />
+        dumpe2fs 1.42.5 (29-Jul-2012)<br />
+        Default mount options:    user_xattr <font color="#FF0000">acl</font><br />	//若有此行则启用 默认都是启用的
+        
+        </p>
+        
+        <p><font color="#FF0000">启用ACL</font><br />
+        mount -o remount,acl /<br />
+        或者修改/etc/fstab LABLE=/1 /ext4 defaults,<font color="#FF0000">acl</font> 1 1
+        </p>
+        
+        <p><font color="#FF0000">setfacl [-bkRd] [{-m|-x} acl参数] 目标文件//设置ACL</font><br />
+        -m	//增加后续的acl<br />
+        -x	//删除后续的acl<br />
+        -b	//删除所有的acl<br />
+        -k	//删除默认的acl<br />
+        -R	//递归设置acl 既其子目录亦会被设置<br />
+        -d	///设置默认acl 只对目录有效,在此目录下新建数据会采用此acl<br /><br />
+        
+        acl参数<br />
+        u:username:rwx	//设置指定用户具有 7权限<br />
+        u::rw	//不填用户为所有者 设置所有者具有 6权限<br />
+        g:groupname:x	//设置指定组具有1权限<br />
+        <font color="#FF0000">d:u:username:rwxu	//同第一个 只是d为目录 为目录设置时加上d 目录下的所有文件 子目录 将继承此acl设置
+ </font>       
+        </p>
+        
+        <p><font color="#FF0000">example</font></p>
+        <p>illusive_man@Cerberus:~/document$ <font color="#FF0000">setfacl -m u:illusive_man:rwx test</font> //为指定用户设置 单独的权限acl<br />
+          illusive_man@Cerberus:~/document$ ls -l<br />
+          总用量 4<br />
+          -rw-rw-r--  1 illusive_man illusive_man 80  3月 22 15:59 my<br />
+          -rw-rwxr--<font color="#FF0000">+</font> 1 illusive_man illusive_man  0  3月 22 22:27 test //设置了acl的文件权限列会多出 +<br />
+        </p>
+        
+         <p><font color="#FF0000">getfacl 目标文件//获取ACL信息</font><br />
+         illusive_man@Cerberus:~/document$ getfacl test <br />
+         # file: test<br />
+         # owner: illusive_man<br />
+         # group: illusive_man<br />
+         <font color="#FF0000">user::rw-	//文件所有者权限</font><br />
+         <font color="#FF0000">user:illusive_man:rwx	//acl设置的权限</font><br />
+          <font color="#FF0000">group::rw-	//文件所有组的权限</font><br />
+        
+         mask::rwx<br />
+         other::r--<br />
+         </p>
+         
+         <p><font color="#FF0000">mask	//最高能达到的权限</font><br />
+         mask记录了acl 最高能达到的权限 即acl设置权限 与 mask记录权限 的 <font color="#FF0000">交集</font> 才是真实的acl权限
+         </p>
+	 </h3></a></div>
+
+	<div class="div_box"><a name='su'><h3>
+    	<p><font color="#FF0000">身份切换</font><br />
+        </p>
+        
+        <p><font color="#FF0000">su [-lm] [-c 命令] [username]</font><br />
+        -	//以login-shell登录 后不加username 为切换到root  (不加此参数登录到 nologin-shell故不会读取环境变量等配置信息)<br />
+        -l	//同 -<br />
+        -m	//同 -p 使用现在的环境设置 而不读取新用户的配置文件<br />
+        -c	//仅执行一次命令<br /><br />
+        
+        su -<br />
+        su - -c "head -n 3 test"
+        </p>
+        
+        <p><font color="#FF0000">sudo [-b] [-u username]</font><br />
+        -b	//让后续命令自动执行 而不与目前shell 产生影响
+        -u username //用指定用户身份执行 省略此参为以root执行
+        
+        sudo 命令1;命令2;命令3 	//全一root执行
+        </p>
+        
+        <p><font color="#FF0000">visudo</font><br />
+        sudo 执行权限 记录在 /etc/sudoers文件中 输入 visudo 指定打开编辑此文件<br /><br />
+        
+        格式类似如下<br />
+        root    ALL=(ALL) ALL<br />
+        illusive_man    ALL=(root) NOPASSWD: /usr/bin/passwd<br />
+        <font color="#FF0000">illusive_man    ALL=(root) NOPASSWD: /usr/bin/passwd [A-Za-z]*</font>,<font color="#FF0000">!usr/bin/passwd root<br />//!不可执行 故可执行任意passwd 但不能passwd root<br /><br /></font>
+        
+        
+        root	指定root能执行速度哦命令	此亦可填 <font color="#FF0000">%组名</font> 代表某组可以使用速度哦<br />
+        第一个ALL		登录来源主机<br />
+        第二个ALL		可以切换到的身份<br />
+        第三个ALL		可以执行的命令(命令需要写绝对地址)<br />
+        NOPASSWD:	不用输入密码 (root默认不用输入密码 故可不用填此项)
+        </p>
+
+<p><font color="#FF0000">注意</font>
+<pre>sudo 默認必須運行在tty下 
+故不能在 /etc/rc.d/rc.local 中使用 若要在此使用 需要設置 可以非在tty下使用
+visudo 將 <font color="#FF0000">Defaults    requiretty </font>註釋掉
+</pre>
+</p>       
+        
+ 	</h3></a></div>
+	 <div class="div_box"><a name='who'><h3>
+    	<p><font color="#FF0000">other</font><br />
+        w		//查询现在登录主机的用户<br />
+        who		//同w<br />
+        last	//查询主机登录记录<br />
+        <font color="#FF0000">lastlogin	//查询 /var/log/lastlog 以获取所有用户最后登录时间</font><br /><br />
+        
+        wall "向登錄linux的用户 广播消息"	<br />
+        write 用户账号 [所在终端接口]	//想指定用户发消息 [ctrl]+d 结束消息书写 并发送<br />
+        mesg n //拒绝接受write消息(对root发送到消息无效) <br />
+        mesg y //接受write消息 <br />
+        mesg //查看mesg设置状态<br />
+        
+        </p>
+  	</h3></a></div>
+</td></tr></table>
+</body>
+</html>

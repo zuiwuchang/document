@@ -1,0 +1,199 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>繪製流水線</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="DirectX"><tr><td>
+<p>
+	<font color="#FF0000">繪製流水線</font>
+</p>
+
+<p>
+	<a href="#Model">模型表示</a><br />
+    <a href="#draw">繪製流水線</a><br />
+    <a href="#local">局部坐標</a><br />
+    <a href="#world">世界坐標</a><br />
+    <a href="#look">觀察坐標</a><br />
+    <a href="#back">背面消除</a><br />
+    <a href="#Light">光照</a><br />
+    <a href="#cut">剪裁</a><br />
+    <a href="#Projection">投影</a><br />
+    <a href="#view">視口變換</a><br />
+    <a href="#draw1">光柵化</a><br />
+</p>
+
+
+<div class="mydiv"><a name="Model"></a>
+	<p><font color="#FF0000">模型表示</font>
+<pre>Direct3D 使用三角形網格 無線逼近物體(Direct3D亦支持 點 線)
+
+一般點結構需要自己定義如
+struct Vertex
+{
+	float x_;
+	float y_;
+	float z_;
+	static const DWORD FVF;
+	Vertex()
+	{
+		x_	=	y_	=	z_	=	0.0f;
+	}
+	Vertex(const float x,const float y,const float z)
+	{
+		x_	=	x;
+		y_	=	y;
+		z_	=	z;
+	}
+};
+const DWORD Vertex::FVF	=	D3DFVF_XYZ;
+//其中 static const DWORD FVF 用於描述 點信息 D3DFVF_XYZ(只包含xyz坐標)
+
+多餘集合的 分割為三角區域後 每個三角區域 可能有重合點
+故 Direct3D 提供了 點索取 可以先建立一個 點緩衝區 之後 使用索引指定 需要的點
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="draw"></a>
+	<p><font color="#FF0000">繪製流水線</font>
+<pre>局部坐標->世界坐標-觀察坐標->背景消隱->光照->
+剪裁->投影->視口坐標->光柵化
+
+繪製過程中有多個地方 需要轉換坐標 使用
+HRESULT IDirect3DDevice9::SetTransform(
+  [in]  D3DTRANSFORMSTATETYPE State,	//如何轉換 如 D3DTS_WORLD(局部坐標轉世界坐標) 
+  [in]  const D3DMATRIX *pMatrix		//變換矩陣
+);
+進行轉換
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="local"></a>
+	<p><font color="#FF0000">局部坐標</font>
+<pre>局部坐標/建模坐標 用於定義構成物體的三角形單元列表坐標系
+
+採用局部坐標可以簡化建模過程 如無需考慮位置 大小 餘場景中其他物體的朝向...
+</pre>
+	</p>
+</div>    
+
+<div class="mydiv"><a name="world"></a>
+	<p><font color="#FF0000">世界坐標</font>
+<pre>構建物體時 每個模型都處於其局部坐標中 我們需要將這些物體組織在一起構成整個世界
+
+將位於局部坐標中的物體 通過一個世界變換運算 移動到世界坐標中
+通過 平移 旋轉 縮放 ... 來確定物體在世界坐標系中的位置 方向 大小...
+
+//SetTransform 傳入轉換類型 和變換矩陣 
+HRESULT IDirect3DDevice9::SetTransform(
+  [in]  D3DTRANSFORMSTATETYPE State,		//D3DTS_WORLD
+  [in]  const D3DMATRIX *pMatrix
+);
+</pre>
+	</p>
+</div>  
+
+<div class="mydiv"><a name="look"></a>
+	<p><font color="#FF0000">觀察坐標</font>
+<pre>我們需要設置一個攝像機 以指定 能夠觀察到的3D世界
+IDirect3DDevice9::SetTransform 的第一個參數 傳入D3DTS_VIEW 設置攝像機
+
+使用
+ D3DXMATRIX * D3DXMatrixLookAtLH(
+  __inout  D3DXMATRIX *pOut,
+  __in     const D3DXVECTOR3 *pEye,		//攝像機在世界坐標中的位置
+  __in     const D3DXVECTOR3 *pAt,		//世界坐標系中被觀察到點
+  __in     const D3DXVECTOR3 *pUp		//世界坐標中表示向上的 方向向量
+);
+創建一個 左手坐標的 攝像機 變換矩陣
+
+
+使用
+HRESULT IDirect3DDevice9::SetTransform(
+  [in]  D3DTRANSFORMSTATETYPE State,		//D3DTS_VIEW
+  [in]  const D3DMATRIX *pMatrix
+);
+設置攝像機位置(觀察坐標)
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="back"></a>
+	<p><font color="#FF0000">背面消除</font>
+<pre>背面消除 用處 消除物體中的背面
+使用
+HRESULT SetRenderState(
+  [in]  D3DRENDERSTATETYPE State,	//D3DRS_CULLMODE(設置消影 方式)
+  [in]  DWORD Value
+);
+改變 默認 消影 方式
+
+value 取值
+D3DCULL_NONE	//完全禁用 消影
+D3DCULL_CW		//只對順時針繞序的三角形單位 消影 
+D3DCULL_CCW		//默認值 只對逆時針繞序的三角形單位 消影
+</pre>
+	</p>
+</div>      
+
+<div class="mydiv"><a name="Light"></a>
+	<p><font color="#FF0000">光照</font>
+<pre>光源照亮了場景中的物體 從而可以獲取到較為逼真的顯示效果
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="cut"></a>
+	<p><font color="#FF0000">剪裁</font>
+<pre>將處於 視域之外的 幾何體 剔除的 過程稱為剪裁
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="Projection"></a>
+	<p><font color="#FF0000">投影</font>
+<pre>將3D場景 獲取其2D表示的 過程 稱為投影
+
+可以有多種投影方式 遊戲中一般使用透視投影(此投影 將產生 近大遠小 的效果)
+
+使用
+ D3DXMATRIX * D3DXMatrixPerspectiveFovLH(
+  __inout  D3DXMATRIX *pOut,
+  __in     FLOAT fovy,		//視角大小 D3DX_PI * 0.5f
+  __in     FLOAT Aspect,	//橫縱比 一般為 顯示窗口 寬/高
+  __in     FLOAT zn,		//近剪裁面到坐標原點距離 1.0f
+  __in     FLOAT zf			//遠 ... 1000.0f
+);
+創建一個 投影矩陣
+
+使用
+HRESULT IDirect3DDevice9::SetTransform(
+  [in]  D3DTRANSFORMSTATETYPE State,		//D3DTS_PROJECTION
+  [in]  const D3DMATRIX *pMatrix
+);
+設置投影
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="view"></a>
+	<p><font color="#FF0000">視口變換</font>
+<pre>
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="draw1></a>
+	<p><font color="#FF0000">光柵化</font>
+<pre>
+</pre>
+	</p>
+</div>
+
+</td></tr></table>
+</body>
+</html>

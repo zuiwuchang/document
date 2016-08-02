@@ -1,0 +1,327 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>文件与目录管理</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1>
+    	<p><font color="#FF0000">描述</font><br />
+        	文件与目录的基本操作
+		</p>
+        <a href="#manager">文件与目录管理</a> <br />
+    	<a href="#head">查看文件内容</a> <br />
+    	<a href="#umask">umask 隐藏权限 </a> <br />
+        <a href="#attr">文件隐藏属性</a> <br />
+    	<a href="#find">文件查找</a>
+        
+    </h1></p>
+    
+    <div class="div_box"><a name='manager'><h3>
+    	<p><font color="#FF0000">文件与目录管理</font><br />
+          
+      	</p>
+        
+        <p><font color="#FF0000">目录相关操作</font><br />
+    	  . 		//代表当前目录<br />
+          .. 		//...上层目录<br />
+          -			//...前一个工作目录<br />
+          ~			//...当前用户主目录<br />
+          ~dark		//...用户dark的主目录<br /><br />
+          
+          cd ..		//切换目录<br />
+          pwd		//显示当前目录<br />
+          pwd -P	//显示当前目录而非以连接文件显示<br />
+          mkdir -pm 774 /tmp/test/test2	 //创建文件夹 p参数自动创建没有的父目录 m参数以指定权限创建文件夹而非umask<br />
+          rmdir -P /tmp/test/test2		//删除空目录 P参数指定连同上层空目录一起删除<br /><br />
+          
+          $PATH 环境变量记录了文件执行时的搜寻路径
+          
+      	</p>
+        
+        <p><font color="#FF0000">管理<br />
+    	  ls 目录名	//查看文件</font>
+          <table border="2">
+          <tr><td>参数</td><td>含义</td></tr>
+          <tr><td><font color="#FF0000">-a</font></td><td>显示全部文件</td></tr>
+          <tr><td>-A</td><td>同 -a 但不显示 . 和 ..</td></tr>
+          <tr><td><font color="#FF0000">-d</font></td><td>显示目录本身 而非其内地文件</td></tr>
+          <tr><td>-f</td><td>不排序</td></tr>
+          <tr><td>-F</td><td>为文件名加上附加参数以显示其为何文件<br />*(可执行文件) /(目录) =(socket文件) |(IFFO文件)</td></tr>
+          <tr><td><font color="#FF0000">-h</font></td><td>自动将文件大小转化为MB GB等单位</td></tr>
+          <tr><td>-i</td><td>列出inode代码</td></tr>
+          <tr><td><font color="#FF0000">-l</font></td><td>列出权限等详细信息</td></tr>
+          <tr><td>-n</td><td>列出 UID GID 而非用户名 组名</td></tr>
+          <tr><td><font color="#FF0000">-r</font></td><td>反向排序</td></tr>
+          <tr><td>-R</td><td>连同子目录一起列出</td></tr>
+          <tr><td><font color="#FF0000">-S</font></td><td>以文件大小排序 而非文件名</td></tr>
+          <tr><td>-t</td><td>依时间排序</td></tr>
+          <tr><td>--color=never</td><td>不要依据文件特征添加颜色</td></tr>
+          <tr><td>--color=always</td><td>显示颜色</td></tr>
+          <tr><td>--color=auto</td><td>由系统自行依据设置判断是否上色</td></tr>
+          <tr><td>--full--time</td><td>显示出完整的时间信息</td></tr>
+          <tr><td>--time={atime,ctime}</td><td>输出访问时间(atime) 或改变权限时间(ctime) 而非内容改变时间</td></tr>
+          
+          </table>
+          
+      	</p>
+        
+        <p><font color="#FF0000">cp 源文件 目标文件  //复制文件</font>
+        <table border="2">
+        <tr><td>参数</td><td>含义</td></tr>
+        <tr><td><font color="#FF0000">-a</font></td><td>等同于同时用 -pdr 三个参数</td></tr>
+        <tr><td>-d</td><td>若源文件为连接文件 则复制连接文件属性而非本身</td></tr>
+        <tr><td><font color="#FF0000">-f</font></td><td>若目标文件存在则替换</td></tr>
+        <tr><td><font color="#FF0000">-i</font></td><td>若目标文件存在 则询问如何操作</td></tr>
+        <tr><td>-l</td><td>进行硬连接</td></tr>
+        <tr><td>-p</td><td>连同文件属性一起复制 而非默认属性</td></tr>
+        <tr><td><font color="#FF0000">-r</font></td><td>递归复制 用于cp 文件夹</td></tr>
+        <tr><td><font color="#FF0000">-s</font></td><td>复制为符号连接</td></tr>
+        <tr><td><font color="#FF0000">-u</font></td><td>若目标文件比源文件旧才复制</td></tr>
+        </table>
+        </p>
+        
+        <p><font color="#FF0000">rm 文件或目录	//删除文件或目录</font>
+        <table border="2">
+        <tr><td>参数</td><td>含义</td></tr>
+        <tr><td>-f</td><td>强制删除 不会有任何警告 询问</td></tr>
+        <tr><td>-i</td><td>互动模式 在删除前询问</td></tr>
+        <tr><td>-r</td><td>递归删除 用于文件夹</td></tr>
+        </table>
+        </p>
+        
+        <p><font color="#FF0000">mv 源文件或目录 目标文件或目录	//移动 改名 文件或目录</font>
+        <table border="2">
+        <tr><td>参数</td><td>含义</td></tr>
+        <tr><td>-f</td><td>强制移动 目标存在覆盖</td></tr>
+        <tr><td>-i</td><td>互动模式 若存在覆盖询问覆盖否</td></tr>
+        <tr><td>-u</td><td>若存在覆盖 源比目标新 才覆盖</td></tr>
+        </table>
+        </p>
+        <p><h1><font color="#FF0000">rename</font></h1>
+        
+        
+        </p>
+        
+        <p><font color="#FF0000">目录名 文件名</font><br />
+        basename /home/dark/test //取得文件名 test<br />
+        dirname /home/dark/test //取得目录名 /home/dark<br />
+        
+        </p>
+        
+    </h3></a></div>
+    
+    <div class="div_box"><a name='head'><h3>
+    	<p><font color="#FF0000">查看文件内容</font><br />
+        	cat 由第一行开始显示<br />
+            tac 由最后一行开始显示<br />
+            nl 显示的时候 输出行号<br /><br />
+            
+            more 一页页显示不可前翻<br />
+   <font color="#FF0000">         less 同more可前翻<br />
+            head 显示头几行<br />
+            tail 显示后几行<br />
+            touch 修改文件时间</font><br />
+            od 以二进制读取文件<br />
+    
+    	</p>
+        <br />
+        <p>cat file<br />
+        -A	等同 -vET<br />
+        -b	加上行号 空白行不加<br />
+        -E  将结尾的$断行显示出来<br />
+        -n	加上行号 包括空白行<br />
+        -T 	将[tab] 以 ^I 显示<br />
+        -v 	列出一些看不出来的字符
+        
+        </p>
+        
+        <p>nl file<br />
+        -b a 加上行号 包括空白行<br />
+        -b t 此为默认 加上行号 不包括空白行<br />
+        -n ln 行号在屏幕最左边<br />
+        -n rn 行号在这段最右边 且不加0<br />
+        -n rz 行号在字段最右边 且加0<br />
+        -w 数字 行号字段占用的位数<br />
+        </p>
+    	
+        <p><font color="#FF0000">more file</font><br />
+        space 下翻一页<br />
+        enter 下翻一行<br />
+        :f 立刻显示出文件名和显示的行数<br />
+        q	退出more<br />
+        b 	回翻 对管道无用
+        </p>
+        
+        <p><font color="#FF0000">less -N file //N参数列出行号</font><br />
+        space 	下翻一页<br />
+        [PageDown] 同space<br />
+        [PageUp] 上翻一页<br />
+        /	向下查找字符串<br />
+        ?	向上查找字符串<br />
+        n	重复一个查询<br />
+        N	反向重复一个查询<br />
+        q	退出less
+        </p>    
+        <p><font color="#FF0000">head -n 20 dark.txt //显示dark.txt文件前20行</font></p>
+        <p><font color="#FF0000">tail -n 20 dark.txt //显示dark.txt文件后20行</font></p>
+        
+        <p> od [-t type] file//以二进制读取显示文件<br />
+        od -t ax /bin/ls<br />
+        type取值<br />
+        a 默认字符输出<br />
+        c ascii字符输出<br />
+        d 十进制输出<br />
+        f 浮点输出<br />
+        o 八进制输出<br />
+        x 十六进制输出<br />
+        </p>
+        
+        <p><font color="#FF0000">touch file//改变文件时间 若文件不存在创建之</font> <br />
+        -a 修改atime<br />
+        -c 修改ctime<br />
+        -m 修改mtime<br />
+        -d 日期后时间 以指定时间修改而非现在日期时间<br />
+        -t [YYMMDDHHMM] 以指定格式时间修改 而非当前日期时间<br />
+        
+        <font color="#FF0000">
+        atime 文件最后被读取时间<br />
+        ctime 文件权限最后被修改时间<br />
+        mtime 文件内容最后被修改时间<br />
+        </font>
+        </p>
+    </h3></a></div>
+    
+    <div class="div_box"><a name='umask'><h3>
+    	<p><font color="#FF0000">umask 隐藏权限</font><br />
+        
+   		</p>
+        
+        <p><font color="#FF0000">umask</font><br />
+        umask 标识了用户在创建文件 目录时 文件目录的 默认权限<br />
+        无论umask值如何在创建文件时 文件都是没有x权限的;<br /><br />
+        
+        umask //查看umask<br />
+        0022//显示的是应该去掉的权限<br /> 
+       	umask -S //查看umask<br />
+        u=rwx,g=rx,o=rx//显示的是拥有的权限<br />
+   		</p>
+        
+        <p><font color="#FF0000">SUID //权限分数 4 字符表示为s</font><br />
+        执行此文件的人，在执行时，拥有文件所有者的权限<br /><br />
+        
+        SUID只对二进制文件有效 不能用于脚本 目录
+   		</p>
+        
+        <p><font color="#FF0000">SGID //权限分数 2 字符表示为s</font><br />
+        对于二进制文SGID件执行此文件的人，在执行时，拥有文件所有组的权限<br /><br />
+        
+        对于目录SUID 用户在此目录下有效用户组变为目录所有组
+   		</p>
+        
+        <p><font color="#FF0000">SBIT //权限分数 1 字符表示为t</font><br />
+        当用户在此目录下创建文件或目录时 只有自己和root可以 删除 改名 移动<br /><br />
+        
+        仅对目录有效
+   		</p>
+        <p><font color="#FF0000">example</font><br />
+        chmod 4777 bin<br />
+        chmod u+s,g+s a<br />
+        chmod g+s,o+t d
+        </p>
+        
+        <p><font color="#FF0000">修改umask</font><br />
+        	umask 0000;//或umask 000 重启后恢复系统原设置
+            
+        </p>
+    </h3></a></div>
+   <div class="div_box"><a name='attr'><h3>
+    	<p><font color="#FF0000">文件隐藏属性</font><br />
+    	
+        </p>
+        <p><font color="#FF0000">lsattr 文件或目录 //显示文件或目录隐藏属性</font><br />
+    	-a	显示隐藏属性<br />
+        -d	如是目录显示目录本身属性 而非其下文件<br />
+        -R	连同子目录也显示出来
+        </p>
+        <p><font color="#FF0000">chattr [+-=][ASacdistu]  文件或目录 //改变文件或目录隐藏属性</font><br />
+    	+	增加指定属性<br />
+        -	删除指定属性<br />
+        =	设置为指定属性<br />
+        A	文件或目录的atime不会改变<br />
+        S	改变linux默认的异步写入为同步<br />
+        <font color="#FF0000">a	此文件只能增加数据而不能删除 (root 才能设置)</font><br />
+        c	设置后写入此文件会自动压缩 读取会自动解压<br />
+        d	不会被dump程序备份<br />
+        <font color="#FF0000">i 文件不能被 删除 改名 移动 写入或添加数据 (root 才能设置)</font><br />	
+        s	当文件被删除时 它将被完全从硬盘空间中删除<br />
+        u	当文件被删除时 它其实未被从硬盘中删除
+        </p>
+        
+   </h3></a></div> 
+	
+    <div class="div_box"><a name='find'><h3>
+    	<p><font color="#FF0000">文件查找</font><br />
+    		file 文件名	//	显示文件是何类型
+            which -a ls //在PATH环境变量中查找指定可执行文件 a参数列出所有找到而非只第一个
+            
+        </p>
+        
+        <p><font color="#FF0000">whereis 文件或目录	//从whereis数据库信息中查找文件或目录</font><br />
+    		b	只找二进制文件
+            m	只找 在说明文件manual路径下的文件
+            s	只找 source 源文件
+            u	找不在上述三个参数范围内的其他文件
+        </p>
+        
+        <p><font color="#FF0000">locate [-ir]	keyword //从locate数据库信息中查找文件或目录</font><br />
+    		i	忽略大小写<br />
+            r	后接正则表达式<br />
+            <font color="#FF0000">updatedb //更新locate数据库可能要数分钟<br />大多linux默认每天更新一次此数据库 故查找新文件要先手动更新</font>
+            
+        </p>
+        
+         <p><font color="#FF0000">find [PATH] [option] [action]</font>
+       	 	<p><font color="#FF0000">与时间相关有三个 atime ctime mtime</font><br />
+            	find / -atime 4	//找出在第4天 这一天内 被访问过的文件<br />
+                find / +atime 4	//找出在4天前不包括第4天 被访问过的文件<br />
+                find / -atime 4	//找出在4天内不包括第4天 被访问过的文件<br />
+                find / -newer /home/file //找出比file新的文件<br />
+            </p>
+            
+            <p><font color="#FF0000">与用户用户组相关</font><br />
+            	-uid n	//找出uid为n的用户的文件
+                -gid n	//找出gid为n的用户组的文件
+                -user name	//找出用户名为name的文件
+                -group name	//找出用户组为name的文件
+                -nouser		//找出所有者不存在 /etc/passwd的文件
+                -nogroup	//找出所有组不存在 /etc/group的文件
+            </p>
+            
+            <p><font color="#FF0000">与文件名 权限相关</font><br />
+            	-name filename	//查找指定文件名 <br />
+                -size [+-]SIZE	//查找比SIZE 大(+) 或 小(-) 的文件 c(byte) k(kb) m(mb) ... 若比50 byte大 则 -size +50c<br /><br />
+                
+                -type TYPE //指定文件类型 一般文件(f) 设备文件(b,c) 目录(d) 连接文件(l) socket(s) FIFO(p)<br /><br />
+                
+                -perm mode	//权限为mode的文件 -perm 4777 (-perm 777 相当于 -perm 04777)<br />
+                -perm -mode //权限包括mode中全部权限的<br />
+                -perm +mode  //权限包括mode中 u g o 任一的<br />
+            </p>
+            
+            <p><font color="#FF0000">其他</font><br />
+            -print //将结果输出到屏幕(此为默认参数)<br /><br />
+            -exec command //command为其他命令 -exec后接其他命令处理查找结果<br />
+            find / -perm 7000 -exec ls -l <font color="#FF0000">{}</font> <font color="#00FF33">\;</font><br />
+            <font color="#FF0000">{}</font>代表find的查找结果 <br />
+            <font color="#00FF33">\;</font>代表-exec的结尾标识
+            </p>
+         </p>	
+        
+   </h3></a></div> 
+   
+</td></tr></table>
+</body>
+</html>

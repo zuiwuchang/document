@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>wxwidgets</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#StartQuest">全服脚本</a>
+		<a href="#Reload">重新加載</a>
+		<a href="#Move">移動</a>
+		<a href="#npc">動態增刪npc</a>
+		
+	</div>
+
+	<div class="note"><a name="StartQuest"></a>
+		<p><span class="flag">全服脚本</span>
+<pre>//让全服务器 在线人物 执行 一个 MapQuest_Def\QManage.txt 中的段
+@StartQuest @段名
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Move"></a>
+		<p><span class="flag">移動</span>
+<pre>//移動到指定 地圖 坐標
+@PositionMove	map_id	x	y
+</pre>
+	</div>
+
+	<div class="note"><a name="Reload"></a>
+		<p><span class="flag">重新加載</span>
+<pre>//重新 加載 管理員列表
+@ReloadAdmin
+
+
+//... npc腳本
+@ReloadNpc
+
+//... 定時任務
+@ReloadRobot
+
+//... 怪物爆裝
+@ReloadMonItems
+
+//... 遊戲公告
+@ReloadLineNotice
+
+//... 登錄腳本
+@ReloadManage
+
+//... 物品數據庫
+@ReloadItemDB
+
+//... 魔法數據庫	(可能無效)
+@ReloadMagicDB
+
+//... 怪物數據庫
+@ReloadMonsterDB
+</pre>
+	</div>
+
+	<div class="note"><a name="npc"></a>
+		<p><span class="flag">動態增刪npc</span>
+<pre>//在角色 正對面 增加一個 npc
+@MobNpc mpc顯示名稱 執行腳本名(此參數不包括 -地圖.txt) npc外形
+
+//刪除 角色 正對面的 npc
+@DelNpc
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+

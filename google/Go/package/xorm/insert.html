@@ -1,0 +1,100 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#insert">插入數據</a>
+	</div>
+
+	
+	<div class="note"><a name="insert"></a>
+		<p><span class="flag">插入數據</span>
+<pre>//插入數據
+func (engine *Engine) Insert(beans ...interface{}) (int64, error)
+func (engine *Engine) InsertOne(bean interface{}) (int64, error)
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-xorm/core"
+	"github.com/go-xorm/xorm"
+	"time"
+)
+
+type User struct {
+	Id   int64
+	Name string `xorm:"varchar(25) notnull unique 'uname'"`
+	//將 Name 映射到表達 uname 字段
+
+	CreatedAt time.Time `xorm:"created"` //自動 insert 時間
+}
+
+func main() {
+
+	engine, err := xorm.NewEngine("mysql", "dark:jayjolin@/dark?charset=utf8")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	//設置表名 前綴 後綴
+	var mapper core.IMapper
+	mapper = core.NewPrefixMapper(core.SnakeMapper{}, "dark_")
+	mapper = core.NewSuffixMapper(mapper, "_test")
+	engine.SetTableMapper(mapper)
+
+	//創建表
+	engine.DropTables(&User{})
+	engine.CreateTables(&User{} /*,...*/)
+
+	//插入 1 條數據 若設置了id 將不使用 自增
+	u := User{Name: "illusive man"}
+	count, err := engine.Insert(&u /*,...*/)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("count=%v %v\n", count, u)
+
+	//批量插入 不會返回自增 id
+	us := make([]*User, 5)
+	for i, _ := range us {
+		us[i] = &User{}
+		us[i].Name = fmt.Sprintf("solder %v", i)
+	}
+	count, err = engine.Insert(&us /*,...*/)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("count=%v\n", count)
+	for _, v := range us {
+		fmt.Printf("%v", v)
+	}
+}
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>在 批量插入 是 會 自動生成 insert sql 命令
+一些數據庫 有最大 sql命令 長度限制 
+故對於 太大的(150條左右) 數據 插入 需要 自己 將其分割多次 插入
+</pre>
+		</p>
+	</div>
+
+	
+</div>
+</body>
+</html>
+

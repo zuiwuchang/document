@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#log">log</a>
+		<a href="#framework">framework1.2.0</a>
+		
+		
+	</div>
+
+	<div class="note"><a name="log"></a>
+		<p><span class="flag">log</span>
+<pre>log 包提供了 基本的日誌功能(使用見  godoc)
+
+dark/log 建立在log之上的一個 日誌包
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	dlog "dark/log"
+
+	"log"
+	"os"
+)
+
+func main() {
+	//新建一個 日誌管理器
+	manage := dlog.NewManage(dlog.INFO)
+	manage.SetFlag(dlog.SHOW_GRADE | dlog.SHOW_FILE)
+
+	//增加一個 輸出 到 控制檯
+	logger := log.New(os.Stdout, "", log.LstdFlags)
+	manage.AddSink(logger, "stdout")
+
+	manage.Trace("Trace")
+	manage.Debug("Debug")
+	manage.Info("Info")
+	manage.Waring("Waring")
+	manage.Error("Error")
+	manage.Fatal("Fatal")
+
+	//增加一個文件輸出
+	file := dlog.NewFile("./t", 1024 /*單文件大小限制*/, 5)
+	logger = log.New(file, "", log.LstdFlags)
+	manage.AddSink(logger, "stdout")
+
+	for i := 0; i < 10; i++ {
+		manage.Trace("Trace")
+		manage.Debug("Debug")
+		manage.Info("Info")
+		manage.Waring("Waring")
+		manage.Error("Error")
+		manage.Fatal("Fatal")
+	}
+
+	//單件
+	single := dlog.SingleLog()
+	logger = log.New(os.Stdout, "", log.LstdFlags)
+	single.AddSink(logger, "stdout")
+	single.Info("info")
+}
+</pre>
+		</p>
+	</div>
+
+
+	<div class="note"><a name="framework"></a>
+		<p><span class="flag">framework1.2.0</span>
+<pre>framework1.2.0 是在framework1.1.0的基礎之上 修改 增加了 log功能
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+

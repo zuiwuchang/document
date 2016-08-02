@@ -1,0 +1,319 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>v8</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#duktape">duktape</a>
+		<a href="#hellow">hellow world</a>
+		<a href="#arrays">遍歷數組</a>
+		<a href="#object">遍歷object</a>
+		<a href="#js">c调用js</a>
+		<a href="#c">js调用c</a>
+		<a href="#gc">析構</a>
+		<a href="#dll">編譯動態庫</a>
+	</div>
+
+	<div class="note"><a name="duktape"></a>
+		<p><span class="flag">duktape</span>
+<pre>duktape 一個 開源(MIT) 的 c語言 javascript(Ecmascript E5/E5.1)腳本引擎
+
+可以運行在 256kb閃存 和 96kb內存 以上設備中
+
+極易 和c/c++ 集成 只需要 
+將duk_config.h(舊版本可能沒有) duktape.h duktape.c 加入項目 即可
+
+官網<a target="_blank" href="http://duktape.org/index.html">http://duktape.org/index.html</a>
+
+
+
+1	down duktape-*.tar.xz
+2	tar -xvf duktape-*.tar.xz
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="hellow"></a>
+		<p><span class="flag">hellow world</span>
+<pre>嵌入 duktape 只需要 3 步
+
+1	初始化 js 執行環境 duk_create_heap
+2	調用 duktape 提供的函數 和js 交換
+3	在不在使用時 釋放 就是環境 duk_destroy_heap
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include "duktape.h"
+#include &lt;iostream&gt;
+#include &lt;cassert&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//初始化一個默認的 js 執行環境
+	duk_context* ctx = duk_create_heap_default();
+	//duk_context* ctx = duk_create_heap(NULL, NULL, NULL, NULL, NULL);
+	assert(ctx);
+	{
+		//執行js
+		duk_eval_string(ctx, "print('Hello world!');");	//編譯並執行js
+		//...
+	}
+	//釋放 js 環境
+	duk_destroy_heap(ctx);
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="arrays"></a>
+		<p><span class="flag">遍歷數組</span>
+<pre>#include &lt;iostream&gt;
+#include "duktape.h"
+
+int main()
+{
+    duk_context *ctx = duk_create_heap_default();
+    duk_eval_string(ctx, "var v = [1,2,3,4,5];");
+
+    duk_push_global_object(ctx);
+    {
+        duk_get_prop_string(ctx,-1,"v");
+
+        for(duk_size_t i=0;i&lt;duk_get_length(ctx,-1);++i)
+        {
+            duk_get_prop_index(ctx,-1,i);
+            std::cout&lt;&lt;duk_to_int(ctx,-1)&lt;&lt;",";
+            duk_pop(ctx);
+        }
+
+        duk_size_t i = 0;
+        while(true)
+        {
+            if(!duk_get_prop_index(ctx,-1,i))
+            {
+                duk_pop(ctx);
+                break;
+            }
+            std::cout&lt;&lt;duk_to_int(ctx,-1)&lt;&lt;",";
+            duk_pop(ctx);
+
+            ++i;
+        }
+
+        i = 0;
+        while(true)
+        {
+            duk_get_prop_index(ctx,-1,i);
+            if(duk_is_undefined(ctx,-1))
+            {
+                duk_pop(ctx);
+                break;
+            }
+            std::cout&lt;&lt;duk_to_int(ctx,-1)&lt;&lt;",";
+            duk_pop(ctx);
+
+            ++i;
+        }
+
+        duk_pop(ctx);
+    }
+    duk_pop(ctx);
+
+    duk_destroy_heap(ctx);
+    return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="object"></a>
+		<p><span class="flag">遍歷object</span>
+<pre>#include <iostream>
+#include "duktape.h"
+
+int main()
+{
+    duk_context *ctx = duk_create_heap_default();
+    duk_eval_string(ctx, "var obj = {'id':'123','name':'illusive man'};");
+
+    duk_push_global_object(ctx);
+    {
+        duk_get_prop_string(ctx,-1,"obj");
+
+        //為對象 創建一個 枚舉對象 for(var v:obj)
+        duk_enum(ctx,-1,DUK_ENUM_OWN_PROPERTIES_ONLY/*枚舉標記*/);
+        /*DUK_ENUM_INCLUDE_NONENUMERABLE
+        DUK_ENUM_INCLUDE_INTERNAL
+        <span class="care">DUK_ENUM_OWN_PROPERTIES_ONLY	//僅枚舉 自己的屬性值 (包括數值屬性)(包括繼承而來的)</span>
+        DUK_ENUM_ARRAY_INDICES_ONLY	//僅枚舉 數值屬性
+        DUK_ENUM_SORT_ARRAY_INDICES	//排序 和 DUK_ENUM_ARRAY_INDICES_ONLY一起使用 相當緩慢
+        */
+        while(duk_next(ctx,
+                       -1,  //enum 在棧中位置
+                       1))  //是否需要獲取 value值
+        {
+            printf("key = %s    value = %s\n",duk_to_string(ctx,-2),duk_to_string(ctx,-1));
+
+            duk_pop_2(ctx);
+        }
+        duk_pop(ctx);
+
+        duk_pop(ctx);
+    }
+    duk_pop(ctx);
+
+    duk_destroy_heap(ctx);
+    return 0;
+}
+
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="js"></a>
+		<p><span class="flag">c调用js</span>
+<pre>duktape 中 交换方式 同 lua 以虚拟的 栈 
+按照类似 汇编方式进行 交换
+(duktape c api 概率 颇多类似 lua 作者应该是参照了 lua)
+
+将 函数 参数 从左到右 入栈 之后 调用 duk_pcall 即可
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include "duktape.h"
+#include &lt;iostream&gt;
+#include &lt;cassert&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//初始化一個默認的 js 執行環境
+	duk_context* ctx = duk_create_heap_default();
+	//duk_context* ctx = duk_create_heap(NULL, NULL, NULL, NULL, NULL);
+	assert(ctx);
+	{
+		//執行js
+		if(0 != duk_peval_string(ctx, "var x=2;var y=3;function add (l,r) {print(l+r)}")){
+			printf("eval failed: %s\n", duk_safe_to_string(ctx, -1));
+		}
+		else{
+			//入栈 js 全局对象
+			duk_push_global_object(ctx);
+			//在指定 index 栈对象 中 查找 指定属性 并且入栈(不存在 入栈undefined)
+			duk_get_prop_string(ctx, -1 /*index*/, "add");
+			duk_get_prop_string(ctx, -2 , "x");
+			duk_get_prop_string(ctx, -3 , "y");
+
+			//打印当前栈情况
+			duk_dump_context_stdout(ctx);
+
+			//调用函数
+			if(duk_pcall(ctx,2)){
+				printf("error: %s\n", duk_to_string(ctx, -1));
+			}
+			//js所有函数 都有返回值 不定义 返回 undefined
+			duk_dump_context_stdout(ctx);
+			duk_pop(ctx);
+
+			//pop global_object
+			duk_pop(ctx);
+		}
+		duk_pop(ctx);
+	}
+	//釋放 js 環境
+	duk_destroy_heap(ctx);
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="c"></a>
+		<p><span class="flag">js调用c</span>
+<pre>类似 lua 使用
+duk_push_*
+将值 设置到 栈中 便可供js调用
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include "duktape.h"
+#include &lt;iostream&gt;
+#include &lt;cassert&gt;
+
+//c扩展 js 函数
+duk_ret_t my_native_func(duk_context *ctx) {
+    double arg = duk_require_number(ctx, 0 /*index*/);
+    duk_push_number(ctx, arg * arg);
+    return 1;
+}
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//初始化一個默認的 js 執行環境
+	duk_context* ctx = duk_create_heap_default();
+	//duk_context* ctx = duk_create_heap(NULL, NULL, NULL, NULL, NULL);
+	assert(ctx);
+	{
+		//入栈 js 全局对象
+		duk_push_global_object(ctx);
+
+		//入栈 函数
+		duk_push_c_function(ctx, my_native_func, 1 /*函数参数数量*/);
+		//为函数 设置 名字 (其实是设置 全局对象 设置属性名 被设置的是栈顶位置的 属性名)
+		//设置之后 此元素 出栈
+		duk_put_prop_string(ctx, -2, "my_native_func");
+		
+		//打印当前栈情况
+		duk_dump_context_stdout(ctx);
+		duk_pop(ctx);
+
+		assert(!duk_peval_string(ctx, "my_native_func(2)"));
+		printf("value = %d\n",duk_get_int(ctx,-1));
+		duk_pop(ctx);
+	}
+	//釋放 js 環境
+	duk_destroy_heap(ctx);
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="gc"></a>
+		<p><span class="flag">析構</span>
+<pre>duk_set_finalizer 可以為一個 js的 obj 指定一個 函數 
+當 此 obj 沒釋放時 此函數被自動 調用 以便可以釋放 擴展obj的 c資源
+
+duk_ret_t my_finalizer(duk_context *ctx) {
+    /* Object being finalized is at stack index 0. */
+    printf("object being finalized\n");
+    return 0;
+}
+
+/* Create an object whose finalizer is my_finalizer(). */
+duk_push_object(ctx);
+duk_push_c_function(ctx, my_finalizer, 1 /*nargs*/);
+duk_set_finalizer(ctx, -2);
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="dll"></a>
+		<p><span class="flag">編譯動態庫</span>
+<pre>在 duk_config.h 中 添加 導出聲明
+#define DUK_EXTERNAL_DECL  _declspec(dllexport)
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>gui</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#gui">gui</a>
+		<a href="#JFrame">JFrame</a>
+		<a href="#JPanel">JPanel</a>
+		<a href="#JButton">JButton ActionListener</a>
+		<a href="#JLabel">JLabel</a>
+		<a href="#JScrollPane">JScrollPane</a>
+		<a href="#UI">UI</a>
+	</div>
+
+	<div class="note"><a name="gui"></a>
+		<p><span class="flag">gui</span>
+<pre>import javax.swing.*
+
+java 提供兩種gui組件 AWT
+1.2後 提供Swing 以替代 AWT 其類名前 都相對於AWT 類名 加了個 J
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="JFrame"></a>
+		<p><span class="flag">JFrame</span>
+<pre>要顯示一個窗口 只需要從 JFrame 派生一個子類 在子類 構造函數中 定義窗口基本實現
+在 實例化子類 並且調用 setVisible 顯示即可
+</pre>
+		</p>
+		<p><span class="flag">Toolkit</span>
+<pre>Toolkit 用於返回本機系統設置 如屏幕分辨率
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>class MyFrame extends JFrame
+{
+    public MyFrame(){
+        setTitle("this is title");
+        
+        //禁止調整窗口大小
+        //setResizable(false);
+        
+        //設置關閉窗口時 退出 JVM
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+    }
+
+}
+public class JavaApplication1 {
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        // TODO code application logic here
+       
+       JFrame frame =   new MyFrame();
+       
+       //獲取屏幕大小
+       Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+       int width = (int) screenSize.getWidth();
+       int height = (int) screenSize.getHeight();
+       
+       //調整出窗口大小
+       int x    =   width/3;
+       int y    =   height/3;
+       width    /=  2;
+       height   /= 2;
+       
+       frame.setBounds(x,y, width, height);
+       
+       //調整窗口為適當大小
+       //frame.pack();
+       
+       //顯示窗口
+       frame.setVisible(true);
+       
+    }
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="JPanel"></a>
+		<p><span class="flag">JPanel</span>
+<pre>java 使用 JPanel 管理ui 其內部以及各低效的所謂控制板 嵌套組成 
+在創建窗口後 需要增加一個 JPanel的子類到 窗口 然後在 JPanel子類的構造函數中 初始化 需要的ui控件
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>class MyPanel extends JPanel
+{
+    private JButton button;
+    public MyPanel(){
+        button  =   new JButton("ok");
+        this.add(button);
+    }
+}
+class MyFrame extends JFrame
+{
+    public MyFrame(){
+        setTitle("this is title");
+        
+        //禁止調整窗口大小
+        //setResizable(false);
+        
+        //設置關閉窗口時 退出 JVM
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        
+        this.add(new MyPanel());
+    }
+
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="JButton"></a>
+		<p><span class="flag">JButton ActionListener</span>
+<pre>JButton 是一個按鈕UI 
+ActionListener 以一個常用事件 完成其public void actionPerformed(ActionEvent ae) 可處理大多事件
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>class MyPanel extends JPanel implements ActionListener
+{
+    private JButton button_ok;
+    public MyPanel(){
+        button_ok  =   new JButton("ok");
+        add(button_ok);
+        
+        //為button_ok註冊事件
+        button_ok.addActionListener(this);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent ae) {
+        Object source = ae.getSource();
+        
+        //判斷 產生事件的 類
+        if(source == button_ok)
+        {
+            JOptionPane.showMessageDialog(this,"ok");
+        }
+    }
+
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="JScrollPane"></a>
+		<p><span class="flag">JScrollPane</span>
+<pre>JScrollPane 是滾動版 為UI增加一個滾動條
+
+要使用 滾動版 只要 用UI構造JScrollPane 再將 JScrollPane添加到 JPane 即可
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>	JTextArea jTextArea = new JTextArea(3,20);
+	JScrollPane jScrollPane = new JScrollPane(jTextArea);
+	add(jScrollPane);
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="JLabel"></a>
+		<p><span class="flag">JLabel</span>
+<pre>JLabel 是靜態文本框
+
+使用
+setText
+getText
+設置/返回 文本
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="UI"></a>
+		<p><span class="flag">UI</span>
+<pre>JTextField	單行文本
+JPasswordField	密碼框
+JTextArea	多行文本
+JCheckBox	選項框
+JRadioButton	單選框
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

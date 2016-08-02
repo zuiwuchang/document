@@ -1,0 +1,235 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>同步</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1>
+    	<a href="#CRITICAL_SECTION">CRITICAL_SECTION 臨界區</a><br />
+        <a href="#Mutex">Mutex 互斥器</a><br />
+        <a href="#Semaphore">Semaphore 信號</a><br />    
+        <a href="#Event">Event 事件</a><br />       
+        <a href="#Interlocked">Interlocked*</a><br />        
+		
+    </h1></p>
+    
+    <div class="div_box"><a name="CRITICAL_SECTION"></a><h2>
+    	<p><font color="#FF0000">CRITICAL_SECTION 臨界區</font><br />
+ 		臨界區域內的資源(包括代碼 等) 同時只會被一個線程 擁有(執行 等)<br />
+        臨界區不是 內核對象 
+<pre>//聲明一個臨界區
+CRITICAL_SECTION	critical_section
+
+//初始化臨界區
+void WINAPI InitializeCriticalSection(
+  __out  LPCRITICAL_SECTION lpCriticalSection
+);
+
+//不再使用時 需要清除臨界區
+void WINAPI DeleteCriticalSection(
+  __inout  LPCRITICAL_SECTION lpCriticalSection
+);
+
+//進入臨界區 既擁有臨界區資源
+void WINAPI EnterCriticalSection(
+  __inout  LPCRITICAL_SECTION lpCriticalSection
+);
+
+//離開臨界區	既不再擁有 故其他線程可擁有之
+void WINAPI LeaveCriticalSection(
+  __inout  LPCRITICAL_SECTION lpCriticalSection
+);
+
+//嘗試進入 臨界區 進入 返回1	 無法進入返回0(已經有其他線程進入) 
+BOOL WINAPI TryEnterCriticalSection(
+  __inout  LPCRITICAL_SECTION lpCriticalSection
+);
+
+</pre>
+        </p>
+        <p><font color="#FF0000">注意</font><br />
+        對於同一線程 可多次 EnterCriticalSection 但每次 EnterCriticalSection必須 對應一個LeaveCriticalSection <br />這
+        才能確保 離開臨界區 既其他線程能夠進入臨界區<br /><br />
+        
+        如果進入臨界區的線程 當掉了(無論是怎麼當掉)而沒有離開臨界區 其他線程將無法進入臨界區
+        </p>
+        
+        <p><font color="#FF0000">死鎖</font><br />
+<pre>2個到多個 資源需要被鎖定時便可能死鎖
+臨界區 a b 線程 A B
+A要進入a b	B要進入b a
+A進入a	此時發生 context switch 執行線程B	B進入了b
+此後b將等待A離開a 而A要一直等待B離開b 便發生了死鎖
+
+利用WaitForMultipleObjects 同時等待a b是不錯的選擇 但WaitForMultipleObjects只能用餘等待內核對象</pre>
+        </p>
+	</h2></div>
+    <div class="div_box"><a name="Mutex"></a><h2>
+    	<p><font color="#FF0000">Mutex 互斥器</font><br />
+        一個互斥器同時只能被一個線程 擁有 其和臨界區類似<br />
+        不過 其為一個內核對象 故對齊操作 將較慢(100倍左右)<br />
+        但 內核對象是可以跨進程 等
+        </p>
+        <p><font color="#FF0000">相關api</font><br />
+<pre>//創建一個互斥器	
+HANDLE WINAPI CreateMutex(
+  __in_opt  LPSECURITY_ATTRIBUTES lpMutexAttributes,	//安全描述符
+  __in      BOOL bInitialOwner,				//TRUE 調用線程立刻擁有此互斥器
+  __in_opt  LPCTSTR lpName				//全局名字(可依此跨進程) NULL 匿名
+);
+失敗返回NULL 
+成功時 GetLastError()==ERROR_ALREADY_EXISTS 代表 指定名字互斥器已經存在
+
+//使互斥器引用計數減1
+BOOL WINAPI CloseHandle(
+  __in  HANDLE hObject
+);
+
+//打開一個已經存在的互斥器	參數同CreateMutex
+HANDLE WINAPI OpenMutex(
+  __in  DWORD dwDesiredAccess,
+  __in  BOOL bInheritHandle,		
+  __in  LPCTSTR lpName	
+);
+
+//獲取互斥器
+Wait... 函數將擁有互斥器 既使之成為未激發態
+沒有線程擁有 互斥器處於激發態
+
+//釋放互斥器 既使互斥器變為 激發態
+BOOL WINAPI ReleaseMutex(
+  __in  HANDLE hMutex
+);
+
+</pre>
+        </p>
+        
+        <p><font color="#FF0000">注意</font><br />
+        線程可多次Wait...同一個Mutex<br />
+        但每個Wait...都需要和ReleaseMutex配合<br /><br />
+        
+        Mutex最大的特點是 當用戶此Mutex的線程 未ReleaseMutex而結束時<br />
+        Mutex將被設置為激發態 故其他Wait...將能夠 得到此Mutex
+        </p>
+	</h2></div>
+    
+    <div class="div_box"><a name="Semaphore"></a><h2>
+    	<p><font color="#FF0000">Semaphore 信號</font><br />
+       	用於表示一種資源的數量 如要將3輛車出售 我們只關心 用3個資源 而不關心每個資源個體<br />
+        Semaphore 的 當計數 代表資源數<br />
+        當前計算為0 將無法申請資源 
+        </p>
+        
+        <p><font color="#FF0000">相關API</font><br />
+<pre>//創建一個信號
+HANDLE WINAPI CreateSemaphore(
+  __in_opt  LPSECURITY_ATTRIBUTES lpSemaphoreAttributes,	//安全描述符
+  __in      LONG lInitialCount,					//當前計算值
+  __in      LONG lMaximumCount,					//最大計算值
+  __in_opt  LPCTSTR lpName					//全局名稱 NULL(匿名)
+);
+失敗返回NULL 
+成功時 GetLastError()==ERROR_ALREADY_EXISTS 代表 指定名字Semaphore已經存在
+
+//使Semaphore引用計數減1
+BOOL WINAPI CloseHandle(
+  __in  HANDLE hObject
+);
+
+//申請資源
+wait...	將使當前值-1	若Semaphore當前值不為0 wait將返回
+
+//釋放資源
+BOOL WINAPI ReleaseSemaphore(
+  __in       HANDLE hSemaphore,
+  __in       LONG lReleaseCount,		//Semaphore當前值增加(必須大於0) 一般為1
+  __out_opt  LPLONG lpPreviousCount		//返回原當前值
+);
+
+
+</pre>
+        </p>
+        
+        <p><font color="#FF0000">注意</font><br />
+        任何線程都可以 ReleaseSemaphore 使Semaphore當前值 增加 此不同於其他同步對象<br />
+        ReleaseSemaphore 無聊如何都不會使Semaphore當前值 大於最大值(最多到等於)
+        </p>
+ 	</h2></div>
+    
+    <div class="div_box"><a name="Event"></a><h2>
+    	<p><font color="#FF0000">Event 事件</font><br />
+        Event是win下最具彈性的同步機制 Event的唯一目的便是成為激發態或未激發態<br />
+        而是否激發態 可完全由程序員控制 而不受wait...函數影響
+        </p>
+        
+        <p><font color="#FF0000">相關API</font><br />
+<pre>//創建事件
+HANDLE WINAPI CreateEvent(
+  __in_opt  LPSECURITY_ATTRIBUTES lpEventAttributes,	//安全描述符
+  __in      BOOL bManualReset,		<font color="#FF0000">//FALSE 自動重置(既 Event變為激發態後 於是喚醒了一個線程(其他線程wait...) 之後Event自動變為非激發態(被wait影響))	TRUE 人工重置(調用ResetEvent 才會變為非激發態)</font>
+  __in      BOOL bInitialState,		//TRUE	Event立即變為激發態
+  __in_opt  LPCTSTR lpName		//全局名稱
+);
+失敗返回NULL 
+成功時 GetLastError()==ERROR_ALREADY_EXISTS 代表 指定名字Event已經存
+
+//將Event設置為激發態
+BOOL WINAPI SetEvent(
+  __in  HANDLE hEvent
+);
+
+//將Event設置為非激發態
+BOOL WINAPI ResetEvent(
+  __in  HANDLE hEvent
+);
+
+/*對於	自動重置	Event	將Event設置為激發態 喚醒一個等待線程 然後將 Event設置為非激發態
+對於	人工重置	Event	將Event設置為激發態 喚醒所有等待線程 然後將 Event設置為非激發態*/
+BOOL WINAPI PulseEvent(
+  __in  HANDLE hEvent
+);
+
+
+</pre>
+        </p>
+        
+         <p><font color="#FF0000">注意</font><br />
+         對於 自動重置 的Event調用 ResetEvent PulseEvent可能會死鎖
+         </p>
+ 	</h2></div>
+    <div class="div_box"><a name="Interlocked"></a><h2>
+    	<p><font color="#FF0000">Interlocked*</font><br />
+        對於一個單純的32位值 使用上面的同步顯得過於複雜 win Interlocked*函數提供 對一個32位值得 線程同步操作        
+        </p>
+        <p><font color="#FF0000">相關API</font><br />
+<pre>//+1
+LONG 
+  InterlockedIncrement(
+    IN PLONG  Addend	//需要+1的32值 地址
+    );
+//返回值為 Addend+1 -0 (既改變後和0的比較)
+
+//-1
+LONG 
+  InterlockedDecrement(
+    IN PLONG  Addend
+    );
+//返回值為  Addend-1 -0 (既改變後和0的比較)
+
+//改變一個32值
+LONG __cdecl InterlockedExchange(
+  __inout  LONG volatile* Target,		//需要改變32值 地址
+  __in     LONG Value					//設置的值
+);
+//返回原值
+
+</pre>
+        </p>
+   	</h2></div>
+</td></tr></table>
+</body>
+</html>

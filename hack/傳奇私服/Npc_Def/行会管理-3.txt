@@ -1,0 +1,39 @@
+[@Main]
+【<创建行会/@@buildguildnow>>】	\
+【<行会战争/@@guildwar>】	\
+【<如何创建行会/@howto>】	\
+【<解散行会/@del>】	\
+;【<name/@name>】	\
+<申请攻城战争./@requestcastlewar>\
+【<关闭/@exit>】
+
+[@requestcastlewar]
+请求对 沙巴克 作战你应该有祖玛教主的头像,你有它吗?战争将会在\ 
+申请日期的第 三 天内开始。\ \
+<给祖玛头像/@requestcastlewarnow>\
+<返回./@main>\
+
+[@del]
+#IF
+	ISGUILDMASTER
+#ACT
+	SENDMSG 0 %s解散了<$GUILDNAME>行会
+	GMExecute DelGuild <$GUILDNAME>
+	CLOSE
+#ELSEACT
+	MESSAGEBOX 你不是行会元首，无法解散行会
+BREAK
+
+
+[@name]
+;#SAY
+	<$GUILDNAME>	\	\
+
+【<返回/@back>】	【<关闭/@exit>】
+
+[@howto]
+创建行会需要装备如下物品:	\
+1000000金币	\
+一个沃玛号角(商铺购买)	\	\
+
+【<返回/@back>】	【<关闭/@exit>】

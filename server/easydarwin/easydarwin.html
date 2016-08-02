@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Tomcat</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#easydarwin">easydarwin</a>
+		<a href="#play">點播</a>
+	</div>
+
+	<div class="note"><a name="easydarwin"></a>
+		<p><span class="flag">easydarwin</span>
+<pre>easydarwin 是一個開源的(APPLE PUBLIC SOURCE LICENSE Version 2.0 ) 流媒體 平台 框架
+
+EasyDarwin 提供了 RTSP/HLS/HTTP 協議的支持
+提供了 點播(Mp4) 直播(H264/MJPEG/MPEG4、AAC/PCMA/PCMU/G726) 
+
+官網 <a href="http://www.easydarwin.org/" target="_blank">http://www.easydarwin.org/</a>
+</pre>
+		</p>
+	</div>
+	
+	<div class="note"><a name="play"></a>
+		<p><span class="flag">點播</span>
+<pre>1	下載最新 easydarwin源碼 並編譯
+	git clone https://github.com/EasyDarwin/EasyDarwin.git
+	(easydarwin 為win32 提供了 編譯好的 程序
+	<a href="https://github.com/EasyDarwin/EasyDarwin/releases" target="_blank">https://github.com/EasyDarwin/EasyDarwin/releases</a>
+
+	<a href="https://drive.google.com/file/d/0BzBTagdHxViwVDBPakVnTnhPN2s/view?usp=sharing" target="_blank">https://drive.google.com/file/d/0BzBTagdHxViwVDBPakVnTnhPN2s/view?usp=sharing</a>
+	)
+
+
+2	修改配置文件 easydarwin.xml
+	rtsp_port	rtsp服務端口
+	movie_folder	流媒體文件目錄
+
+3	運行 EasyDarwin.exe -c ./easydarwin.xml -d
+
+4	使用 rtsp://[ip]:[rtsp_port]/[filename] 訪問 視頻流
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>rtsp 服務器只 處理 帶有 rtsp信息頭的 mp4
+需要 為 mp4 添加 信息頭
+
+mp4box a.mp4 -hint 
+<a href="https://drive.google.com/file/d/0BzBTagdHxViwVS1UNUo3NE10X3c/view?usp=sharing" target="_blank">gpac-0.5.2-DEV-rev696-g002c956-master-win32.exe(mp4box 完整工具集)</a>
+<a href="https://drive.google.com/file/d/0BzBTagdHxViwVU5nTENYNWVCV0k/view?usp=sharing" target="_blank">mp4box.exe</a>
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

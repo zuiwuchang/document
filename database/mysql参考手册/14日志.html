@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>备份还原和导入导出</title>
+</head>
+<body>
+<table align="center"><tr><td>
+    <p>
+    <h2>
+	<table border="2">
+    <tr><td>名称</td><td>描述</td><td>默认开启</td></tr>
+    <tr><td><a href="#bin">二进制日志</a></td><td>以二进制文件记录了数据库中的操作，但不记录查询语句</td><td>关闭</td></tr>
+    <tr><td><a href="#err">错误日志</a></td><td>记录mysql服务器的启动,关闭和运行错误</td><td>开启(且无法关闭
+    )</td></tr>
+    <tr><td><a href="#normal">通用查询日志</a></td><td>记录用户登录和查询</td><td>关闭</td></tr>
+    <tr><td><a href="#slow">慢查询日志</a></td><td>记录执行时间超过指定时间段操作</td><td>关闭</td></tr>
+    </table>
+    </h2>
+    </p>	
+    
+    <a name="bin">
+    <p>
+    <h3>
+    	<font color="#FF0000">二进制日志</font><br />
+        <p>
+        启动二进制日志<br />
+        于my.cnf中配置<br />
+        [mysqld]<br />log-bin[=file]<br />
+        <font color="#FF0000">如</font> log-bin=/home/dark/mysql-log/log<br />
+        log是日志名 后生成形如log.000001 log.000002等日志和 日志索引文件log.index<br />
+        <font color="#FF0000">如</font> log-bin<br />在默认位置用默认日志名(主机名-bin.000...x)生成日志
+        </p>
+        
+        <p>
+        查看二进制日志<br />
+        mysqlbinlog log.number<br />
+        <font color="#FF0000">如</font>mysqlbinlog log.000001
+        </p>
+        
+        <p>
+        删除二进制日志<br />
+        	<p>
+            删除全部日志<br />
+            reset master;
+            </p>
+        	
+            <p>
+            删除指定日志<br />
+            purge master logs to 'log.000004';
+            </p>
+            <P>
+            删除指定时间之前创建的日志<br />
+            purge master logs before '2012-11-02 00:00:00'
+            </P>
+        </p>
+        
+        <p>
+        暂停二进制日志<br />
+        set sql_log_bin=0;
+        恢复二进制日志<br />
+        set sql_log_bin=1;
+        </p>
+    </h3>
+    </p>
+  	</a>
+
+
+	<a name="err">
+    <p>
+    <h3>
+    	<font color="#FF0000">错误日志</font><br />
+        <p>
+        错误日志文件名为 主机名.err<br />
+        通过配置my.cnf可改变其名<br />
+        [mysqld]<br />log-error=/home/dark/mysql-log/err;/*会在mysql-log目录下生成err.err的日志文件*/
+        </p>
+        <p>
+        可用任意文本编辑器查看
+        </p>
+        <p>
+        删除错误日志<br />
+        mysqladmin -u root -p flush-logs;或在mysql中执行 flush logs
+        执行此命令后会生成新的日志文件 并把旧日志改名为 原名-old
+        </p>
+   	</h3>
+    </p>
+    </a>
+    
+    <a name="normal">
+    <p>
+    <h3>
+    	<font color="#FF0000">通用查询日志</font><br />
+        <p>
+        启动通用查询日志<br />
+        于my.cnf中配置<br />
+        [mysqld]<br />log[=file]<br />
+        <font color="#FF0000">如</font>log=/dark/home/mysql-log/log.log<br />
+        <font color="#FF0000">如</font>log/*在默认位置以默认名称(主机名.log)生成日志*/
+        </p>
+        
+        <p>
+        以任何文本编辑器查看
+        </p>
+        
+        <p>
+        删除<br />
+        mysqladmin -u root -p flush-logs/*会直接删除日志不会像错误日志一样备份*/
+        </p>
+    </h3>
+    </p>
+    </a>
+    
+    <a name="slow">
+    <p>
+    <h3>
+    		<font color="#FF0000">慢查询日志</font><br />
+            <p>
+            启动<br />
+            于my.cnf中配置
+            [mysqld]
+            log-slow-queries[=file]<br />
+            [log_query_time=n]/*超时时间默认是10秒 设置时单位是秒*/<br />
+            <font color="#FF0000">如</font>log-slow-queries=/home/dark/mysql-log/slow/*会生成名为slow-slow.log的日志文件*/<br />
+            <font color="#FF0000">如</font>log-slow-queries/*以默认名称(主机名-slow.log)生成日志*/
+            
+            </p>
+            
+             <p>
+            以任何文本编辑器查看
+            </p>
+            
+            <p>
+            删除<br />
+            mysqladmin -u root -p flush-logs/*会直接删除日志不会像错误日志一样备份*/
+            </p>
+    </h3>
+    </p>
+    </a>
+</td></tr></table>
+</body>
+</html>

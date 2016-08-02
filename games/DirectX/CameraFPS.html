@@ -1,0 +1,114 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>CameraFPS</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="DirectX"><tr><td>
+<p>
+	<font color="#FF0000">CameraFPS</font>
+</p>
+
+<p>
+	<a href="#CameraFPS">CameraFPS</a><br />
+    <a href="#Camera">攝像機描述</a><br />
+    <a href="#D3DXMatrixRotationAxis">旋轉</a><br />
+    <a href="#move">行走 掃視 升降</a><br />
+    <a href="#example">example</a><br />
+    
+</p>
+
+
+<div class="mydiv"><a name="CameraFPS"></a>
+	<p><font color="#FF0000">CameraFPS</font>
+<pre>CameraFPS 第一人称视角的摄象机 很适合作为 飞行模拟 和 第一人称视角游戏
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="Camera"></a>
+	<p><font color="#FF0000">攝像機描述</font>
+<pre>首先使用 4个 分量 
+up right front 定义一个正交坐标系 描述摄象机朝向
+position 描述摄象机位置
+
+
+如此 攝像機可以有如下 6 種變化
+
+沿	up	旋轉(偏移)
+沿	right	旋轉(俯/仰)
+沿	front	旋轉(滾動 偏著頭看)
+
+沿	up	升降
+沿	right	掃視(橫著移動)
+沿	front	平移
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">D3DTS_VIEW 投影矩陣計算</font>
+<pre>描述攝像機後 就需要計算 投影到攝像機的 投影矩陣
+
+物體上相對運動的 將世界投影到攝像機 等價於 將世界坐標系中的物體 隨攝像機一起變換 以使攝像機坐標系與世界坐標系 完全重合
+故只需要計算出 將攝像機 平移到世界原點 且坐標系重合的 變換矩陣即可
+
+<font color="#FF0000">Setp	1（將攝像機 平移到世界原點）</font>
+因為	position + (-position)=0
+故	平移變換 T = -position
+1		,0		,0		,0
+0		,1		,0		,0
+0		,0		,1		,0
+-Px		,-Py	,-Pz	1
+
+<font color="#FF0000">Setp	2（將攝像機坐標系 旋轉 和世界坐標系 重合）</font>
+旋轉矩陣A為
+Rx	Ux	Fx	0
+Ry	Uy	Fy	0
+Rz	Uz	Fz	0
+0	0	0	1
+
+<font color="#FF0000">Setp	3（TA）</font>
+TA為
+Rx	Ux	Fx	0
+Ry	Uy	Fy	0
+Rz	Uz	Fz	0
+-PR	-PU	-PF	1
+</pre>
+	</p>
+</div>    
+
+<div class="mydiv"><a name="D3DXMatrixRotationAxis"></a>
+	<p><font color="#FF0000">旋轉</font>
+<pre>使用
+ D3DXMATRIX * D3DXMatrixRotationAxis(
+  __inout  D3DXMATRIX *pOut,		//返回變換矩陣
+  __in     const D3DXVECTOR3 *pV,	//軸 方向向量
+  __in     FLOAT Angle				//旋轉弧度
+);
+可以計算 一個沿任意方向的 旋轉矩陣
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="move"></a>
+	<p><font color="#FF0000">行走 掃視 升降</font>
+<pre>沿著 front 方向平動 即可完成 行走
+沿著 right 方向平動 即可完成 掃視
+沿著 up 方向平動 即可完成 升降
+
+只需要 將 攝像機位置 與 對應方向向量 相加 即可完成
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="example"></a>
+	<p><font color="#FF0000">example</font>
+<pre>code\CameraFPS 下為一個完整的示例 顯示了如何繪製一個茶壺的 鏡面倒影 和到某一平面的陰影
+</pre>
+	</p>
+</div>
+
+</td></tr></table>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>wxAutomationObject</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#wxAutomationObject">ole</a>
+		<a href="#Microsoft_Excel_Example">Microsoft Excel Example</a>
+	</div>
+
+	<div class="note"><a name="wxAutomationObject"></a>
+		<p><span class="flag">ole</span>
+<pre>wxwidgets 的 wxAutomationObject 實現了在 msw平台下
+操作微軟 ole接口 的能力
+</pre>
+		</p>
+		<p><span class="flag">常用方法</span>
+<pre>//獲取/設置 值屬性
+wxVariant 	GetProperty (const wxString &property, int noArgs, wxVariant args[]) const
+const wxVariant 	GetProperty (const wxString &property,...) const
+bool 	PutProperty (const wxString &property, int noArgs, wxVariant args[])
+const bool 	PutProperty (const wxString &property,...)
+
+//調用ole方法
+wxVariant 	CallMethod (const wxString &method, int noArgs, wxVariant args[]) const
+ const wxVariant 	CallMethod (const wxString &method,...) const
+
+//返回其他 ole 對象
+bool 	GetObject (wxAutomationObject &obj, const wxString &property, int noArgs=0, wxVariant args[]=NULL) const
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="Microsoft_Excel_Example"></a>
+		<p><span class="flag">Microsoft Excel Example</span>
+<pre>void MyFrame::OnTest(wxCommandEvent& WXUNUSED(event))
+{
+    //打開 application
+    wxAutomationObject excelObject, rangeObject;
+    if (!excelObject.GetInstance(_T("Excel.Application")))
+    {
+        if (!excelObject.CreateInstance(_T("Excel.Application")))
+        {
+            wxMessageBox(_("Could not create Excel object."));
+            return;
+        }
+    }
+
+    //設置可見
+    if (!excelObject.PutProperty(_T("Visible"), true))
+    {
+        wxMessageBox(_("Could not make Excel object visible"));
+        return;
+    }
+
+    //獲取工作薄數量
+    const wxVariant workbooksCountVariant = excelObject.GetProperty(_T("Workbooks.Count"));
+    if (workbooksCountVariant.IsNull())
+    {
+        wxMessageBox(_("Could not get workbooks count"));
+        return;
+    }
+    const long workbooksCount = workbooksCountVariant;
+    if (workbooksCount == 0)
+    {
+        //打開 工作薄
+        //const wxVariant workbook = excelObject.CallMethod(_T("Workbooks.open"), _T("c:/1.xls"));
+        //新建工作薄
+        const wxVariant workbook = excelObject.CallMethod(_T("Workbooks.Add"));
+        if (workbook.IsNull())
+        {
+            wxMessageBox(_("Could not create new Workbook"));
+            return;
+        }
+
+    }
+    //設置活動項
+    if (!excelObject.PutProperty(_T("ActiveCell.Value"),_T("wxWidgets automation test!")))
+    {
+        wxMessageBox(_("Could not set active cell value."));
+        return;
+    }
+
+    //設置指定項 此處為 第3行第2列
+    wxVariant params[2];
+    params[0]=3L;
+    params[1]=2L;
+    excelObject.GetObject(rangeObject,wxT("cells"),2,params);
+    rangeObject.PutProperty(_T("value"),wxVariant(_T("草泥馬 funck excel")));
+
+
+    wxString str = rangeObject.GetProperty(_T("value")).GetString();
+    wxMessageBox(str);
+
+    //另存為
+    excelObject.CallMethod( _T("ActiveWorkbook.SaveAs"),(_T("c:/2.xls")));
+    //關閉excel
+    excelObject.CallMethod( _T("Quit"));
+}
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

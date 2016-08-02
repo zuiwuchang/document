@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>windows</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#netsh">防火牆</a>
+		<a href="#add">操作規則</a>
+	</div>
+
+	<div class="note"><a name="netsh"></a>
+		<p><span class="flag">防火牆</span>
+<pre>windows 從 vista 開始 使用 netsh advfirewall firewall
+命令 替換之前 的 netsh firewall 用於 控制系統防火牆
+
+
+//開啟/關閉 防火牆
+netsh advfirewall set allprofiles state on
+netsh advfirewall set allprofiles state off
+
+//恢復 防火牆 默認設置
+netsh advfirewall reset
+
+//導出/導入 配置
+netsh advfirewall export rules.wfw
+netsh advfirewall import rules.wfw
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>防火牆規則名 不能是 all
+netsh advfirewall firewall 使用all規則名 代表 所有規則
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="add"></a>
+		<p><span class="flag">操作規則</span>
+<pre>netsh advfirewall firewall add rule name=<span class="care">"規則名"</span> protocol=<span class="care">協議</span> dir=<span class="care">入/出</span> localport=<span class="care">端口</span> action=<span class="care">操作</span>
+
+<span class="care">用法: add rule name=<string>
+      dir=in|out
+      action=allow|block|bypass
+      [program=&lt;program path&gt;]
+      [service=&lt;service short name&gt;|any]
+      [description=&lt;string&gt;]
+      [enable=yes|no (default=yes)]
+      [profile=public|private|domain|any[,...]]
+      [localip=any|&lt;IPv4 address&gt;|&lt;IPv6 address&gt;|&lt;subnet&gt;|&lt;range&gt;|&lt;list&gt;]
+      [remoteip=any|localsubnet|dns|dhcp|wins|defaultgateway|
+         &lt;IPv4 address&gt;|&lt;IPv6 address&gt;|&lt;subnet&gt;|&lt;range&gt;|&lt;list&gt;]
+      [localport=0-65535|&lt;port range&gt;[,...]|RPC|RPC-EPMap|IPHTTPS|any (default=a
+ny)]
+      [remoteport=0-65535|&lt;port range&gt;[,...]|any (default=any)]
+      [protocol=0-255|icmpv4|icmpv6|icmpv4:type,code|icmpv6:type,code|
+         tcp|udp|any (default=any)]
+      [interfacetype=wireless|lan|ras|any]
+      [rmtcomputergrp=&lt;SDDL string&gt;]
+      [rmtusrgrp=&lt;SDDL string&gt;]
+      [edge=yes|deferapp|deferuser|no (default=no)]
+      [security=authenticate|authenc|authdynenc|authnoencap|notrequired
+         (default=notrequired)]
+</span>
+
+//阻止所有入站 並 放行所有出站
+netsh advfirewall set allprofiles firewallpolicy blockinbound,allowoutbound
+
+//阻止3389連接
+netsh advfirewall firewall add rule name="no 3389" protocol=tcp dir=in localport=3389 action=block
+
+//放行80端口
+netsh advfirewall firewall add rule name="yes 80" protocol=tcp dir=in localport=3389 action=allow
+
+
+
+//顯示所有規則
+netsh advfirewall firewall show rule name=all
+//顯示 規則名為 no 3389的
+netsh advfirewall firewall show rule name="no 3389"
+//顯示所有入站規則
+netsh advfirewall firewall show rule name=all dir=in
+<span class="care">
+	show rule name=&lt;string&gt;
+	[profile=public|private|domain|any[,...]]
+	[type=static|dynamic]
+	[verbose]
+</span>
+
+
+
+//刪除規則
+netsh advfirewall firewall delete rule name="yes 80"
+netsh advfirewall firewall delete rule name=all protocol=tcp localport=80
+<span class="care">用法: delete rule name=<string>
+     [dir=in|out]
+     [profile=public|private|domain|any[,...]]
+     [program=&lt;program path&lgt;]
+     [service=&lt;service short name&gt;|any]
+     [localip=any|&lt;IPv4 address&gt;|&lt;IPv6 address&gt;|&lt;subnet&gt;|&lt;range&gt;|&lt;list&gt;]
+     [remoteip=any|localsubnet|dns|dhcp|wins|defaultgateway|
+        &lt;IPv4 address&gt;|&lt;IPv6 address&gt;|&lt;subnet&gt;|&lt;range&gt;|&lt;list&gt;]
+     [localport=0-65535|&lt;port range&gt;[,...]|RPC|RPC-EPMap|any]
+     [remoteport=0-65535|&lt;port range&gt;[,...]|any]
+     [protocol=0-255|icmpv4|icmpv6|icmpv4:type,code|icmpv6:type,code|
+        tcp|udp|any]
+</span>
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

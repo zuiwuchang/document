@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>等待線程</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1>
+    	<a href="#WaitForSingleObject">WaitForSingleObject</a><br />
+        <a href="#WaitForMultipleObjects">WaitForMultipleObjects</a><br />
+        <a href="#MsgWaitForMultipleObjects">MsgWaitForMultipleObjects</a><br />
+        
+		
+    </h1></p>
+    
+    <div class="div_box"><a name="WaitForSingleObject"></a><h2>
+    	<p><font color="#FF0000">WaitForSingleObject</font>
+<pre><font color="#FF0000">WaitForSingleObject函數用於等待一個內核對象 直到其變為激發態</font>
+DWORD WINAPI WaitForSingleObject(
+  __in  HANDLE hHandle,			//等待的內核對象
+  __in  DWORD dwMilliseconds		//等待時間  單位毫秒 0(立即返回) <font color="#FF0000">INFINITE(一直等待)</font>
+);
+
+<font color="#FF0000">返回值</font>
+執行失敗返回	WAIT_FAILED 
+
+執行成功返回	WAIT_ABANDONED	(擁有mutex的線程結束前沒釋放mutex)
+		WAIT_OBJECT_0	(核心對象變為激發態)
+		WAIT_TIMEOUT	(等待超時)
+</pre>
+        </p>
+        
+        <p><font color="#FF0000">核心對象激發態意義</font>
+        <table border="2">
+        <tr><td>核心對象</td><td>說明</td></tr>
+        <tr><td>Thread*(線程)</td><td>激發:線程結束<br />未激發:線程未結束</td></tr>
+        <tr><td>Process*(進程)</td><td>激發：進程結束<br />未激發進程未結束</td></tr>
+        <tr><td>Change Notification</td><td>當特定磁盤子目錄下發生特別變化時 詳見下文<br />(由FindFirstChangeNotification函數產生)</td></tr>
+        <tr><td>Console Input*</td><td>console窗口輸入緩衝區中有數據可用 為激發態<br />(由CreateFile GetStdFile獲取此handle)</td></tr>
+        <tr><td>Event*</td><td>詳見下章 同步</td></tr>
+        <tr><td>Mutex*</td><td>激發態:沒有被任何線程擁有 ReleaseMutex<br />未激發:被Wait...函數</td></tr>
+        <tr><td>Semaphore*</td><td>類似mutex 但其有引用計數<br /> 當計數大於0 激發 <br />等於0 未激發</td></tr>
+        </table>
+        
+<pre>Change Notification 變為激發態的特定事件
+FILE_NOTIFY_CHANGE_FILE_NAME	產生 刪除 重命名一個文件
+FILE_NOTIFY_CHANGE_DIR_NAME	產生 刪除 一個子目錄
+FILE_NOTIFY_CHANGE_ATTRIBUTES	目錄 子目錄中的任何屬性改變
+FILE_NOTIFY_CHANGE_SIZE		目錄 子目錄中 的任何文件大小改變
+FILE_NOTIFY_CHANGE_LAST_WRITE	目錄 子目錄中 任何文件最後寫入時間改變
+FILE_NOTIFY_CHANGE_SECURITY	目錄 子目錄中 任何安全屬性改變
+</pre>
+        
+        </p>
+	</h2></div>    
+     
+    <div class="div_box"><a name="WaitForMultipleObjects"></a><h2>
+    	<p><font color="#FF0000">WaitForMultipleObjects</font>
+<pre><font color="#FF0000">WaitForMultipleObjects函數用於等待多個個內核對象</font>
+DWORD WINAPI WaitForMultipleObjects(
+  __in  DWORD nCount,				//等待內核對象數組大小 最大為MAXIMUM_WAIT_OBJECTS
+  __in  const HANDLE* lpHandles,		//包含要等待內核對象的數組 <font color="#FF0000">(內核對象類型 可以不一致)</font>
+  __in  BOOL bWaitAll,				//TRUE 全部對象都激發才返回 FALSE一個激發就返回
+  __in  DWORD dwMilliseconds			//等待時間  單位毫秒 0(立即返回) <font color="#FF0000">INFINITE(一直等待)</font>
+);
+
+<font color="#FF0000">返回值</font>
+執行失敗返回	WAIT_FAILED 
+
+執行成功返回	WAIT_TIMEOUT		(等待超時)
+		[WAIT_OBJECT_0 , (WAIT_OBJECT_0 + nCount– 1)]		(bWaitAll==TRUE	核心對象全變為激發態	bWaitAll==FALSE 返回值-WAIT_OBJECT_0為被激發對象索引)
+		[WAIT_ABANDONED_0 , (WAIT_ABANDONED_0 + nCount– 1)]	( 類似WAIT_OBJECT_0 只是這裡是mutex對象被激發)
+</pre>        
+        </p>
+	</h2></div>
+    
+    <div class="div_box"><a name="MsgWaitForMultipleObjects"></a><h2>
+    	<p><font color="#FF0000">MsgWaitForMultipleObjects</font>
+<pre><font color="#FF0000">MsgWaitForMultipleObjects函數用於 同時等待內核對象 和消息 一般用於改寫主循環(且一般就一個)</font>
+DWORD WINAPI MsgWaitForMultipleObjects(
+  __in  DWORD nCount,
+  __in  const HANDLE* pHandles,
+  __in  BOOL bWaitAll,
+  __in  DWORD dwMilliseconds,
+  __in  DWORD dwWakeMask			//此值指定要等待的消息
+);
+
+<font color="#FF0000">返回值</font>
+同WaitForMultipleObjects 只是多出下面一個可能代表 是收到消息
+WAIT_OBJECT_0 + nCount
+</pre>        
+
+
+        </p>
+ 	</h2></div>
+    
+</td></tr></table>
+</body>
+</html>

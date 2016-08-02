@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>template</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#template">template</a>
+		<a href="#parameters">parameters</a>
+		<a href="#Iterating">Iterating</a>
+		<a href="#If-blocks">If-blocks</a>
+		<a href="#blocks">Declaring reusable blocks</a>
+		<a href="#values">Declaring reusable values</a>
+		<a href="#Import">Import statements</a>
+		<a href="#Comments">Comments</a>
+		<a href="#Escaping">Escaping</a>
+		 
+	</div>
+
+	<div class="note"><a name="template"></a>
+		<p><span class="flag">template</span>
+<pre>template 是一個java的函數
+
+If you create a views/Application/index.scala.html template file, it will generate a views.html.Application.index class that has a render() method.
+
+每當遇到一個 <span class="care">@</span> 代表一個動態語句開始
+Hello @customer.getName()!
+          Dynamic code
+
+Hello @(customer.getFirstName() + customer.getLastName())!
+                          Dynamic Code          
+
+Hello @{val name = customer.getFirstName() + customer.getLastName(); name}!
+                                  Dynamic Code
+
+<span class="care">轉義 @</span>
+My email is bob@@example.com
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="parameters"></a>
+		<p><span class="flag">parameters</span>
+<pre>A template is like a function, so it needs parameters, which must be declared at the top of the template file:
+
+@(customer: models.Customer, orders: List[models.Order])
+You can also use default values for parameters:
+
+@(title: String = "Home")
+Or even several parameter groups:
+
+@(title:String)(body: Html)
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="Iterating"></a>
+		<p><span class="flag">Iterating</span>
+<pre>You can use the for keyword, in a pretty standard way:
+
+&lt;ul&gt;
+@for(p &lt;- products) {
+  &lt;li&gt;@p.getName() ($@p.getPrice())&lt;/li&gt;
+} 
+&lt;/ul&gt;
+
+Note: Make sure that { is on the same line with for to indicate that the expression continues to next line.
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="If-blocks"></a>
+		<p><span class="flag">If-blocks</span>
+<pre>If-blocks are nothing special. Simply use Scala’s standard if statement:
+
+@if(items.isEmpty()) {
+  &lt;h1&gt;Nothing to display&lt;/h1&gt;
+} else {
+  &lt;h1&gt;@items.size() items!&lt;/h1&gt;
+}
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="blocks"></a>
+		<p><span class="flag">Declaring reusable blocks</span>
+<pre>You can create reusable code blocks:
+
+@display(product: models.Product) = {
+  @product.getName() ($@product.getPrice())
+}
+ 
+&lt;ul&gt;
+@for(product <- products) {
+  @display(product)
+} 
+&lt;/ul&gt;
+
+Note that you can also declare reusable pure code blocks:
+
+@title(text: String) = @{
+  text.split(' ').map(_.capitalize).mkString(" ")
+}
+ 
+&lt;h1&gt;@title("hello world")&lt;/h1&gt;
+Note: Declaring code block this way in a template can be sometime useful but keep in mind that a template is not the best place to write complex logic. It is often better to externalize these kind of code in a Java class (that you can store under the views/ package as well if you want).
+
+By convention a reusable block defined with a name starting with implicit will be marked as implicit:
+
+@implicitFieldConstructor = @{ MyFieldConstructor() }
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="values"></a>
+		<p><span class="flag">Declaring reusable values</span>
+<pre>You can define scoped values using the defining helper:
+
+@defining(user.getFirstName() + " " + user.getLastName()) { fullName =>
+  &lt;div&gt;Hello @fullName&lt;/div&gt;
+}
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="Import"></a>
+		<p><span class="flag">Import statements</span>
+<pre>You can import whatever you want at the beginning of your template (or sub-template):
+
+@(customer: models.Customer, orders: List[models.Order])
+ 
+@import utils._
+ 
+...
+To make an absolute resolution, use root prefix in the import statement.
+
+@import _root_.company.product.core._
+If you have common imports, which you need in all templates, you can declare in build.sbt
+
+TwirlKeys.templateImports += "org.abc.backend._"
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Comments"></a>
+		<p><span class="flag">Comments</span>
+<pre>You can write server side block comments in templates using @* *@:
+
+@*********************
+ * This is a comment *
+ *********************@   
+You can put a comment on the first line to document your template into the Scala API doc:
+
+@*************************************
+ * Home page.                        *
+ *                                   *
+ * @param msg The message to display *
+ *************************************@
+@(msg: String)
+
+&lt;h1&gt;@msg&lt;/h1&gt;
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="Escaping"></a>
+		<p><span class="flag">Escaping</span>
+<pre>By default, dynamic content parts are escaped according to the template type’s (e.g. HTML or XML) rules. If you want to output a raw content fragment, wrap it in the template content type.
+
+For example to output raw HTML:
+
+&lt;p&gt;
+  @Html(article.content)    
+&lt;/p&gt;
+Next: Common use cases
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

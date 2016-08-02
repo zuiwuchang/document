@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>GDI</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">GDI</font>
+</p>
+
+<p>
+	<a href="#GDI">GDI</a><br />
+    <a href="#DC">DC</a><br />
+    <a href="#CreateCompatibleDC">雙緩衝</a><br />
+    
+</p>
+
+
+<div class="mydiv"><a name="GDI"></a>
+	<p><font color="#FF0000">GDI</font>
+<pre>GDI(Graphic Device Interface) 圖像設備接口
+是MFC中 對Win32 繪圖API的 封裝
+
+其提供了 DC 代表一個繪製設備
+DC 包含一些成員函數 draw... 用以指示 繪製什麼
+以及一些 繪圖工具 CFont CBrush CPen 用以指示如何繪製 圖像
+</pre>
+	</p>  
+</div>
+
+<div class="mydiv"><a name="DC"></a>
+	<p><font color="#FF0000">DC</font>
+<pre>DC 既設備上下文  是一個包含有關某個設備(如一個窗口 屏幕 打印機)的繪製信息的數據結構 其可將圖像繪製到設備
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">常用 DC</font>
+<pre>CDC	//設備上下文
+
+//MFC 為特點用途 派生了如下dc 以簡化DC 創建 
+CPaintDC	只用於在WM_PAINT消息響應中 繪製窗口 構造調用BeginPaint 析構調用EndPaint   
+CClientDC	用於繪製窗口客戶區 構造時調用GetDC 析構時調用ReleaseDC
+CWindowDC	可繪製CWnd的客戶區非客戶區 構造時調用GetWindowDC 析構時調用ReleaseDC  
+CMetaFileDC 圖源文件DC
+
+</pre>
+	</p>
+   
+    <p><font color="#FF0000">example</font>
+<pre>void CGDITestDlg::OnBnClickedButton1()
+{
+	//返回屏幕hdc
+	HDC hdc	=	::GetDC(NULL);
+	CDC dc;
+	if(dc.Attach(hdc))
+	{
+		dc.FillRect(CRect(0,0,400,400),&CBrush(RGB(255,0,0)));
+		dc.Detach();
+	}
+	//釋放dc
+	::ReleaseDC(NULL,hdc);
+
+	//在窗口繪製
+	CClientDC cdc(this);
+	cdc.FillRect(CRect(0,0,400,400),&CBrush(RGB(255,0,0)));
+}
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">注意</font>
+<pre>一般在 窗口中 可以調用 CWnd::GetDC 可返回 DC
+使用結束後 需要調用 ReleaseDC 釋放DC
+</pre>
+	</p>
+</div>
+    
+<div class="mydiv"><a name="CreateCompatibleDC"></a>
+	<p><font color="#FF0000">雙緩衝</font>
+<pre>virtual BOOL CDC::CreateCompatibleDC(CDC* pDC)
+用於創建一個 餘 pDC 兼容的 內存dc 用於在內存中 繪製圖像
+之後可以將 兼容dc 的內容 複製到 設備dc 
+以實現 雙緩衝 的功能
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>void CGDITestDlg::OnBnClickedButton1()
+{
+	CRect rect;
+	GetClientRect(rect);
+	
+	//創建 客戶區 dc
+	CClientDC cdc(this);
+	
+	//創建兼容dc
+	CDC dc;
+	dc.CreateCompatibleDC(&cdc);
+	//在兼容dc中 繪製 圖像
+	cdc.FillRect(rect,&CBrush(RGB(255,0,0)));
+	//...
+
+	//將兼容dc 內容 更新到 設備
+	cdc.BitBlt(rect.left,rect.top,rect.Width(),rect.Height()
+		,&dc
+		,0,0
+		,SRCCOPY
+		);
+}
+</pre>
+	</p>
+</div>
+           
+</td></tr></table>
+</body>
+</html>

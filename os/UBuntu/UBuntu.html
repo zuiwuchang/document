@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>UBuntu</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#UBuntu">UBuntu</a>
+		<a href="#GNOME">Ubuntu GNOME</a>
+		<a href="#Mint">Mint</a>
+		<a href="#install">硬盤安装</a>
+		<a href="#setting">设置</a>
+		<a href="#ssh">ssh</a>
+	</div>
+	
+	<div class="note"><a name="UBuntu"></a>
+		<p><span class="flag">UBuntu</span>
+<pre>UBuntu 一个超炫的 linux 桌面系统 亦提供服务器支持
+基于Debian 和 GNOME 桌面
+每6个月 发布一个版本(18个月技术支持) 每24个月 发布一个 LTS 版本(60个月技术支持)
+
+<a href="http://www.ubuntu.com/">http://www.ubuntu.com/</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="UBuntu"></a>
+		<p><span class="flag">Ubuntu GNOME</span>
+<pre>Ubuntu GNOME 是一個基與 UBuntu 的發行版 (已被Ubuntu官方接納) 
+只是 其將 Ubuntu的 Unity 桌面 替換為了 Gnome 桌面
+
+官網 <a href="http://ubuntugnome.org/" target="_blank">http://ubuntugnome.org/</a>
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="Mint"></a>
+		<p><span class="flag">Mint</span>
+<pre>Linux Mint 基與 UBuntu 的發行版 兼容UBuntu軟體
+
+官網 <a href="http://www.linuxmint.com/" target="_blank">http://www.linuxmint.com/</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="install"></a>
+		<p><span class="flag">硬盤安装</span>
+<pre>1	安裝EasyBCD
+2	使用EasyBCD增加引導
+3	編輯引導內容如下
+title Install Ubuntu
+root (hd0,0)
+kernel (hd0,0)/<span class="care">vmlinuz</span> boot=casper iso-scan/filename=/ubuntu-13.10-desktop-i386.iso ro quiet splash locale=zh_CN.UTF-8
+initrd (hd0,0)/<span class="care">initrd.lz</span>
+4	將安裝獎項複製到(hd0,0)
+5	將鏡像中的casper/<span class="care">vmlinuz</span> casper/<span class="care">initrd.lz</span> 複雜到(hd0,0)
+6	重啓計算機 安裝ubuntu
+</pre>
+		</p>
+		<p><span class="flag">刪除</span>
+<pre>MbrFix64.exe /drive 0 fixmbr /yes
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="setting"></a>
+		<p><span class="flag">设置</span>
+<pre>一些必要設置
+</pre>
+		</p>
+
+		<p><span class="flag">文本编辑器</span>
+<pre>//ubuntu 自帶的vim不是完整版 故先下載之
+sudo apt-get install vim
+//修改默認文本編輯器
+sudo update-alternatives --config editor
+</pre>
+		</p>
+
+		<p><span class="flag">sudo 免密碼</span>
+<pre>visudo
+
+添加如下內容
+用戶名    ALL=(ALL:ALL) NOPASSWD:ALL
+到(%admin ALL=(ALL) ALL		%sudo ALL=(ALL:ALL) ALL) 之後 (否則或被 覆蓋)
+</pre>
+		</p>
+
+		<p><span class="flag">禁用客戶會話</span>
+<pre>編輯 gedit /etc/lightdm/lightdm.conf 增加
+[SeatDefaults]
+allow-guest=false
+之後重啓計算機 使之生效
+</pre>		
+		</p>
+
+		<p><span class="flag">不啟動 x window</span>
+<pre>vi /etc/init/rc-sysinit.conf
+將 env DEFAULT_RUNLEVEL=2
+改為 env DEFAULT_RUNLEVEL=3
+
+vi /etc/init/lightdm.conf
+將 
+start on ((filesystem
+           <span class="care">and runlevel [!06]</span>
+           and started dbus
+           and plymouth-ready)
+          or runlevel PREVLEVEL=S)
+改為
+start on ((filesystem
+           <span class="care">and runlevel [!036]</span>
+           and started dbus
+           and plymouth-ready)
+          or runlevel PREVLEVEL=S)
+
+
+//啟動 x window
+sudo init 2
+</pre>
+		</p>
+
+		<p><span class="flag">安裝 shadowsocks</span>
+<pre>apt-get install python-gevent python-pip
+
+pip install shadowsocks
+
+
+
+
+連接 shadowsocks 服務器
+sslocal -s '107.191.*.*' -p 50126 -k '***' -m 'rc4-md5'
+</pre>		
+		</p>
+
+		<p><span class="flag">安裝 輸入法</span>
+<pre>//中州韻輸入法引擎
+sudo apt-get install fcitx-rime
+
+
+//google 拼音
+sudo apt-get install fcitx-googlepinyin  
+</pre>
+		</p>
+
+		<p><span class="flag">nautilus-open-terminal</span>
+<pre>在右鍵菜單增加 在當前文件夾打開終端功能
+sudo apt-get install nautilus-open-terminal
+註銷之
+</pre>		
+		</p>
+		<p><span class="flag">nautilus-open-terminal</span>
+<pre>安裝Unity Tweak Tool(一個圖形化的 ubuntu系統 設置工具)
+使用 unity-tweak-tool 命令 打開設置窗口
+</pre>
+		</p>
+
+		<p><span class="flag">sun jdk</span>
+<pre>ubuntu 使用openjdk 然若需要 從事java ee開發 必須安裝 sun jdk
+到oracle下載jdk 解壓(一般 解壓爲 /usr/lib/jvm/java-7-sun)
+配置 環境變量
+export JAVA_HOME=/usr/lib/jvm/java-7-sun
+export JRE_HOME=${JAVA_HOME}/jre
+export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib
+export PATH=${JAVA_HOME}/bin:$PATH
+</pre>
+		</p>
+		<p><span class="flag">wine</span>
+<pre>ubuntu 自帶wine版本過低 故需自己從wine官網安裝
+sudo add-apt-repository ppa:ubuntu-wine/ppa
+udo apt-get update; sudo apt-get install wine1.7 winetricks
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="ssh"></a>
+		<p><span class="flag">ssh</span>
+<pre>//如下指令 以ssh連接遠程服務器 將本機8000端口作爲isocket5代理
+ssh -qTfnN -D 8000 name@ip
+</pre>
+		</p>
+	</div>		
+
+</div>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>CStatic</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+    <p><h1><font color="#FF0000">CStatic</font></h1></p>
+    
+    <h2>
+    <a href="#CStatic">CStatic</a><br />
+    <a href="#draw">自繪</a><br />
+    
+    </h2>
+
+<div class="div_box"><a name="CStatic"></a>
+<p><font color="#FF0000">CStatic</font>
+<pre>CStatic 用于管理 静态文本 静态图像
+</pre>
+</p>
+</div>
+    
+<div class="div_box"><a name="draw"></a>
+<p><pre><font color="#FF0000">自绘</font>
+</pre>CStatic 亦是一个窗口 之提供了 基本的 静态管理功能 
+很适合 派生自己需要而 MFC 未提供的UI
+</p>
+
+<p><pre><font color="#FF0000">步驟</font>
+1	從CStatic派生 子類
+2	設置SS_OWNERDRAW風格(若需要响应事件还要设置 SS_NOTIFY 风格)
+3	重載子類的DrawItem方法</pre>
+</p>
+</div>
+    
+
+  	
+</td></tr></table>
+</body>
+</html>

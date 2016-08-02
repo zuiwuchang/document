@@ -1,0 +1,507 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>圖像基本處理</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p>
+    <a href="#image">image</a><br />
+    <a href="#Constructors">加載圖像</a><br />
+    <a href="#DrawImage">DrawImage 圖像輸出 縮放</a><br />
+    <a href="#DrawImage1">圖像基本處理</a><br />
+    <a href="#clip">圖像的剪裁</a><br />
+    <a href="#GetThumbnailImage">使用縮略圖</a><br />
+    <a href="#Clone">Clone 克隆</a><br />
+    <a href="#ColorMatrix">ColorMatrix 處理圖像色彩</a><br />
+    </p>
+    
+    
+    
+<div class="div_box"><a name="image"></a>
+<p><font color="#FF0000">image</font>
+<pre>Image 是圖像處理的 基類
+其子類 Bitmap 提供了位圖處理功能
+其子類 Metafile 提供了向量圖像處理攻略
+
+通過 DrawImage 即可 完成 圖像 繪製
+</pre>    
+</p>
+</div>
+
+<div class="div_box"><a name="Constructors"></a>
+<p><font color="#FF0000">加載圖像</font>
+<pre>在 image 構造函數中 傳入一個 圖像路徑 或 IStream流 即可構造一個 Image 或 Bitmap
+
+Image::Image(IStream*,BOOL)
+Image::Image(WCHAR*,BOOL)
+BOOL 為是否啟用 Gamma校正
+
+//一個 new Image 需要自己delete
+static Image *FromFile(          const WCHAR *filename,
+    BOOL useEmbeddedColorManagement
+);
+static Image *FromStream(          IStream *stream,
+    BOOL useEmbeddedColorManagement
+);
+
+</pre>
+</p>
+
+<p><font color="#FF0000">通過文件構造</font>
+<pre>	Gdiplus::Graphics graphics(m_hWnd);
+	
+	Gdiplus::Image image(L"test.jpg");
+	
+	graphics.DrawImage(&amp;image,Gdiplus::Rect(10,10,100,100));
+</pre>
+</p>
+
+<p><font color="#FF0000">提供流構造</font>
+<pre>	//獲取資源句柄
+	HINSTANCE	hInstance	=	AfxGetResourceHandle();
+	HRSRC		hRsrc		=	FindResource(hInstance,MAKEINTRESOURCE(IDR_JPEG1),L"JPEG");
+	if(hRsrc)
+	{
+		//將資源載入內存
+		HGLOBAL hGlobal	=	LoadResource(hInstance,hRsrc);
+		if(hGlobal)
+		{
+			//返回資源大小
+			DWORD len	=	SizeofResource(hInstance,hRsrc);
+
+			//創建流對象
+			HGLOBAL	hMem	=	GlobalAlloc(GMEM_FIXED,len);
+			BYTE*	pMem	=	(BYTE*)GlobalLock(hMem);
+			memcpy(pMem,hGlobal,len);
+			IStream*	pStm;
+			CreateStreamOnHGlobal(hMem,FALSE,&amp;pStm);
+
+			Gdiplus::Graphics graphics(m_hWnd);
+	
+			Gdiplus::Image image(pStm);
+	
+			graphics.DrawImage(&image,Gdiplus::Rect(10,10,100,100));
+
+			//釋放內存
+			GlobalUnlock(hMem);
+			pStm->Release();
+			GlobalFree(hMem);
+
+		}
+		//卸載資源
+		FreeResource(hGlobal);
+	}
+</pre>
+</p>
+
+<p><font color="#FF0000">注意</font>
+<pre>在 加載失敗 時 image不會拋出異常
+可以調用其 GetLastStatus 返回 Gdiplus::Ok 則說明加載成功
+
+注意從IStream構造時 在Image生命期內 IStream 不能 Release
+CreateStreamOnHGlobal 時 在IStream生命期內 不能 GlobalFree
+</pre>
+</p>
+</div>
+
+<div class="div_box"><a name="DrawImage"></a>
+<p><font color="#FF0000">DrawImage 圖像輸出 縮放</font>
+<pre>Gdiplus::DrawImage 是重載的多個函數 實現了不同的 輸出效果
+</pre>
+</p>
+
+<p><font color="#FF0000">圖像輸出</font>
+<pre>//傳入 Image* 以及圖像所在矩形 左上角坐標
+Graphics::DrawImage(Image*,INT,INT)
+Graphics::DrawImage(Image*,Point&amp;)
+Graphics::DrawImage(Image*,REAL,REAL)
+Graphics::DrawImage(Image*,PointF&amp;)
+</pre>
+</p>
+
+<p><font color="#FF0000">圖像縮放</font>
+<pre>//...以及 一個矩形區域 將圖像縮放到此矩形 輸出
+Graphics::DrawImage(Image*,RectF&amp;)
+Graphics::DrawImage(Image*,Rect&amp;)
+Graphics::DrawImage(Image*,INT x,INT y,INT width,INT height)
+Graphics::DrawImage(Image*,REAL x,REAL y,REAL width,REAL height)
+</pre>
+</p>
+
+<p><font color="#FF0000">設置插值算法</font>
+<pre>當縮放 旋轉 圖像時 需要設置插值算法 以計算 像素值
+
+//以下函數 設置 獲取 插值算法
+Status Graphics::SetInterpolationMode(          InterpolationMode interpolationMode);
+InterpolationMode Graphics::GetInterpolationMode(VOID);
+
+
+//InterpolationMode 取值 從InterpolationModeLowQuality 開始 值越大 質量越好 花費時間越長
+typedef enum {
+    InterpolationModeInvalid = QualityModeInvalid,	//不使用插值算法
+    InterpolationModeDefault = QualityModeDefault,	//默認值
+    InterpolationModeLowQuality = QualityModeLow,
+    InterpolationModeHighQuality = QualityModeHigh,
+    InterpolationModeBilinear = QualityModeHigh + 1,
+    InterpolationModeBicubic = QualityModeHigh + 2,
+    InterpolationModeNearestNeighbor = QualityModeHigh + 3,
+    InterpolationModeHighQualityBilinear = QualityModeHigh + 4,
+    InterpolationModeHighQualityBicubic = QualityModeHigh + 5
+} InterpolationMode;
+
+
+</pre>
+</p>
+
+</div>
+
+<div class="div_box"><a name="DrawImage1"></a>
+<p><font color="#FF0000">圖像基本處理</font>
+<pre>DrawImage 除了顯示外 還提供了基本的 剪裁顯示 專置 鏡像 簡單旋轉 變形等
+</pre>
+</p>
+
+<p><font color="#FF0000">圖像剪裁顯示</font>
+<pre>//傳入 輸出左上角 以及剪裁區域 單位
+Status DrawImage(          Image *image,
+    INT x,			//輸出位置
+    INT y,
+    INT srcx,			//剪裁位置
+    INT srcy,
+    INT srcwidth,		//剪裁大小
+    INT srcheight,
+    Unit srcUnit		//單位 默認 Gdiplus::UnitPixe
+);
+Status DrawImage(          Image *image,
+    REAL x,
+    REAL y,
+    REAL srcx,
+    REAL srcy,
+    REAL srcwidth,
+    REAL srcheight,
+    Unit srcUnit
+);
+
+//以下函數同上 不過 以一個輸出區域 替代 輸出位置 以達到縮放效果
+Status DrawImage(          Image *image,
+    const Rect &destRect,	//輸出區域
+    INT srcx,
+    INT srcy,
+    INT srcwidth,
+    INT srcheight,
+    Unit srcUnit,
+    ImageAttributes *imageAttributes,	//默認NULL
+    DrawImageAbort callback,		//默認NULL
+    VOID *callbackData			//默認NULL
+);
+Status DrawImage(          Image *image,
+    const Rect &destRect,
+    INT srcx,
+    INT srcy,
+    INT srcwidth,
+    INT srcheight,
+    Unit srcUnit,
+    ImageAttributes *imageAttributes,
+    DrawImageAbort callback,
+    VOID *callbackData
+);
+
+
+</pre>
+</p>
+
+<p><font color="#FF0000">圖像的 轉置 旋轉 變形</font>
+<pre>所謂 轉置 既x y坐標交換
+
+//DrawImage 傳入一個 點坐標數組 (包含 圖像左上角 右上角 左下角坐標) 通過設置這三個點 實現 轉置 旋轉 變形
+Status DrawImage(          Image *image,
+    const Point *destPoints,	//點坐標 數組
+    INT count			//數組大小 必須是3
+);
+Status DrawImage(          Image *image,
+    const PointF *destPoints,
+    INT count
+);
+</pre>
+</p>
+
+</div>
+
+<div class="div_box"><a name="clip"></a>
+<p><font color="#FF0000">圖像的剪裁</font>
+<pre>GDI+ 在繪製時 使用一個默認的 無線大多 剪裁區域 程序員亦可手動設置 剪裁區域
+在剪裁區域之外的繪製 都將無效
+
+Graphics::SetClip 接受一個 矩形 路徑 區域 將 剪裁區域限制在繪製設備指定 範圍內
+Graphics::ResetClip 還原剪裁區域
+</pre>
+</p>
+
+<p><font color="#FF0000">API</font>
+<pre>
+Graphics::SetClip(Graphics*,CombineMode)
+Graphics::SetClip(GraphicsPath*,CombineMode)
+Graphics::SetClip(Region*,CombineMode)
+Graphics::SetClip(Rect&,CombineMode)
+Graphics::SetClip(HRGN,CombineMode)
+Graphics::SetClip(RectF&,CombineMode)
+
+CombineMode 指定了 傳入區域和原區域 如何創建新的 剪裁區域(含義 參見 區域計算)
+typedef enum {
+    CombineModeReplace,		//默認 替換原區域
+    CombineModeIntersect,
+    CombineModeUnion,
+    CombineModeXor,
+    CombineModeExclude,
+    CombineModeComplement
+} CombineMode;
+</pre>
+</p>
+
+</div>
+
+<div class="div_box"><a name="GetThumbnailImage"></a>
+<p><font color="#FF0000">使用縮略圖</font>
+<pre>//Image::GetThumbnailImage創建一個 Image的 縮略圖 並返回 縮略圖的 Image*
+Image *Image::GetThumbnailImage(          UINT thumbWidth,	//縮略圖寬
+    UINT thumbHeight,		//縮略圖高
+    GetThumbnailImageAbort callback,	//回調 NULL
+    VOID *callbackData	//回調參數 NULL
+);
+</pre>
+</p>
+
+<p><font color="#FF0000">example</font>
+<pre>Graphics graphics(hdc);
+
+   // Create an image and a thumbnail of the image.
+   Image image(L"Crayons.jpg");
+   Image* pThumbnail = image.GetThumbnailImage(40, 40, NULL, NULL);
+
+   // Draw the original and the thumbnail images.
+   graphics.DrawImage(&image, 10, 10, image.GetWidth(), image.GetHeight());
+   graphics.DrawImage(
+      pThumbnail, 
+      150, 
+      10, 
+      pThumbnail->GetWidth(), 
+      pThumbnail->GetHeight());
+
+   delete pThumbnail;
+
+</pre>
+</p>
+
+<p><font color="#FF0000">注意</font>
+<pre>不再需要縮略圖時 需要 delete
+</pre>
+</p>
+</div>
+
+<div class="div_box"><a name="Clone"></a>
+<p><font color="#FF0000">Clone 克隆</font>
+<pre>Clone 方法可以將圖片的 以部分 克隆到一個新的 對象中(Image 只能克隆武全部 Bitmap可以指定克隆區域)
+</pre>
+</p>
+
+<p><font color="#FF0000">example 克隆</font>
+<pre>	Gdiplus::Bitmap bitmap(L"psb.jpg");
+	
+	Gdiplus::Graphics graphics(m_hWnd);
+
+	//clone
+	Gdiplus::Bitmap* ptr_clone = bitmap.Clone(0,0,bitmap.GetWidth()/2,bitmap.GetHeight()/2,PixelFormatDontCare);
+	
+	graphics.DrawImage(ptr_clone,0,0,300,300);
+
+
+	delete ptr_clone;
+</pre>
+</p>
+
+<p><font color="#FF0000">注意</font>
+<pre>返回後的 指針 需要 delete
+
+Bitmap 的Clone返回的 是 Bitmap*
+</pre>
+</p>
+
+</div>
+
+<div class="div_box"><a name="ColorMatrix"></a>
+<p><font color="#FF0000">ColorMatrix 處理圖像色彩</font>
+<pre>ColorMatrix 是一個5*5的矩陣[R G B A 1]
+1 0 0 0 0
+0 1 0 0 0
+0 0 1 0 0
+0 0 0 1 0
+0 0 0 0 1 
+分別代表了 紅 黃 綠 alpha 分量
+
+要改變色彩效果 只要改變 ColorMatrix 之後 使用 ImageAttributes 的 SetColorMatrix
+再在DrawImage中 傳入ImageAttributes  即可
+</pre>
+</p>
+
+<p><font color="#FF0000">透明度</font>
+<pre>繪製 透明 圖像 可以實現 淡入淡出 效果
+對於GDI+ 只需要 改變 ColorMatrix 的 alpha分量即可(取值大於等於0) 如 0.1  alpha為原來值的 0.1倍 n n倍
+
+	Gdiplus::Image image(L"psb.jpg");
+	
+	Gdiplus::Graphics graphics(m_hWnd);
+	
+	//alpha為原來的40% 透明度 60%
+	Gdiplus::REAL alpha	=	0.4f;
+
+	//設置分量
+	Gdiplus::ColorMatrix color_matrix ={1,0,0,0,0
+		,0,1,0,0,0
+		,0,0,1,0,0
+		,0,0,0,alpha,0
+		,0,0,0,0,1
+	};
+	Gdiplus::ImageAttributes image_attr;
+	image_attr.SetColorMatrix(&color_matrix);
+	
+	//傳入ImageAttributes繪製透明圖
+	graphics.DrawImage(&amp;image
+		,Gdiplus::Rect(10,10,300,300)
+		,0,0,image.GetWidth(),image.GetHeight()
+		,Gdiplus::UnitPixel
+		,&amp;image_attr
+		);
+</pre>
+</p>
+
+<p><font color="#FF0000">灰度圖</font>
+<pre>灰度圖的 原理既是 讓 R G B 分量值相等 常用 一下三種計算方式
+1 平均值 R=G=B=(R+G+B)/3
+2 最大值 R=G=B=max(R,G,B)
+3 加權平均值 R=G=B=WrR+WgG+WbB	//一般為 R=G=B=0.299R+0.587G+0.114B
+
+由加權平均值 可得變換公式為
+0.299 0.299 0.299 0 0
+0.587 0.587 0.587 0 0
+0.114 0.114 0.114 0 0
+0 0 0 1 0
+0 0 0 0 1
+
+
+	Gdiplus::Image image(L"psb.jpg");
+	
+	Gdiplus::Graphics graphics(m_hWnd);
+	
+	//設置分量
+	Gdiplus::ColorMatrix color_matrix ={0.299f,0.299f,0.299f,0,0
+		,0.587f,0.587f,0.587f,0,0
+		,0.114f,0.114f,0.114f,0,0
+		,0,0,0,1,0
+		,0,0,0,0,1
+	};
+	Gdiplus::ImageAttributes image_attr;
+	image_attr.SetColorMatrix(&color_matrix);
+	
+	//傳入ImageAttributes繪圖
+	graphics.DrawImage(&image
+		,Gdiplus::Rect(10,10,300,300)
+		,0,0,image.GetWidth(),image.GetHeight()
+		,Gdiplus::UnitPixel
+		,&image_attr
+		);
+</pre>
+</p>
+
+<p><font color="#FF0000">改變亮度</font>
+<pre>改變亮度的公式為
+1 0 0 0 0
+0 1 0 0 0
+0 0 1 0 0
+0 0 0 1 0
+f f f 0 1
+
+f = b /255
+b取值 [-255,255] +表示增加亮度 -表示減少亮度
+
+
+	Gdiplus::Image image(L"psb.jpg");
+	
+	Gdiplus::Graphics graphics(m_hWnd);
+	
+	Gdiplus::REAL brightness	=	123;
+	Gdiplus::REAL f	=	brightness/255;
+
+	//設置分量
+	Gdiplus::ColorMatrix color_matrix ={1,0,0,0,0
+		,0,1,0,0,0
+		,0,0,1,0,0
+		,0,0,0,1,0
+		,f,f,f,0,1
+	};
+	Gdiplus::ImageAttributes image_attr;
+	image_attr.SetColorMatrix(&color_matrix);
+	
+	//傳入ImageAttributes繪圖
+	graphics.DrawImage(&image
+		,Gdiplus::Rect(10,10,300,300)
+		,0,0,image.GetWidth(),image.GetHeight()
+		,Gdiplus::UnitPixel
+		,&image_attr
+		); 
+</pre>
+</p>
+
+<p><font color="#FF0000">改變對比度</font>
+<pre>一般而言 對比度越大 圖像越清晰 色彩越鮮明 反之 灰暗
+對比度公式為
+f 0 0 0 0
+0 f 0 0 0
+0 0 f 0 0
+0 0 0 1 0
+0.5(1-f) 0.5(1-f) 0.5(1-f) 0 1 
+
+	Gdiplus::Image image(L"psb.jpg");
+	
+	Gdiplus::Graphics graphics(m_hWnd);
+	
+	//對比度 [-255,255] +增加 -減少
+	Gdiplus::REAL constrast	=	10;
+
+	Gdiplus::REAL f	=	0.0f;
+	if(constrast>=0)
+	{
+		f	=	(constrast + 10.0f) / 10.0f;
+	}
+	else
+	{
+		f	=	(255 + constrast) / 255.0f;
+	}
+
+	//設置分量
+	Gdiplus::ColorMatrix color_matrix ={f,0,0,0,0
+		,0,f,0,0,0
+		,0,0,f,0,0
+		,0,0,0,1,0
+		,0.5f*(1-f),0.5f*(1-f),0.5f*(1-f),0,1
+	};
+	Gdiplus::ImageAttributes image_attr;
+	image_attr.SetColorMatrix(&color_matrix);
+	
+	//傳入ImageAttributes繪圖
+	graphics.DrawImage(&amp;image
+		,Gdiplus::Rect(10,10,300,300)
+		,0,0,image.GetWidth(),image.GetHeight()
+		,Gdiplus::UnitPixel
+		,&amp;image_attr
+		);
+</pre>
+</p>
+
+</div>
+
+</td></tr></table>
+</body>
+</html>

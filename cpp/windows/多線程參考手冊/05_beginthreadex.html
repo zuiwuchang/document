@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>_beginthreadex</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1>
+    	<a href="#clib">多線程 c 函數</a><br />
+    	<a href="#_beginthreadex">_beginthreadex</a><br />
+        
+       
+		
+    </h1></p>
+    
+    <div class="div_box"><a name="clib"></a><h2>
+    	<p><font color="#FF0000">多線程 c 函數</font><br />
+		c發展之初 並沒有考慮 多線程 故許多函數 使用全局變量 在多線程下會 出錯<br />
+        c++解決之道 是提供了單獨的 多線程版本 c函數(vc現在只提供多線程版本)<br />
+        而在新 啟線線程時 應該使用 _beginthreadex 取代 CreateThread
+        </p>
+        
+        <p><font color="#FF0000">注意</font><br />
+		即使自己不調用 這些c函數 編譯器也會鏈接許多此類函數 故 使用多線程版本 已經成為標準操作
+        </p>
+   	</h2></div>
+    <div class="div_box"><a name="_beginthreadex"></a><h2>
+    	<p><font color="#FF0000">_beginthreadex</font><br />
+		_beginthreadex是 CreateThread的外包函數 其只是做了 c 多線程版本函數初始化 操作 之後 調用再CreateThread<br />
+        故可以把_beginthreadex 完全看成是 CreateThread<br />
+<pre>//參數 返回值 完全同 CreateThread
+uintptr_t _beginthreadex( 
+   void *security,
+   unsigned stack_size,
+   unsigned ( *start_address )( void * ),
+   void *arglist,
+   unsigned initflag,
+   unsigned *thrdaddr 
+);</pre>
+        </p>
+        
+        <p><font color="#FF0000">注意</font><br />
+        <font color="#FF0000">MFC程序中 不應該使用</font> _beginthreadex 或 CreateThread 而是使用MFC自己的線程方法<br />
+        _beginthreadex啟動的函數 應該以 _endthreadex 取代ExitThread _endthreadex會做c多線程函數版本的清理工作
+        </p>
+   	</h2></div>
+    
+</td></tr></table>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>windows</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#base">基本語法</a>
+		<a href="#net">網絡設置相關</a>
+		
+	</div>
+
+	<div class="note"><a name="base"></a>
+		<p><span class="flag">基本語法</span>
+<pre>bat 命令以行為單位 執行代碼 
+
+bat命令執行後 會產生一個 返回碼 保存到 變量 errorlevel 中
+
+//判断語法
+if [not] errorlevel Number Command [else Expression]	//判斷 返回碼是否為 指定值
+if [not] Strting==String2 Command [else Expression]		//判斷 字符串 是否相等
+if [not] exist FileName Command [else Expression}		//判斷 文件是否存在
+
+
+//for 對一組文件中 每個文件 運行指定 命令
+for [%Variable | %%Variable ] in （Set) do Command [CommandLineoptions]
+
+//choice
+</pre>
+		</p>
+		<p><span class="flag">基本命令</span>
+<pre>//在執行腳本時 是否顯示 腳本命令本身
+echo on/off
+
+//在語句最前 執行此命令時 不顯示腳本 本身
+@
+
+//註釋此行
+::	或者 rem
+
+//調用子腳本
+call child.bat param1 param2 ...
+
+//暫停腳本	此行必須用戶輸入任意 鍵恢復執行
+pause
+
+//相當於 std::cout
+echo
+//顯示 系統環境變量
+echo %name%
+
+//啟動 其他進行 不會等待進程 結束
+start path
+
+//同 c++	(不同lable 是 :lable_name 形式)
+goto go_lable
+...
+:go_lable
+
+//顯示所有 定義的變量
+set
+
+//顯示所有 定義的 以指定字符開始命令(示例為以s開始) 變量
+set s
+
+//設置變量 並且賦值
+set aa=abcd
+
+//刪除變量(其實只是 設置為空)
+set a 空格
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="net"></a>
+		<p><span class="flag">網絡設置相關</span>
+<pre>//設置 指定網絡適配器 使用 自動獲取dns網關
+netsh interface ip set dns name="无线网络连接" dhcp
+
+//設置 指定網絡適配器 使用指定 dns網關 備用dns網關
+netsh interface ip set dns name="无线网络连接" static 8.8.8.8 register=PRIMARY 
+netsh interface ip add dns name="无线网络连接" 8.8.4.4 index=2 
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

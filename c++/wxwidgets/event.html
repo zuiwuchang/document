@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>event</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#event">event</a>
+		<a href="#static">靜態綁定事件</a>
+		<a href="#Skip">過濾事件</a>
+		<a href="#more">掛載事件表</a>
+		<a href="#connect">動態綁定事件</a>
+		<a href="#myevent">自定義事件</a>
+		<a href="#id">窗口id</a>
+
+	</div>
+
+	<div class="note"><a name="event"></a>
+		<p><span class="flag">event</span>
+<pre>wxwidgets 是以事件驅動的
+
+每個wxEvtHandler的派生類 都維護着一個 事件表 用來 記錄 事件和 對應的 相應函數
+
+官方文檔 Topic overviews -> Event handling overview -> Event macros summary 記錄了常用event
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>當事件發生時 會先在當前類中 查找處理函數
+若沒有 則在其 父類 或 父窗口 中查找處理函數
+
+派生自wxCommandEvent的事件 才會在父窗口中搜索 處理函數
+如下事件都不會 在父窗口中搜索 處理函數
+wxActivate	wxCloseEvent	wxEraseEvent	wxFocusEvent	wxKeyEvent	
+wxIdleEvent	wxInitDialogEvent	wxJoystickEvent	wxMenuEvent
+wxMouseEvent	wxMoveEvent	wxPaintEvent	wxQueryLayoutInfoEvent	
+wxSizeEvent	wxScrollWinEvent	wxSysColourChangedEvent
+
+詳見 官方文檔 Topic overviews -> Event handling overview -> How events are processed</pre>	
+		</p>	
+	</div>
+
+	<div class="note"><a name="static"></a>
+		<p><span class="flag">靜態綁定事件</span>
+<pre>1	定義一個 處理函數
+2	調用相應宏 綁定 事件 和 函數
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre><span class="care">//.h</span>
+class wxTestFrame: public wxFrame
+{
+        ...
+        //創建事件表
+        DECLARE_EVENT_TABLE()
+
+        //定義事件處理函數
+        void OnButtonOK(wxCommandEvent& event);
+        ...
+};
+
+//.cpp
+BEGIN_EVENT_TABLE(wxTestFrame, wxFrame)
+    ...
+    //綁定 事件 函數
+    EVT_BUTTON(id_buton_ok, wxTestFrame::OnButtonOK)
+    ...
+END_EVENT_TABLE()
+
+wxTestFrame::wxTestFrame(wxFrame *frame, const wxString& title)
+    : wxFrame(frame, -1, title)
+{
+    ...
+    //創建一個按鈕
+    wxButton* button = new wxButton(this,id_buton_ok,_("ok"));
+    ...
+}
+
+void wxTestFrame::OnButtonOK(wxCommandEvent& event)
+{
+    wxMessageBox(_("ok"));
+}
+
+...
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="Skip"></a>
+		<p><span class="flag">event</span>
+<pre>調用 event.Skip(true) 將事件 傳遞到 父類等 處理
+故 要過濾事件 只需要 從基類派生 之後 綁定 事件 
+而不調用 event.Skip(true) / 或者調用 event.Skip(false)
+即可
+</pre>
+		</p>
+	</div>
+
+
+	<div class="note"><a name="more"></a>
+		<p><span class="flag">掛載事件表</span>
+<pre>一個類 可以有多個 事件表(以棧的結構保持)
+棧定的 表最先被 匹配
+
+
+1	從wxEvtHandler派生子類
+2	在子類中 綁定 需要處理的事件
+3	使用PushEventHandler將wxEvtHandler的派生類 壓入
+</pre>
+		</p>
+		
+		<p><span class="flag">相關函數</span>
+<pre>//壓入表
+void PushEventHandler( wxEvtHandler *handler );
+//彈出表
+void PopEventHandler( wxEvtHandler *handler );
+
+//返回下一個表
+wxEvtHandler* GetNextHandler()
+//返回上一個表
+wxEvtHandler* GetPreviousHandler()
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><span class="care">//child .h</span>
+class wxMyEvtHandler : public wxEvtHandler
+{
+    public:
+        wxMyEvtHandler();
+        virtual ~wxMyEvtHandler();
+    protected:
+    private:
+        DECLARE_EVENT_TABLE()
+        void OnMoveEvent(wxMoveEvent& event);
+};
+
+<span class="care">//child .cpp</span>
+BEGIN_EVENT_TABLE(wxMyEvtHandler, wxEvtHandler)
+    EVT_MOVE(wxMyEvtHandler::OnMoveEvent)
+END_EVENT_TABLE()
+
+wxMyEvtHandler::wxMyEvtHandler()
+{
+    //ctor
+}
+
+wxMyEvtHandler::~wxMyEvtHandler()
+{
+    //dtor
+}
+void wxMyEvtHandler::OnMoveEvent(wxMoveEvent& event)
+{
+    std::cout&lt;&lt;event.GetPosition().x&lt;&lt;" "&lt;&lt;event.GetPosition().y;
+}
+
+<span class="care">//fram .cpp</span>
+    wxMyEvtHandler* lp  =   new wxMyEvtHandler();
+    PushEventHandler(lp);
+    //PopEventHandler(lp);
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>傳遞給 PushEventHandler 的 應該是一個 new 的 表 
+wxEvtHandler 在析構時 會 自動 delete (故不可自行delete)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="connect"></a>
+		<p><span class="flag">動態綁定事件</span>
+<pre>亦可 動態 綁定 解綁 事件
+
+Connect 綁定事件
+Disconnect 删除 綁定
+
+Connect Disconnect 都需要傳入 2個或3個 參數
+id		//ui id
+事件類型
+處理函數
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>//綁定事件
+    new wxButton(this,id_buton_center,_("center"));
+    Connect(id_buton_center
+                ,wxEVT_COMMAND_BUTTON_CLICKED
+                ,wxCommandEventHandler(wxTestFrame::OnButtonOK)
+             );
+
+    Connect(wxEVT_MOVE
+            ,wxMoveEventHandler(wxTestFrame::OnMoveEvent)
+            );
+            
+            
+//删除綁定
+    Disconnect(id_buton_center
+                ,wxEVT_COMMAND_BUTTON_CLICKED
+                ,wxCommandEventHandler(wxTestFrame::OnButtonOK)
+             );
+             
+    Disconnect(wxEVT_MOVE
+               ,wxMoveEventHandler(wxTestFrame::OnMoveEvent)
+               );       
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>Disconnect 只能 刪除 Connect綁定的事件
+而無法 影響 其他方式綁定的事件
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="myevent"></a>
+		<p><span class="flag">自定義事件</span>
+<pre>1	從合適的 wxEvent及其子類 派生一個新事件類
+
+2	實現 virtual wxEvent * 	Clone () const 拷貝函數
+
+3	定義事件處理函數簽名
+
+4	在BEGIN_DECLARE_EVENT_TYPES() 和END_DECLARE_EVENT_TYPES() 宏之間 使用
+	DECLARE_EVENT_TYPE(name, integer)宏 聲明支持的事件
+
+5	在.cpp中 使用 DEFINE_EVENT_TYPE(name) 實現類
+
+6	定義 事件 映射宏
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre><span class="care">//darkTaskBarIconEvent.h</span>
+#ifndef DARKTASKBARICONEVENT_H
+#define DARKTASKBARICONEVENT_H
+
+#include &lt;wx/event.h&gt;
+
+//1 派生子類
+class darkTaskBarIconEvent : public wxCommandEvent
+{
+    public:
+        darkTaskBarIconEvent();
+        virtual ~darkTaskBarIconEvent();
+
+        //2 實現 Clone
+        virtual wxEvent* Clone()const
+        {
+            return new darkTaskBarIconEvent(*this);
+        }
+    protected:
+    private:
+};
+
+//3 定義事件處理函數 簽名
+typedef void (wxEvtHandler::*darkTaskBarIconEventHandler)(darkTaskBarIconEvent&);
+
+//4 聲明事件
+BEGIN_DECLARE_EVENT_TYPES()
+    DECLARE_EVENT_TYPE(darkEVT_TASKBAR_LEFT_DOWN,801)
+END_DECLARE_EVENT_TYPES()
+
+//6 定義映射宏
+#define DARK_EVT_TASKBAR_LEFT_DOWN(fn)  \
+    DECLARE_EVENT_TABLE_ENTRY(darkEVT_TASKBAR_LEFT_DOWN,    \
+                                wxID_ANY,  \
+                                wxID_ANY,   \
+                                (wxObjectEventFunction)(wxEventFunction)(darkTaskBarIconEventHandler)&fn, \
+                                (wxObject*)NULL),
+
+#endif // DARKTASKBARICONEVENT_H
+
+
+<span class="care">//darkTaskBarIconEvent.cpp</span>
+#include "darkTaskBarIconEvent.h"
+
+DEFINE_EVENT_TYPE(darkEVT_TASKBAR_LEFT_DOWN)
+
+darkTaskBarIconEvent::darkTaskBarIconEvent()
+{
+    //ctor
+}
+
+darkTaskBarIconEvent::~darkTaskBarIconEvent()
+{
+    //dtor
+}
+
+
+
+<span class="care">//darkTaskBarIcon.h</span>
+#ifndef DARKTASKBARICON_H
+#define DARKTASKBARICON_H
+
+#include &lt;wx/taskbar.h&gt;
+#include &lt;wx/menu.h&gt;
+#include"darkTaskBarIconEvent.h"
+
+class darkTaskBarIcon : public wxTaskBarIcon
+{
+    public:
+        darkTaskBarIcon();
+        virtual ~darkTaskBarIcon();
+        inline void SetBarMenu(wxMenu* _menu)
+        {
+            menu_ = _menu;
+        }
+    protected:
+        wxMenu* menu_;
+
+        void OnRButtonDown(wxTaskBarIconEvent& event);
+        void OnLButtonDown(wxTaskBarIconEvent& event);
+        void OnDarkLButtonDown(darkTaskBarIconEvent& event);
+
+        DECLARE_EVENT_TABLE()
+};
+
+#endif // DARKTASKBARICON_H
+
+
+
+<span class="care">//darkTaskBarIcon.pp</span>
+#include "darkTaskBarIcon.h"
+
+BEGIN_EVENT_TABLE(darkTaskBarIcon, wxTaskBarIcon)
+    EVT_TASKBAR_RIGHT_DOWN(darkTaskBarIcon::OnRButtonDown)
+    EVT_TASKBAR_LEFT_DOWN(darkTaskBarIcon::OnLButtonDown)
+    DARK_EVT_TASKBAR_LEFT_DOWN(darkTaskBarIcon::OnDarkLButtonDown)
+END_EVENT_TABLE()
+
+darkTaskBarIcon::darkTaskBarIcon()
+{
+    menu_ = NULL;
+}
+
+darkTaskBarIcon::~darkTaskBarIcon()
+{
+    //dtor
+}
+
+void darkTaskBarIcon::OnRButtonDown(wxTaskBarIconEvent& event)
+{
+    PopupMenu(menu_);
+}
+
+void darkTaskBarIcon::OnLButtonDown(wxTaskBarIconEvent& event)
+{
+    darkTaskBarIconEvent e;
+    e.SetEventType(darkEVT_TASKBAR_LEFT_DOWN);
+    wxPostEvent(this,e);
+}
+void darkTaskBarIcon::OnDarkLButtonDown(darkTaskBarIconEvent& event)
+{
+    PopupMenu(menu_);
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="id"></a>
+		<p><span class="flag">窗口id</span>
+<pre>窗口id 用來 唯一標識 一個 出口
+
+#define wxID_ANY                -1
+
+詳見 官方文檔 Topic overviews -> Event handling overview -> Window identifiers
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

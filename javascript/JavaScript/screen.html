@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>屏幕和浏览器对象</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#screen">screen对象</a>
+		<a href="#navigator">navigator对象</a>
+	</div>
+	<div class="note"><a name="screen"></a>
+		<p><span class="flag">screen对象</span>
+<pre>通过screen对象获取屏幕信息 从而可写出兼容 不同分辨率的程序
+
+<table>
+	<tr><td>属性和方法</td><td>描述</td></tr>
+	<tr><td>availWidth</td><td>屏幕有效宽度</td></tr>
+	<tr><td>availHeight</td><td>屏幕有效高度</td></tr>
+	<tr><td>width</td><td>屏幕分辨率宽度</td></tr>
+	<tr><td>height</td>屏幕分辨率高度<td></td></tr>
+	<tr><td>colorDepth</td><td>显示器颜色位</td></tr>
+	<tr><td>javaEnabled()</td><td>返回是否支持java (用于JavaApplet使用前检测)</td></tr>
+</table>
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>有效高度宽度指 分辨率减去系统必要占用高度宽度
+(如windows系统中要减去开始栏)
+动态设置网页布局 應用有效高度宽度
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="navigator"></a>
+		<p><span class="flag">navigator对象</span>
+<pre>navigator对象可获取浏览器信息
+
+<table>
+	<tr><td>属性</td><td>描述</td></tr>
+	<tr><td>appCodeName</td><td>浏览器代码名称</td></tr>
+	<tr><td>appName</td><td>浏览器实际名称</td></tr>
+	<tr><td>appVersion</td><td>浏览器版本号和平台信息</td></tr>
+</table>
+
+//plugin对象的属性
+<table>
+	<tr><td>属性</td><td>描述</td></tr>
+	<tr><td>description</td><td>外挂程序模块的描述</td></tr>
+	<tr><td>filename</td><td>外挂程序模块的文件名</td></tr>
+	<tr><td>length</td><td>外挂程序模块的个数</td></tr>
+	<tr><td>name</td><td>外挂程序模块的名称</td></tr>
+</table>
+
+//mimeType对象的属性
+<table>
+	<tr><td>属性</td><td>描述</td></tr>
+	<tr><td>description</td><td>MIME类型的描述</td></tr>
+	<tr><td>enablePlugin</td><td>对应到哪个外挂模块</td></tr>
+	<tr><td>length</td><td>MIME类型的数目</td></tr>
+	<tr><td>suffixes</td><td>MIME类型的扩展名</td></tr>
+</table>
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

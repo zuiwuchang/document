@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#http">http</a>
+		<a href="#filter">filter</a>
+	</div>
+
+	<div class="note"><a name="http"></a>
+		<p><span class="flag">http</span>
+<pre>Go 提供了 net/http 包 可以運行一個Web服務 可以簡單的對Web路由 靜態文件 模板 cookie 等進行操作/設置
+
+使用Go 編寫服務器 需要 調用 如下兩個函數
+http.HandleFunc("/", sayhelloName)	//設置請求url響應函數
+...
+http.ListenAndServe(":9090", nil)	//開始監聽端口
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>import (
+	"fmt"
+	"net/http"
+)
+
+type Hello struct{}
+
+func (h Hello) ServeHTTP(
+	w http.ResponseWriter,
+	r *http.Request) {
+	fmt.Fprint(w, "Hello!")
+}
+
+func main() {
+	var h Hello
+	http.ListenAndServe("localhost:4000", h)
+}
+</pre>
+		</p>
+		<p><span class="flag">example2</span>
+<pre>import (
+	"fmt"
+	"log"
+	"net/http"
+	"strings"
+)
+
+func sayhelloName(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()       //解析参数，默认是不会解析的
+	fmt.Println(r.Form) //这些信息是输出到服务器端的打印信息
+	fmt.Println("path", r.URL.Path)
+	fmt.Println("scheme", r.URL.Scheme)
+	fmt.Println(r.Form["url_long"])
+	for k, v := range r.Form {
+		fmt.Println("key:", k)
+		fmt.Println("val:", strings.Join(v, ""))
+	}
+	fmt.Fprintf(w, "Hello astaxie!") //这个写入到w的是输出到客户端的
+}
+
+func main() {
+	http.HandleFunc("/", sayhelloName)       //设置访问的路由
+	err := http.ListenAndServe(":9090", nil) //设置监听的端口
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="filter"></a>
+		<p><span class="flag">filter</span>
+<pre>import (
+	"fmt"
+	"net/http"
+)
+
+type MyFilter struct{}
+
+func (filter MyFilter) ServeHTTP(
+	w http.ResponseWriter,
+	r *http.Request) {
+
+	switch r.URL.Path {
+	default:
+		http.NotFound(w, r)
+	case "/":
+		fmt.Fprint(w, "welcome")
+	}
+}
+
+func main() {
+	var filter MyFilter
+	http.ListenAndServe(":80", filter)
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

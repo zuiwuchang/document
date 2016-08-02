@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>查询</title>
+</head>
+<body>
+<table align="center"><tr><td>
+	<p>
+	<h3>
+    <br /><font color="#FF0000">查询</font>
+    <br />select *,id as iid from 表名 where 条件 limit 2/(3,4);
+    <br />limit 2 	//查询前2项
+    <br />limit 3,8 //查询 [3,3+8)项
+    <br />=,<,<=,>,>=,!=,<>,!>,!<
+    <br />in,not in
+    <br />between and
+    <br />like,not like (%任意字符 _单个字符)
+    <br />is null,is not null
+    <br />and,or
+    <br /><br />group by 字段,字段 having 条件
+    <br />分组显示出字段所有信息 select group_concat(字段) from 表名 group by 字段
+    <br />统计分组包含数据条数 select *,count(*) from 表名 group by 字段
+    <br /><br />order by 字段 asc|desc
+    <br /><br />消除重复 select distinct * from 表名
+    <br /><br />count() 统计总数
+    <br />sum();和
+    <br />avg();平均值
+    <br />max();最大
+    <br />min();最小
+    </h3>
+	</p>
+    
+    <p>
+	<h3>
+    <br /><font color="#FF0000">连接</font>
+    	<p>
+        内连接
+        <br />select * from test1,test2 where test1.id=test2.id;
+    	</p>
+        <p>
+        外连接
+        <br />select 字段 from 表1 left|right join 表2 on 表1.字段名=表2.字段名
+        <br />left显示表1全部内容表2符合要求才显示
+        <br />right显示表2全部内容表1符合要求才显示
+    
+        </p>
+    </h3>
+    </p>
+    
+    <p>
+	<h3>
+    <br /><font color="#FF0000">其他查询</font>
+    <br />select * from 表名 where 字段 in (select * from 表名);
+    <br />exists 表示是否存在 select * from test where exists (select * from test2 );
+    <br />any 表示满足其中之一 select * from test where id>=any (select id from test2);
+    <br />all 表示满足其中全部 select * from test where id>=all (select id from test2);
+    <br />select * from test where name regexp 'perl正则表达式'
+    <p>
+    合并
+    <br />union 合并去除重复 union all 合并不去除重复
+    <br />select id from test union select id from test1
+    </p>
+    </h3>
+    </p>
+</td></tr></table>
+</body>
+</html>

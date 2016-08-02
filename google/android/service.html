@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>android</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#service">service</a>
+		<a href="#IntentService">started IntentService</a>
+		<a href="#Service">started Service</a>
+		<a href="#bound">bound Service</a>
+		<a href="#Binder">派生 Binder</a>
+	</div>
+
+	<div class="note"><a name="service"></a>
+		<p><span class="flag">service</span>
+<pre>service 是能夠長期運行與後台的 組件
+(即使啟動它的組件 已關閉 這不會影響服務的運行)
+
+
+
+android中 service 分如下2種
+
+started
+	通過調用 startService 啟動的服務
+	需要通過 調用 stopService 或者服務自己調用 stopSelf 關閉
+
+bound
+	通過調用 bindService 綁定的 服務
+	(提供了 接口 實現 到服務端 通信)
+	當 所有 bindService的 組件 unbundService 解除連接 後服務關閉
+</pre>
+		</p>
+
+		<p><span class="flag">重要方法</span>
+<pre>//當其他組件 調用 startService 請求服務時 此方法被調用
+//startService 一旦執行 service 處於 started狀態 並在後台執行 直到 stopService/stopSelf 被調用
+//(如只提供 bound 可不實現此方法)
+public int onStartCommand (Intent intent, int flags, int startId)
+
+
+
+//當其他組件 bindService 綁定到服務時 被回調 
+//此方法 需要返回 IBinder以供 組件與服務 通信
+//(不提供綁定 則返回 null)
+public abstract IBinder onBind (Intent intent)
+
+
+
+//當服務第一次 運行時(在 onStartCommand onBind 之前)
+//(只執行一次)
+public void onCreate ()
+
+
+
+//當服務即將 銷毀時 最後的 資源 清理機會
+public void onDestroy ()
+</pre>
+		</p>
+
+		<p><span class="flag">service聲明</span>
+<pre>service 必須如同 activity 一樣 進行聲明
+在 AndroidManifest.xml 的 application 項下增加
+&lt;service android:enabled="true"		//默認true 表示服務是否 可被實例化
+	android:exported="false"	//其他組件是否可以調用 服務或與之交互
+					//false時 只有同一個應用的組件 
+					//或 具有相同 用戶id的 應用才能調用 交互
+					//存在 Intent過濾器時 默認 true 否則 默認 false
+	android:icon="drawable resource"//服務  圖標 默認使用 應用圖標
+	android:label="string resource"	//服務顯示名稱 默認 應用名稱
+	android:name="string"		//實現服務的 class全名
+					//如  com.example.mytest.TestService 
+					//(簡寫 .TestService 會自動增加 manifest 標籤定義的 包名)
+	android:permission="string"	//權限名稱
+	android:process="string"	//服務進程名
+	&gt;
+&lt;/service&gt;
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>一個服務 可以 既是 started 又是 bound
+這樣的服務 將在 所有 bindService 的客戶 unbundService 並且 stopService/stopSelf 被調用後才關閉
+
+
+
+android 僅當內存不足 且必須 回收資源 以顯示用戶關注度 
+activity時才會強制停止服務
+如果服務 綁定到用戶關注度 activity 會降低其停止概率
+
+如果是started 服務 且長時間運行 os會 隨時間推移 降低其在後台任務表達位置
+並且有很大概率 停止
+started服務 應該設計 如何優雅的重啟 以待os在資源可用時 被重啟
+</pre>
+		</p>
+	</div>
+
+
+	<div class="note"><a name="IntentService"></a>
+		<p><span class="flag">started IntentService</span>
+<pre>android 提供了 一個 Service的子類 IntentService 以簡化 
+started 服務啟動
+
+1	從 IntentService 派生自己的 子類
+2	重寫 protected abstract void onHandleIntent (Intent intent) 方法
+	(IntentService 會自己啟用一個 工作線程而不必 手動啟動
+	當 onStartCommand 被回調時 IntentService 會序列化 所有的請求 到工作隊列
+	將隊列中的 請求 依次 傳入 到 onHandleIntent 供子類 處理
+	onHandleIntent 執行結束後 IntentService 自動調用 stopSelf 結束服務
+	)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><span class="care">//service</span>
+package com.example.mytest;
+
+import java.util.Random;
+
+import android.app.IntentService;
+import android.content.Intent;
+import android.util.Log;
+
+public class MyServiceTest extends IntentService {
+
+	public MyServiceTest() {
+		super("my test servive");
+	}
+
+	@Override
+	protected void onHandleIntent(Intent intent) {
+
+		Random r = new Random();
+		while(true){
+			synchronized(this)
+			{
+				int v = r.nextInt(10);
+				Log.i("Random", new Integer(v).toString());
+				if(v > 5){
+					Log.i("Random", "end");
+					break;
+				}
+				
+				try {
+					this.wait(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+}
+
+
+
+<span class="care">//AndroidManifest.xml</span>
+&lt;service android:name=".MyServiceTest"
+           android:label="random service"
+          &gt;&lt;/service&gt;
+
+
+
+<span class="care">//Main</span>
+public class MainActivity extends Activity {
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+	}
+
+	public void onButtonStart(View v){
+		Intent intent = new Intent(MainActivity.this,MyServiceTest.class);
+		startService(intent);
+	}
+	...
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Service"></a>
+		<p><span class="flag">started Service</span>
+<pre>除使用 IntentService 外 還可以直接 派生 Service 實現 服務
+不過 需要自己 啟動線程 以區別 主線程 處理 onStartCommand 請求
+
+onStartCommand 需要返回 如下值
+START_NOT_STICKY	當onStartCommand返回後服務停止 不要重啟服務
+
+START_STICKY	... 重啟服務 並且 使用空的 Intent 調用服務 
+		//除非有PendingIntent啟動
+
+START_REDELIVER_STICKY	... 並且 發送最後的 Intent 調用服務
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="bound"></a>
+		<p><span class="flag">bound Service</span>
+<pre>android 提供了多種 bound的方式
+
+派生 Binder
+	如果服務對應用 私有並且 與 客戶端 運行在相同進程
+
+使用 Messenger
+	需要接口 跨不同進程工作
+
+使用 AIDL
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Binder"></a>
+		<p><span class="flag">派生 Binder</span>
+<pre>1	在服務中 實例化 Binder
+2	在onBind()中 返回 Binder 實例
+3	在客戶端 從 onServiceConnected() 中 接收 Binder
+4	使用 Binder 和 服務交互
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre><span class="care">//service</span>
+package com.example.mytest;
+
+import java.util.Random;
+
+import android.app.Service;
+import android.content.Intent;
+import android.os.Binder;
+import android.os.IBinder;
+
+public class MyServiceTest extends Service {
+	//定義 Binder
+	public class MyBinder extends Binder{
+		//返回服務 當前實例
+		MyServiceTest getService(){
+			return MyServiceTest.this;
+		}
+	}
+	
+	//實例化 Binder
+	private final IBinder binder = new MyBinder();
+	
+	//返回 Binder
+	@Override
+	public IBinder onBind(Intent intent) {
+		return binder;
+	}
+	
+	//服務提供的 方法
+	private final Random random = new Random();
+	public int nextRandomInt(int right){
+		return random.nextInt(right);
+	}
+}
+
+
+
+<span class="care">//Main</span>
+public class MainActivity extends Activity {
+	//保存 服務 當前實例
+	MyServiceTest service_;
+	
+	
+	//定義 服務連接 回調
+	private ServiceConnection conn_=new ServiceConnection(){
+
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			MyBinder binder = (MyBinder)service;
+			service_ = binder.getService();
+		}
+
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+			<span class="care">//不要在此 寫 關閉連接的 代碼
+			//寫在 unbindService 後
+			</span>
+		}
+		
+	};
+	
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+	}
+	
+	//在運行 activity時 bound服務
+	@Override
+	protected void onStart(){
+		super.onStart();
+		
+		Intent intent = new Intent(MainActivity.this,MyServiceTest.class);
+		bindService(intent, conn_, Context.BIND_AUTO_CREATE);
+	}
+	//在停止 activity時 unbound服務
+	@Override
+	protected void onStop(){
+		super.onStop();
+			if (service_ !=null){
+				unbindService(conn_);
+				service_ = null;
+			}
+	}
+
+	public void onButton(View v){
+		if(service_!=null){
+			int value = service_.nextRandomInt(10);
+			Log.i("nextRandomInt", new Integer(value).toString());
+		}else{
+			Log.e("nextRandomInt", "wait connected ...");
+		}
+	}
+	...
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>onServiceDisconnected 不會在 unbindService 之後被調用
+故不要在此謝 清理代碼 
+
+onServiceDisconnected 當 服務 停止 或被 kill 後才會被調用
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

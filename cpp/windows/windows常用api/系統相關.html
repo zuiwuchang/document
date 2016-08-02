@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>系統相關</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+    <p><h1><font color="#FF0000">系統相關</font></h1></p>
+    
+    <h2>
+    <a href="#ExitWindowsEx">關機 註銷 重啟</a><br />
+    <a href="#GetVolumeInformation">獲取磁盤序列號</a><br />
+   
+    </h2>
+    
+    <div class="div_box"><a name="ExitWindowsEx"></a><p><h3>
+    <h2><font color="#FF0000">關機 註銷 重啟</font></h2>
+
+<pre>BOOL WINAPI ExitWindowsEx(
+  __in  UINT uFlags,			//執行的操作
+  __in  DWORD dwReason			//操作原因 亦可直接0
+);
+
+uFlags 取值
+EWX_LOGOFF		註銷
+EWX_REBOOT		重啟
+EWX_SHUTDOWN	關機
+	
+uFlags 可&amp;的值
+EWX_FORCE    		強制終止 正在運行的進程
+EWX_FORCEIFHUNG		系統會發送消息告訴其他進程應該結束 之後如果進程未結束 依然將被強制重啟
+</pre>        
+
+	<P><h2><font color="#FF0000">注意</font></h2>
+    在NT以上系統 需要先提升進程權限
+    </P>
+    
+    </h3></p></div>
+    
+    <div class="div_box"><a name="GetVolumeInformation"></a>
+    <p><font color="#FF0000">獲取磁盤序列號</font>
+<pre>DWORD value	=	0;
+	if(GetVolumeInformation(L"c:\\",NULL,0,&amp;value,NULL,NULL,NULL,0))
+	{
+		
+	}
+</pre>    
+    </p>
+    
+    </div>
+  	
+</td></tr></table>
+</body>
+</html>

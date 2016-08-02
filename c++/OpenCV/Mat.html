@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Mat</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#Mat">Mat</a>
+		<a href="#read">加載 保存</a>
+		<a href="#rect">矩陣</a>
+		<a href="#convert">Mat 轉換GDI+</a>
+		<a href="#Pixel">遍歷像素點</a>
+		<a href="#LUT">LUT</a>
+	</div>
+
+	<div class="note"><a name="Mat"></a>
+		<p><span class="flag">Mat</span>
+<pre>class Mat	是用來 容納圖像數據的容器 OpenCV2以前 使用 c接口IplImage 管理
+
+Mat	的好處在於 不用程序員操心 內存 分配
+Mat	分為 信息頭 和 矩陣像素
+
+信息頭 記錄了 圖像的基本信息 如寬度 高度 色深等 
+矩陣像素 則是圖像具體的 像素數據指針
+
+Mat	使用 引用計數 的手法 在 copy語義時 只拷貝 信息頭 和矩陣指針
+當最後一個 Mat 析構時 才 釋放 矩陣指針(故 多個copy的 Mat 操作圖像將相互 影響)
+</pre>
+		</p>
+		<p><span class="flag">Copy</span>
+<pre>Mat的Copy語義 只是增加圖像引用計數 以及在新的 Mat中記錄 矩陣數據指針 而不會拷貝真實像素信息
+
+在使用 Copy語義時 可以將 新的 Mat 限制在 被Copy的Mat 像素區域的 以部分
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>	//加載圖像
+	cv::Mat mat	=	cv::imread("test.jpg");
+	if(mat.data)
+	{
+		//copy 語義
+		cv::Mat mat_a	=	mat;
+		//copy 限定區域
+		cv::Mat mat_b(mat,cv::Rect(0,0,100,100));	//限定在矩形內
+		cv::Mat mat_c	=	mat_a(cv::Range::all(),cv::Range(50,100));	//限定在 所有行 第[50,100)列
+		
+		//創建一個 OpenCV窗口以顯示 OpenCV圖像
+		cv::namedWindow("test");
+		//將圖像 顯示到 指定 OpenCV圖像
+		cv::imshow("test",mat_b);
+		
+		cv::waitKey(0);	//等待用戶輸入 0 一直等待 單位:毫秒
+
+		//創建窗口後 在不再需要時 需要 用一下函數 銷毀
+		cv::destroyWindow("test");
+		//cv::destroyAllWindows();
+
+		//保存 圖像
+		cv::imwrite("tmp.jpg",mat_c);
+	}
+</pre>
+		</p>
+		<p><span class="flag">clone</span>
+<pre>Mat的Copy語義 只是 增加了 引用計數
+如果 需要一份 真實像素的 拷貝 可以使用 clone 函數 進行克隆 或copyTo
+
+	cv::Mat mat	=	cv::imread("test.jpg");
+	if(mat.data)
+	{
+		//克隆 真實像素
+		cv::Mat mat_a	=	mat.clone();
+		cv::Mat mat_b;
+		mat_a.copyTo(mat_b);
+	}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="read"></a>
+		<p><span class="flag">加載 保存</span>
+<pre>opencv 提供了 如下函數 讀取 保存圖片
+
+//加載圖片
+Mat imread(const string& filename, //待加載文件名
+	int flags=1 	//返回圖像標記
+	)
+	<span class="care">flags 
+	<table>
+		<tr><th>flag</th><th>note</th></tr>
+		<tr><td>CV_LOAD_IMAGE_ANYDEPTH  2 </td><td> If set, return 16-bit/32-bit image <br>when the input has the corresponding depth, <br>otherwise convert it to 8-bit.</td></tr>
+		<tr><td>CV_LOAD_IMAGE_COLOR   1</td><td> If set, always convert image to the color one</td></tr>
+		<tr><td>CV_LOAD_IMAGE_GRAYSCALE 0</td><td>If set, always convert image to the grayscale one</td></tr>
+	</table>
+	&gt;  0	返回3通道圖像數據
+	== 0	返回單通道的灰度圖
+	&lt;  0	返回帶 alpha 的4通道圖像數據
+	</span>
+
+
+
+//保存 圖片
+bool imwrite(const string&amp; filename, //保存文件名
+	InputArray img, 		//像素 數據 通常是 Mat
+	const vector&lt;int&gt;&amp; params=vector&lt;int&gt;()	//保存參數 
+	)
+	<span class="care">params 為空 則使用 imread 相同的 編碼方式
+
+	params 是一個 p1 v1 p2 v2 的 key value 數組
+	<table>
+		<tr><th>key</th><th>value</th></tr>
+		<tr><td>CV_IMWRITE_JPEG_QUALITY 1 (保存為jpg)</td><td>[0,100] 默認95</td></tr>
+		<tr><td>CV_IMWRITE_PNG_COMPRESSION  16 (保存為png)</td><td>[0,9] 默認3</td></tr>
+		<tr><td>CV_IMWRITE_PXM_BINARY  32 (保存為PPM, PGM, or PBM)</td><td>[0,1] 默認1</td></tr>
+	</table>
+	</span>
+
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>int _tmain(int argc, _TCHAR* argv[])
+{
+	cv::Mat mat = cv::imread("a.png",1)
+	assert(mat.data);
+
+	std::vector&lt;int&gt; params;
+	params.push_bakck(CV_IMWRITE_JPEG_QUALITY); 
+	params.push_bakck(100); 
+
+	assert(cv::imwrite("b.jpg",mat,params));
+}
+	</div>
+
+	<div class="note"><a name="rect"></a>
+		<p><span class="flag">矩陣</span>
+<pre>Mat 不僅是一個 圖像容器 亦是一個多維 矩陣容器
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>int _tmain(int argc, _TCHAR* argv[])
+{
+	cv::Mat mat(2,3				//2 * 3 矩陣
+		,CV_8UC3				//每個點 通道數
+		,cv::Scalar(0,0,255)	//每個點 初始化值
+		);
+	std::cout &lt;&lt; "M = \n " &lt;&lt; mat &lt;&lt; std::endl;   
+    
+	cv::randu(mat,cv::Scalar::all(0), cv::Scalar::all(255));	//使用隨機數填充矩陣
+	std::cout &lt;&lt; "M = \n " &lt;&lt; mat &lt;&lt; std::endl;   
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="convert"></a>
+		<p><span class="flag">Mat 轉換GDI+</span>
+<pre>OpenCV是跨平台庫 未提供到指定平台設備的 輸出
+其提供的 事件處理 亦無平台API強大 故而常用 OpenCV處理圖像 混和到 平台本地API中
+
+以下示例顯示了如何在 Mat 餘GDI+的Bitmap 間轉換數據 
+以將Mat 應用到MFC中
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>		class convert
+		{
+		private:
+			convert(){}
+
+		public:
+
+#ifdef WIN32
+			static void delete_convert_gbitmap(Gdiplus::Bitmap* ptr)
+			{
+				::delete ptr;
+			}
+
+			static boost::shared_ptr&lt;Gdiplus::Bitmap&gt; mat_to_gbitmap(const cv::Mat&amp; mat,bool alpha = true)
+			{
+				if(alpha)
+				{
+					return boost::shared_ptr&lt;Gdiplus::Bitmap&gt;(::new Gdiplus::Bitmap(mat.cols
+						,mat.rows
+						,mat.cols * mat.channels()
+						,PixelFormat32bppARGB
+						,mat.data
+						)
+						,delete_convert_gbitmap	//指定刪除器
+						)
+						;
+				}
+				else
+				{
+					return boost::shared_ptr&lt;Gdiplus::Bitmap&gt;(::new Gdiplus::Bitmap(mat.cols
+						,mat.rows
+						,mat.cols * mat.channels()
+						,PixelFormat24bppRGB
+						,mat.data
+						)
+						,delete_convert_gbitmap	//指定刪除器
+						)
+						;
+				}
+			}
+			
+			static cv::Mat gbitmap_to_mat(Gdiplus::Bitmap&amp; bitmap,bool alpha = true)
+			{
+				if(alpha)
+				{
+					Gdiplus::BitmapData source;
+					if(Gdiplus::Ok	==	bitmap.LockBits(&amp;Gdiplus::Rect(0,0,bitmap.GetWidth(),bitmap.GetHeight())
+						,Gdiplus::ImageLockModeRead
+						,PixelFormat32bppARGB
+						,&amp;source 
+						)
+						)
+					{
+						cv::Mat mat(bitmap.GetHeight(),bitmap.GetWidth(),CV_8UC4,source.Scan0);
+
+						bitmap.UnlockBits(&amp;source);
+						return mat;
+					}
+				}
+				else
+				{
+					Gdiplus::BitmapData source;
+					if(Gdiplus::Ok	==	bitmap.LockBits(&amp;Gdiplus::Rect(0,0,bitmap.GetWidth(),bitmap.GetHeight())
+						,Gdiplus::ImageLockModeRead
+						,PixelFormat24bppRGB
+						,&amp;source 
+						)
+						)
+					{
+						cv::Mat mat(bitmap.GetHeight(),bitmap.GetWidth(),CV_8UC3,source.Scan0);
+						
+						bitmap.UnlockBits(&amp;source);
+						return mat;
+					}
+				}
+				return cv::Mat();
+			}
+
+#endif
+
+		};
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>cv::Mat mat	=	cv::imread("test.png",-1); 
+//第二個參數 傳入-1 才能讀取 alpha通道
+//1 只讀取 RGB 通道
+//0	讀取灰度圖
+
+上文中 兩個函數 的bool alpha 是指明 代轉換的 圖像是否存在 alpha通道
+
+mat_to_gbitmap 函數中的 shared_ptr 傳入了一個 刪除器 目的在於 調用 ::new ::delete 而非new delete 
+這是GDI+的一個宏bug 詳見GDI+(會被宏 替換為GDI+函數 而非原本的c++ 內存管理函數) 
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Pixel"></a>
+		<p><span class="flag">遍歷像素點</span>
+<pre>OpenCV 提供了多種遍歷 像素點的方法 其各有優勢
+
+Efficient Way	(高效)
+	Mat::data 是記錄了像素 數據的 矩陣 
+	通過遍歷Mat::data即可遍歷 所有像素點
+
+The iterator (safe) method	(安全)
+	通過迭代器遍歷
+</pre>
+		</p>
+		<p><span class="flag">Efficient Way</span>
+<pre>	cv::Mat mat	=	cv::imread("test.png",-1);
+	
+	//返回通道數 ARPG(4) RPG(3)
+	int channels	=	mat.channels();
+	
+	//返回 高 寬
+	int rows	=	mat.rows;
+	int cols	=	mat.cols;
+
+	uchar* p;
+	for(int i = 0; i < rows; ++i)
+	{
+		for(int j = 0; j < cols; ++j)
+		{
+			p	=	mat.data + i * cols * channels + j * channels;	
+			
+			//p[0]	B
+			//p[1]	G
+			//p[2]	R
+			//p[3]	A	[0,255]	0全透明
+		}
+	}
+</pre>
+		</p>
+		<p><span class="flag">The iterator (safe) method</span>
+<pre>	cv::Mat mat	=	cv::imread("test.png",-1);
+	
+	//返回通道數 ARPG(4) RPG(3)
+	int channels	=	mat.channels();
+	
+	if(channels	== 4)
+	{
+		cv::MatIterator_&lt;cv::Vec4b&gt; iterator	=	mat.begin&lt;cv::Vec4b&gt;()
+			,end	=	mat.end&lt;cv::Vec4b&gt;();
+		for(;iterator != end ;++iterator)
+		{
+			//(*iterator)[0]	B
+			//(*iterator)[1]	G
+			//(*iterator)[2]	G
+			//(*iterator)[3]	A
+		}
+	}
+	else if(channels == 3)
+	{
+		cv::MatIterator_&lt;cv::Vec3b&gt; iterator	=	mat.begin&lt;cv::Vec3b&gt;()
+			,end	=	mat.end&lt;cv::Vec3b&gt;();
+		for(;iterator != end ;++iterator)
+		{
+			//(*iterator)[0]	B
+			//(*iterator)[1]	G
+			//(*iterator)[2]	R
+		}
+	}
+	else if(channels == 1)
+	{
+		cv::MatIterator_&lt;uchar&gt; iterator	=	mat.begin&lt;uchar&gt;()
+			,end	=	mat.end&lt;uchar&gt;();
+		for(;iterator != end ;++iterator)
+		{
+			//*iterator
+		}
+	}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>Mat::data 是一個 uchar 的 一維數組
+以 BGRA 或 BGR 或灰度像素 排列
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="LUT"></a>
+		<p><span class="flag">LUT</span>
+<pre>LUT 以一個 查找表 對像素 進行變換
+查找表是一個 灰度圖 uchar [256]	記錄了 將[0,256)的 灰度設置為何值
+LUT 會以相同 查找表 指定的灰度變換方式 對圖像 所有顏色通道 進行 相同的 變化
+
+使用LUT 比直接遍歷圖像像素 進行設置 要快 很多 因為 其會使用 內部多線程 和cpu 優化 故比直接遍歷快
+推薦使用此方法 修改圖像
+
+CV_EXPORTS_W void LUT(InputArray src,	//原
+	InputArray lut,		//查找表
+	OutputArray dst,	//輸出
+	int interpolation=0);	//插值
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>int _tmain(int argc, _TCHAR* argv[])
+{
+	//待變換圖像
+	cv::Mat mat	=	cv::imread("123.bmp");
+
+	//創建查找表 所有灰度 取其相反值
+	cv::Mat look_up_table(1, 256, CV_8U);
+	uchar* p = look_up_table.data; 
+	for(int i = 0; i &lt; 256; ++i)
+		p[i] = 255 - i;
+
+	//LUT
+	cv::LUT(mat,look_up_table,mat);
+
+
+	cv::namedWindow("test");
+	cv::imshow("test",mat);
+	cv::waitKey(0);
+	cv::destroyWindow("test");
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

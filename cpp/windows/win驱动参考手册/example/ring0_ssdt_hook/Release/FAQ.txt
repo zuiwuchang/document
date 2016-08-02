@@ -1,0 +1,3 @@
+﻿ƽ̨	0x86	win7
+	
+hook	NtOpenProcess	

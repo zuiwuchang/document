@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>常見加密算法</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">常見加密算法</font>
+</p>
+
+<p>
+	<a href="#sha">摘要算法</a><br />
+    <a href="#base64">base64</a><br />
+    <a href="#aes">對稱加密</a><br />
+    <a href="#rsa">非對稱加密</a><br />
+</p>
+
+
+<div class="mydiv"><a name="sha"></a>
+	<p><font color="#FF0000">摘要算法</font><br />
+  			<table border="2"><br />
+            <tr><td>名称</td><td>摘要bit位长度</td><td>摘要转16进制字符串长度</td></tr>
+            <tr><td>MD系</td><td></td><td></td></tr>
+            <tr><td>MD2</td><td>128</td><td>32</td></tr>
+            <tr><td>MD4</td><td>128</td><td>32</td></tr>
+            <tr><td>MD5</td><td>128</td><td>32</td></tr>
+            <tr><td>SHA系</td><td></td><td></td></tr>
+            <tr><td>SHA-1</td><td>160</td><td>40</td></tr>
+            <tr><td>SHA-224</td><td>224</td><td>56</td></tr>
+            <tr><td>SHA-256</td><td>256</td><td>64</td></tr>
+            <tr><td>SHA-512</td><td>512</td><td>128</td></tr>
+            <tr><td>RIPEMD系</td><td></td><td></td></tr>
+            <tr><td>RIPEMD128</td><td>128</td><td>32</td></tr>
+            <tr><td>RIPEMD160</td><td>160</td><td>40</td></tr>
+            <tr><td>RIPEMD256</td><td>256</td><td>64</td></tr>
+            <tr><td>RIPEMD320</td><td>320</td><td>80</td></tr>
+            <tr><td>other</td><td></td><td></td></tr>
+            <tr><td>Tiger(<font color="#FF0000">号称最快hash算法</font>)</td><td>192</td><td>48</td></tr>
+            <tr><td>Whirlpool(<font color="#FF0000">被称为最安全hash算法</font>)</td><td>512</td><td>88</td></tr>
+            <tr><td>CRC32</td><td>32</td><td>8</td></tr>
+            <tr><td>HMAC</td><td></td><td></td></tr>
+            </table>
+            HMAC 是一種結合其他摘要的算法 而且需要設置加密key<br />
+            HMAC 生成密文長度 和與之結合的算法 生成密文長度一致<br />
+            HMAC 可以和 MD2 MD4 MD5 SHA SHA224 SHA256 SHA384 SHA512 結合 
+    </p>
+</div>    
+<div class="mydiv"><a name="base64"></a>
+	<p><font color="#FF0000">base64</font><br />
+    base64 嚴格來說 不是加密算法 它只是把 原文替換為 人眼不能直接識別的 64個字符組合<br />
+    UrlBase64 用其他符號替換了base64在url中不允許出現的字符 以用於在url中傳輸 二進制數據
+    </p>
+    <p><font color="#FF0000">注意</font><br />
+    base64以3個字節為一組 編碼為4字節(64位) 故編碼後長度為 (len+2)/3*4
+    </p>
+</div>    
+<div class="mydiv"><a name="aes"></a>
+	<p><font color="#FF0000">對稱加密</font><br />
+    加密後 密文長度 等於 原文 長度
+    <table border="2">
+    <tr><td>算法名</td><td>密钥长度</td><td>分組長度(bit)</td><td>循環次數</td><td>安全性</td></tr>
+    <tr><td>DES</td><td>56 <br />64</td><td>64</td><td>16</td><td>依賴密鑰受到窮舉攻擊</td></tr>
+    <tr><td>DESede(3DES)</td><td>112 <br />128 <br />168 <br />192</td><td>64</td><td>48</td><td>軍事級 可抗差值分析</td></tr>
+    <tr><td>AES</td><td>128 <br />192<br /> 256</td><td>64</td><td>10<br />12<br />14</td><td>安全級別高 高級加密標準</td></tr>
+    <tr><td>IDEA</td><td>128</td><td>64</td><td>8</td><td>能抗差分密碼分析攻擊</td></tr>
+    </table>
+   
+    </p>
+    
+    <p>
+    	<p><font color="#FF0000">工作模式</font><br />
+        ECB	不需要iv 下面的都需要<br />
+        CBC	<br />
+        CFB	<br />
+        OFB	<br />
+        CTR	
+        </p>
+        <p><font color="#FF0000">ECB</font><br />
+        Electronic Code Book(电子密码本模式)<br />
+        每次加密都产生独立的分组 各组互不干扰
+        </p>
+        
+        <p><font color="#FF0000">CBC</font><br />
+        Cipher Book Chaining (密文链接模式)<br />
+        前面前 加密块先与前一块加密的密文异或 然后在和密钥加密<br />
+        第一块加密数据 先和iv异或 在和密匙加密
+        </p>
+        
+        <p><font color="#FF0000">CFB</font><br />
+        Cipher Feed Back (密文反馈模式)<br />
+        
+        </p>
+        
+        <p><font color="#FF0000">OFB</font><br />
+        Output Feed Back (输出反馈模式)<br />
+        
+        </p>
+        
+        <p><font color="#FF0000">CTR</font><br />
+        Counter (计算器模式)<br />    
+        </p>
+   </p>
+   
+   <p><font color="#FF0000">填充方式</font><br />
+        NoPadding<br />
+        PKCS5Padding<br />
+        PKCS7Padding<br />
+        ISO10126Padding<br />
+        ZeroBytePadding
+   </p>
+   
+</div>
+<div class="mydiv"><a name="aes"></a>
+	<p><font color="#FF0000">對稱加密</font><br />
+    對稱加密 使用公鑰加密(N,e)  私鑰解密(N,d) 故可公開公鑰 <br />
+    常見算法 rsa
+    </p>
+</div>
+</td></tr></table>
+</body>
+</html>

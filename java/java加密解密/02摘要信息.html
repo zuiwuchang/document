@@ -1,0 +1,137 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>摘要信息</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1>
+    	<p><font color="#FF0000">描述</font><br />
+        	通过散列函数 将数据加密成 唯一的不可逆数据
+            通常将加密数据以 十六进制显示 以方便人眼观察
+            通常用于 检查数据完整性          
+		</p>
+        <a href="#total">摘要算法</a> <br />
+    	<a href="#example">example</a> <br />
+        <a href="#MAC">MAC算法</a> <br />
+        <a href="#other">other摘要算法</a> <br />
+        <a href="#file">文件摘要</a> <br />
+        <a href="#CRC">CRC</a> <br />
+        
+    </h1></p>
+    
+    <div class="div_box"><a name='total'><h3>
+    	<p><font color="#FF0000">摘要算法</font><br />
+        	仅列出 BouncyCastle 支持的常用算法
+            <table border="2"><br />
+            <tr><td>名称</td><td>摘要位长度</td><td>摘要转16进制长度</td></tr>
+            <tr><td>MD系</td><td></td><td></td></tr>
+            <tr><td>MD2</td><td>128</td><td>32</td></tr>
+            <tr><td>MD4</td><td>128</td><td>32</td></tr>
+            <tr><td>MD5</td><td>128</td><td>32</td></tr>
+            <tr><td>SHA系</td><td></td><td></td></tr>
+            <tr><td>SHA-1</td><td>160</td><td>40</td></tr>
+            <tr><td>SHA-224</td><td>224</td><td>56</td></tr>
+            <tr><td>SHA-256</td><td>256</td><td>64</td></tr>
+            <tr><td>SHA-512</td><td>512</td><td>128</td></tr>
+            </table>
+  	  	</p>
+    </h3></a></div>
+    
+    <div class="div_box"><a name='example'><h3>
+    	<p><font color="#FF0000">example</font><br />
+        str="this is SHA-512";<br />
+		System.out.println(str );<br />
+		<font color="#FF0000">MessageDigest sh=MessageDigest.getInstance("SHA-512");	//括号传入要使用的 算法名称 不区分大小写</font><br />
+		sh.update(str.getBytes());<br />
+		date=sh.digest();<br />
+		<font color="#FF0000">//date=sh.digest(str.getBytes());	//上两句可用 此句替换</font><br />
+		date=Hex.encode(date);<br />
+		str=new String(date);<br />
+		System.out.println(str);<br />
+		System.out.println();
+        </p>
+   	</h3></a></div>
+    
+  	<div class="div_box"><a name='MAC'><h3>
+    	<p><font color="#FF0000">摘要算法</font><br />
+        mac是一种有密匙对摘要算法 其结合了md sha算法
+        主要有 HMACMD2 HMACMD4 HMACMD5 HMACSHA1 HMACSHA224 HMACSHA256 HMACSHA384 HMACSHA512 摘要长度同相应md sha 
+        </p>
+        
+        <p><font color="#FF0000">example</font><br />
+        String str="this is MAC";<br />
+		System.out.println(str);<br />
+		<br />
+		KeyGenerator keygenerator=KeyGenerator.getInstance("HMACSHA512");	//初始化密匙管理类KeyGenerator<br />
+		SecretKey secreKey = keygenerator.generateKey();					//生成密匙<br />
+		//byte [] key=secreKey.getEncoded();	//获取密匙对bytes数据 以保存或传递给他人<br />
+		//SecretKey secreKey=new SecretKeySpec(key,"HMACMD5");	//由保存的密匙对的bytes 恢复密匙对<br /><br />
+		
+		Mac mac=Mac.getInstance(secreKey.getAlgorithm());	//实例化mac<br />
+		mac.init(secreKey);	//以密匙对初始化mac<br />
+		byte[] data=mac.doFinal(str.getBytes());	//加密<br />
+		str=new String(Hex.encode(data));<br />
+		System.out.println(str);
+        </p>
+   	</h3></a></div>
+     <div class="div_box"><a name='other'><h3>
+    	<p><font color="#FF0000">other摘要算法</font><br />
+        其他的一些摘要算法
+        </p>
+        <p><font color="#FF0000">RipeMD</font><br />
+        RipeMD128 RipeMD160 RipeMD256 RipeMD320 用法同md<br />
+        RipeMD和mac结合 HmacRipeMD128 HmacRipeMD160 用法同mac
+        </p>
+        
+        <p><font color="#FF0000">其他 用法同md</font><br />
+        Tiger	摘要长192位 号称最快hash算法 对64位做了特别优化<br />
+        Whirlpool 摘要长512位 被称为最安全hash算法 被列入iso标准<br /> 
+        GOST3411 摘要长256位
+        </p>
+ 	</h3></a></div>
+    
+    <div class="div_box"><a name='file'><h3>
+    	<p><font color="#FF0000">文件摘要</font><br />
+        String path="/home/illusive_man/test";<br />
+		FileInputStream fi=new FileInputStream(new File(path));<br />
+		DigestInputStream dis=new DigestInputStream(fi,MessageDigest.getInstance("MD5")); //定义摘要输入流<br />
+		int read=0;<br />
+		byte[] buffer=new byte[1024];<br />
+		while(read>-1)<br />
+		{<br />
+			read=dis.read(buffer,0,1024);<br />
+		}<br />
+		dis.close();<br />
+        <br />
+		MessageDigest md=dis.getMessageDigest();<br />
+		byte[] b=md.digest();<br />
+		path=new String(Hex.encode(b));<br />
+		System.out.println(path);
+        </p>
+   	</h3></a></div>     
+    <div class="div_box"><a name='CRC'><h3>
+    	<p><font color="#FF0000">CRC</font><br />
+        CRC常用于数据完整性校验<br />
+        CRC-1	硬件奇偶校验<br />
+        CRC-32-IEEE 802.3 通信差错控制 既现在说的CRC-32<br />
+        CRC-32-Adler CRC-32的一个变种和CRC-32一样可靠但更快<br />
+        CRC-128	演变为MD算法<br />
+        CRC-160	演变为SHA算法
+        </p>
+        <p><font color="#FF0000">example</font><br />
+        String str="this is CRC-32";<br />
+		System.out.println(str);<br />
+		CRC32 crc32=new CRC32();<br />
+		crc32.update(str.getBytes());<br />
+		str=Long.toHexString(crc32.getValue());<br />
+		System.out.println(str);<br /><br />
+        
+        CheckedInputStream类和CheckedOutputStream类 提供从流进行校验的功能
+        </p>
+    </h3></a></div>
+</td></tr></table>
+</body>
+</html>

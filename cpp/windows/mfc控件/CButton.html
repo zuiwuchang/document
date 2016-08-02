@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>CButton</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+    <p><h1><font color="#FF0000">CButton</font></h1></p>
+    
+    <h2>
+    <a href="#CButton">CButton</a><br />
+    <a href="#draw">自繪</a><br />
+    
+    </h2>
+
+<div class="div_box"><a name="CButton"></a>
+<p><font color="#FF0000">CButton</font>
+<pre>CButton 是MFC按鈕管理類 用於管理 按鈕UI
+</pre>
+</p>
+</div>
+    
+<div class="div_box"><a name="draw"></a>
+<p><pre><font color="#FF0000">步驟</font>
+1	設置Owner Draw屬性(設置BS_OWNERDRAW風格)
+2	從CButton派生 子類
+3	重載子類的DrawItem方法</pre>
+</p>
+
+<p><font color="#FF0000">example</font>
+<pre>void CMyButton::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
+{
+	//lpDrawItemStruct->rcItem 為繪製區域
+
+	if(ODS_DISABLED	==	lpDrawItemStruct->itemState)
+	{
+		//繪製 禁用狀態
+
+	}
+	else if(ODS_FOCUS == lpDrawItemStruct->itemState)
+	{
+		//繪製 焦點狀態
+	}
+	else
+	{
+		//繪製 默認狀態
+	}
+
+	//繪製文本
+}
+
+typedef struct tagDRAWITEMSTRUCT {
+    UINT CtlType;			//控件類型
+    UINT CtlID;				//控件ID
+    UINT itemID;
+    UINT itemAction;
+    UINT itemState;
+    HWND hwndItem;
+    HDC hDC;			//用於繪製的設備上下文
+    RECT rcItem;		//控件所在區域
+    ULONG_PTR itemData;
+} DRAWITEMSTRUCT;
+</pre>
+</p>
+
+<p><font color="#FF0000">注意</font>
+<pre>DRAWITEMSTRUCT 無法跟踪鼠標經過 若需要 應該自己 跟踪
+</pre>
+</p>
+</div>
+    
+
+  	
+</td></tr></table>
+</body>
+</html>

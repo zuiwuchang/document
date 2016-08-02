@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>wxPrinter</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#wxPrinter">打印框架</a>
+		
+	</div>
+
+	<div class="note"><a name="wxPrinter"></a>
+		<p><span class="flag">打印框架</span>
+<pre>wxWidgets 提供了一個靈活方便 的打印框架
+要使用 這個 框架 關鍵是 
+1	從 wxPrintout 派生
+
+2	重載 以下函數 以供 框架 調用
+	//<span class="care">具體如何打印 每頁
+	//返回 false 將取消打印操作</span>
+	virtual bool wxPrintout::OnPrintPage	(	int 	pageNum	)	
+
+	//<span class="care">返回pageNum頁 是否存在</span>
+	virtual bool wxPrintout::HasPage	(	int 	pageNum	)	
+
+
+	//<span class="care">返回 最大 最小 頁數 以及要打印的頁數範圍
+	//默認 最大小頁數為 [1,32000] 範圍為 [1,1]</span>
+	virtual void wxPrintout::GetPageInfo	(	int * 	minPage,
+		int * 	maxPage,
+		int * 	pageFrom,
+		int * 	pageTo 
+		)
+
+	<span class="care">
+	//任何 其他打印操作之前 此函數被調用
+	//以便 使用框架者 可以在此為GetPageInfo  設置文檔 頁面數</span>
+	virtual void wxPrintout::OnPreparePrinting	(		)
+
+	<span class="care">每份開始打印時 調用 返回false 取消打印</span>
+	virtual bool wxPrintout::OnBeginDocument	(	int 	startPage,
+		int 	endPage 
+		)		
+	
+	...
+
+3	將wxPrintout的實例 傳給 wxPrinter.Print 以開始打印流程
+	(以彈出標準打印對話框 開始)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><span class="flag">.h</span>
+#ifndef DARKPRINTOUT_H
+#define DARKPRINTOUT_H
+#include &lt;wx/print.h&gt;
+
+class darkPrintout : public wxPrintout
+{
+    public:
+        darkPrintout(wxFrame* _frame,const wxString & 	_title = _("Printout"));
+        virtual ~darkPrintout();
+    protected:
+        virtual void GetPageInfo	(	int * 	minPage,
+            int * 	maxPage,
+            int * 	pageFrom,
+            int * 	pageTo
+            );
+        virtual bool HasPage	(	int 	pageNum	);
+        virtual bool OnPrintPage	(	int 	pageNum	);
+    private:
+        wxFrame* frame_;
+};
+
+#endif // DARKPRINTOUT_H
+
+<span class="flag">.cpp</span>
+#include "darkPrintout.h"
+
+darkPrintout::darkPrintout(wxFrame* _frame,const wxString & 	_title)
+    :wxPrintout(_title)
+{
+    frame_   =   _frame;
+}
+
+darkPrintout::~darkPrintout()
+{
+    //dtor
+}
+
+void darkPrintout::GetPageInfo	(	int * 	minPage,
+            int * 	maxPage,
+            int * 	pageFrom,
+            int * 	pageTo
+            )
+{
+       *minPage    =   1;
+       *maxPage    =   10;
+       *pageFrom   =   1;
+       *pageTo     =   10;
+}
+
+
+bool darkPrintout::HasPage	(	int 	pageNum	)
+{
+    return pageNum < 11 && pageNum > 0;
+}
+
+bool darkPrintout::OnPrintPage	(	int 	pageNum	)
+{
+    wxDC* dc = GetDC();
+    if (dc)
+    {
+        // Draw page numbers at top left corner of printable area, sized so that
+        // screen size of text matches paper size.
+        MapScreenSizeToPage();
+
+        dc->DrawText(wxString::Format(wxT("PAGE %d"), pageNum), 0, 0);
+        return true;
+    }
+    return false;
+}
+
+
+
+<span class="flag">.h</span>
+/***************************************************************
+ * Name:      PrinterTextMain.h
+ * Purpose:   Defines Application Frame
+ * Author:    zuiwuchang (zuiwuchang@gmail.com)
+ * Created:   2014-09-25
+ * Copyright: zuiwuchang (http://zuiwuchang20031230.blogspot.com/)
+ * License:
+ **************************************************************/
+
+#ifndef PRINTERTEXTMAIN_H
+#define PRINTERTEXTMAIN_H
+
+#ifndef WX_PRECOMP
+    #include &lt;wx/wx.h&gt;
+#endif
+
+#include "PrinterTextApp.h"
+
+class PrinterTextFrame: public wxFrame
+{
+    public:
+        PrinterTextFrame(wxFrame *frame, const wxString& title);
+        ~PrinterTextFrame();
+    private:
+        enum
+        {
+            idMenuQuit = 1000,
+            idMenuAbout,
+            idPrinterOk,
+            idPrinterView
+        };
+        void OnClose(wxCloseEvent& event);
+        void OnQuit(wxCommandEvent& event);
+        void OnAbout(wxCommandEvent& event);
+
+        void OnClickPrinterOk(wxCommandEvent& event);
+        void OnClickPrinterView(wxCommandEvent& event);
+        DECLARE_EVENT_TABLE()
+};
+
+
+#endif // PRINTERTEXTMAIN_H
+
+<span class="flag">.cpp</span>
+/***************************************************************
+ * Name:      PrinterTextMain.cpp
+ * Purpose:   Code for Application Frame
+ * Author:    zuiwuchang (zuiwuchang@gmail.com)
+ * Created:   2014-09-25
+ * Copyright: zuiwuchang (http://zuiwuchang20031230.blogspot.com/)
+ * License:
+ **************************************************************/
+
+#ifdef WX_PRECOMP
+#include "wx_pch.h"
+#endif
+
+#ifdef __BORLANDC__
+#pragma hdrstop
+#endif //__BORLANDC__
+
+#include "PrinterTextMain.h"
+#include "darkPrintout.h"
+//helper functions
+enum wxbuildinfoformat {
+    short_f, long_f };
+
+wxString wxbuildinfo(wxbuildinfoformat format)
+{
+    wxString wxbuild(wxVERSION_STRING);
+
+    if (format == long_f )
+    {
+#if defined(__WXMSW__)
+        wxbuild << _T("-Windows");
+#elif defined(__WXMAC__)
+        wxbuild << _T("-Mac");
+#elif defined(__UNIX__)
+        wxbuild << _T("-Linux");
+#endif
+
+#if wxUSE_UNICODE
+        wxbuild << _T("-Unicode build");
+#else
+        wxbuild << _T("-ANSI build");
+#endif // wxUSE_UNICODE
+    }
+
+    return wxbuild;
+}
+
+BEGIN_EVENT_TABLE(PrinterTextFrame, wxFrame)
+    EVT_CLOSE(PrinterTextFrame::OnClose)
+    EVT_MENU(idMenuQuit, PrinterTextFrame::OnQuit)
+    EVT_MENU(idMenuAbout, PrinterTextFrame::OnAbout)
+    EVT_BUTTON(idPrinterOk,PrinterTextFrame::OnClickPrinterOk)
+    EVT_BUTTON(idPrinterView,PrinterTextFrame::OnClickPrinterView)
+END_EVENT_TABLE()
+
+PrinterTextFrame::PrinterTextFrame(wxFrame *frame, const wxString& title)
+    : wxFrame(frame, -1, title)
+{
+#if wxUSE_MENUS
+    // create a menu bar
+    wxMenuBar* mbar = new wxMenuBar();
+    wxMenu* fileMenu = new wxMenu(_T(""));
+    fileMenu->Append(idMenuQuit, _("&Quit\tAlt-F4"), _("Quit the application"));
+    mbar->Append(fileMenu, _("&File"));
+
+    wxMenu* helpMenu = new wxMenu(_T(""));
+    helpMenu->Append(idMenuAbout, _("&About\tF1"), _("Show info about this application"));
+    mbar->Append(helpMenu, _("&Help"));
+
+    SetMenuBar(mbar);
+#endif // wxUSE_MENUS
+
+#if wxUSE_STATUSBAR
+    // create a status bar with some information about the used wxWidgets version
+    CreateStatusBar(2);
+    SetStatusText(_("Hello Code::Blocks user!"),0);
+    SetStatusText(wxbuildinfo(short_f), 1);
+#endif // wxUSE_STATUSBAR
+
+    wxBoxSizer* top_sizer=new wxBoxSizer(wxVERTICAL);
+	top_sizer->Add(new wxButton(this,idPrinterOk,_("Printer")),1,wxEXPAND|wxALL,5);
+	top_sizer->Add(new wxButton(this,idPrinterView,_("View")),1,wxALL,5);
+
+	SetSizer(top_sizer);
+	//top_sizer->Fit(this);
+	top_sizer->SetSizeHints(this);
+}
+
+
+PrinterTextFrame::~PrinterTextFrame()
+{
+}
+
+void PrinterTextFrame::OnClose(wxCloseEvent &event)
+{
+    Destroy();
+}
+
+void PrinterTextFrame::OnQuit(wxCommandEvent &event)
+{
+    Destroy();
+}
+
+void PrinterTextFrame::OnAbout(wxCommandEvent &event)
+{
+    wxString msg = wxbuildinfo(long_f);
+    wxMessageBox(msg, _("Welcome to..."));
+}
+void PrinterTextFrame::OnClickPrinterOk(wxCommandEvent& event)
+{
+    //打印對話框設置
+    wxPrintDialogData printDialogData;
+    printDialogData.SetFromPage(1);
+    printDialogData.SetToPage(11);
+
+    wxPrinter printer(&printDialogData);
+    darkPrintout printout(this, _("My printout"));
+
+    //開始打印
+    if (!printer.Print(this, &printout, true /*prompt*/))
+    {
+        if (wxPrinter::GetLastError() == wxPRINTER_ERROR)
+        {
+            wxLogError(wxT("There was a problem printing. Perhaps your current printer is not set correctly?"));
+        }
+        else
+        {
+            wxLogMessage(wxT("You canceled printing"));
+        }
+    }
+    else
+    {
+        //打印成功 返回新的 打印設置
+        printer.GetPrintDialogData().GetPrintData();
+    }
+
+}
+void PrinterTextFrame::OnClickPrinterView(wxCommandEvent& event)
+{
+    // Pass two printout objects: for preview, and possible printing.
+    wxPrintDialogData printDialogData;
+    printDialogData.SetFromPage(1);
+    printDialogData.SetToPage(11);
+
+    
+    wxPrintPreview *preview =new wxPrintPreview(new darkPrintout(this), new darkPrintout(this), &printDialogData);
+    if (!preview->IsOk())
+    {
+        delete preview;
+        wxLogError(wxT("There was a problem previewing.\nPerhaps your current printer is not set correctly?"));
+        return;
+    }
+
+    wxPreviewFrame *frame =
+        new wxPreviewFrame(preview, this, wxT("Demo Print Preview"), wxPoint(100, 100), wxSize(600, 650));
+    frame->Centre(wxBOTH);
+    frame->Initialize();
+    frame->Show();
+}
+
+</pre>
+		</p>
+	</div>
+	
+</div>
+</body>
+</html>

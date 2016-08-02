@@ -1,0 +1,226 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>shell-script</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1>
+    	<p><font color="#FF0000">07shell-script</font><br />
+        	以脚本编程
+		</p>
+        <a href="#bash">shell script</a> <br />
+        <a href="#habit">sh建议习惯</a> <br />
+        <a href="#test">test</a> <br />
+        <a href="#$n">参数</a> <br />
+        <a href="#if">if</a> <br />
+        <a href="#fun">函数</a> <br />
+        <a href="#loop">循环</a> <br />
+        <a href="#sh">调试</a> <br />
+        
+    </h1></p>
+    
+    <div class="div_box"><a name='bash'><h3>
+    	<p><font color="#FF0000">执行 shell script</font><br />
+        shell script具有rx 直接输入路径<br />
+         ...不具备x bash 路径 或 sh 路径 ///	bin/sh	是	/bin/bash 的连接文件<br />
+         <font color="#FF0000">以上方式 会在一个新的bash中执行 script 既子进程中执行 故script中的变量 环境变量在父进程(当前进程中无效)</font><br />
+         <br />
+         
+         . 路径	<br />
+         source 路径	<br />
+         <font color="#FF0000">在当前进程中执行</font>
+         
+        </p>
+        <p><font color="#FF0000">shell格式</font><br />
+          1 #!/bin/bash<br />
+  2 #Program:<br />
+  3 #       this program is test shell script<br />
+  4 #History:<br />
+  5 #       2013-03-21 illusive_man first release<br />
+  6 #e-mail:<br />
+  7 #       zuiwuchang@gmail.com<br />
+  8 <br />
+  9 LANG=zh_CN.UTF-8<br />
+ 10 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin<br />
+ 11 export LANG PATH<br />
+ 12 echo "Hellow shell script\nthis is my first shell script"<br />
+ 13 exit 0<br /><br />
+		<font color="#FF0000">
+        1	是声明shell接口 这里是 bash(此行必须有)<br />
+        [2,7]	是程序 功能 版本 联系人 等说明 (建议有)<br />
+        [9,11]	 是声明必要的环境变量<br />
+        12	程序sxian<br />
+        13	程序返回码 $?	
+        </font>
+        </p>
+        
+   	</h3></a></div> 
+   	
+    <div class="div_box"><a name='habit'><h3>
+    	<p><font color="#FF0000">sh建议习惯</font><br />
+        注明script功能<br />
+        注明版本信息<br />
+        注明 作者 联系方式<br />
+        注明版本信息 历史记录<br />
+        注明版权声明<br />
+        特殊命令用绝对路径<br />
+        声明环境变量
+        </p>
+   	</h3></a></div>
+   
+   	<div class="div_box"><a name='test'><h3>
+    	<p><font color="#FF0000">test	//用于条件判断</font><br />
+        test -e /shell.sh	//判断文件是否存在 不会返回任何信息 可用 $? 获取判断情况<br />
+        echo $?<br />
+        test -e /shell.sh &amp;&amp; echo "exist" || echo "not exist"
+        </p>
+        <p><font color="#FF0000">test可用参数</font><br />
+        <table border="2">
+        <tr><td>参数</td><td>含义</td></tr>
+        <tr><td><font color="#FF0000">test -e filename </font></td><td>判断文件是否存在</td></tr>
+        <tr><td>-e</td><td>文件名是否存在</td></tr>
+        <tr><td>-f</td><td>文件名是否存在 且为文件</td></tr>
+        <tr><td>-d</td><td>文件名是否存在 且为目录</td></tr>
+        <tr><td>-b</td><td>文件名是否存在 且为block device设备</td></tr>
+        <tr><td>-c</td><td>文件名是否存在 且为character device设备</td></tr>
+        <tr><td>-S</td><td>文件名是否存在 且为Socket文件</td></tr>
+        <tr><td>-P</td><td>文件名是否存在 且为FIFO(pipe)文件</td></tr>
+        <tr><td>-L</td><td>文件名是否存在 且为连接文件</td></tr>
+        <tr><td><font color="#FF0000">test -r filename</font></td><td>是否可读(root权限长除外)</td></tr>
+        <tr><td>-r</td><td>文件名是否存在 且可读</td></tr>
+        <tr><td>-w</td><td>文件名是否存在 且可写</td></tr>
+        <tr><td>-x</td><td>文件名是否存在 且可执行</td></tr>
+        <tr><td>-u</td><td>文件名是否存在 且SUID</td></tr>
+        <tr><td>-g</td><td>文件名是否存在 且SGID</td></tr>
+        <tr><td>-k</td><td>文件名是否存在 且有Sticky bit属性</td></tr>
+        <tr><td>-s</td><td>文件名是否存在 且为 非空白文件</td></tr>
+        <tr><td><font color="#FF0000">test file1 nt file2</font></td><td>比较两文件</td></tr>
+        <tr><td>-nt</td><td>file1是否比file2新</td></tr>
+        <tr><td>-ot</td><td>file1是否比file2旧</td></tr>
+        <tr><td>-ef</td><td>file1是否与file2为同一文件 (hard link)</td></tr>
+        <tr><td><font color="#FF0000">test n1 -eq n2</font></td><td>整数比较</td></tr>
+        <tr><td>-eq</td><td>n1==n2</td></tr>
+        <tr><td>-ne</td><td>n1!=n2</td></tr>
+        <tr><td>-gt</td><td>n1>n2</td></tr>
+        <tr><td>-lt</td>
+        <td>n1&lt;n2</td></tr>
+        <tr><td>-ge</td><td>n1>=n2</td></tr>
+        <tr><td>-le</td><td>n1&lt;=n2</td></tr>
+        <tr><td><font color="#FF0000">字符串判断</font></td><td></td></tr>
+        <tr><td>test -z string</td><td>字符串为空</td></tr>
+        <tr><td>test -n string</td><td>字符串非空(-n可省略)</td></tr>
+        <tr><td>test str1=str2</td><td></td></tr>
+        <tr><td>test str1!=str2</td><td></td></tr>
+        <tr><td><font color="#FF0000">test -r file -a -x file</font> </td><td>多重判断 判断是否同时具有 rx 权限</td></tr>
+        <tr><td>-a</td><td>两个条件同时成立</td></tr>
+        <tr><td>-o</td><td>两个条件一个成立</td></tr>
+        <tr><td>test ! -x file</td><td>条件取反 不具备写权限</td></tr>
+        </table>
+        </p>
+        <p><font color="#FF0000">[]	//[]中也是判断 用法同test</font><br />
+        [ -r filename ]	//文件是否可读<br />
+        [ st1 == str2 ]<br />
+        <h1>[]中 每个组件 必须用 <font color="#FF0000">空格</font> 隔开<br /></h1>
+        []中变量最好都用 <font color="#FF0000">"</font> 括起来<br />
+        []中常量最好都用 <font color="#FF0000">'</font> 括起来<br />
+        </p>
+   	</h3></a></div>
+    <div class="div_box"><a name='$n'><h3>
+    	<p><font color="#FF0000">参数</font><br />
+        $# //传入变量总数<br />
+        $1	//第一个变量<br />
+        $2	//第二个变量<br />
+        $@	//全部变量内容<br />
+        $*	//全部变量内容<br /><br />
+        
+        shift	//变量移位 既把第一个变量删除 后面变量向前(第二个变成了第一个 变量总数减1)
+        </p>
+   	</h3></a></div>
+    
+    <div class="div_box"><a name='if'><h3>
+    	<p><font color="#FF0000">if</font><br />
+        if[条件]; then	//[]具体见 test<br />
+        命令<br />
+        elif [条件] || [条件]; then	//亦可&amp;&amp;<br />
+        命令<br />
+		else<br />
+        命令<br />
+        fi	//if结束
+        
+        </p>
+        
+        <p><font color="#FF0000">case //多重选择</font><br />
+        <pre>case $变量名 in
+ <font color="#FF0000">&quot;变量值&quot;)
+   程序段
+ ;;  //固定格式</font>
+
+ &quot;变量值&quot;)
+   程序段
+ ;;
+esac       </pre>
+        </p>
+  	</h3></a></div>
+	
+    <div class="div_box"><a name='fun'><h3>
+    	<p><font color="#FF0000">函数</font><br />
+        script是从上到下执行 故函数需写在程序开头
+        </p>
+        
+        <p><font color="#FF0000">example</font><br />
+        function printit(){<br />
+ echo -e "this is a function test\n<font color="#FF0000">$1</font>\n<font color="#FF0000">$2"</font>	//读取参数方式和script一样<br />
+ exit 0<br />
+ }<br /><br />
+  
+ printit 1 2	//调用 传参数 1 2
+
+        </p>
+    </h3></a></div>
+	
+    <div class="div_box"><a name='loop'><h3>
+    	<p><font color="#FF0000">循环</font><br />
+        
+    	</p>
+        
+        <p><font color="#FF0000">while //满足条件就循环</font><br />
+        while []<br />
+        do<br />
+        循环体<br />
+        done
+    	</p>
+        
+        <p><font color="#FF0000">until //不满足条件就循环</font><br />
+        until []<br />
+        do<br />
+        循环体<br />
+        done
+    	</p>
+        <p><font color="#FF0000">for in</font><br />
+        for var in con1 con2 con3 <br />
+        do<br />
+        echo "var=$var"		//循环3次(更具in 后接的数据) 第一次var为con1 二次 con2 ...<br />
+        done
+        </p>
+        <p><font color="#FF0000">for((初值;限值;步长))	//类似c的for 比c多了个 ()</font><br />
+        for((i=10;i>0;i=i-1))	//没有--i真是不习惯<br />
+        do<br />
+        循环体<br />
+        done
+        </p>
+    </h3></a></div>
+
+	<div class="div_box"><a name='sh'><h3>
+    	<p><font color="#FF0000">调试</font><br />
+        sh [-nvx] test.sh<br />
+        -n	//不执行 只是检测是否有语法错误<br />
+        -v	//在这些script前 先将script内容显示到屏幕<br />
+        <font color="#FF0000">-x	//将执行过程全部显示出来</font>		不能单步调试c调试真是奢华
+        </p>
+  	</h3></a></div>
+</td></tr></table>
+</body>
+</html>

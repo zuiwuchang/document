@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>jQuery对文档的处理</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#move">移动 添加</a>
+		<a href="#empty">替换 包裹 删除</a>
+	</div>
+	<div class="note"><a name="move"></a>
+		<p><span class="flag">移动 添加</span>
+			<table>
+				<tr><th>方法</th><th>描述</th></tr>
+				<tr><td>$(selecotr1).append($(selecotr2))</td><td>把s2移动到s1 成为其子元素末尾</td></tr>
+				<tr><td>$(selecotr1).appendTo($(selecotr2))</td><td>把s1移动到s2 成为其子元素末尾</td></tr>
+				<tr><td>$(selecotr1).prepend($(selecotr2))</td><td>把s2移动到s1 成为其第一个子元素</td></tr>
+				<tr><td>$(selecotr1).prependTo($(selecotr2))</td><td>把s1移动到s2 成为其第一个子元素</td></tr>
+				<tr><td>$(selecotr1).append($(selecotr2))</td><td></td></tr>
+				<tr><td>...</td><td></td></tr>
+				<tr><td>$(selector1).after($(selector2))</td><td>把s2移动为s1兄弟元素 在s1后面</td></tr>
+				<tr><td>$(selector1).inserAfter($(selector2))</td><td>把s1移动为s2兄弟元素 在s2后面</td></tr>
+				<tr><td>$(selector1).before($(selector2))</td><td>把s2移动为s1兄弟元素 在s1前面</td></tr>
+				<tr><td>$(selector1).insertBefore($(selector2))</td><td>把s1移动为s2兄弟元素 在s2前面</td></tr>
+			</table>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>可用 $(html) 生成jQuery对象 如$(&lt;p /&gt;) 生成了一个 p标签
+$(selector1)为数组时 其每个元素都会被加上 selector2
+移动后对象就不在原位置了 $(selector1)
+想要保存selector2在原位 用 $(selector).clone()返回selector2的副本 
+<span class="care">如$(selector).after($(selector).clone());</span>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="empty"></a>
+		<p><span class="flag">替换 包裹 删除</span>
+			<table>
+				<tr><th>方法</th><th>描述</th></tr>
+				<tr><td>$(selector1).replaceWith($(selector2))</td><td>把selector1全删除 把selector2添加到最后一个selector1的位置</td></tr>
+				<tr><td>$(selector1).replaceAll($(selector2))</td><td>用selector1替换全部的selector2</td></tr>
+				<tr><td>...</td><td></td></tr>
+				<tr><td>$(selector1).wrap($(selector))</td><td>为selector1添加父元素(selector2的第一个匹配元素)</td></tr>
+				<tr><td>$(selector).unwrap()</td><td>去掉selector的父元素(但其父元素的文本依然被保留)</td></tr>
+				<tr><td>$(selector1).wrapAll(selector2)</td><td>把selector1全部移动到一起 再用selector2的第一个元素成为其父元素</td></tr>
+				<tr><td>$(selector1).wrapInner(selector2)</td><td>为selector1的文本和每个后代添加父元素selector2(selector的第一个元素)</td></tr>
+				<tr><td>...</td><td></td></tr>
+				<tr><td>.remove()</td><td>从html中删除本元素 但会返回本元素以供用于其他 如添加到html其他位置(appendTo...)</td></tr>
+				<tr><td>.detach()</td><td>同.remove（）</td></tr>
+				<tr><td>.empty()</td><td>删除元素的所有后代 只留下元素本身</td></tr>
+			</table>
+		</p>
+	</div>
+</div>
+</body>
+</html>

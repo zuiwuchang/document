@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>数字签名</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1>
+    	<p><font color="#FF0000">描述</font><br />
+        	以摘要对数据取得摘要 再以非对称私钥加密摘要 完成签名	<br />
+            签名多以十六进制数据显示<br />
+            以公钥解密 取得摘要 和摘要对比验证
+		</p>
+        <a href="#RSA">RSA签名</a> <br />
+        <a href="#DSA">DSA签名</a> <br />
+        <a href="#ECDSA">ECDSA签名</a> <br />
+        
+        
+    </h1></p>
+    
+    <div class="div_box"><a name='RSA'><h3>
+    	<p><font color="#FF0000">RSA签名</font><br />
+        签名长度同密钥长度
+        </p>
+    	
+        <p><font color="#FF0000">RSA签名算法名</font><br />
+        MD2withRSA<br />
+        MD5withRSA<br />
+        SHA1withRSA<br />
+        SHA224withRSA<br />
+        SHA256withRSA<br />
+        SHA384withRSA<br />
+        SHA512withRSA<br />
+        RIPEMD128withRSA<br />
+        RIPEMD160withRSA<br />
+        
+        </p>
+    	
+        <p><font color="#FF0000">example</font><br />
+        <pre>
+final String KEY_ALGORITHM=&quot;RSA&quot;;	//算法名主要用于产生密钥对		<br />final int KEY_SIZE=1024;				//密钥长度<br />		<br />final String  SIGNATURE=&quot;MD5withRSA&quot;;	//签名算法名<br />		<br />KeyPairGenerator keyPairGen=KeyPairGenerator.getInstance(KEY_ALGORITHM);	<br />keyPairGen.initialize(KEY_SIZE);						//初始化密钥工厂<br />KeyPair keyPair = keyPairGen.generateKeyPair();			//生成密钥对	<br />		<br />String str=&quot;我是被签名的数据&quot;;<br />System.out.println(&quot;数据:&quot;+str);<br />		<br /><font color="#FF0000">//签名</font><br />Signature signature=Signature.getInstance(SIGNATURE);<font color="#FF0000">此类需要导入java 自带的包 而非BC</font><br />signature.initSign(keyPair.getPrivate());<br />signature.update(str.getBytes());<br />byte[] data=signature.sign();<br />System.out.println(&quot;签名:&quot;+new String(Hex.encode(data)));<br />		<br /><font color="#FF0000">//验证</font><br />signature=Signature.getInstance(SIGNATURE);<br />signature.initVerify(keyPair.getPublic());<br />signature.update(str.getBytes());<br />if(signature.verify(data))<br />{<br />	System.out.println(&quot;验证:pass&quot;);<br />}<br />else<br />{<br />	System.out.println(&quot;验证:no pass&quot;);<br />}<br />		<br />		<br /><font color="#FF0000">/*---------------我是无奈的分割线--------------*/	</font><br />		<br />str=&quot;我是被修改过的签名的数据&quot;;<br />System.out.println(&quot;数据:&quot;+str);<br />signature.initVerify(keyPair.getPublic());<br />signature.update(str.getBytes());<br />if(signature.verify(data))<br />{<br />	System.out.println(&quot;验证:pass&quot;);<br />}<br />else<br />{<br />	System.out.println(&quot;验证:no pass&quot;);<br />}<br />}
+        </pre>
+        </p>
+    
+  	</h3></a></div>
+    
+    <div class="div_box"><a name='DSA'><h3>
+    	<p><font color="#FF0000">DSA签名</font><br />
+        用法同RSA签名<br />
+        密钥长度 [512,1024]中 64的整数倍
+        </p>
+        <p><font color="#FF0000">DSA签名算法名</font><br />
+        SHA1withDSA<br />
+        SHA224withDSA<br />
+        SHA256withDSA<br />
+        SHA384withDSA<br />
+        SHA512withDSA<br />
+        </p>
+   	</h3></a></div>
+    
+     <div class="div_box"><a name='ECDSA'><h3>
+    	<p><font color="#FF0000">ECDSA签名</font><br />
+        用法同RSA签名<br />
+   
+        </p>
+        <p><font color="#FF0000">ECDSA签名算法名</font><br />
+        算法	签名长度<br />
+        NONEwithECDSA	128<br />
+        RIPEMD160withECDSA	160<br />
+        SHA1withECDSA	160<br />
+        SHA224withECDSA	224<br />
+        SHA256withECDSA	256<br />
+        SHA384withECDSA	384<br />
+        SHA512withECDSA	512<br />
+        
+        </p>
+   	</h3></a></div>
+</td></tr></table>
+</body>
+</html>

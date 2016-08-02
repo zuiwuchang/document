@@ -1,0 +1,306 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>基本操作</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1><a href="#start">初始化环境</a></h1></p>
+    <p><h1><a href="#Graphics">Graphics</a></h1></p>
+    <p><h1><a href="#draw">绘制直线 矩形 曲线 多边形</a></h1></p>
+    <p><h1><a href="#fill">填充区域</a></h1></p>
+    <p><h1><a href="#string">文本输出</a></h1></p>
+    <p><h1><a href="#other">other</a></h1></p>
+    <p><h1><a href="#DEBUG">MFC的DEBUG_NEW与GDI+的冲突问题</a></h1></p>
+    
+    <div class="div_box"><a name="start"><h2>
+    
+    <p><font color="#FF0000">初始化环境</font></p>
+    
+    <p>
+<pre>1	(名字空间为<font color="#FF0000">Gdiplus</font>)
+#include&lt;Gdiplus.h&gt;
+#pragma comment(lib,"GDIplus.lib")
+    
+2	//在使用GDI+的范围内gdiplusToken(比如app类的一个成员) 表明对GDI+的一个应用
+	ULONG_PTR gdiplusToken;
+
+3	//初始化GDI+资源(一般在app类的 構造函數 中完成)
+CGDIPApp::CGDIPApp()
+{
+	//...  
+	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+	Gdiplus::GdiplusStartup(&amp;gdiplusToken,&amp;gdiplusStartupInput,NULL);
+}
+
+4	//使用完毕后释放GDI+所使用的资源(一般在app类的析构函数中完成)
+CGDIPApp::~CGDIPApp()
+{
+	//...
+	Gdiplus::GdiplusShutdown(gdiplusToken);
+}
+
+5	//实例化Graphics对象
+6	//调用Graphics的Draw...函数绘图 或 Fill...函数填充
+</pre>
+   </p>
+    </h2></a></div>
+   
+    <div class="div_box"><a name="Graphics"><h2>
+	    <p><font color="#FF0000">Graphics</font></p>
+		<p>
+        <font color="#FF0000">描述:</font>Graphics是GDI+的核心，它完成了大部分的绘图、文本输出、几何图形填充、坐标系统转换<br />相当于GDI的设备环境(DC)
+        </p>
+        
+        <p>
+        <font color="#FF0000">构造函数</font><br />
+        Graphics(HWND hwnd,BOOL icm);<br />
+        Graphics(HDC hdc,HANDLE hdevice);<br />
+        Graphics(HDC hdc);<br />
+        Graphics(Image* image);<br />
+		<br />
+        hdevice 设备句柄比如打印机的设备句柄 则绘制在打印机中 GDI+会自动驱动打印机打印<br />
+        image 直接绘制在图片中<br />
+        icm 是否使用色彩配置文件校正色彩
+        </p>
+    </h2></a></div>
+    
+    <div class="div_box"><a name="draw"><h2>
+	    <p><font color="#FF0000">绘制直线 矩形 曲线 多边形</font></p>
+        <p><font color="#FF0000">描述</font>调用Graphics相应的draw...(绘制成功返回 Gdiplus::Ok)都需传入Pen</p>
+		
+        <p>
+        <font color="#FF0000">Pen</font><br />
+        Pen::Pen(const Brush*,REAL);<br />
+        Pen::Pen(const Color&,REAL);<br />
+        REAL是默认笔触宽度 默认为1.0
+ 		</p>
+     
+        <p>
+        <font color="#FF0000">直线</font><br />
+        Status Graphics::DrawLine(const Pen*,Point&,Point&);<br />
+        Status Graphics::DrawLine(const Pen*,PointF&,Point&);	<br />
+		Status Graphics::DrawLine(const Pen*,REAL,REAL,REAL,REAL);  	//typedef float REAL;<br />
+		Status Graphics::DrawLine(const Pen*,INT,INT,INT,INT);<br />
+        
+      	 <br /> 
+        Status Graphics::DrawLines(const Pen*,Point*,INT);<br />
+		Status Graphics::DrawLines(const Pen*,PointF*,INT);<br />
+        Point直线所经过点的数组 INT数组长度 当然可以小于数组长度
+        </p>
+        
+        <p>
+        <font color="#FF0000">矩形</font><br />
+        Status DrawRectangle(const Pen *pen,const Rect &rect);<br />
+        Status DrawRectangle(const Pen *pen,const RectF &rect);<br />
+        Status DrawRectangle(const Pen *pen,INT x,INT y,INT width,INT height);<br />
+		Status DrawRectangle(const Pen *pen,REAL x,REAL y,REAL width,REAL height);<br />
+        <br />
+        Status DrawRectangles(const Pen *pen,const Rect *rects,INT count);<br />
+		Status DrawRectangles(const Pen *pen,const RectF *rects,INT count);<br />
+        rects是总共要绘制的矩形的数组  count数组长度
+ 		</p>
+        
+        <p>
+        <font color="#FF0000">曲线</font><br />
+        Graphics::DrawCurve(Pen*,Point*,INT)<br />
+        Graphics::DrawCurve(Pen*,PointF*,INT)<br />
+        Graphics::DrawCurve(Pen*,PointF*,INT,REAL)<br />
+        Graphics::DrawCurve(Pen*,Point*,INT count,INT begin,INT total,REAL)<br />
+        Graphics::DrawCurve(Pen*,PointF*,INT,INT,INT,REAL)<br />
+        Graphics::DrawCurve(Pen*,Point*,INT,REAL)<br />
+		Point是数组INT是数组长度 REAL是曲线弯曲度 real越小曲线弯曲程度越小
+        </p>
+        <p>
+        <font color="#FF0000">封闭曲线</font><br />
+        DrawClosedCurve 同 DrawCurve只是当曲线首尾不相连时自动连接首尾
+        </p>
+        
+        <p>
+        <font color="#FF0000">贝塞尔曲线</font><br />
+        Graphics::DrawBezier(Pen*,POINT& start,POINT& control1,POINT& control2,POINT& end);<br />
+        Graphics::DrawBezier(Pen*,POINTF&,POINTF&,POINTF&,POINTF&);<br />
+        Graphics::DrawBezier(Pen*,REAL,REAL,REAL,REAL,REAL,REAL,REAL,REAL);<br />
+        Graphics::DrawBezier(Pen*,INT,INT,INT,INT,INT,INT,INT,INT);<br />
+        <br />
+        Graphics::DrawBeziers(Pen*,Point*,INT)<br />
+Graphics::DrawBeziers(Pen*,PointF*,INT)
+<br />对于Point数组 第一个点上0~3`第二个点数3~6第四个点数6~9... start control1 control2 end; 
+        </p>
+        
+       	<p>
+        <font color="#FF0000">多边形</font><br />
+        Graphics::DrawPolygon(Pen*,Point*,INT*);<br />
+        Graphics::DrawPolygon(Pen*,PointF*,INT*);
+        </p>
+        
+        <p>
+        <font color="#FF0000">弧形</font><br />
+        Graphics::DrawArc(Pen*,Rect&,REAL a,REAL b);<br />
+        Graphics::DrawArc(Pen*,RectF&,REAL,REAL);<br />
+        Graphics::DrawArc(Pen*,REAL,REAL,REAL,REAL,REAL,REAL);<br />
+        Graphics::DrawArc(Pen*,INT,INT,INT,INT,REAL,REAL);<br />
+        <img src="image/arc.jpg" /><br />
+        Rect是定义弧形的矩形 a是x顺时针转过角度 b是从OA位置开始顺时针转过的角度 画出的弧是AB
+         
+        </p>
+        
+        <p>
+        <font color="#FF0000">扇形</font><br />
+        参数同弧形<br />
+        Graphics::DrawPie(Pen*,Rect&,REAL,REAL)<br />
+		Graphics::DrawPie(Pen*,RectF&,REAL,REAL)<br />
+        Graphics::DrawPie(Pen*,INT,INT,INT,INT,REAL,REAL)<br />
+        Graphics::DrawPie(Pen*,REAL,REAL,REAL,REAL,REAL,REAL)<br />
+        </p>         
+        
+         <p>
+        <font color="#FF0000">椭圆</font><br />
+        Graphics::DrawEllipse(Pen*,Rect&)<br>
+        Graphics::DrawEllipse(Pen*,REAL,REAL,REAL,REAL)<br />
+        Graphics::DrawEllipse(Pen*,RectF&) <br />
+        Graphics::DrawEllipse(Pen*,INT x,INT y,INT with,INT height)<br />
+        </p>         
+        
+        <font color="#FF0000">繪製路徑</font><br />
+        Status DrawPath(          const Pen *pen,
+    const GraphicsPath *path
+);
+        </h2>
+    </h2></a></div>
+    
+     <div class="div_box"><a name="fill"><h2>
+	    <p><font color="#FF0000">填充区域</font></p>
+       	<p><font color="#FF0000">描述</font>填充都需要传入一个 填充画刷 和填充区域(比如矩形就是rect 封闭曲线就是点数组)</p>
+        
+        <P><font color="#FF0000">画刷</font>
+        Gdiplus::SolidBrush brush(Gdiplus::Color(255,0,0));
+        </P>
+        
+        <P><font color="#FF0000">填充</font>
+        <table border="2">
+        <tr><td>函数名</td><td>描述</td></tr>
+        <tr><td>FillClosedCurve</td><td>填充封闭曲线</td></tr>
+        <tr><td>FillEllipse</td><td>填充椭圆</td></tr>
+        <tr><td>FillPath</td><td>填充路径</td></tr>
+        <tr><td>FillPie</td><td>填充扇形</td></tr>
+        <tr><td>FillPolygon</td><td>填充多边形</td></tr>
+        <tr><td>FillRectangle</td><td>填充矩形</td></tr>
+        <tr><td>FillRectangles</td><td>填充矩形集</td></tr>
+        <tr><td>FillRegion</td><td>填充区域</td></tr>
+        </table>
+        </P>
+	</h2></a></div>        
+
+	<div class="div_box"><a name="string"><h2>
+	    <p><font color="#FF0000">文本输出</font></p>
+       	<p><font color="#FF0000">描述</font>通过Graphics的DrawString函数 都需出入一个画刷和字体</p>
+	
+    	<pre>
+Status DrawString(          const WCHAR *string,
+    INT length,
+    const Font *font,
+    const RectF &layoutRect,
+    const StringFormat *stringFormat,
+    const Brush *brush
+);
+
+Status DrawString(          const WCHAR *string,
+    INT length,
+    const Font *font,
+    const PointF &origin,
+    const Brush *brush
+);
+
+Status DrawString(          const WCHAR *string,
+    INT length,
+    const Font *font,
+    const PointF &origin,
+    const StringFormat *stringFormat,
+    const Brush *brush
+);
+        </pre>
+        <table border="2">
+        <tr><td>参数</td><td>含义</td><td>取值</td></tr>
+        <tr><td>string</td><td>文本</td><td></td></tr>
+        <tr><td>length</td><td>文本长度</td><td></td></tr>
+        <tr><td>font</td><td>字体</td><td>Gdiplus::Font font(L"微软雅黑",26);</td></tr>
+        <tr><td>layoutRect</td><td>文本输出位置矩形</td><td></td></tr>
+        <tr><td>origin</td><td>点</td>
+        <td><p>StringAlignmentCenter此点为文本中心点</p>
+          <p>StringAlignmentNear水平文本输出在点右边 垂直下</p>
+          <p>StringAlignmentFar水平文本输出在点左边 垂直上</p></td></tr>
+        <tr><td>stringFormat</td><td>文本输出格式</td>
+        <td><p>Gdiplus::StringFormat format;</p>
+          <p>format.SetAlignment(Gdiplus::StringAlignmentCenter);//设置水平对齐</p>
+          <p>format.SetLineAlignment(Gdiplus::StringAlignmentCenter);//设置垂直对齐</p>
+          <p>//StringAlignmentCenter(中) ，StringAlignmentNear（近），StringAlignmentFar（远）</p></td></tr>
+        <tr><td>brush</td><td>画刷</td><td></td></tr>
+        </table> 
+    </h2></a></div>
+    
+    <div class="div_box"><a name="other"></a><h2>
+    <p><font color="#FF0000">other</font>
+<pre>//移動繪製原點
+Status TranslateTransform(          REAL dx, //水平 +右 -左
+    REAL dy,					//垂直
+    MatrixOrder order
+);
+
+//設置繪製原點 0,0 區域左上角
+Status SetRenderingOrigin(          INT x,
+    INT y
+);
+
+<font color="#FF0000"> 大多數GDI+函數都返回 Status
+typedef enum {
+    Ok = 0,
+    GenericError = 1,
+    InvalidParameter = 2,
+    OutOfMemory = 3,
+    ObjectBusy = 4,
+    InsufficientBuffer = 5,
+    NotImplemented = 6,
+    Win32Error = 7,
+    WrongState = 8,
+    Aborted = 9,
+    FileNotFound = 10,
+    ValueOverflow = 11,
+    AccessDenied = 12,
+    UnknownImageFormat = 13,
+    FontFamilyNotFound = 14,
+    FontStyleNotFound = 15,
+    NotTrueTypeFont = 16,
+    UnsupportedGdiplusVersion = 17,
+    GdiplusNotInitialized = 18,
+    PropertyNotFound = 19,
+    PropertyNotSupported = 20,
+    ProfileNotFound = 21
+} Status;
+
+</font>
+</pre>    
+    </p>
+    
+    </h2></div>
+    
+    <div class="div_box"><a name="DEBUG"><h2>
+    <p><font color="#FF0000">MFC的DEBUG_NEW与GDI+的冲突问题</font></p>
+    <p><font color="#FF0000">方法一(不推荐 会失去MFC的内存分配和内存泄漏追踪功能)</font>
+    <br />将代码中如下的一段代码注释掉来关闭预处理命令
+    <pre>
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
+    </pre>
+    </p>
+    
+    <p><font color="#FF0000">方法二<br />
+    调用全局 ::new ::delete 因为多了::所以不会被mfc宏替换
+    </font>
+    </h2></a></div>
+</td></tr></table>
+</body>
+</html>

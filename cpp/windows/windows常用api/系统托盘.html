@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>系统托盘</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1><font color="#FF0000">系统托盘</font></h1></p>
+    
+    <div class="div_box"><h2>    <pre>
+    #define WM_TP WM_USER+1102  /*定义托盘消息*/
+    NOTIFYICONDATA tp;		/*定义托盘对象*/
+    
+    <font color="#FF0000">/*设置托盘选项*/</font>
+    memset(&tp,0,sizeof(NOTIFYICONDATA));
+    tp.cbSize=sizeof(NOTIFYICONDATA);
+    tp.uFlags=NIF_ICON|NIF_MESSAGE|NIF_TIP;
+    tp.uCallbackMessage=WM_TP;	/*响应消息*/
+    tp.uID=1;		/*唯一标识id 随意设置*/
+    tp.hWnd=m_hWnd;			/*所属窗口句柄*/
+    wcscpy_s(tp.szTip,L"IDEA");	/*鼠标指示时显示的文字*/
+    tp.hIcon=LoadIconW(::AfxGetInstanceHandle(),MAKEINTRESOURCE(IDR_MAINFRAME)); /*托盘图标*/
+	
+    <font color="#FF0000">/*显示托盘*/</font>
+    ShowWindow(SW_MINIMIZE);
+    ShowWindow(SW_HIDE);
+    Shell_NotifyIcon(NIM_ADD,&tp);
+    
+    <font color="#FF0000">/*删除托盘*/</font>
+    Shell_NotifyIconW(NIM_DELETE,&tp);
+    ShowWindow(SW_RESTORE);
+    SetForegroundWindow(); 
+    
+    <font color="#FF0000">/*响应托盘消息*/</font>
+   if(WM_TP==message )
+   {
+   	switch(lParam)
+    	{
+        case WM_LBUTTONDBLCLK:
+        /*Shell_NotifyIconW(NIM_DELETE,&tp);
+        ShowWindow(SW_RESTORE);
+        SetForegroundWindow();*/
+        ... 
+        break;
+        case WM_RBUTTONDOWN:
+        /*{
+        CPoint p;
+        ::GetCursorPos(&p);
+        CMenu *lp,menu;
+        menu.LoadMenu(IDR_MENU1);
+        lp=menu.GetSubMenu(1);
+        lp->TrackPopupMenu(TPM_LEFTALIGN | TPM_LEFTBUTTON, p.x, p.y, this);
+        }*/
+        ...
+        break;
+       	}
+ }
+    </pre></h2></div>
+   
+</td></tr></table>
+</body>
+</html>

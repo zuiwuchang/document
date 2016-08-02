@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>web</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">servlet</font>
+</p>
+
+<p>
+	<a href="#servlet">servlet</a><br />
+    <a href="#WebServlet">@WebServlet</a><br />
+    <a href="#web">web.xml</a><br />
+    <a href="#file">文件組織與部署</a><br />
+    
+</p>
+
+
+<div class="mydiv"><a name="servlet"></a>
+	<p><font color="#FF0000">servlet</font>
+<pre>一个 servlet 第一次执行时被 构造
+当浏览器发送GET请求时 doGet 方法被调用
+当浏览器发送POST请求时 doPost 方法被调用
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="WebServlet"></a>
+	<p><font color="#FF0000">@WebServlet</font>
+<pre>Servlet3.0 开始加入了标注(Annotation) 来告诉Web容器 那些Servlet会提供额外服务或额外信息
+
+如
+@WebServlet("/ServletTest")
+public class ServletTest extends HttpServlet {
+告诉容器 这个ServletTest处理 /ServletTest的URL请求
+
+或
+@WebServlet(name = "hello"
+urlPatterns={"/hellow.view"}
+loadOnstartup=1
+)
+public class ServletTest extends HttpServlet {
+告诉容器 这个Servlet名字是 hellow 处理 /hellow.view的URL请求
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">loadOnstartup</font>
+<pre>loadOnstartup默认为-1 表示 Servlet在第一次用户请求时 实例化
+(这意味着 第一个应用 需要等待实例化 完成)
+
+若loadOnstartup > 0 表示 Servlet在程序启动时 就实例化 
+对于多個Servlet loadOnstartup值小的 先實例化
+若loadOnstartup相同 web容器廠商 自行決定 先實例化 哪個容器
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="web"></a>
+	<p><font color="#FF0000">web.xml</font>
+<pre>使用標準定義servlet是 java ee 6 中 Servlet 3.0 之後才有的功能 
+此前版本 必須在WEB-INF目錄中 建立一個 web.xml 定義
+
+其次可以使用如下方式定義 默認頁面
+&lt;welcome-file-list&gt;
+        &lt;welcome-file&gt;index.html&lt;/welcome-file&gt;
+        &lt;welcome-file&gt;default.jsp&lt;/welcome-file&gt;        
+&lt;/welcome-file-list&gt;
+(會依次以上面頁面為默認頁面 如果前一個不存在的話)
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>
+&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+&lt;web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_3_0.xsd"
+    version="3,0"&gt;
+
+    &lt;servlet&gt;
+        &lt;servlet-name&gt;HelloServlet&lt;/servlet-name&gt;
+        &lt;servlet-class&gt;examples.Hello&lt;/servlet-class&gt;
+        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;        
+    &lt;/servlet&gt;
+
+    &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;HelloServlet&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;/hello&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+
+&lt;/web-app&gt;     
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">注意</font>
+<pre>web.xml 中的配置 會覆蓋 標註
+(既存在標準 然此Servlet在web.xml中 配置 以web.xml為準)
+[可以使用 標準作為默認設置 而 web.xml作為 自定義設置]
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="file"></a>
+	<p><font color="#FF0000">文件組織與部署</font>
+<pre>IDE 的文件部署 不一定是上傳到 web容器之後的 架構
+Web容器 要求如下部署
+
+WEB-INF
+	必須位於程序根目錄下。此目錄下的文件目錄對外界來說是 封閉的
+	(既客戶端無法使用 http的任何方式 直接訪問)
+	(若需要 必須通過 Servlet/JSP 的請求轉發(Forward))
+	(只要放在 不想讓外界存取的資源)
+
+WEB-INF/web.xml
+	web程序的部署文件(Servlet 3.0 可以沒有)
+
+WEB-INF/lib
+	放置jar文件
+
+WEB-INF/class
+	放置編譯後的.class文件
+
+
+</pre>
+	</p>
+</div>
+         
+</td></tr></table>
+</body>
+</html>

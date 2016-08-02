@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>字符字符串处理</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+    <p><h1><font color="#FF0000">字符字符串处理</font></h1></p>
+    
+    <h2>
+    <a href="#transform">char wchar_t 转换</a><br />
+    <a href="#care">注意</a><br />
+   
+    
+    </h2>
+    
+    <div class="div_box"><a name="transform"></a><p><h3>
+    	<p><h2><font color="#FF0000">char wchar_t 转换</font></h2><br />
+        
+        	<font color="#FF0000">char to wchar_t</font><br />
+            <pre>int MultiByteToWideChar(
+  UINT CodePage, 
+  DWORD dwFlags,         
+  LPCSTR lpMultiByteStr, 
+  int cbMultiByte,       
+  LPWSTR lpWideCharStr,  
+  int cchWideChar        
+);
+
+            </pre>
+            
+            <font color="#FF0000">wchar_t to char</font><br />
+            <pre>int WideCharToMultiByte(
+  UINT CodePage,   //一般为 CP_ACP
+  DWORD dwFlags,   //一般为 0 额外控制参数会影响重音字符
+  LPCWSTR lpWideCharStr,//代转换字符地址
+  int cchWideChar,   //代转换字符长度 <font color="#FF0000">要包括0 一般-1 函数自动计算</font>
+  LPSTR lpMultiByteStr, //转换后字符地址
+  int cbMultiByte,      //转换后字符长度 <font color="#FF0000">要包括0</font>
+  LPCSTR lpDefaultChar,    //<font color="#FF0000">一般为0</font>将不可转换的字符以指定字符转换 0 以系统默认字符(通常是?) </font>
+  LPBOOL lpUsedDefaultChar //<font color="#FF0000">一般为0不接受返回值</font> 所有字符都可以转换 返回值才为TRUE
+);
+</pre>
+        </p>
+        
+        <p><h2><font color="#FF0000">example</font></h2><br />
+        <pre>char str[]="this is a test";
+
+	int total=MultiByteToWideChar(CP_ACP,0,str,-1,0,0);
+	wchar_t *wcs=new wchar_t[total];
+	MultiByteToWideChar(CP_ACP,0,str,-1,wcs,total);
+	total=0;
+	
+	total=WideCharToMultiByte(CP_ACP,0,wcs,-1,0,0,0,0);
+	char* s=new char[total];
+	WideCharToMultiByte(CP_ACP,0,wcs,-1,s,total,0,0);
+	std::cout&lt;&lt;"ansi    "&lt;&lt;str&lt;&lt;std::endl;
+	std::wcout&lt;&lt;"unicode "&lt;&lt;wcs&lt;&lt;std::endl;
+	std::cout&lt;&lt;"ansi    "&lt;&lt;s&lt;&lt;std::endl;
+
+	delete[] wcs;
+	delete[] s;
+        </pre>
+        </p>
+   	</h3></p></div>
+    
+    <div class="div_box"><a name="care"></a><p><h3>
+    	<p><h2><font color="#FF0000">注意</font></h2><br />
+        一些参数名为Ccb 表示 count of characters 既字符数 通常用_countof 取值<br />
+....	cb	... 表示占用空间 以sizeof取值
+        </p>
+	</h3></p></div>
+  	
+</td></tr></table>
+</body>
+</html>

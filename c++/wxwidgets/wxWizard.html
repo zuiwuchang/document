@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>wxWizard</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#wxWizard">wxWizard</a>
+		
+	</div>
+
+	<div class="note"><a name="wxWizard"></a>
+		<p><span class="flag">wxWizard</span>
+<pre>wxWizard 是一個嚮導對話框
+
+每頁 都是一個 wxWizardPageSimple 及其子類
+
+重載 wxWizardPageSimple 的 GetPre GetNext 返回要到達的頁面
+可改變 上頁 下頁的 效果
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>void testFrame::OnButton(wxCommandEvent& event)
+{
+     wxWizard* wizard = new wxWizard(this,wxID_ANY);
+
+     wxWizardPageSimple* page1 = new wxWizardPageSimple(wizard);
+     wxWizardPageSimple* page2 = new wxWizardPageSimple(wizard);
+     wxWizardPageSimple* page3 = new wxWizardPageSimple(wizard);
+    
+    //設置順序 沒有 pre 不可 上一頁
+    page1->SetNext(page2);
+    page2->SetPrev(page1);
+    page2->SetNext(page3);
+
+    //顯示嚮導
+    if(wizard->RunWizard(page1))
+    {
+        wxMessageBox(_("ok"));
+    }
+
+    wizard->Destroy();
+}
+</pre>
+		</p>
+	</div>
+	
+</div>
+</body>
+</html>

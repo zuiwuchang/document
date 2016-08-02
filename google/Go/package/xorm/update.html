@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#Update">更新數據</a>
+		<a href="#Delete">刪除數據</a>
+
+	</div>
+
+	<div class="note"><a name="Update"></a>
+		<p><span class="flag">更新數據</span>
+<pre>//更新數據 返回 影響 記錄數
+func (engine *Engine) Update(bean interface{}, condiBeans ...interface{}) (int64, error)
+	Update 傳入 更新 struct 或者 map[string]interface{}
+
+有 xorm:"updated" 標記的 字段 將 自動更新 時間
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-xorm/core"
+	"github.com/go-xorm/xorm"
+	"time"
+)
+
+type User struct {
+	Id   int64
+	Name string `xorm:"varchar(25) notnull unique 'uname'"`
+	//將 Name 映射到表達 uname 字段
+	Age int64
+
+	CreatedAt time.Time `xorm:"created updated"` //自動 insert 時間
+}
+
+func main() {
+	engine, err := xorm.NewEngine("mysql", "dark:jayjolin@/dark?charset=utf8")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	//設置表名 前綴 後綴
+	var mapper core.IMapper
+	mapper = core.NewPrefixMapper(core.SnakeMapper{}, "dark_")
+	mapper = core.NewSuffixMapper(mapper, "_test")
+	engine.SetTableMapper(mapper)
+
+	//
+	user := User{Name: "cerberus"}
+	fmt.Println(engine.Id(1).Update(&user))
+
+	//將 age 更新為 0
+	user.Name = "illusive man"
+	fmt.Println(engine.Id(1).Cols("age", "uname").Update(&user))
+
+	//另外一中 將 age 更新為 0 的方式
+	fmt.Println(engine.Table(&User{}).Id(2).Update(map[string]interface{}{"age": 0}))
+}
+
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>傳給 update 的 struct 中 為 0 或 nil 的字段 不會被更新
+除非 使用 Cols 指定 或者 傳入 map 而非 struct
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Delete"></a>
+		<p><span class="flag">刪除數據</span>
+<pre>//刪除數據 返回 刪除 數量
+func (engine *Engine) Delete(bean interface{}) (int64, error)
+
+user := new(User)
+affected, err := engine.Id(id).Delete(user)
+</pre>
+		</p>
+		<p><span class="flag">軟刪除</span>
+<pre>在struct 中 設置 FiledName time.Time `xorm:"deleted"`
+後在執行刪除 時 不會刪除 數據 而是 更新 FiledName 為當前時間
+
+
+
+被軟刪除後的數據
+此時要獲取 或物理刪除 需要調用 Unscoped方法
+var user User
+engine.Id(1).Unscoped().Get(&user)
+// 此时将可以获得记录
+engine.Id(1).Unscoped().Delete(&user)
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

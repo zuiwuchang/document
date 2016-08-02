@@ -1,0 +1,170 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>lua</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#metatable">元表元方法</a>
+		<a href="#function">元方法</a>
+		<a href="#eq">關係元方法</a>
+		<a href="#table">table元方法</a>
+		
+		
+		
+	</div>
+
+	<div class="note"><a name="metatable"></a>
+		<p><span class="flag">元表元方法</span>
+<pre>lua 每個值 都有預定義的 操作集合 如 + - .. / ...
+可以通過 修改元表 修改這些 默認行為
+
+table userdata 可以有各自獨立的元表 
+
+//設置/獲取 table的 元表(元表也是一個 table)
+setmetatable(table,metatable)
+getmetatable(object)
+
+一個table創建時 不會創建元表 既不可用  + - ...
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="function"></a>
+		<p><span class="flag">元方法</span>
+<pre>修改元表的元方法 即可 使table 獲取 + - ...等 操作
+可改寫元方法
+
+__add	+
+__sub	-
+__mul	*
+__div	/
+__unm	相反數
+__mod	%
+__pow	~
+__concat	...
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>vector3d_1	=	{x=1,y=1,z=1}
+vector3d_2	=	{x=2,y=2,z=2}
+
+--定義元方法 +
+--[[
+mt	=	{}
+function mt.__add(left,right)
+	local rs	=	{}
+
+	rs.x	=	left.x + right.x
+	rs.y	=	left.y + right.y
+	rs.z	=	left.z + right.z
+
+	return rs
+end
+
+--設置元表
+setmetatable(vector3d_1,mt)
+--]]
+
+setmetatable(vector3d_1,{
+	__add	=	function (left,right)
+		local rs	=	{}
+
+		rs.x	=	left.x + right.x
+		rs.y	=	left.y + right.y
+		rs.z	=	left.z + right.z
+
+		return rs
+	end
+})
+
+vector3d_3	=	vector3d_1 + vector3d_2
+print(vector3d_3.x)
+print(vector3d_3.y)
+print(vector3d_3.z)
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+在 計算兩個 table 時 會先查找第一個 table的 元方法 
+若不存在 查找第二個table的 元方法
+若依然不存在	提交錯誤
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="eq"></a>
+		<p><span class="flag">關係元方法</span>
+<pre>__eq	==
+__lt	<
+__le	<=
+
+其他比較 皆轉化到此三個比較中
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>在比較關係時  兩個table 必須有相同的 元表 否則提交錯誤
+
+但==例外 ==只是直接返回 false
+</pre>
+		</p>
+		</div>
+
+	<div class="note"><a name="table"></a>
+		<p><span class="flag">table元方法</span></p>
+
+		<p><span class="flag">__index</span>
+<pre>當訪問 table中 不存在的值時 lua虛擬機會 查找是否存在 __index元方法
+不存在 返回 nil
+存在 調用 __index
+
+故可以設置 此元方法 改變 table元素的默認值
+
+rawget(table,key)	可以 繞過設置的元方法 而使用原始訪問方式(若不存在返回nil)
+</pre>
+		</p>
+		<p><span class="flag">__newindex</span>
+<pre>當寫入 table中  不存在的key時 lua虛擬機會 查找是否存在 ___newindex元方法
+若不存在 增加 並賦值
+若存在 只是調用 ___newindex 而不進行其他操作
+
+rawset(table,kye,value)	可以繞過元方法 而使用默認操作 (新建元素 並賦值)
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>vector3d_1	=	{x=1,y=1}
+
+
+setmetatable(vector3d_1,{
+	--__index	=	function (table,key)
+	__index	=	function ()	--可以不要參數 若不用的話 lua 使用 多重賦值機制
+			return 0
+		end
+	----[[
+	,__newindex = function (table,key,value)
+			rawset(table,key,value + 1)
+		end
+	--]]
+})
+
+print(vector3d_1.x)
+print(vector3d_1.y)
+print(vector3d_1.z)
+print(rawget(vector3d_1,z))
+
+
+vector3d_1.z	=	1
+print(vector3d_1.z)
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+

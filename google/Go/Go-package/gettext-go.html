@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#gettext-go">gettext-go</a>
+		<a href="#po">po</a>
+		<a href="#Gettext">Gettext</a>
+			
+	</div>
+
+	<div class="note"><a name="gettext-go"></a>
+		<p><span class="flag">gettext-go</span>
+<pre>目前Go(1.3)尚未有 官方的國際化 支持
+gettext-go 是一個 google code上的 開源項目(BSD 3-Clause) 用於實現 國際化
+gettext-go 參照了 GNU gettext
+
+1	使用 go get github.com/chai2010/gettext-go/gettext 獲取源碼
+2	參照 github.com/chai2010/gettext-go/examples/local 編寫po文件
+3	使用 gun 的 msgfmt -o *.mo *.po 生成mo文件
+4	使用 gettext-go 包 獲取翻譯
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="po"></a>
+		<p><span class="flag">po</span>
+<pre>msgctxt	指定上下文
+msgid	待翻譯字符id(同gun)
+msgstr	譯文(同gun)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>msgctxt "main.init"
+msgid "Gettext in init."
+msgstr "Init函数中的Gettext."
+
+msgctxt "main.main"
+msgid "Hello, world!"
+msgstr "你好, 世界!"
+
+msgctxt "main.func"
+msgid "Gettext in func."
+msgstr "闭包函数中的Gettext."
+
+msgctxt "github.com/chai2010/gettext-go/examples/hi.SayHi"
+msgid "pkg hi: Hello, world!"
+msgstr "来自\"Hi\"包的问候: 你好, 世界!"
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="gettext-go"></a>
+		<p><span class="flag">gettext-go</span>
+<pre>//獲取指定上下文的 翻譯
+func PGettext(msgctxt, msgid string) string
+
+//同上 不過上下文 信息自動填充(當前Go函數名) 
+func Gettext(msgid string) string
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+

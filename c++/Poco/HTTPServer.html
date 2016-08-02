@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>HTTPClient</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#HTTPServer">HTTPServer</a>
+	</div>
+
+	<div class="note"><a name="HTTPServer"></a>
+		<p><span class="flag">HTTPServer</span>
+<pre>Poco 提供了對 http 的server功能
+
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;Poco/Net/ServerSocket.h&gt;
+#include &lt;Poco/Net/HTTPServer.h&gt;
+#include &lt;Poco/Net/HTTPRequestHandler.h&gt;
+#include &lt;Poco/Net/HTTPRequestHandlerFactory.h&gt;
+#include &lt;Poco/Net/HTTPResponse.h&gt;
+#include &lt;Poco/Net/HTTPServerRequest.h&gt;
+#include &lt;Poco/Net/HTTPServerResponse.h&gt;
+#include &lt;Poco/Util/ServerApplication.h&gt;
+
+#include &lt;string&gt;
+
+
+
+class MyRequestHandler : public Poco::Net::HTTPRequestHandler
+{
+public:
+	virtual void handleRequest(Poco::Net::HTTPServerRequest &req, Poco::Net::HTTPServerResponse &res)
+	{
+		//設置 響應狀態 數據格式
+		res.setStatus(Poco::Net::HTTPResponse::HTTP_OK);
+		res.setContentType("text/html");
+		
+		//返回 body
+		std::ostream& out = res.send();
+		out&lt;&lt;"hellow word"
+			&lt;&lt;"&lt;p&gt;"&lt;&lt;req.getMethod()&lt;&lt;"&lt;/p&gt;"
+			&lt;&lt;"&lt;p&gt;"&lt;&lt;req.getHost()&lt;&lt;"&lt;/p&gt;"
+			&lt;&lt;"&lt;p&gt;"&lt;&lt;req.getURI()&lt;&lt;"&lt;/p&gt;";
+		out.flush();
+	}
+};
+
+
+class MyRequestHandlerFactory : public Poco::Net::HTTPRequestHandlerFactory
+{
+public:
+	virtual Poco::Net::HTTPRequestHandler* createRequestHandler(const Poco::Net::HTTPServerRequest &)
+	{
+		return new MyRequestHandler;
+	}
+};
+
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+
+	Poco::Net::HTTPServer s(new MyRequestHandlerFactory, Poco::Net::ServerSocket(9090), new Poco::Net::HTTPServerParams);
+	s.start();
+
+	std::string cmd;
+	while(true)
+	{
+		std::cin&gt;&gt;cmd;
+		if(cmd == "stop")
+		{
+			s.stop();
+		}
+		else if(cmd == "start")
+		{
+			s.start();
+		}
+		else if(cmd == "q")
+		{
+			break;
+		}
+	}
+	return 0;
+}
+</pre>
+		</p>
+	
+	</div>
+</div>
+</body>
+</html>

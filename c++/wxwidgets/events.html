@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+	<title>event</title>
+	<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#event">常用event</a>
+		<a href="#mouse">鼠標事件相關</a><br />
+	</div>
+
+	<div class="note"><a name="event"></a>
+		<p><span class="flag">常用event</span>
+	<table >
+		<tr><td>event</td><td>描述</td><td>靜態綁定宏</td><td>處理函數標籤</td></tr>
+		<tr><td>wxEVT_COMMAND_BUTTON_CLICKED	</td><td>點擊一個button按鈕	</td><td>EVT_BUTTON(id, func)	</td><td>void OnButtonClicked(wxCommandEvent&amp; event)	</td></tr>
+		<tr><td>wxEVT_PAINT	</td><td>繪製窗口	</td><td>EVT_PAINT(func)	</td><td>void OnPaint(wxPaintEvent&amp; event)	</td></tr>
+		<tr><td>wxEVT_ERASE_BACKGROUND	</td><td>擦除窗口背景	</td><td>EVT_ERASE_BACKGROUND(func)	</td><td>void OnEraseBackground(wxEraseEvent&amp; event)	</td></tr>
+
+		<tr><td><a href="#mouse"><span class="care">隨便事件相關</span></a>	</td><td>	</td><td>	</td><td>	</td></tr>
+		<tr><td>wxEVT_LEFT_DOWN	</td><td>按下鼠标右键	</td><td>EVT_LEFT_DOWN(func)	</td><td>void OnLButtonDown(wxMouseEvent&amp; event);	</td></tr>
+		<tr><td>wxEVT_LEFT_UP  	</td><td>抬起鼠标右键	</td><td>EVT_LEFT_UP(func)	</td><td>void OnLButtonUp(wxMouseEvent&amp; event);	</td></tr>
+		<tr><td>wxEVT_LEFT_DCLICK  	</td><td>双击鼠标右键	</td><td>EVT_LEFT_DCLICK(func)	</td><td>void OnLButtonDClick(wxMouseEvent&amp; event);	</td></tr>
+		<tr><td>wxEVT_MIDDLE_DOWN  	</td><td>按下鼠标中键	</td><td>EVT_MIDDLE_DOWN(func)	</td><td>void OnMiddleDown(wxMouseEvent&amp; event);	</td></tr>
+		<tr><td>wxEVT_MIDDLE_UP  	</td><td>抬起鼠标中键	</td><td>EVT_MIDDLE_UP(func)	</td><td>void OnMiddleUp(wxMouseEvent&amp; event);	</td></tr>
+		<tr><td>wxEVT_MIDDLE_DCLICK  	</td><td>双击鼠标中键	</td><td>EVT_MIDDLE_DCLICK(func)	</td><td>void OnMiddleDClick(wxMouseEvent&amp; event);	</td></tr>
+		<tr><td>wxEVT_RIGHT_DOWN	</td><td>按下鼠标右键	</td><td>EVT_RIGHT_DOWN(func)	</td><td>void OnRButtonDown(wxMouseEvent&amp; event);	</td></tr>
+		<tr><td>wxEVT_RIGHT_UP  	</td><td>抬起鼠标右键	</td><td>EVT_RIGHT_UP(func)	</td><td>void OnRButtonUp(wxMouseEvent&amp; event);	</td></tr>
+		<tr><td>wxEVT_RIGHT_DCLICK  	</td><td>双击鼠标右键	</td><td>EVT_RIGHT_DCLICK(func)	</td><td>void OnRButtonDClick(wxMouseEvent&amp; event);	</td></tr>
+		<tr><td>wxEVT_MOTION  	</td><td>鼠标移动	</td><td>EVT_MOTION(func)	</td><td>void OnMotion(wxMouseEvent&amp; event);	</td></tr>
+		<tr><td>wxEVT_ENTER_WINDOW  	</td><td>鼠标移动	</td><td>EVT_ENTER_WINDOW(func)	</td><td>void OnEnterWindow(wxMouseEvent&amp; event);	</td></tr>
+		<tr><td>wxEVT_LEAVE_WINDOW  	</td><td>鼠标移动	</td><td>EVT_LEAVE_WINDOW(func)	</td><td>void OnLeaveWindow(wxMouseEvent&amp; event);	</td></tr>
+		<tr><td>...  	</td><td>所有鼠标事件	</td><td>EVT_MOUSE_EVENTS(func)	</td><td>void OnMouseEvent(wxMouseEvent&amp; event);	</td></tr>
+	</table>
+	</p>
+	</div>
+
+	<div class="note"><a name="mouse"></a>
+		<p><span class="flag">鼠標事件相關</span>
+<pre>event.GetPosition() 返回当前鼠标 相对窗口坐标
+
+对于鼠标事件的wxEVT_LEFT_DOWN 一般处理函数应该调用event.Skip() 以启用默认 处理函数
+否则 wxEVT_LEFT_DOWN后 窗口无法获取焦点
+
+对于wxEVT_MOUSEWHEEL 鼠标滚轮 滚动事件 可以调用 event.GetWheelRotation() 根据返回值的+/- 判断滚动方向
+
+EVT_MOUSE_EVENTS 能将所有事件 都交给同一个 处理函数 通过event.GetEventType() 返回具体的事件类型
+如 event.GetEventType() == wxEVT_LEFT_DOWN
+
+当 使用了 EVT_MOUSE_EVENTS 和 EVT_LEFT_DOWN 时 
+wxEVT_LEFT_DOWN事件 不会交给 EVT_MOUSE_EVENTS 处理
+其他事件 亦同如此
+</pre>		
+		</p>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cnf>
+	<server>
+		<port>9090</port>
+		<log>1</log>
+		<loglv>0</loglv>
+		<logfile>
+			<log>0</log>
+			<directory>./log</directory>
+			<maxsize>10240</maxsize>
+			<maxcount>180</maxcount>
+		</logfile>
+	</server>
+	
+	<router>
+		<static>
+			<note>/images/</note>
+			<note>/css/</note>
+			<note>/javascript/</note>
+		</static>
+		<controller>
+			<note>
+				<url>/hellow</url>
+				<name>hellow</name>
+			</note>
+			<note>
+				<url>/test</url>
+				<name>test</name>
+			</note>
+			<note>
+				<url>/session</url>
+				<name>session</name>
+			</note>
+		</controller>
+	</router>
+</cnf>

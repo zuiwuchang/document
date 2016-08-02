@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>容器與數據結構</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#array">array</a>
+		<a href="#dynamic_bitset">dynamic_bitset</a>
+		<a href="#unordered">unordered</a>
+
+		<a href="#circular_buffer">circular_buffer</a>
+		<a href="#tuple">tuple</a>
+		<a href="#any">any</a>
+		<a href="#variant">variant</a>
+		<a href="#multi_array">multi_array</a>
+		<a href="#property_tree">property_tree</a>
+	</div>
+
+	<div class="note"><a name="array"></a>
+		<p><span class="flag">array</span>
+<pre>#include&lt;boost\array.hpp&gt;
+array	已經納入c++11
+
+array	包裝了 原始的數組 其通過為模板傳入 型別 數組大小 構造
+array	重載了 [] 使用起來和 原始數組無異 接口多為 inline 故性能差別不多
+array	提供了 一些類似 STL 容器接口 可以看作是比原始數組更好的 數組
+</pre>
+		</p>
+		<p><span class="flag">相關接口</span>
+<pre>//含義 同STL標準容器
+size()
+begin()
+end()
+rbegin()
+rend()
+front()
+back()
+swap()
+
+//使用 std::copy 賦值
+operator =
+
+//使用 std::fill_n 將數組全部設置為 value
+void fill   (const T&amp; value)
+void assign (const T&amp; value)
+
+//返回內部保存的 數組 c 指針
+T* data()
+T* c_array()
+
+//返回引用 [] 僅在debug下 BOOST_ASSERT 斷言檢查索引是否越界 拋出異常
+at
+operator []
+
+//字典順序 比較
+==
+&lt;
+&gt;
+...
+</pre>
+		</p>
+		
+		<p><span class="flag">example</span>
+<pre>#include&lt;boost\array.hpp&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//int [5] ={1,2};
+	boost::array&lt;int,5&gt; arrays	=	{1,2};
+	for(int i=0;i&lt;arrays.size();++i)
+	{
+		std::cout&lt;&lt;arrays[i]&lt;&lt;std::endl;
+	}
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="dynamic_bitset"></a>
+		<p><span class="flag">dynamic_bitset</span>
+<pre>#include&lt;boost\dynamic_bitset.hpp&gt;
+
+STL 提供了vector&lt;bool&gt; 和bitset 處理二進制位 
+然 vector&lt;bool&gt; 不支持 大多數 位運算 bitset 不支持動態增長
+dynamic_bitset 是一個可動態增長的 支持豐富位運算的 解決方案
+
+dynamic_bitset 的兩個模板參數 Block 默認為 unsigned long 指示了內部 如何保存 二進制數據 另外一個是內存分配算法 默認 std::allocator&lt;Block&gt;
+</pre>
+		</p>
+		<p><span class="flag">相關接口</span>
+<pre>//構造
+dynamic_bitset()	
+dynamic_bitset(n)	//n位 bits
+dynamic_bitset(n,binary)	//n位 binary	
+dynamic_bitset(std::string)	
+...
+
+//operator
+&amp;
+|
+^
+~
+!
+&lt;&lt;
+&gt;&gt;
+[]
+...
+
+//改變大小 皆從 末尾增加刪除 bool 指定增加的位為 1 or 0
+void resize(size_type num_bits, bool value = false);
+
+void clear();
+void push_back(bool bit);	//向末尾(最高位)增加 1bits 
+void append(Block block);	//向末尾(最高位)增加 1BLock
+
+//返回位數
+size()
+
+
+//檢查 第n位是否為 1
+test(n)
+//檢查是否存在位為 1
+any()
+//檢查是否不存在位為 1
+none()
+//返回位為1 的數量
+count()
+
+//設置/翻轉 指定/全部 位
+set
+reset
+flip
+
+//專為unsigned long 若大於 unsigned long 拋出std::overflow_error
+to_ulong()
+
+//專為 std::string
+boost::to_string(const dynamic_bitset&lt;Block, Allocator&gt;&amp; b, stringT &amp; s)
+
+//返回第一個為1的位所有 沒有返回 npos
+find_first()
+//同find_first 不過 從pos開始 查找
+find_next(pos)
+</pre>
+		</p>
+		
+		<p><span class="flag">example</span>
+<pre>#include&lt;boost\dynamic_bitset.hpp&gt;
+#include&lt;boost\utility\binary.hpp&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//構造 0bits 10bits 10bits(10101) 5bits(10101)
+	boost::dynamic_bitset<> db1;
+	boost::dynamic_bitset<> db2(10);
+	boost::dynamic_bitset<> db3(10,BOOST_BINARY(10101));
+	boost::dynamic_bitset<> db4(std::string("10101"));
+
+	db1	=	db4;
+	assert(db1	==	db4);
+	assert(db1	!=	db3);
+
+	std::string str;
+	boost::to_string(db4,str);
+
+	std::cout&lt;&lt;db3&lt;&lt;"\n"
+		&lt;&lt;str&lt;&lt;"\n"
+		&lt;&lt;db4.to_ulong()
+		&lt;&lt;std::endl;
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>append 是增加一個 Block
+若 Block為 unsigned long(32位) 即使append(1) 依然是增加了32位 
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="unordered"></a>
+		<p><span class="flag">unordered</span>
+<pre>#include&lt;boost\unordered_set.hpp&gt;
+#include&lt;boost\unordered_map.hpp&gt;
+
+unordered_* 是boost 提供的散列容器
+unordered_set/unordered_multiset
+unordered_map/unordered_multimap
+其接口 概念 類似 set map 同樣multi版本 代表值可重複
+
+template &lt;class T,
+			class H = boost::hash&lt;T&gt;,
+			class P = std::equal_to&lt;T&gt;,
+			class A = std::allocator&lt;T&gt; &gt;
+		class unordered_set;
+與 set map 唯一不同在於 散列使用 散列表存儲數據 而非 二叉樹 故效率更高 
+其次 散列表示無序的 故unordered_*是無序容器 且set map 的排序算法 變為了 std::equal_to使用 == 比較
+且多了個 散列算法參數 boost::hash&lt;T&gt;
+
+unordered_* 接口參加set map 
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>//對於 自定義型別 需要實現 boost::hash&lt;T&gt; 以讓boost庫 知道如何計算散列
+
+#include&lt;boost\foreach.hpp&gt;
+#include&lt;boost\assign.hpp&gt;
+#include&lt;boost\unordered_set.hpp&gt;
+
+class Test
+{
+public:
+	Test(int id,std::string name)
+	{
+		this->id	=	id;
+		this->name	=	name;
+	}
+	int id;
+	std::string name;
+
+	bool operator==(const Test& right) const
+	{
+		return id == right.id && name == right.name;
+	}
+	friend std::size_t hash_value(const Test& value);
+
+};
+
+std::size_t hash_value(const Test& value)
+{
+	//如果只有一個 值需要計算hash
+	//return boost::hash&lt;int&gt;()(value.id);
+
+	std::size_t hash	=	0;
+	boost::hash_combine(hash,value.id);
+	boost::hash_combine(hash,value.name);
+	return hash;
+}
+int _tmain(int argc, _TCHAR* argv[])
+{
+	boost::unordered_set&lt;Test&gt; set	=	boost::assign::list_of(Test(1,"1"))(Test(2,"2"));
+
+	BOOST_FOREACH(const Test&amp; var,set)
+	{
+		std::cout&lt;&lt;var.id&lt;&lt;"\t"&lt;&lt;var.name&lt;&lt;std::endl;
+	}
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>對於multi版本 未重載 []
+
+boost::hash&lt;T&gt; 實際上 只是調用了 hash_value 
+故只需為自定義型別 實現特化的   hash_value 即可使用 unordered_*
+</pre>
+		</p>
+	</div>      
+
+	<div class="note"><a name="circular_buffer"></a>
+		<p><span class="flag">circular_buffer</span>
+<pre>#include&lt;boost\circular_buffer.hpp&gt;
+
+circular_buffer 是一個環形緩衝區 其接口完全類似STL標準容器 
+唯一的區別是 大小固定 其以環形存儲 當一端空間使用完時 重用另一端
+
+此外 circular_buffer 重載了 比較操作符 用以使用字典順序比較 兩個circular_buffer
+</pre>
+		</p>
+
+		<p><span class="flag">相關接口</span>
+<pre>//將指定位置設置為 環起點
+void rotate(const_iterator new_begin) 
+
+//返回緩衝區是否 已滿
+bool full()
+
+//返回環的 線性數組
+pointer linearize()
+//返回是否可 線性化
+bool is_linearized() const { return m_first < m_last || m_last == m_buff; }
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include&lt;boost\circular_buffer.hpp&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//一個大小為 5 int 的環
+	boost::circular_buffer&lt;int&gt; loop(5);
+	//一個大小為 10 int 的環
+	boost::circular_buffer&lt;int&gt; loop1	=	(boost::assign::list_of(0),1,2,3,4,5,6,7,8,9);
+	assert(loop	!=	loop1);
+
+	//[1,5]
+	for(int i=0;i&lt;6;++i)
+	{
+		loop.push_back(i);
+	}
+
+	//[1,4]
+	loop.pop_back();
+	
+	//[2,4]
+	loop.pop_front();
+
+	//2 10 3 4
+	loop.insert(loop.begin()+1,10);
+	
+	std::cout&lt;&lt;loop[1]&lt;&lt;std::endl;	//10
+
+	//3 4 2 10
+	loop.rotate(loop.begin() + 2);
+
+	BOOST_FOREACH(int var,loop)
+	{
+		std::cout&lt;&lt;var&lt;&lt;std::endl;
+	}
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>circular_buffer 會在定義時 一次分配所有需要的 內存
+boost為此 提供了 circular_buffer_space_optimized 接口同 circular_buffer
+唯一的區別是 circular_buffer_space_optimized 在需要時才分配內存 且刪除數據後 將釋放未使用內存
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="tuple"></a>
+		<p><span class="flag">tuple</span>
+<pre>#include&lt;boost\tuple\tuple.hpp&gt;
+namespace boost::tuples
+
+tuple	是一個有固定數目 指定型別的容器 是std::pair的泛化
+tuple	已納入c++11
+其定義在namespace boost::tuples 但大多功能被引入 namespace boost
+
+tuple 最多支持10個 模板參數
+boost 提供了 make_tuple 創建tuple 用法同 std::make_pair
+</pre>
+		</p>
+
+		<p><span class="flag">相關接口</span>
+<pre>//構造
+template&lt;typename T0,....T9&gt;
+tuple()
+...
+tuple(T0,...T9)
+
+//返回第n個元素
+template &lt;N&gt;
+T&amp; get();
+
+//tuple 支持全面比較(字典順序) 但要求其保存的型別支持比較 其實際只是 調用相應型別自己的比較函數
+#include&lt;boost\tuple\tuple_comparison.hpp&gt;
+&lt;
+&gt;
+==
+!=
+...
+
+//tuple 支持io流操作 但要求 其內部型別支持
+//tuple默認 以 <span class="care">(</span> 開始 <span class="care">空格</span>分隔元素 <span class="care">)</span> 結束
+#include&lt;boost\tuple\tuple_io.hpp&gt;
+//boost提供了 一下三個 格式操作符 用於改變 開始 分隔 結束 符號
+boost::tuples::set_open(const CharType c)
+boost::tuples::set_delimiter(const CharType c)
+boost::tuples::set_close(const CharType c)
+
+//連接變量
+boost::tie 用法類似 make_tuple 然其 產生的將是 &amp; 型的 tuple
+boost::tie 可用於左值以連接變量 以可用於連接 std::pair
+boost::tuples::ignore 可在連接時 作為佔位符 以忽略不需要的 元素
+
+//內部結構
+tuple 內部使用 boost::tuples::cons 保存元素 其為一個鍊錶 
+get_head() 返回保存的元素
+get_tail() 返回下一個 cons 節點 尾節點指向 空類null_type
+故可依次遞歸 tuple
+
+//輔助類 T 為一個 tuple
+boost::tuples::element&lt;N,T&gt;::type 返回T中第Nge元素型別
+boost::tuples::length&lt;T&gt;::value 返回T的元素數量
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include&lt;boost\tuple\tuple.hpp&gt;
+#include&lt;boost\tuple\tuple_comparison.hpp&gt;
+#include&lt;boost\tuple\tuple_io.hpp&gt;
+
+
+//遞歸tuple
+template&lt;typename T&gt;
+void display_tuple(const T&amp; t)
+{
+	std::cout&lt;&lt;t.get_head()&lt;&lt;std::endl;
+	display_tuple(t.get_tail());
+}
+//特化 null_type 以結束遞歸
+void display_tuple(const boost::tuples::null_type&amp;)
+{
+
+}
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//構造
+	boost::tuple&lt;int,int&gt; t1,t2;
+	int i	=	0;
+	boost::tuple&lt;int&amp;&gt; t3(i);
+	//i	=	1
+	t3.get&lt;0&gt;()	=	1;
+
+	//比較
+	t1	=	boost::make_tuple(1,2);
+	assert(t1	!=	t2);
+	
+	//io流 輸出 
+	//(1 2)
+	std::cout&lt;&lt;t1&lt;&lt;std::endl;
+	
+	//改變流 輸出 輸入模式
+	std::cout&lt;&lt;boost::tuples::set_open('[')
+		&lt;&lt;boost::tuples::set_delimiter(',')
+		&lt;&lt;boost::tuples::set_close(']');
+	//[1,2]
+	std::cout&lt;&lt;t1&lt;&lt;std::endl;
+	
+	//連接變量 i =10
+	boost::tie(i,boost::tuples::ignore)	=	std::make_pair(10,2);
+	
+	//遞歸tuple    
+	display_tuple(t1);
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>get 是一個模板函數 故其模板參數必須去確定值 
+故 int i=0; gte&lt;i&gt;() 是無法編譯成功的
+
+tuple 不能存儲 void  和 函數類型(不是指函數指針) 因為 tuple要求型別對象可以實例化 這兩種型別不能
+
+不要企圖使用 tie(a,b) = tie(b,a) 交換變量 這是錯誤的 
+這相當於 a=b b=a 可在b=a時 a已經被設置為 b的值 故之後 a b 的 值都為 原b值
+</pre>
+		</p>
+	</div>
+
+
+	<div class="note"><a name="any"></a>
+		<p><span class="flag">any</span>
+<pre>#include&lt;boost\any.hpp&gt;
+
+any 是一個特殊容器 其可以容納任意型別 值要求元素 具有copy 語義
+使用any 保存 指針三個錯誤的想法 然 保存智能指針如 shared_ptr 則是個好注意(any 析構時 不會delete 指針)
+</pre>
+		</p>
+		<p><span class="flag">相關接口</span>
+<pre>//構造
+any(T)
+=
+
+//返回any 是否 為空 既沒有被包裝的型別
+bool empty() const
+
+//返回保存型別的 type_info
+const std::type_info &amp; type() const
+
+//交換數據
+swap
+
+//any未提供 訪問元素的接口 而是通過以下友元函數訪問
+any_cast
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include&lt;boost\any.hpp&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//構造
+	boost::any any(123),any1;
+	assert(any1.empty());
+	any	=	std::string("456");
+	assert(!any.empty());
+
+	any	=	789;
+	//型別錯誤 或any為空 拋出 bad_any_cast
+	//返回元素
+	boost::any_cast&lt;int&gt;(any);
+	//返回元素 引用
+	boost::any_cast&lt;int&amp;&gt;(any)	=	101;
+	std::cout&lt;&lt;boost::any_cast&lt;int&gt;(any)&lt;&lt;std::endl;
+
+	//返回元素指針 any為空 返回 0
+	boost::any_cast&lt;const int&gt;(&amp;any);
+	*boost::any_cast&lt;int&gt;(&amp;any)	=	102;
+	
+	std::cout&lt;&lt;boost::any_cast&lt;int&gt;(any)&lt;&lt;std::endl;
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>any 無法存儲 c 字符串 因為any 要求的是一個型別
+然 c 字符串 是一個數組
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="variant"></a>
+		<p><span class="flag">variant</span>
+<pre>#include&lt;boost\variant.hpp&gt;
+
+variant 是對 union 的增強 union只能持有 POD 數據 variant 則無此限制
+variant 在模板參數中指定 可持有數據型別 無參variant 以第一個模板參數的無參構造 
+variant 帶參構造 可以說型別中的 任意型別構造
+
+variant 支持全比較 和 流輸出 但要求 可持有的每個型別也支持
+variant 可以直接訪問 持有型別 無需寫出 union的 . 或類似any的 *_cast
+</pre>
+		</p>
+		<p><span class="flag">相關接口</span>
+<pre>type
+empty	//返回true 只為兼容any語法
+
+使用 boost::get 可想類似 any_cast 的方式訪問 variant 參見 any_cast
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include&lt;boost\variant.hpp&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	
+	boost::variant&lt;int,std::string&gt; v("this is a test");
+
+	v	=	123;
+	v	=	"456";
+	v	=	789;
+	boost::get&lt;int&gt;(v);
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="multi_array"></a>
+		<p><span class="flag">multi_array</span>
+<pre>#include&lt;boost\multi_array.hpp&gt;
+
+multi_array 是一個多維數組 其重載了 [] 可以像元素數組一樣使用 
+其亦提供了 STL 風格接口
+multi_array 是遞歸定義了 每維都是一個 multi_array 最後一維則是個 一維的multi_array
+
+multi_array在構造時 需要傳入模板指定 型別和 數組維數 構造函數需要傳入 boost::extents指定每維的維度
+</pre>
+		</p>
+		<p><span class="flag">相關接口</span>
+<pre>//const 指針 記錄了 每維的 維度
+shape()
+//返回 維度 乘機
+num_elements()
+//返回總維數
+num_dimensions()
+
+[]
+...
+
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include&lt;boost\multi_array.hpp&gt;
+#include&lt;boost\function.hpp&gt;
+
+template&lt;typename T&gt;
+void display(const T&amp; t)
+{
+	std::cout&lt;&lt;t&lt;&lt;"\t";
+}
+
+template&lt;typename T,int N&gt;
+void display_multi_array(boost::multi_array&lt;T,N&gt;&amp; multi_array)
+{
+	boost::function&lt;void (T &amp;)&gt; fun	= display&lt;T&gt;;
+	recursion_multi_array(multi_array,fun);
+	puts("");
+}
+
+template&lt;typename T,int N&gt;
+void recursion_multi_array(boost::multi_array&lt;T,N&gt;&amp; multi_array
+	,boost::function&lt;void (T &amp;)&gt; call_back
+	,boost::array&lt;int,N&gt;&amp; index_arrays	=	boost::array&lt;int,N&gt;()    
+	,int index_dimensions = 0 
+	)
+{
+	static boost::array&lt;int,N&gt; index_arrays;
+
+	for(int i=0;i&lt;multi_array.shape()[index_dimensions];++i)
+	{
+		index_arrays[index_dimensions]	=	i;
+
+		//是否遞歸結束
+		if(index_dimensions	==	N-1)
+		{
+			call_back(multi_array(index_arrays));
+		}
+		else
+		{
+			recursion_multi_array(multi_array
+				,call_back
+				,index_arrays                
+				,index_dimensions + 1
+				);
+		}
+	}
+}
+
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//定義一個 三維數組 int [2][3][4]
+	boost::multi_array&lt;int,3&gt; a(boost::extents[2][3][4]);
+	
+	//返回 維度 乘機 2 * 3 * 4 = 24
+	std::cout&lt;&lt;a.num_elements()&lt;&lt;"\n";
+
+	//返回總維數 3
+	std::cout&lt;&lt;a.num_dimensions()&lt;&lt;"\n";
+
+	//返回一個 const 指針 記錄了 每維的 維度 2 3 4
+	BOOST_AUTO(shape,a.shape());
+	for(int i=0;i&lt;3;++i)
+	{
+		std::cout&lt;&lt;shape[i]&lt;&lt;"\n";
+	}
+
+	//重載的[]
+	int v	=	0;
+	for(int i=0;i&lt;2;++i)
+	{
+		for(int j=0;j&lt;3;++j)
+		{
+			for(int k=0;k&lt;4;++k)
+			{
+				a[i][j][k]	=	v++;
+			}
+		}
+	}
+	
+	//自定義的 輸出 數組 函數
+	display_multi_array(a);
+
+	// () 傳入一個 array 或 vector 訪問元素  
+	boost::array&lt;int,3&gt; arrays	=	{1,2,3};
+	std::cout&lt;&lt;a(arrays)&lt;&lt;std::endl;
+	
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">改變大小形狀</span>
+<pre>//改變維度 維度乘機不能變(既總元素數量不變)
+void reshape(const SizeList& extents)
+
+//改變大小 若超出 增加到相應 維 減小刪除相應維
+ multi_array& resize(const detail::multi_array
+					::extent_gen&lt;NumDims&gt;&amp; ranges) 
+
+typedef boost::multi_array&lt;int,2&gt; multi_array_t;
+void set_multi_array(multi_array_t&amp; multi_array)
+{
+	int v	=	0;
+	for(int i=0;i&lt;4;++i)
+	{
+		for(int j=0;j&lt;4;++j)
+		{
+			multi_array[i][j]	=	v++;
+		}
+	}
+}
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	
+	multi_array_t a(boost::extents[4][4]);
+	set_multi_array(a);
+	display_multi_array(a);
+
+	//改變維度 維度乘機不能變(既總元素數量不變)
+	boost::array&lt;int,2&gt; arrays	=	{2,8};
+	a.reshape(arrays);
+	display_multi_array(a);
+	
+	//恢復原狀
+	arrays[0]	=	4;
+	arrays[1]	=	4;
+	a.reshape(arrays);
+	
+	//改變大小 若超出 增加到相應 維 減小刪除相應維
+	a.resize(boost::extents[5][2]);
+	display_multi_array(a);
+	std::system("pause");
+	return 0;
+}
+
+</pre>
+		</p>
+		<p><span class="flag">創建子視圖</span>
+<pre>//可以為 multi_array 創建一個子視圖 其只包含了 原multi_array 中 部分元素 可對其訪問修改
+//子視圖依然是個 multi_array
+//視圖概念 類似SQL視圖
+
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>resize改變大小 會將原內存 copy到 新內存 之後調用 其析構函數 (被copy的 元素 構造不會被調用)
+不建議在 需要 析構 構造 的元素保存到multi_array後 調用 resize
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="property_tree"></a>
+		<p><span class="flag">property_tree</span>
+<pre>#include&lt;boost\property_tree\ptree.hpp&gt;
+#include&lt;boost\property_tree\*_parser.hpp&gt;
+namespace boost::property_tree
+
+property_tree	是一個保存多個屬性的 樹形結構 可用類似路徑 或STL風格 方式訪問
+property_tree	可以解析 xml ini json info 文件 對於不同文件需要include 相應*_parser.hpp
+property_tree	支持流操作
+
+basic_ptree	是property_tree的核心實現 
+boost	為 basic_ptree typedef 了4個別名 ptree wptree iptree wiptree 
+w為 wchar_t 版本 i 為忽略大小寫版本
+
+self_type	是 basic_ptree模板實例化後自身型別 亦為子節點型別
+value_type	是節點數據 其為一個 std::pair first為節點名 second 為自身
+
+<a href="#xml">xml</a>
+<a href="#json">json</a>
+<a href="#ini">ini</a>
+<a href="#info">info</a>    
+</pre>
+		</p>
+
+		<div class="note"><a name="xml"></a>
+			<p><span class="flag">xml</span>
+<pre>#include&lt;boost\property_tree\ptree.hpp&gt;
+#include&lt;boost\property_tree\xml_parser.hpp&gt;
+
+要解析xml 需要include xml_parser
+再實例化 ptree後 使用 read_xml 解析 xml 使用 write_xml 保存xml
+read_xml write_xml 接受一個指向 文件路徑的字符串/IO流(解析 保存 位置) 以及一個 basic_ptree
+</pre>
+			</p>
+			<p><span class="flag">相關接口</span>
+<pre>//根據路徑 訪問節點 需要模板參數指定 數據型別
+template&lt;class Type&gt;
+get(const path_type &amp;path) const	//節點不存在(拋出 ptree_bad_path) 或型別錯誤(拋出 ptree_bad_data)
+get(const path_type &amp;path, const Type &amp;default_value) const;	//同上 不過設置一個default值 當錯誤時不拋出異常 而是設置為default值
+get_optional	//同 get 不過失敗返回的是 boost::optional 而非拋出異常
+
+//使用路徑 設置/增加 節點
+put
+add
+
+//對於多個同名節點 需要先 get_child 獲取子節點 之後begin end 使用STL風格 訪問/設置
+get_child	//返回指定路徑的節點
+get_child_optional
+begin	end	//返回子節點迭代器 value_type
+get_value	//返回節點值 需要從模板傳入型別 指定節點屬性 型別 參見 get
+put_value	//數組節點值
+data()		//返回節點值 數據
+
+//查找子節點
+find
+</pre>
+			</p>
+
+			<p><span class="flag">example</span>
+<pre>&lt;conf&gt;
+	&lt;gui&gt;1&lt;/gui&gt;
+	&lt;theme&gt;matrix&lt;/theme&gt;
+	&lt;urls&gt;
+		&lt;url&gt;http://www.url1.com&lt;/url&gt;
+		&lt;url&gt;http://www.url2.com&lt;/url&gt;
+		&lt;url&gt;http://www.url3.com&lt;/url&gt;
+	&lt;/urls&gt;
+	&lt;clock_style&gt;24&lt;/clock_style&gt;
+&lt;/conf&gt;
+
+#include&lt;boost\property_tree\ptree.hpp&gt;
+#include&lt;boost\property_tree\xml_parser.hpp&gt;
+//#include&lt;sstream&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	try
+	{
+		//實例化 ptree
+		boost::property_tree::ptree tree;
+
+		//解析 xml 
+		boost::property_tree::read_xml("test.xml",tree);
+		/*//從流解析
+		std::stringstream in;
+		in&lt;&lt;"&lt;root&gt;test&lt;/root&gt;";
+		boost::property_tree::read_xml(in,tree);
+		*/
+
+		puts("get 路徑訪問節點");
+		std::cout&lt;&lt;"conf.gui\t=\t"&lt;&lt;tree.get&lt;int&gt;("conf.gui")
+			&lt;&lt;"\nconf.default\t=\t"&lt;&lt;tree.get("conf.default",2)
+			&lt;&lt;"\n"
+			;
+
+		//put 使用路徑設置節點
+		tree.put("conf.gui",2);
+		//add 在末尾增加節點
+		tree.add("conf.gui",3);
+
+		puts("get_child 獲取子節點");
+		
+		BOOST_AUTO(&amp;child,tree.get_child("conf.urls"));
+		typedef BOOST_TYPEOF(*child.begin()) ptree_t;
+		BOOST_FOREACH(ptree_t&amp; var,child)
+		{
+			std::cout&lt;&lt;var.first//節點名
+				&lt;&lt;"\t=\t"
+				&lt;&lt;var.second.get_value&lt;std::string&gt;()
+				&lt;&lt;"\n";
+		}
+
+		puts("find 查找子節點");
+		BOOST_AUTO(pos,child.find("url"));
+		if(pos	!=	child.not_found())
+		{
+			std::cout&lt;&lt;pos->first
+				&lt;&lt;"\t=\t"
+				&lt;&lt;pos->second.get_value&lt;std::string&gt;()
+				&lt;&lt;"\n";
+		}
+		
+		//訪問 屬性 等其他內容
+		tree.put("conf.gui.&lt;xmlattr&gt;.id",123);
+		
+		//保存 xml
+		//boost::property_tree::write_xml("test.xml",tree);
+		puts("write_xml");
+		boost::property_tree::write_xml(std::cout,tree);
+	}
+	catch(const boost::property_tree::xml_parser::xml_parser_error&amp; e)
+	{
+		std::cout&lt;&lt;e.what()&lt;&lt;std::endl;
+	}
+	catch(const boost::property_tree::ptree_bad_path&amp; e)
+	{
+		std::cout&lt;&lt;e.what()&lt;&lt;std::endl;
+	}
+	catch(const boost::property_tree::ptree_bad_data&amp; e)
+	{
+		std::cout&lt;&lt;e.what()&lt;&lt;std::endl;
+	}
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+			</p>
+
+			<p><span class="flag">注意</span>
+<pre>property_tree	不是專門為xml設計的 故讀取/寫入和 其內容排版可能會變化 但結構不變
+
+boost	沒有實現xml解析器 而是採用了開源的 rapidxml 解析 其不支持DTD 名字空間 編碼轉換(默認UTF-8)
+
+property_tree 將所有xml節點 轉換為樹形節點 屬性保存在 &lt;xmlattr&gt;的下級節點 註釋保存在 &lt;xmlcomment&gt; 節點文本在 &lt;xmltext&gt;
+</pre>
+			</p>
+		</div>
+
+		<div class="note"><a name="json"></a>
+			<p><span class="flag">json</span>
+<pre>#include&lt;boost\property_tree\ptree.hpp&gt;
+#include&lt;boost\property_tree\json_parser.hpp&gt;
+
+json	是來自 javascript 的數據結構
+
+操作同 xml 唯一的區別是 使用 read_json write_json 讀取/寫入 數據
+</pre>
+			</p>
+			<p><span class="flag">json</span>
+<pre>{
+	"conf":
+	{
+		"gui":1,
+		"theme":"matrix",
+		"urls":    
+		{
+			"urls":"http://www.google.com"	
+    	},        
+		"clock_style":24
+	}
+}
+</pre>
+			</p>
+
+			<p><span class="flag">注意</span>
+<pre>最外的 {} 不可省略
+屬性名的 " 不可省略
+" 不可 以' 替代
+</pre>
+			</p>
+		</div>
+    
+	</div>      
+
+</div>
+</body>
+</html>

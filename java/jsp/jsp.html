@@ -1,0 +1,302 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>web</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">jsp</font>
+</p>
+
+<p>
+	<a href="#jsp">jsp</a><br />
+    <a href="#jsptoservlet">jsp to servlet </a><br />
+    <a href="#out">jsp 隱式對象</a><br />
+    <a href="#error">運行異常</a><br />
+    <a href="#tag">標準標籤</a><br />
+    <a href="#model">model 1</a><br />
+    <a href="#el">表達式語言 el</a><br />
+    
+    
+</p>
+
+
+<div class="mydiv"><a name="jsp"></a>
+	<p><font color="#FF0000">jsp</font>
+<pre>jsp 是servlet的一體兩面 在jsp第一次被請求時 jsp會被 轉譯為 servlet
+
+在servlet中 可以重寫 init destroy service 定義初始化 結束 響應 操作 在jsp中 可以重新定義 _jspInit _jspDestroy _jspService 
+(在tomcat下 轉以後的 jsp 的 init ...等函數 將 調用 jspInit ... 
+</pre>
+	</p>
+</div>
+ 
+<div class="mydiv"><a name="jsptoservlet"></a>
+	<p><font color="#FF0000">jsp to servlet</font>
+<pre>jsp	&lt;%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%&gt;
+servlet	response.setContentType("text/html;charset=UTF-8");
+
+jsp	中非腳本部分 被隱形的 out 輸出到 response中    
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">指示元素</font>
+<pre>&lt;%@ 指示類型 屬性=值 %&gt 
+(多個屬性值 可以 寫在一個 或多個 元素中)
+jsp 有三種 常用 指示元素  page include taglib
+
+
+//page	指示如何轉譯 當前頁面
+&lt;%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%&gt;
+&lt;%@page import="java.util.Date" %&gt;
+<p><font color="#FF0000">其他 page 可用屬性</font>
+info			設置頁面信息 getServletInfo()返回此值
+autoFlush		是否自動刷新緩衝區默認 true
+buffer			輸出緩衝區大小 必須指定單位 默認 buffer="16kb"
+errorPage		指定出現異常 轉發到拿給頁面處理
+extends			jsp轉譯為servlet是 由那個類派生 
+isErrorPage		此頁面是否為處理 errorPage 的異常頁面
+labguage		使用的語言 當前只支持 java
+session			是否自動創建 HttpSession 默認true
+isELIgnored		是否忽略EL腳本 默認false 此設置會覆蓋web.xml設置
+isThreadSafe	是否同步線程 默認true
+...
+</p>
+
+//include 用於將其他頁面 包括到當前頁面 組合 後 編譯為同一個 servlet
+&lt;%@include file="top.jsp"%&gt;
+(相對於 把內存 copy 到此處)
+</pre>
+	</p>
+    
+    
+    <p><font color="#FF0000">web.xml</font>
+<pre>可以在web.xml 為所有jsp 指定 網頁編碼 內容類型 緩衝區 大小
+以及 要在首尾 include 的頁面
+
+//編碼等
+&lt;jsp-config&gt;
+  	&lt;jsp-property-group&gt;
+  		&lt;url-pattern&gt;*.jsp&lt;/url-pattern&gt;
+  		&lt;page-encoding&gt;UTF-8&lt;/page-encoding&gt;
+  		&lt;default-content-type&gt;text/html&lt;/default-content-type&gt;
+  		&lt;buffer&gt;16kb&lt;/buffer&gt;
+  	&lt;/jsp-property-group&gt;
+  &lt;/jsp-config&gt;
+  
+//include
+&lt;jsp-config&gt;
+  	&lt;jsp-property-group&gt;
+  		&lt;url-pattern&gt;*.jsp&lt;/url-pattern&gt;
+  		&lt;include-prelude&gt;/WEB-INF/jspf/top.jspf&lt;/include-prelude&gt;
+  		&lt;include-prelude&gt;/WEB-INF/jspf/bottom.jspf&lt;/include-prelude&gt;
+  	&lt;/jsp-property-group&gt;
+  &lt;/jsp-config&gt;
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">聲明</font>
+<pre>在 &lt;%! &gt;  之間的函數 變量 會被編譯為servlet的 成員函數 成員變量
+</pre>
+	</p>
+</div>
+ 
+<div class="mydiv"><a name="out"></a>
+	<p><font color="#FF0000">jsp 隱式對象</font>
+<pre>隱式對象		專業後對於對象
+out				JspWriter(內部關聯 PrintWriter)
+request			HttpServletRequest
+response		HttpServletResponse
+config			ServletConfig
+application		ServletContext
+session			HttpSession
+pageContext		PageContext
+exception		Throwable	//只存在於isErrorPage = true 的jsp頁面
+page			this
+
+
+隱式對象 是 _jspService 的局部對象 故無法 在 &lt;! &gt 中使用
+</pre>
+	</p>
+</div> 
+
+<div class="mydiv"><a name="error"></a>
+	<p><font color="#FF0000">運行異常</font>
+<pre>在jsp運行 異常時 可以通過 
+&lt;%@page errorPage = "error.jsp"&gt; 指定一個錯誤處理頁面
+
+一般此頁面中 只是 調用 exception.printStackTrace(new PrintWriter(out)); 簡單輸出堆棧信息 或 toString輸出錯誤
+(錯誤處理頁面 必須) &lt;%@page isError = true&gt;
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">web.xml</font>
+<pre>對於 為指定點異常 容器一般 打印出堆棧信息 可以在web中 配置當發生指定異常時 跳轉到指定頁面 處理
+亦可 指定 當發生 指定 http錯誤碼時  跳到指定 頁面
+
+&lt;error-page&gt;
+  	&lt;exception-type&gt;java.lang.NullPointerException&lt;/exception-type&gt;
+  	&lt;location&gt;/error.jsp&lt;/location&gt;
+  &lt;/error-page&gt;
+  
+  &lt;error-page&gt;
+  	&lt;error-code&gt;404&lt;/error-code&gt;
+  	&lt;location&gt;/error.jsp&lt;/location&gt;
+  &lt;/error-page&gt;
+  
+  
+  location指定的頁面 必須設置isError = true
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="tag"></a>
+	<p><font color="#FF0000">標準標籤</font>
+<pre>&lt;jsp:include&gt;	&lt;jsp:forward&gt;	
+作用	同request.getRequestDispatcher 之後 調用 include forward (實際上轉以後的servlet 就是這麼做的)
+
+使用 &lt;jsp:param&gt; 設置參數
+
+
+&lt;jsp:include page='url.jsp'&gt;
+	&lt;jsp:param name='param name' value='param value'&gt;
+	&lt;jsp:param name='param name' value='param value'&gt;
+	...
+&lt;/jsp:include&gt;
+
+&lt;jsp:forward page='url.jsp'&gt;
+	&lt;jsp:param name='param name' value='param value'&gt;
+	&lt;jsp:param name='param name' value='param value'&gt;
+	...
+&lt;/jsp:forward&gt;
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">JavaBean</font>
+<pre>JavaBean是實現了 java.io.Serializable 接口 
+沒有 public 變量
+具有無參構造
+具有 public setXxx getXxx 的純java 類
+
+
+使用&lt;jsp:useBean id='var name' class='class name' scope='page'&gt;	可以實例化一個 名稱為id指定值 型別為 class指定型別 的clas實例對象
+可選參數 scope 默認為 page 其指定了 實例對象的 存儲範圍 可以是 page request session application
+(實際上 此標籤會先從 scope指定存儲範圍查找 是否存在 此名稱 實例對象 存在直接 返回 不存在 創建 並返回)
+
+使用&lt;jsp:setProperty name='var_name' param='password' property='1234'&gt; 此會調用 var_name.setPassword("1234")
+&lt;jsp:setProperty name='var_name' param='password'&gt;	查看頁面參數數中是否存在 password 存在 為此JavaBean設置此值
+&lt;jsp:setProperty name='var_name' param='*'&gt;	將頁面參數 全部設置到JavaBean的對應值中
+
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="model"></a>
+	<p><font color="#FF0000">model 1</font>
+<pre>在 model 1 模型中 用戶請求某個 jsp頁面 
+jsp 收集參數 並將請求交給JavaBean處理
+JavaBean 處理後 將結果返回給 jsp 
+jsp 呈現結構給用戶 
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="el"></a>
+	<p><font color="#FF0000">表達式語言 el</font>
+<pre>el 提供了簡單的邏輯 處理 用於 消除 jsp頁面 的 java代碼 el腳本 用 ${} 括起來
+2.4 及以上版本 容器 默認啟用 el  以下 默認不啟用 
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">配置是否啟用</font>
+<pre>web.xml
+&lt;jsp-config&gt;
+	&lt;jsp-property-group&gt;
+		&lt;url-pattern&gt;*.jsp&lt;/url-pattern&gt;	//要設置的頁面
+		&lt;el-ignored&gt;true&lt;/el-ignored&gt;		//true 啟用
+	&lt;/jsp-property-group&gt;    
+&lt;/jsp-config&gt;
+
+jsp頁面中設置 (會覆蓋web.xml中的設置
+&lt;@ page isELIgnored='true'&gt;
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">獲取屬性</font>
+<pre>//頁面參數
+${param.user}	${param.password}
+
+//數組 容器 JavaBean map ...
+${array[0]}	${coll[0]} ${map[0]} ${map["fuck"]}
+${map.fuck} ${java_bean.fuck}
+(實際上 JavaBean map 可以使用 . 外(亦可使用 [] 訪問) 其他都是用 [] 訪問 
+對於list java竟然可以使用 索引訪問 真是 病得不輕) 
+([] 中 內容 若為使用 引號 擴起來 會先 進行 運算)
+
+//獲取cookie
+${cookie.id}
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">獲取屬性</font>
+<pre>pageContext	//PageContext	直接pageContext.xxx 相當於 PageContext.getXxx
+requestScope sessionScope applicationScope 分別可取得 jsp中 PageContext request session application 使用setAttribute設置的屬性值
+
+param			//相當於	request.getParameter("...")
+header			//...	request.getHeader("...")
+headerValues	//...	request.getHeaders()
+cookie			//獲取 cookie
+initParam		//獲取 web.xml 中初始參數 ertvletContext.getInitParameter("...")
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">el運算符</font>
+<pre>+
+-
+*
+/
+%
+? : 
+
+and
+or
+not
+
+&lt;
+&lt;=
+&gt;
+&gt;=
+==
+!=
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">自定義 el函數</font>
+<pre>自定義 el函數
+1	定義public 類 
+2	為類定義 public static 靜態 方法(el函數)
+3	創建 TLD 描述文件 並放入 web-inf 下
+</pre>
+	</p>
+    <p><font color="#FF0000">example</font>
+<pre>package test
+public class util
+{
+	public static int length(Collection c){
+    	return c.size();
+	}
+};
+
+//TLD文件
+...
+
+</pre>
+	</p>
+</div>
+
+</td></tr></table>
+</body>
+</html>

@@ -1,0 +1,210 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>lua</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#nil">nil</a>
+		<a href="#boolean">boolean</a>
+		<a href="#number">number</a>
+		<a href="#string">string</a>
+		<a href="#userdata">userdata</a>
+		<a href="#function">function</a>
+		<a href="#thread">thread</a>
+		<a href="#table">table</a>
+		
+	</div>
+
+	<div class="note"><a name="lua"></a>
+		<p><span class="flag">執行lua腳本</span>
+<pre>lua 是動態型別語言 不需要 顯示定義 變量 
+每個值 都 攜帶了其自身型別信息
+
+lua 提供了 如下 8中 基本型別
+
+nil		//空
+
+boolean		//布爾
+
+number		//數字
+
+string		//字符串
+
+userdata	//自定義型別
+
+function	//函數
+
+thread		//線程
+
+table		//表
+</pre>
+		</p>
+
+		<p><span class="flag">type</span>
+<pre>type 返回 包含 型別信息 的字符串
+
+x=123
+print(type(x))
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="nil"></a>
+		<p><span class="flag">nil</span>
+<pre>nil 是一種 型別 其值只有 nil
+(通常 用於 表示 無效值)
+
+<span class="care">全局變量的默認值 為 nil
+將 nil 賦值給 全局變量 等同於 刪除此變量</span>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="boolean"></a>
+		<p><span class="flag">boolean</span>
+<pre>boolean 只有 false true 兩個值
+
+lua將 nil fase 視為假 其他都為 真
+<span class="care">字符串 空 數字 0 都為 真</span>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="number"></a>
+		<p><span class="flag">number</span>
+<pre>number 用於表示 所有 實數 lua中 沒有整型(lua認為 沒必要)
+number 可以表示 任意的 32位整型 而不會 存在四捨五入的問題(number為 64位浮點)
+
+lua 亦可重新編譯 使用 其他型別的數字(long float ...) 詳見 luaconf.h
+
+數字可以使用 科學計算法 或 普通計數法
+a	=	4
+a	=	4.0
+a	=	4.57e-3
+a	=	0.3e12
+a	=	5+20
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="string"></a>
+		<p><span class="flag">string</span>
+<pre>lua 中string 使用8位編碼 可字符可以具有任意數值編碼 包括 0
+<span class="care">(故 可以 存儲 二進制 數據)
+(lua string 和java類似 是const 每次 字符串sub等操作 實際上是創建了一個新的字符串 故不要對大字符串進行 這些操作
+即使 是將一個 1024 長度 字符串尾加一個 字符 其都將重新創建一個 長度為1025 的新字符串 並且copy)</span>
+</pre>
+		</p>
+
+		<p><span class="flag">字符串 表示</span>
+<pre>以 "" 或 '' 表示一個 字符串
+a	=	"string \"string value\""
+a	=	'string "string value"'
+
+轉義字符 同 c 此外 \數字 可以將一個 數字作為轉義字符
+a	=	"\97bcd"		--abcd  \97 為 a (a的ascill編碼為 97)
+
+使用 [[ ]] 表示字符串 之間的字符串 不會被轉義
+a	=	[[	--開頭的第一個換行 會被忽略
+&lt;xml&gt;
+&lt;/xml&gt;
+]]
+
+在 [[  ]] 之間可以加上  任意個 = 以應付 字符串包括 ]] 的情況
+a	=	[=[ 
+this is a test ]]
+]=]
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>將字符串 和數字計算 其將自動被 轉換為數字 
+
+.. 用於連接字符串 對於兩個數字 .. 需要以 空格 隔開 否則會被認為是 小數點
+print(1 .. 2)
+
+
+10 == "10" 為假
+(其型別不同)
+
+最好顯示的 使用字符串 數字的 轉換
+tostring(number)	--將 數字 轉換為 字符串 
+tonumber(string)	--將 字符串 轉換為 數字
+
+在字符串前 加上 # 可以返回其長度 print(#"123");
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="userdata"></a>
+		<p><span class="flag">userdata</span>
+<pre>userdata 可以將 任意 c語言 數據存儲到 路啊 變量中
+userdata 值 預定義了 賦值 和 相等測試
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="function"></a>
+		<p><span class="flag">function</span>
+<pre>function 用來表示一個 函數
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="thread"></a>
+		<p><span class="flag">thread</span>
+<pre>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="table"></a>
+		<p><span class="flag">table</span>
+<pre>table 實現了關聯數組 可以使用 除nil 外其它任意型別為 key
+
+實際上 lua 全局變量 存儲在一個 table中
+</pre>
+		</p>
+
+		<p><span class="flag">創建table</span>
+<pre>使用 {} 創建 table 
+當沒有任何 變量 持有 table 時  table 將自動被 釋放
+<span class="care">除 像數組一樣 使用[] 指定key值外 亦可 使用 . </span>
+
+a	=	{}
+a['name']	=	"illusive man"
+a.hp		=	1
+a.mp		=	{}
+a.mp.max	=	10
+
+print(a['name'])
+print(a.name)
+print(a.hp);
+print(a.mp.max);
+print(a.mp.min);	--nil
+
+print(table.maxn(a))	--返回 table 最大數值 索引 此處為0 
+print(#a)				--返回 長度 0 因為 table 不是線性的
+
+a	=	nil
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>lua 索引 從1 開始
+
+# 返回一個線性數組/線性表 長度/最後一個索引值
+(#table)
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+

@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>繪製</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">繪製</font>
+</p>
+
+<p>
+	<a href="#draw">常用繪製函數</a><br />
+  	<a href="#BitBlt">BitBlt</a><br />
+    
+</p>
+
+
+<div class="mydiv"><a name="draw"></a>
+	<p><font color="#FF0000">常用繪製函數</font>
+<pre>//以 指定顏色 繪製點
+COLORREF SetPixel(int x ,int y,COLORREF crColor);
+COLORREF SetPixel(POINT point,COLORREF crColor);
+
+//使用當前畫筆 劃線
+CPoint MoveTo(int x ,int y );	//線段起點
+CPoint MoveTo(POINT point );
+BOOL LineTo(int x,int y );		//線段終點
+BOOL LineTo(POINT point)
+
+//使用當前畫筆畫 矩形 當前畫刷填充
+BOOL Rectangle(int x1 ,int y1 ,int x2 ,int y2 );
+BOOL Rectangle(LPCRECT lpRect);
+
+//使用當前畫筆畫 橢圓 當前畫刷填充
+BOOL Ellipse(int x1, int y1, int x2,int y2);
+BOOL Ellipse(LPCRECT lpRect);
+
+...
+</pre>
+	</p> 
+    <p><font color="#FF0000">注意</font>
+<pre>繪製函數 使用當前畫筆 繪製 使用當前畫刷 填充 故需要 在繪製前 
+CPen* pen_ptr	=	cdc.SelectObject(&amp;pen);	//將指定畫筆 選入
+繪製完成後
+cdc.SelectObject(pen_ptr);	//恢復原來畫筆
+</pre>
+	</p> 
+</div>
+       
+<div class="mydiv"><a name="BitBlt"></a>
+	<p><font color="#FF0000">BitBlt</font>
+<pre>//將源dc 數據 拷貝到 當前 dc
+BOOL BitBlt( int x, int y, int nWidth, int nHeight	//拷貝到 當前dc 位置 大小
+	, CDC* pSrcDC, int xSrc, int ySrc	//源dc 及拷貝位置
+	, DWORD dwRop 	//拷貝模式
+	);
+
+<font color="#FF0000">dwRop取值</font>
+BLACKNESS 所有输出变黑。  
+DSTINVERT 反转目标位图。  
+MERGECOPY 使用布尔AND操作符合并特征与源位图。  
+MERGEPAINT 使用布尔OR操作符合并特征与源位图。  
+NOTSRCCOPY 拷贝反转源位图到目标。  
+NOTSRCERASE 反转使用布尔OR操作符合并源和目标位图的结果。  
+PATCOPY 拷贝特征到目标位图。  
+PATINVERT 使用布尔XOR操作符合并目标位图和特征。  
+PATPAINT 使用布尔OR操作符合并反转源位图和特征。用布尔OR操作符合并这项操作结果与目标位图。  
+SRCAND 使用布尔AND操作符合并目标像素和源位图。  
+SRCCOPY 拷贝源位图到目标位图。  
+SRCERASE 反转目标位图并用布尔AND操作符合并这个结果和源位图。  
+SRCINVERT 使用布尔XOR操作符合并目标像素和源位图。  
+SRCPAINT 使用布尔OR操作符合并目标像素和源位图。  
+WHITENESS 所有输出变白。
+
+//同BitBlt只是 將源位圖指定區域 壓縮或拉伸到 目的矩形 大小
+BOOL StretchBlt(
+     int x,
+     int y,
+     int nWidth,
+     int nHeight,
+     CDC* pSrcDC,
+     intxSrc,
+     int ySrc,
+     int nSrcWidth,
+     int nSrcHeight,
+     DWORD dwRop
+     )    
+</pre>
+	</p>
+</div>               
+</td></tr></table>
+</body>
+</html>

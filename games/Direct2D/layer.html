@@ -1,0 +1,109 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>DirectX</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="DirectX"><tr><td>
+<p>
+	<font color="#FF0000">Direct2D</font>
+</p>
+
+<p>
+	<a href="#layer">layer</a><br />
+    
+    
+</p>
+
+
+<div class="mydiv"><a name="layer"></a>
+	<p><font color="#FF0000">layer</font>
+<pre>layer d2d可以 在BeginDraw 後 調用PushLayer壓入一個圖層 之後所有都繪製都將繪製到圖層上
+調用PopLayer 可以將圖層 內容 與設備已經繪製的圖像混合 以製作某些 特效
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">相關 ID2D1RenderTarget 接口</font>
+<pre>//創建一個圖像 設備 並獲得其指針(成功返回S_OK)
+HRESULT CreateLayer(
+  [out]  ID2D1Layer **layer
+);
+
+//壓入圖層	D2D1_LAYER_PARAMETERS 指定了在PopLayer 時如何混合圖像
+void PushLayer(
+  [ref]  const D2D1_LAYER_PARAMETERS &amp;layerParameters,
+  [in]   ID2D1Layer *layer
+);
+virtual void PushLayer(
+  [in]  const D2D1_LAYER_PARAMETERS *layerParameters,
+  [in]  ID2D1Layer *layer
+) = 0;
+
+//彈出圖層 並將其圖像與設備圖像 混合
+virtual void PopLayer() = 0;
+
+
+//指示了如何 混合圖像
+struct D2D1_LAYER_PARAMETERS {
+  D2D1_RECT_F         contentBounds;
+  ID2D1Geometry       *geometricMask;
+  D2D1_ANTIALIAS_MODE maskAntialiasMode;
+  D2D1_MATRIX_3X2_F   maskTransform;
+  FLOAT               opacity;
+  ID2D1Brush          *opacityBrush;
+  D2D1_LAYER_OPTIONS  layerOptions;
+};
+
+//創建一個有全部默認值的D2D1_LAYER_PARAMETERS
+D2D1_LAYER_PARAMETERS d2d1::LayerParameters(
+  __in      const D2D1_RECT_F &contentBounds =  D2D1::InfiniteRect() ,			//將圖層限制在某個矩形區域(超出區域的部分不會被繪製)
+  __in_opt  ID2D1Geometry *geometricMask = NULL,								//同上 不過現在將圖層 現在在某個 幾何圖形中
+            D2D1_ANTIALIAS_MODE maskAntialiasMode =  D2D1_ANTIALIAS_MODE_PER_PRIMITIVE ,	//
+            D2D1_MATRIX_3X2_F maskTransform =  D2D1::IdentityMatrix() ,		//變換矩陣 在混合之前 使用此矩陣變換 參數2 geometricMask
+            FLOAT opacity = 1.0,				//指明圖層的透明度
+            ID2D1Brush opacityBrush = NULL,		//使用一個 畫刷 指定透明度(可以傳入漸變畫刷 以製作 夜視鏡 效果)
+            D2D1_LAYER_OPTIONS layerOptions =  D2D1_LAYER_OPTIONS_NONE 
+);
+
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>void direct_test::Draw()
+{
+	d2d_target_ptr_->BeginDraw();
+	d2d_target_ptr_->Clear(D2D1::ColorF(D2D1::ColorF::White));	//以指定顏色 清除背景
+	{
+
+		//使用圖層
+		d2d_target_ptr_->PushLayer(D2D1::LayerParameters(D2D1::RectF(0,0,500,500))
+			,layer_ptr
+			);
+
+		d2d_target_ptr_->DrawBitmap(bitmap_ptr_.get()
+			,rect_
+			);
+
+		//其他繪製	...
+
+		//Pop將圖層 按照PushLayer指定的參數 與設備混合
+		d2d_target_ptr_->PopLayer();
+
+		
+	}			
+	d2d_target_ptr_->EndDraw();	//成功繪製返回 S_OK	
+}
+</pre>
+	</p>
+    <p><font color="#FF0000">注意</font>
+<pre>大量使用圖層 將降低程序效率 故應該慎重考慮是否使用
+</pre>
+	</p>
+</div>
+
+    
+</td></tr></table>
+</body>
+</html>

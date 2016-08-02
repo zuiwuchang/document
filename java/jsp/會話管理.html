@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>web</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">會話管理</font>
+</p>
+
+<p>
+	<a href="#cookie">cookie</a><br /><br />
+    <a href="#HttpSession">HttpSession</a><br />
+    
+    
+</p>
+
+
+<div class="mydiv"><a name="cookie"></a>
+	<p><font color="#FF0000">cookie</font>
+<pre>cookie 是存儲在客戶 瀏覽器上的 一些數據文件
+用以記錄 服務器數據 其一 名 值 的形式 存儲
+
+使用 response.addCookie 增加一個 cookie
+使用request.getCookies() 返回所有cookie
+</pre>
+	</p>
+
+    <p><font color="#FF0000">設置cookie example</font>
+<pre>//創建一個 cookie
+		Cookie cookie	=	new Cookie("name", "value");
+		cookie.setMaxAge(7 * 24 * 60 * 60);		//設置cookie生成期(單位秒) 默認關閉瀏覽器結束生命期
+		response.addCookie(cookie);
+</pre>
+	</p>
+    
+        
+    <p><font color="#FF0000">遍歷客戶端 cookie example</font>
+<pre>	Cookie[] cookies	=	request.getCookies();
+		if(cookies	!=	null)		//詞句不可少 (好sb的 for)
+		{
+			for(Cookie cookie:cookies)
+			{
+				cookie.getName();
+				cookie.getValue();
+			}
+		}
+</pre>
+	</p>
+    
+
+    
+     <p><font color="#FF0000">注意</font>
+<pre>增加cookie 必須在 服務器 做出響應 之前
+因為 其實通過 sek-cookie 標題 告知瀏覽器 需要創建cookie
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="HttpSession"></a>
+	<p><font color="#FF0000">HttpSession</font>
+<pre>web容器可以為每個 客戶端 創建一個 id 與對應的 HttpSession 實例 並以散列存儲到web容器
+id會要求 客戶端的 瀏覽器 進行記錄
+
+Servlet 可以使用 此HttpSession 設置 各種 狀態
+
+request.getSession()		//返回客戶對應的 session 若沒沒有創建之
+request.getSession(false)	//... 若沒創建 返回 null (傳入true 同上)
+
+HttpSession.setAttribute(String,Object)	//為此session 增加一個 屬性 值
+HttpSession.getAttribute(String)		//返回此session 的屬性值
+</pre>
+	</p>
+</div>    
+         
+</td></tr></table>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>jQuery参考手册2</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#contextMenu">jQuery-contextMenu-master</a>
+	</div>
+
+
+	<div class="note"><a name="contextMenu"></a>
+		<p><span class="flag">jQuery-contextMenu-master</span>
+<pre>jQuery-contextMenu-master 是一個 強大的彈出菜單 插件
+不但可以彈出菜單 還可以在 菜單中 增加 輸入框等
+
+官網 <a target="_blank" href="http://medialize.github.io/jQuery-contextMenu/">http://medialize.github.io/jQuery-contextMenu/</a>
+
+</pre>
+		</p>
+
+		<p><span class="flag">獲取支持</span>
+<pre>1	從官網下載最新版本 jQuery-contextMenu-master.zip 並解壓
+2	將src/ 中所有 文件引入項目
+3	調用 $.contextMenu 爲元素增加右鍵菜單
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>
+...
+&lt;script language="javascript" src="scripts/jquery-1.8.3.min.js"&gt;&lt;/script&gt;
+&lt;script src="scripts/jQuery-contextMenu-master/jquery.ui.position.js" type="text/javascript"&gt;&lt;/script&gt;
+&lt;script src="scripts/jQuery-contextMenu-master/jquery.contextMenu.js" type="text/javascript"&gt;&lt;/script&gt;
+&lt;link href="scripts/jQuery-contextMenu-master/jquery.contextMenu.css" rel="stylesheet" type="text/css" /&gt;
+...
+	&lt;div id="menu"&gt;right me
+	&lt;/div&gt;
+...    
+
+
+
+<span class="care">scripts</span>
+$(document).ready(function(){
+	$.contextMenu({
+		selector: '#menu', 
+		callback: function(key, options) {
+			alert(key);
+		},
+		items: {
+		"edit": {name: "Edit", icon: "edit"},
+		"sep1": "---------",
+		"quit": {name: "Quit", icon: "quit"},
+		}
+	});
+}
+</pre>
+		</p>
+
+	</div>
+
+
+</div>
+</body>
+</html>

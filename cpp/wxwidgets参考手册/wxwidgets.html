@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>wxwidgets</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">wxwidgets</font>
+</p>
+
+<p>
+	<a href="#wxwidgets">wxwidgets</a><br />
+	<a href="#wxApp">wxApp</a><br />
+	<a href="#wxFrame">wxFrame</a><br />
+	<a href="#run">wxwidgets运行流程</a><br />
+</p>
+
+
+<div class="mydiv"><a name="wxwidgets"></a>
+	<p><font color="#FF0000">wxwidgets</font><br />
+   wxwidgets 一個開源的跨平台c++ GUI庫<br />
+   其结构十分类似MFC<br />
+   官網<a href="http://www.wxwidgets.org/">http://www.wxwidgets.org/</a><br /><br />
+   
+    </p>
+    
+    <p><font color="#FF0000">注意</font><br />
+		wxwidgets以双数的版本号 代表稳定版 (2.8.x)<br />
+		以单数版本号 代表开发版 如(2.9.x)    
+    </p>
+</div>    
+
+<div class="mydiv"><a name="wxApp"></a>
+	<p><font color="#FF0000">wxApp</font><br />
+  	wxApp代表了一个应用程序 通常需要从wxApp派生一个子类 用以代表自己的应用程序
+<pre>//.h
+class wxTestApp : public wxApp
+{
+    public:
+        virtual bool OnInit();
+};
+
+//.cpp
+IMPLEMENT_APP(wxTestApp);
+
+bool wxTestApp::OnInit()
+{
+    wxTestFrame* frame = new wxTestFrame(0L, _("wxWidgets Application Template"));
+    
+    frame->Show();
+    
+    return true;
+}
+
+</pre>
+    </p>
+    
+    <p><font color="#FF0000">注意</font><br />
+	    IMPLEMENT 宏 指定了 应用程序实例类<br /><br />
+	    
+	    通常在wxwidgets初始化好后 会调用OnInit() 可以在此进行初始化操作 如创建一个窗口 并显示<br />
+	    如果在OnInit()中 返回 false 则 wxwidgets 会自动释放其分配的内存 并结束应用程序<br /><br />
+	    
+	    使用 DECLARE_APP(wxTestApp) 宏后 可调用全局函数 wxGetApp() 返回	wxTestApp的引用<br />
+	    若不使用 DECLARE_APP(wxTestApp) 宏 wxGetApp()将返回 wxApp &amp;
+    </p>
+</div>  
+
+
+<div class="mydiv"><a name="wxFrame"></a>
+	<p><font color="#FF0000">wxFrame</font><br />
+  	wxFrame 代表一个可容纳别的窗口的 顶层窗口 通常包含一个 菜单栏 状态栏
+<pre>//.h
+class wxTestFrame: public wxFrame
+{
+    public:
+        wxTestFrame(wxFrame *frame, const wxString& title);
+        ~wxTestFrame();
+    private:
+        enum
+        {
+            idMenuQuit = 1000,
+            idMenuAbout
+        };
+        void OnClose(wxCloseEvent& event);
+        void OnQuit(wxCommandEvent& event);
+        void OnAbout(wxCommandEvent& event);
+        <font color="#FF0000">DECLARE_EVENT_TABLE()	//声明 事件表</font>
+};
+
+//.cpp
+<font color="#FF0000">绑定事件 函数</font>
+BEGIN_EVENT_TABLE(wxTestFrame, wxFrame)
+    EVT_CLOSE(wxTestFrame::OnClose)
+    EVT_MENU(idMenuQuit, wxTestFrame::OnQuit)
+    EVT_MENU(idMenuAbout, wxTestFrame::OnAbout)
+END_EVENT_TABLE()
+
+／／<font color="#FF0000">初始化窗口</font>
+wxTestFrame::wxTestFrame(wxFrame *frame, const wxString& title)
+    : wxFrame(frame, -1, title)
+{
+／／<font color="#FF0000">创建菜单栏</font>
+#if wxUSE_MENUS
+    // create a menu bar
+    wxMenuBar* mbar = new wxMenuBar();
+    wxMenu* fileMenu = new wxMenu(_T(""));
+    fileMenu->Append(idMenuQuit, _("&Quit\tAlt-F4"), _("Quit the application"));
+    mbar->Append(fileMenu, _("&File"));
+
+    wxMenu* helpMenu = new wxMenu(_T(""));
+    helpMenu->Append(idMenuAbout, _("&About\tF1"), _("Show info about this application"));
+    mbar->Append(helpMenu, _("&Help"));
+
+    SetMenuBar(mbar);
+#endif // wxUSE_MENUS
+
+／／<font color="#FF0000">创建状态栏目</font>
+#if wxUSE_STATUSBAR
+    // create a status bar with some information about the used wxWidgets version
+    CreateStatusBar(2);
+    SetStatusText(_("Hello Code::Blocks user!"),0);
+    SetStatusText(wxbuildinfo(short_f), 1);
+#endif // wxUSE_STATUSBAR
+
+}
+...
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="run"></a>
+	<p><font color="#FF0000">wxwidgets运行流程</font><br />
+<pre>1	依据不同平台初始化代码 并创建应用程序实例类 ...显示窗口 并最终返回true
+2	调用 应用程序实例类::OnInit()  程序员可在此创建 窗口类实例
+3	窗口类实例 通过其基类的构造方法 创建 窗口 ... 程序员可在之后 创建 菜单栏 状态栏 ... 
+4	wxwidgets进行事件循环
+</pre>
+  	</p>
+</div>	
+</td></tr></table>
+</body>
+</html>

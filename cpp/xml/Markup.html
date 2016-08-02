@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Markup</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1><font color="#FF0000">Markup</font></h1></p>
+		Markup 是MFC下 一個第三方XML庫 操作簡單上手極快<br />
+        使用 需要將 Markup.h Markup.cpp 加入項目
+        <a href="http://www.firstobject.com/">官网:http://www.firstobject.com/</a>
+    <p>
+    <h2>
+    <a href="#using">使用</a><br />
+  
+    </h2></p>
+    
+   <div class="div_box"><a name="using"></a><p><h3>
+    	<p><h2><font color="#FF0000">使用</font></h2>
+<pre>
+<font color="#FF0000">創建 保存</font>
+CMarkup xml;
+xml.SetDoc(L"&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n");
+		xml.AddElem( L"root" );
+		xml.AddChildElem(L"war");
+		xml.SetChildAttrib(L"name",name);
+			xml.IntoElem();
+					for(int i=0;i<18;++i)
+					{
+						ceditArray[i]->GetWindowText(wcs);
+						xml.AddChildElem(L"p",wcs);
+					}
+			xml.OutOfElem()
+            xml.Save(L".setting.cnf");
+            
+<font color="#FF0000">遍歷查找</font>
+CMarkup xml;
+	//載入xml文件
+	if(xml.Load(L".setting.cnf") && xml.FindElem(L"root"))
+	{
+		//查找子節點
+		while(xml.FindChildElem(L"war"))
+		{
+			if(xml.GetChildAttrib(L"name")==name)
+			{
+				//刪除子節點
+				xml.RemoveChildElem();
+				break;
+			}
+		}
+        //重置子節點查找位置
+        xml.ResetChildPos();
+		while(xml.FindChildElem(L"war3"))
+		{
+			if(xml.GetChildAttrib(L"name")==name)
+			{
+				xml.RemoveChildElem();
+				break;
+			}
+		}
+	}
+</pre>
+		</p>
+        
+      </h3></p></div>
+    
+    
+</td></tr></table>
+</body>
+</html>

@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>wxwidgets</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#disable">封號</a>
+		
+		
+	</div>
+
+	<div class="note"><a name="disable"></a>
+		<p><span class="flag">封號</span>
+<pre>//封鎖/解封/顯示被封 ip 
+@DenyIPLogon ip 1/0
+	1 永久封鎖 0 臨時封鎖
+@DelDenyIPLogon ip
+@ShowDenyIPLogon
+
+
+
+//封鎖/解封/顯示被封 賬號 
+@DenyAccountLogon 賬號 1/0
+	1 永久封鎖 0 臨時封鎖
+@DelDenyAccountLogon ip
+@ShowDenyAccountLogon
+
+
+
+//封鎖/解封/顯示被封 角色 
+@DenyCharNameLogon 賬號 1/0
+	1 永久封鎖 0 臨時封鎖
+@DelDenyCharNameLogon ip
+@ShowDenyCharNameLogon
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>永久被封 數據 被記錄在 Mir200\Envir 下的
+DenyIPAddrList.txt
+DenyAccountList.txt
+DenyChrNameList.txt
+中
+
+重新加載 數據列表 可使用之生效 或者使用 gm命令 
+然 gm 命令似乎有bug 當重新加載 數據列表 
+之後再使用 gm命令 新加封鎖 數據 會將之前數據全部 清空
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

@@ -1,0 +1,20 @@
+#生成驱动名字driver.sys
+TARGETNAME=driver
+#指定生成文件的类型DRIVER指 驱动
+TARGETTYPE=DRIVER
+#指定生成驱动所在的路径 sys\driver.sys
+TARGETPATH=SYS
+
+#下边这行指定相关头文件所在目录路径
+INCLUDES=$(WINDDK)\inc\ddk;	\
+	$(WINDDK)\inc\crt;	\
+	$(WINDDK)\inc\api
+
+#指定包含库
+#TARGETLIBS=$(WINDDK)\lib\win7\i386\Ntoskrnl.lib
+
+#指定驱动源代码 *.cpp或者 *.c
+SOURCES=hook.cpp	\
+	myhook.cpp	\
+	control.cpp	\
+	Driver.cpp	

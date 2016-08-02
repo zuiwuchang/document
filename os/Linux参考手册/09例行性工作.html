@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>例行性工作</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1>
+    	<p><font color="#FF0000">09例行性工作</font><br />
+        	
+		</p>
+        <a href="#at">at</a> <br />
+       	<a href="#crontab">crontab</a> <br />
+        <a href="#anacron">anacron</a> <br />
+        
+    </h1></p>
+    
+    <div class="div_box"><a name='at'><h3>
+    	<p><font color="#FF0000">at</font><br />
+       	只执行一次<br /><br />
+        at的内容写入在 /var/spool/at目录下<br />
+       <br /> 
+        /etc/at.allow(允许) /etc/at.deny(拒绝) 记录了能够使用at的用户 若两个文件都没 只有root能执行<br />
+        两个文件都存在 以/etc/at.allow为准 格式 每行一个用户名
+        
+        </p>
+        
+        <p><font color="#FF0000">at [-mldv] TIME</font><br />
+       	-m	//当at工作完成后，即使没有输出信息依然以email通知用户工作完成<br />
+        -l	//相当于atq 列出目前该用户的所有at任务<br />
+        -d	//后接任务id 相当于atrm 取消一个at任务<br /> 
+        -v	//以较明显的时间格式列出at任务列表<br />
+        -c	//后接任务id 列出任务的实际内容<br /><br />
+        
+        TIME 取值<br />
+        HH:MM	//今日某时 若已超时则为明日<br />
+        HH:MM YYYY-MM-DD	//指定日期 时间<br />
+        HH:MM[am|pm]<br />
+        now	//现在<br />
+        TIME+number[weeks|days|hours|minutes]
+        </p>
+        
+        <p><font color="#FF0000">注意</font><br />
+       	at 会用个新的 at shell 执行命令 故中的命令最好用绝对路径 文件路径亦当绝对路径(会以设置at时的路径为工作路径)<br />
+        at 所有的执行结果 将送去maibox 故若要at输出信息 echo "重定向到 tty n" >>/dev/tty1<br />
+        at 的任务 即使用户注销 依然会执行
+        </p>
+        
+        <p><font color="#FF0000">batch</font><br />
+       	同at 不过系统负载小于0.8才会执行
+        </p>
+   	</h3></a></div>
+    
+ 	<div class="div_box"><a name='crontab'><h3>
+    	<p><font color="#FF0000">crontab</font><br />
+        多次执行<br />
+        crontab 任务记录在/etc/spool/cron/目录中<br />
+        /etc/cron.allow /etc/cron.deny 参加at<br />
+        
+        </p>
+        <p><font color="#FF0000">crontab [-u username] [-elr]</font><br />
+        -u	//需要root权限 操作指定用户的crontab
+        -e	//编辑
+        -l	//查询
+        -r	//删除所有crontab任务
+        </p>
+        
+        <p><font color="#FF0000">crontab -l</font><br />
+        <pre>#this is a note<br />#分钟		小时		日期		月份		周		命令<br />#minute		hour		date		month		day of week		command<br />#[0,59]		[0,23]		[1,31]		[1~12]		[0,7] 0==7	sudo yum update -y<br />0		13		*		*		0		sudo yum update -y<br />
+        </pre>
+        
+        *	//任意时间<br />
+        ,	//多个时间<br />
+        -	//时间段<br />
+        /n	//每隔时间n
+        </p>
+        
+        <p><font color="#FF0000">注意</font><br />
+        crontab的执行结果 在日志/var/log/cron中<br />
+        crontab -e 是针对用户设计的 对于系统的例行工作 root可直接编辑 vi /etc/crontab
+        <br />周 不能与 日月 同存
+        </p>
+  	</h3></a></div>
+    <div class="div_box"><a name='anacron'><h3>
+    	<p><font color="#FF0000">anacron</font><br />
+        anacron会在开机时自动比较 crontab执行的时间戳 将未执行的crontab执行<br />
+        以 天 周 月 为单位 执行 /etc/anacrontab<br />
+        一般不需要设置anacron 以系统默认便可
+        </p>
+        
+        <p><font color="#FF0000">anacron -u [job]<br />anacron [-sfn] [job]...</font><br />
+        -s	开始执行连续的各项工作，依据时间戳判断是否执行<br />
+        -f	强制执行而不判断时间<br />
+        -n	立刻执行未执行的任务<br />
+        -u	更新时间戳而不执行任务<br /><br />
+        
+        job	/etc/anacrontab定义的各项工作名
+        
+        </p>
+   	</h3></a></div>
+</td></tr></table>
+</body>
+</html>

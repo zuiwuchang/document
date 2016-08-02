@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>窗口和框架</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#window">window对象</a>
+		<a href="#function">window常用函数(setInterval...)</a>
+		<a href="#frame">frame</a>
+	</div>
+
+	<div class="note"><a name="window"></a>
+		<p><span class="flag">window对象</span>
+<pre>window对象代表了当前打开的浏览器窗口
+对于当前浏览器窗口的window方法调用可省略window. 对于其他浏览器窗口对象的window方法调用需要指明引用 
+</pre>
+		</p>
+		<p><span class="flag">常用事件</span>
+<pre>window对象的事件常写入 body on...='fun()' 中
+window.on...=fun;
+window.onclik=fun;
+
+<table>
+	<tr><td>事件</td><td>描述</td></tr>
+	<tr><td>onclik</td><td></td></tr>
+	<tr><td>onload</td><td></td></tr>
+	<tr><td>onunload</td><td></td></tr>
+	<tr><td>onblur</td><td></td></tr>
+	<tr><td>onfocus</td><td></td></tr>
+	<tr><td>onresize</td><td>浏览器窗口大小改变</td></tr>
+	<tr><td>onerror</td><td>错误处理，但发生javascript错误时</td></tr>
+	<tr><td>...</td><td></td></tr>
+</table>
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="function"></a>
+		<p><span class="flag">window常用函数(setInterval...)</span>
+<table>
+	<tr><td>方法</td><td>描述</td></tr>
+	<tr><td>resizeTo(x,y)</td><td>改变浏览器宽高为x,y<br />chrome firefox默认都不支持故不可用 ie支持</td></tr>
+	<tr><td>resizeBy(x,y)</td><td>浏览器宽高增加x,y<br />chrome firefox默认都不支持故不可用 ie支持</td></tr>
+	<tr><td>alert(message)</td><td>弹出一个警告框 内容为messges<br /><img src="image/05窗口和框架/alert.PNG" /></td></tr>
+	<tr><td>confirm(message)</td><td>弹出一个内容为message的询问框 选择确定返回true 否则返回false<br /><img src="image/05窗口和框架/confirm.PNG" /></td></tr>
+	<tr><td>prompt("提示信息","默认值")</td><td>弹出一个输入框 确定返回输入值 否则返回 null <br /> <img src="image/05窗口和框架/prompt.PNG" /></td></tr>
+	<tr><td>defaultStatus="this is a test"</td><td>defaultStatus属性设置状态栏信息</td></tr>
+	<tr><td>status="this is a test"</td><td>status属性设置状态栏瞬间信息</td></tr>
+	<tr><td>open(url,name,features,replace)</td><td>新打开一个窗口 返回新窗口的引用<br />url:新窗口url地址<br />name:为新窗口去个名字<br />features:css属性指定窗口特性<br />replace:bool决定是否允许url替换窗口内容</td></tr>
+	<tr><td>close</td><td>关闭窗口</td></tr>
+	<tr><td>scrollBy(x,y)</td><td>滚动文档<br />scrollBy(50,0)右滚50<br />scrollBy(-50,0)左滚50</td></tr>
+	<tr><td>scrollTo(x,y)</td><td>滚动文档到指定位置<br />scrollTo(1,1)滚动到原点<br />scrollTo(50,50)滚动到50 50</td></tr>
+	<tr><td><span class="care">超时</span></td><td></td></tr>
+	<tr><td>setTimeout("fun()","毫秒")</td><td>设置定时器指定函数延迟执行 返回定时器id</td></tr>
+	<tr><td>clearTimeout(id)</td><td>卸载指定id的延迟定时器</td></tr>
+	<tr><td>setInterval("fun()","毫秒")</td><td>设置定时器周期性执行函数 返回定时器id</td></tr>
+	<tr><td>clearInterval(id)</td><td>卸载指定id的周期性定时器</td></tr>
+	<tr><td>...</td><td></td></tr>
+</table>
+		</p>
+	</div>
+	<div class="note"><a name="frame"></a>
+		<p><span class="flag">frame</span>
+<pre>html中可用frame在一个窗口中显示多个不同web页面
+
+window.frames[](或 window.[frame的name])
+返回每个框架的window引用
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

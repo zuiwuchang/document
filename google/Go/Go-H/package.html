@@ -1,0 +1,142 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#package">package</a>
+		<a href="#reflect">reflect</a>
+		<a href="#log">log</a>
+		
+		
+	</div>
+
+	<div class="note"><a name="package"></a>
+		<p><span class="flag">package</span>
+<pre>Go package 只需要放在 $GOPATH/src/ 下即可
+之後 便可 import 不要擔心 各種 鏈接 優先級 Go會自動處理好
+
+
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="reflect"></a>
+		<p><span class="flag">reflect</span>
+<pre>reflect 反射包 提供了 運行時 檢測數據型別的 能力
+
+//返回 type value
+func TypeOf(i interface{}) Type
+func ValueOf(i interface{}) Value
+
+//動態創建指針
+func New(typ Type) Value
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+	"reflect"
+)
+
+func main() {
+	i := 123
+	fmt.Println(reflect.TypeOf(i))
+
+	x := reflect.ValueOf(i).Interface()
+	fmt.Println(reflect.TypeOf(x)) //int
+
+	y := reflect.New(reflect.TypeOf(i)).Interface()
+	fmt.Println(reflect.TypeOf(y)) //*int
+
+	str := "123"
+	fmt.Println(reflect.TypeOf(str))
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="log"></a>
+		<p><span class="flag">log</span>
+<pre>log 包是一個 日誌包 實現了簡單的 日誌功能（線程安全）
+可以將日誌 輸出到 任意 io.Writer
+
+log 即可以 直接調用 log中包 函數
+以可 先實例化一個 type Logger struct 調用其接口(同 包直接倒出函數)
+</pre>
+		</p>
+		<p><span class="flag">相關API</span>
+<pre>//實例化一個 Logger flag 指定要記錄的信息
+func New(out io.Writer, prefix string, flag int) *Logger
+	<span class="care">const (
+	// Bits or'ed together to control what's printed. There is no control over the
+	// order they appear (the order listed here) or the format they present (as
+	// described in the comments).  A colon appears after these items:
+	//	2009/01/23 01:23:23.123123 /a/b/c/d.go:23: message
+	Ldate         = 1 << iota     // the date: 2009/01/23
+	Ltime                         // the time: 01:23:23
+	Lmicroseconds                 // microsecond resolution: 01:23:23.123123.  assumes Ltime.
+	Llongfile                     // full file name and line number: /a/b/c/d.go:23
+	Lshortfile                    // final file name element and line number: d.go:23. overrides Llongfile
+	LstdFlags     = Ldate | Ltime // initial values for the standard logger
+	)</span>
+
+//設置 新的 輸出io
+func SetOutput(w io.Writer)
+
+//設置/返回 flag
+func (l *Logger)SetFlags(flag int)
+func (l *Logger)Flags() int
+
+//設置/返回 日誌 前綴
+func (l *Logger)SetPrefix(prefix string)
+func (l *Logger)Prefix() string
+
+//輸出日誌
+func (l *Logger)Print(v ...interface{})
+func (l *Logger)Printf(format string, v ...interface{})
+func (l *Logger)Println(v ...interface{})
+
+//輸出日誌 並調用 os.exit(1)
+func (l *Logger) Fatal(v ...interface{})
+func (l *Logger) Fatalf(format string, v ...interface{})
+func (l *Logger) Fatalln(v ...interface{})
+
+
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"log"
+	"os"
+)
+
+func main() {
+	//直接調用包函數
+	log.Println(0)
+	log.Println(1)
+
+	logger := log.New(os.Stdout, "", log.LstdFlags|log.Llongfile)
+	logger.Println("hello")
+	logger.Println("oh....")
+	logger.Fatal("test")
+	logger.Fatal("test2") //不會記錄 前一個Fatal 已經調用os.exit(0)
+
+}
+</pre>
+		</p>
+
+	</div>
+
+</div>
+</body>
+</html>
+

@@ -1,0 +1,211 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>文件系统管理</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1>
+    	<p><font color="#FF0000">描述</font><br />
+        	df fu 分区 格式化 ...
+		</p>
+        <a href="#df">磁盘与目录容量</a> <br />
+    	<a href="#fdisk">磁盘分区</a> <br />
+        <a href="#mkfs">格式化分区</a> <br />
+        <a href="#fsck">磁盘检验</a> <br />
+        <a href="#get">获取 修改 磁盘信息</a> <br />
+        <a href="#mount">挂载 卸载 磁盘</a> <br />
+        <a href="#swap">swap</a> <br />
+    
+    
+    </h1></p>
+    
+    <div class="div_box"><a name='df'><h3>
+    	<p><font color="#FF0000">磁盘与目录容量</font><br />
+          
+      	</p>
+        
+        <p><font color="#FF0000">df /home </font>//列出 /home所在 磁盘 容量使用情况 亦可更文件名 若df 列出全部<br />
+          -a	列出所有文件系统 如 /proc等<br />
+          -k	以kb显示容量<br />
+          -m	以mb显示容量<br />
+          <font color="#FF0000">-h	自动以gb mb kb 换算显示容量</font><br />
+          -H	以1000为容量换算单位显示<br />
+          <font color="#FF0000">-T	显示出文件系统类型 如ext4</font><br />	
+          -i	不以容量而以inode的数量显示
+      	</p>
+        
+        <p><font color="#FF0000" > du 文件或目录 </font>//显示文件或目录使用的磁盘空间<br />
+        -a 列出目录下所有文件和目录 默认不列出文件<br />
+        <font color="#FF0000">-h	同df的-h<br />
+        -s	仅列出目录占用总量 而不列出其下目录文件信息</font><br />
+        -S	列出目录容量时 不加目录下文件容量 <br />
+        -k	以kb为单位<br />
+        -m	以mb为单位
+        </p>
+        
+        <p><font color="#FF0000">ln 源文件 目标文件 </font>//为源文件创建硬连接 硬连接只能作用于一个文件系统的文件(故不可用于目录 不可跨文件系统)<br />
+        -s 创建符号链接<br />
+        -f	若目标文件存在删除之<br />
+        </p>
+   	</h3></a></div> 
+   
+   	<div class="div_box"><a name='fdisk'><h3>
+    	<p><font color="#FF0000">磁盘分区</font><br />
+          若磁盘大于2TB需要用parted工具 
+      	</p>
+        <p><font color="#FF0000">fdisk -l /dev/sdb</font><br /> //显示设备sdb的分区情况 (若不更设备名 显示全部 )
+          
+      	</p>
+        
+        <p><font color="#FF0000">fdisk /dev/sdb</font><br /> //进入fdisk程序 为sdb进行分区<br />
+          进入后的命令<br />
+          <font color="#FF0000">m	显示命令帮助信息</font><br />
+          a<br />
+          b<br />
+          c<br />
+          <font color="#FF0000">d	删除一个分区</font><br />
+          l<br />
+          m<br />
+          <font color="#FF0000">n	增加一个分区</font><br />
+          o<br />
+          <font color="#FF0000">p	显示分区情况</font><br />
+          <font color="#FF0000">q	撤销所有操作 并离开fdisk</font><br />
+          s<br />
+          t<br />
+          u<br />
+          v<br />
+          <font color="#FF0000">w	将分区信息写入磁盘</font><br />
+          x
+      	</p>
+ 	</h3></a></div>
+    
+    <div class="div_box"><a name='mkfs'><h3>
+    	<p><font color="#FF0000">格式化分区</font><br />
+    	
+        </p>
+        
+        <p><font color="#FF0000">mkfs -t ext4 /dev/sdb1 //以ext4格式化sdb1</font><br />
+    	-t后接文件系统 如ext2 ext3 ext4<br />
+        实际上mkfs -t ext4 后去调用mkfs.ext4  用mkfs[table][table]便可知道支持的文件格式<br />
+        mkfs只能以默认值格式化 要自定义用mke2fs
+        </p>
+        
+        <p><font color="#FF0000">mke2fs -t ext4 /dev/sdb1 //以ext4格式化sdb1</font><br />
+        <font color="#FF0000">-b 后接block大小 支持1024 2048 4096</font><br />
+        -i 指定多少容量给予一个inode<br />
+        -c 检查磁盘错误 读取测试<br />
+        -c -c 检查磁盘错误 读写取测试<br />
+        <font color="#FF0000">-L 后接卷标(label)<br />
+        -t 后接文件系统</font>
+        </p>
+        
+    </h3></a></div>
+    
+    <div class="div_box"><a name='fsck'><h3>
+    	<p><font color="#FF0000">磁盘检验</font><br />
+    	
+        </p>
+        <p><font color="#FF0000">fsck -Cyft ext2 /dev/sda6         </font>//检验 /dev/sda<br />
+    	<font color="#FF0000">-t 同mkfs 且fsck同mkfs一样会去调用fsck.*<br /> 一般建议分区挂载在系统时检验 </font>
+        
+        -A	依据 /etc/fstab 将需要的设备扫描一次<br />
+        -a	自动修复<br />
+        <font color="#FF0000">-y	同-a不过一些文件系统不支持-a<br />
+        -C	显示进度百分比</font><br />
+        仅 ext2 3 4支持的<br />
+        -f	强制检验(若fsck未发现如何 unclean 标志 不会进入细化的检验 可用f强制进入)<br />
+        <font color="#FF0000">-D	文件系统下的目录进行优化配置</font>
+        </p>
+        
+        <p><font color="#FF0000">badblocks -sv /dev/sda1 //检查是否有怀轨</font><br />
+    	-s	以百分比显示出进度<br />
+        -v	显示进度<br />
+        -w  以写的方式检验 //对于其中有文件不可如此
+        </p>
+   	</h3></a></div>
+    
+    
+     <div class="div_box"><a name='get'><h3>
+    	<p><font color="#FF0000">获取 修改 磁盘信息</font><br />
+    	
+        </p>
+        
+        <p><font color="#FF0000">mknod 设备文件名 [bcp] [major] [minor]</font><br />
+    	mknod /dev/hdc10 b 22 10<br />
+        b	设置设备为外部存储器 如硬盘<br />
+        c	设置设备为外部输入设置 如鼠标<br />
+        p	设置设备为FIFO文件
+        </p>
+        
+        <p><font color="#FF0000">e2label /dev/sda1 //获取/dev/sda1的label名</font><br />
+    	e2label /dev/sda1 test //设置/dev/sda1的label名为test<br />
+        dumpe2fs -h /dev/sda6 //读取super block
+        </p>
+        
+        <p><font color="#FF0000">tune2fs [jlLO] 设备</font><br />
+        l 同dumpe2fs -h<br />
+        j ext2文件格式变为ext3<br />
+        L 同e2label<br />
+        O 可将ext2 ext3 变为 ext4 (其他暂时不解)
+        </p>
+	</h3></a></div>
+	<div class="div_box"><a name='mount'><h3>
+    	<p><font color="#FF0000">挂载 卸载 磁盘</font><br />
+        	mount 	//	输出已经挂载点信息<br />
+    		mount /dev/sdb6 ./test<br />
+            mount -L lable ./test<br />
+            mount --bind /home /mnt/home	//挂载目录<br />
+            mount -o loop a.iso /test		//挂载镜像文件<br />
+        </p>
+     <p>
+     -a	依据/etc/fstab 将未挂载点都挂载<br />
+     -l  mount输出挂载信息时输出lable名<br />
+     -t 后接挂载点文件系统<br />
+     -n 默认挂载后信息会写入/etc/mtab中 此参数使之不写入<br />
+     -o 后接额外信息
+     
+     </p>
+     
+     <p><font color="#FF0000">-o的额外信息</font><br />
+     ro,rw	ro只读 rw读写<br />
+     async,sync async异步 sync同步<br />
+     auto,noauto 是否允许分区mount -a<br />
+     suid,nosuid 是否允许分区可创建设备文<br />件
+     exec,noexec 是否允许分区上有suid sgid文件<br />
+     user,nouser 是否允许分区上有binary文件<br />
+     user,nouser 是否允许分区让任何用户mount<br />
+     defaults rw,suid,dev,exec,auto,nouser,async<br />
+     remount 重新挂载分区
+     </p>	
+     
+     <p><font color="#FF0000">umount 设备文件名或挂载点 </font>//卸载<br />
+     -f	强制卸载<br />
+     -n 不更新/etc/mtab中信息<br />
+     umount -L lable//根据lable名卸载
+     </p>
+     
+     <p><font color="#FF0000">开机挂载 </font>
+     系统会根据 /etc/fstab 中信息开机挂载磁盘 修改之可实现开机挂载<br />
+     格式如下<br /><img src="image/mount.PNG" /><br />
+     option 后接mount -o的额外参数<br />
+     dump 为0代表不要备份 1 代表每天备份 2代表不定期备份<br /><br />
+	pass 0不要检验删除 1以fsck检验 2同1不过不1晚检验
+     </p>
+     
+     </h3></a></div>
+     
+     <div class="div_box"><a name='swap'><h3>
+    	<p><font color="#FF0000">新建交换空间swap</font><br /><br />
+        若已有分区 /dev/sda6 或文件大文件 /swapfile<br />
+        mkswap /dev/sda6 //或mkswap /swapfile 格式化<br />
+        swapon /dev/sda6 //......启用指定swap<br />
+        free //查看内存使用情况<br />
+        swapoff /dev/sda6 //关闭指定swap
+     	</p>
+     </h3></a></div>
+</td></tr></table>
+</body>
+</html>

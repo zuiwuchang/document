@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>重定位表</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+    <p><h1><font color="#FF0000">重定位表</font></h1></p>
+    
+    <h2>
+    <a href="#IMAGE_BASE_RELOCATION">重定位表</a><br />
+    <a href="#image">image</a><br />
+    <a href="#fun">地址修正方法</a><br />
+    
+    </h2>
+    
+    <div class="div_boxex"><a name="IMAGE_BASE_RELOCATION"></a><p><h3>
+    	<p><h2><font color="#FF0000">重定位表</font></h2><br />
+        	程序中的全局变量等 都使用了绝对地址 然若镜像不能加载到IMAGE_BASE 此地址便需要修正<br />
+            重定位表記錄了這類地址被操作的rva<br /><br />
+             
+             重定位表 以IMAGE_BASE_RELOCATION结构开始 代表一个页面的重定位信息 后跟 重定位信息<br />
+             最后以 IMAGE_BASE_RELOCATION.VirtualAddress为0代表重定位表结束
+        </p>
+        <p><h2><font color="#FF0000">IMAGE_BASE_RELOCATION</font></h2>
+        <pre>typedef struct _IMAGE_BASE_RELOCATION {
+    DWORD   VirtualAddress;	//需要重定位的 页面RVA
+    DWORD   SizeOfBlock;	//重定位信息长度 包括 VirtualAddress(4字节) SizeOfBlock(4字节) TypeOffset(n*2字节)
+//  WORD    TypeOffset[n];	//重定信息
+} IMAGE_BASE_RELOCATION;</pre> 
+        </p>
+        <p><h2><font color="#FF0000">重定位信息</font></h2>
+        WORD    TypeOffset<br />
+        低12位表示 相对页面偏移<br />
+        高4位表示		低12位作用
+        	
+        </p>
+        
+        <p><h2><font color="#FF0000">注意</font></h2>
+        	对于TypeOffset[n] 实际PE高4位 只用到了 0(只是用于对齐) 和3(这是一个重定位地址) 两个取值<br />
+            重定位地址数=(SizeOfBlock-sizeof(IMAGE_BASE_RELOCATION))/sizeof(WORD)<br />
+            RVA = VirtualAddress + ( TypeOffset[n] &amp; 0x0FFF )
+        </p>
+   	</h3></p></div>
+    
+  	<div class="div_boxex"><a name="image"></a><p><h3>
+    		<p><h2><font color="#FF0000">image</font></h2><br />
+   		 <div class="div_boxex">
+                <p class="my_titlle">IMAGE_BASE_RELOCATION 1</p>
+                <p>VirtualAddress<br />
+                	SizeOfBlock<br />
+                    TypeOffset[n]
+                </p>
+         </div>
+          <div class="div_boxex">
+                <p class="my_titlle">IMAGE_BASE_RELOCATION 2</p>
+                <p>VirtualAddress<br />
+                	SizeOfBlock<br />
+                    TypeOffset[n]
+                </p>
+         </div>
+          <div class="div_boxex">
+                <p class="my_titlle">IMAGE_BASE_RELOCATION ...</p>
+                <p>VirtualAddress<br />
+                	SizeOfBlock<br />
+                    TypeOffset[n]
+                </p>
+         </div>
+          <div class="div_boxex">
+                <p class="my_titlle">IMAGE_BASE_RELOCATION 结束</p>
+                <p>VirtualAddress=0<br />
+                	
+                </p>
+         </div>
+   	</h3></p></div>
+   <div class="div_boxex"><a name="fun"></a><p><h3>
+    	<p><h2><font color="#FF0000">地址修正方法</font></h2><br />
+        如 rva=VirtualAddress+TypeOffset[x]<br />
+        va=rva+image<br />
+        讀取va處記錄的地址 x (x便是需要修改的重定位地址)<br />
+        real_x=x-預設加載地址+實際加載地址(得到重定位修訂後的地址)<br />
+        修改va處所記錄的地址為real_x 
+        </p>
+	</h3></p></div>
+</td></tr></table>
+</body>
+</html>

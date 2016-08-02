@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>存储过程和函数</title>
+</head>
+<body>
+<table align="center"><tr><td>
+	<p>
+	<h2>
+    <a href="#proc">创建</a><br />
+    <a href="#variable">变量</a><br />
+    <a href="#if">流程控制</a><br />
+    <a href="#call">调用</a><br />
+    <a href="#show">查看修改</a>
+    </h2>
+	</p>
+    
+    <a name="proc">
+    <P>
+    <h3>
+        <p>
+        <font color="#FF0000">创建存储过程</font><br />
+        create procedure name([parameter[,...]]) [characteristic ...] SQL<br />
+        parameter由3部分组成 [in|out|inout] parameter_name type;<br />
+        characteristic取值
+            <table border="2">
+            <tr><td>取值</td><td>描述</td></tr>
+            <tr><td>language sql</td><td>说明sql部分由sql语句组成 此为默认值</td></tr>
+            <tr><td>[not] deterministic</td><td>指明存储过程执行结果是否确定 默认不确定</td></tr>
+            <tr><td>{contains sql| no sql| reads sql data|modifies sql data}</td><td>指明子程序使用sql语句限制<br />contains sql(默认) 子程序包含sql但不包含读写数据的语句<br />no sql 子程序不包含sql语句<br />reds sql data ...读<br />...</td></tr>
+            <tr><td>sql security {definer | invoker}</td><td>definer只有定义者能执行(默认)<br />invoker调用者可以执行</td></tr>
+            <tr><td>comment 'string'</td><td>注释</td></tr>
+            <tr><td>example</td><td>delimiter &&<br>create procedure test (in id int,out count int)<br />reads sql data <br />begin<br />select count(*) into count from test where id=id;<br />end && <br />delimiter ;</td></tr>
+            </table>
+       </p> 
+       <p>
+        <font color="#FF0000">创建存储函数</font><br />
+        create function name (fun_parameter[,...])<br />returns type [characteristic ...] SQL<br />
+        characteristic见存储过程的characteristic<br />
+        <font color="#FF0000">example</font><br />
+        delimiter && <br />
+        create function name(id int)<br />
+        returns varchar(20)<br />
+        beging<br />
+        return (select name from test where id=id);<br />
+        end && <br />
+        delimiter ; <br />
+        
+        </p>
+    </h3>
+    </P>
+    </a>
+    
+    <a name="variable">
+    <P>
+    <h3>
+     <font color="#FF0000">变量</font><br />
+     @name/*用户变量*/<br />
+    declare a int default 10;<br />
+    declare a int;<br />
+    set a=1+2,b=3;<br />
+    select id,name[,...] into var_id,var_name[,...] from test where ...;
+    </h3>
+    </P>
+    </a>
+    
+     <a name="if">
+    <P>
+    <h3>
+     <font color="#FF0000">流程控制</font><br />
+     	<p>
+        if age>20 then set @count1=@count1+1;<br />
+        elseif age=20 then set @count2=@count2+2;<br />
+        else set @count3=@count3+1;<br />
+        end if;<br />
+        </p>
+        
+        <p>
+        case age<br />
+        when 20 the set @count1=@count1+1;<br />
+        when 21 the set @count1=@count1+2;<br />
+        else the set @count1=@count1+3;<br />
+        end case;
+        </p>
+        
+        <p>
+        [begin:/*可是任意名*/]loop<br />
+        set @count=@count+1;
+        	if(@count>10)then
+        	leave begin;/*leave begin跳出循环 iterate begin 跳出本次循环进入下次*/<br />
+        end loop [end/*可是任意名*/]
+        </p>
+        
+        <p>
+        [begin:/*可是任意名*/]while @count>10 do <br />
+        	set @count=@count+1;<br />
+         end while [end/*可是任意名*/];<br />
+        </p>
+     </h3>
+     </P>
+     </a>
+     
+     <a name="call">
+    <P>
+    <h3>
+     <font color="#FF0000">调用</font><br />
+     	<P>
+        存储过程<br /> call name(pa..);
+     	</P>
+        <p>
+        存储函数<br /> 同系统函数
+        </p>
+     </h3>
+     </P>
+     </a>
+     
+      <a name="show">
+    <P>
+    <h3>
+     <font color="#FF0000">查看与修改</font><br />
+     	<P>
+        查看<br />
+        show procedure status like 'proc_name'\G<br />
+        show create procedure|function name\G<br />
+        select * from information_schema.routines where routine_name='name';
+        </P>
+        
+        <p>
+        修改<br />
+        alter  procedure|function name characteristic ;
+        </p>
+        
+        <p>
+        删除<br />
+        drop  procedure|function name;
+        </p>
+     </h3>
+     </P>
+     </a>
+</td></tr></table>
+</body>
+</html>

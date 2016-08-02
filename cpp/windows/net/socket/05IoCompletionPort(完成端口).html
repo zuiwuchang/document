@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>05IoCompletionPort(完成端口)</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+
+    <p><h1><font color="#FF0000">IoCompletionPort(完成端口)</font></h1></p>
+    
+    <h2>
+    <a href="#Overlapped">IoCompletionPort</a><br />
+    
+    
+    </h2>
+    
+    <div class="div_box"><a name="IoCompletionPort"></a><p><h3>
+    	<p><h2><font color="#FF0000">IoCompletionPort IO</font></h2>
+			
+        </p>
+      	
+        <p><h2><font color="#FF0000">相關API</font></h2>
+<pre>//創建完成端口 失敗返回NULL
+HANDLE	CreateIoCompletionPort(INVALID_HANDLE_VALUE,NULL,0	//對於創建 前三個參數固定
+	,0	//0系統默認(顯一個cpu一線程)	指定並發執行的線程數 
+)
+
+//將完成端口和io設備關聯	設備返回NULL	
+HANDLE WINAPI CreateIoCompletionPort(
+  __in      HANDLE FileHandle,				//上次調用CreateIoCompletionPort返回的 完成端口句柄
+  __in_opt  HANDLE ExistingCompletionPort,	//餘完成端口關聯的 句柄 
+  __in      ULONG_PTR CompletionKey,		//用戶自定義的一個 32位值
+  __in      DWORD NumberOfConcurrentThreads //0
+);
+
+//等待完成端口
+BOOL WINAPI GetQueuedCompletionStatus(
+  __in   HANDLE CompletionPort,				//完成端口
+  __out  LPDWORD lpNumberOfBytes,			//
+  __out  PULONG_PTR lpCompletionKey,
+  __out  LPOVERLAPPED* lpOverlapped,
+  __in   DWORD dwMilliseconds
+);
+
+</pre>
+   	</h3></p></div>
+    
+    
+</td></tr></table>
+</body>
+</html>

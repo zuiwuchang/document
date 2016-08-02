@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>索引</title>
+</head>
+<body>
+<table align="center"><tr><td>
+
+<pre>
+创建索引
+create table 表名 (字段1,字段2,.... ,[unique|fulltext|spatial] index|key 索引名(字段[长度] [asc|desc]))
+create table test(id int ,key(id asc));
+create table test(id int ,unique key(id asc));
+create [unique|fulltext|spatial] index 索引名 on 表名 (字段[(长度) [asc|desc]]);
+alter table 表名 add [unique|fulltext|spatial] index 索引名 (字段[(长度)] [asc|desc]);
+
+删除索引
+drop index 索引名 on 表名
+
+//查看索引
+show index from tblname;
+</pre>
+    
+</td></tr></table>
+</body>
+</html>

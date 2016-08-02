@@ -1,0 +1,76 @@
+<!DOCTYPE html">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>文件文件流</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#CHtmlView">CHtmlView</a>
+		<a href="#virtual">重載 虛函數</a>
+		<a href="#function">常用函數</a>
+		<a href="#js">擴展js</a>
+	</div>
+
+	<div class="note"><a name="CHtmlView"></a>
+		<p><span class="flag">CHtmlView</span>
+<pre>CHtmlView 封裝了 WebBrowser控件 以便於 在MFC中文檔程序中 快速使用(將view從 CHtmlView派生即可)
+
+詳情 參見 activex插件 WebBrowser
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="virtual"></a>
+		<p><span class="flag">重載 虛函數</span>
+<pre>//打開新 鏈接前 被調用
+void OnBeforeNavigate2(LPCTSTR lpszURL, DWORD nFlags, LPCTSTR lpszTargetFrameName, CByteArray& baPostedData, LPCTSTR lpszHeaders, BOOL* pbCancel)
+	<span class='care'>lpszURL url地址
+	設置 *pbCancel = TRUE 則中斷打開操作</span>
+
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="function"></a>
+		<p><span class="flag">常用函數</span>
+<pre>返回 文檔接口 CComQIPtr&lt;IHTMLDocument2&gt;
+LPDISPATCH GetHtmlDocument() const
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="js"></a>
+		<p><span class="flag">擴展js</span>
+<pre>1	在 CHtmlView 子類聲明中 添加 宏
+		DECLARE_DISPATCH_MAP()
+
+2	在 子類構造函數中 調用
+	EnableAutomation();
+
+3	在 子類 定義 擴展函數
+	int sum(int l,int r);
+
+4	在子類中 添加 映射
+
+	BEGIN_DISPATCH_MAP(..., CHtmlView)
+		DISP_FUNCTION(..., "sum", ...::sum, VT_I4, VT_I4 VT_I4)
+	END_DISPATCH_MAP()
+
+5	重新 OnGetExternal
+	HRESULT OnGetExternal( LPDISPATCH *lppDispatch)
+	{
+		*lppDispatch = GetIDispatch(TRUE);
+		return S_OK;
+	}
+
+6	在 window.external 中調用 函數 
+	window.external.sum(1,2)
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

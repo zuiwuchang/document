@@ -1,0 +1,111 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#io">cerberus/io</a>
+		<a href="#SplitWriter">SplitWriter</a>
+
+		
+	</div>
+
+	<div class="note"><a name="io"></a>
+		<p><span class="flag">cerberus/io</span>
+<pre>包含了 與 輸入輸出相關的 操作
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="SplitWriter"></a>
+		<p><span class="flag">cerberus/io</span>
+<pre>cerberus/io/SplitWriter.go
+
+
+
+SplitWriter 實現了 io.Writer 接口 用於 將 數據寫入到文件
+並自動 分割 壓縮 到zip包
+一般和 golang 標準庫 log 一起使用
+
+
+
+type SplitWriter struct {
+	//同步 互斥量
+	mutex sync.Mutex
+
+	//是否輸出到控制台
+	Out bool
+	//是否 壓縮到 gzip
+	GZip bool
+
+	//
+	director string
+	//文件 前綴/後綴 名 (Director/)(PrefixName)(TimeFormat)i(SuffixName)
+	PrefixName string
+	SuffixName string
+	TimeFormat string //time.Format
+	i          int
+
+	//文件 創建 時間
+	t time.Time
+
+	//文件流
+	f *os.File
+
+	//已 寫入數據 大小 
+	n int64
+	//單文件 最大 容量 1mb(1024 * 1024)
+	Size int64
+}
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"cerberus/io"
+	"log"
+)
+
+func main() {
+	//創建 文件流
+	writer := &io.SplitWriter{}
+	//必須的初始化設置
+	writer.Size = 100                //單文件大小(字節)
+	writer.TimeFormat = "2006-01-02" //文件名 日期部分
+
+	//可選 參數
+	writer.Out = true      //輸出到控制台 默認 false
+	writer.GZip = true      //使用gzip壓縮(1個日誌文件 達到 Size後才會被壓縮) 默認 false
+	writer.Director("log") //日誌存放文件夾
+
+	l := log.New(writer, "[INFO] ", log.LstdFlags|log.Llongfile)
+	l.Println("ok")
+
+	d := log.New(writer, "[DEBUG] ", log.LstdFlags|log.Llongfile)
+	d.Println("ok")
+
+	l.Println("ok")
+	d.Println("ok")
+}
+
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>SplitWriter.Size 是指 文件壓縮前的 大小 
+壓縮後的大小 是無法確認的
+</pre>
+		</p>
+	</div>
+
+	
+	
+
+</div>
+</body>
+</html>
+

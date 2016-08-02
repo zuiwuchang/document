@@ -1,0 +1,259 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>傳奇私服</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">常用命令</font>
+</p>
+
+<p>
+	<a href="#GM">GM</a><br />
+    <a href="#scripts">腳本</a><br />
+    <a href="#if">判斷</a><br />
+    <a href="#io">io</a><br />
+    
+   
+</p>
+
+
+<div class="mydiv"><a name="GM"></a>
+	<p><font color="#FF0000">GM</font>
+<pre><table>
+<tr><td>傳送相關</td><td></td></tr>
+<tr><td>移動到指定地圖</td><td>@PositionMove	map_id	x	y</td></tr>
+<tr><td>人物控制相關</td><td></td></tr>
+<tr><td>調整自己等級</td><td>@Level	lv</td></tr>
+<tr><td>貨幣相關</td><td></td></tr>
+<tr><td>調整元寶數量</td><td>@GameGold role_name +/-/= number</td></tr>
+<tr><td>行会相关</td><td></td></tr>
+<tr><td>创建行会</td><td>@AddGuild 行会名 领袖名</td></tr>
+<tr><td>删除行会</td><td>@DelGuild 行会名</td></tr>
+<tr><td>重新加载</td><td></td></tr>
+<tr><td>@ReloadAdmin</td><td>重新加载 管理员 列表</td></tr>
+<tr><td>@ReloadNpc</td><td>重新加载 GM 当前范围内的npc</td></tr>
+</table>
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">用户</font>
+<pre><table>
+<tr><td>行会相關</td><td></td></tr>
+<tr><td>加入行会</td><td>@LetGuild</td></tr>
+<tr><td>退出行会</td><td>@EndGuild</td></tr>
+</table>
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">MirServer\Mir200\Command.ini</font>
+<pre>[Command] 段可以修改/增加 游戏命令
+LetGuild=加入门派
+调用功能=输入命令
+
+(若功能不存在 可以在MirServer\Mir200\Envir\Market_Def\QFunction-0.txt下 增加一个 此功能段
+test	=	test
+[@test]
+@ACT
+	sendmsg 6 ok
+)
+
+[Permission] 设置命令需要权限
+
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="scripts"></a>
+
+	<p><font color="#FF0000">腳本使用GM命令</font>
+<pre>GMExecute Command Param1 Param2...
+(GM命令前的 @ 不可以加)
+</pre>
+	</p>
+    
+	<p><font color="#FF0000">腳本</font>
+<pre>//傳送
+mapmove ap_id	x	y
+(mapmove 0	333 274)
+
+//分发	物品
+give name count
+(give	回城卷	1)
+
+//拿走	物品
+take  name count
+(give	回城卷	1)
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="if"></a>
+	<p><font color="#FF0000">判斷</font>
+<pre>
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">判斷 人物所在 地圖</font>
+<pre>//CheckMapName 人物名(SELF[自己]) 地圖id
+#IF
+	CheckMapName	SELF	G008
+#ACT
+	GOTO @lv20	
+BREAK
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">判斷 地圖 存在人數</font>
+<pre>//CheckMapHumenCount 地圖id  &lt;|=|&gt; 人數
+//比較 地圖 存在 人數
+#IF
+	CheckMapHumenCount	G008 = 300
+#ACT
+	...
+BREAK
+
+
+//CheckMapName 地圖id 人數
+//判斷 人物所在 地圖
+#IF
+	CheckHum	G008	300
+#ACT
+	...
+BREAK
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">判斷元寶</font>
+<pre>//判斷元寶 CHECKGAMEGOLD &gt; 19
+#IF
+	CHECKGAMEGOLD &gt; 19
+#ACT
+	;//元寶減少 20
+	GAMEGOLD - 20    
+	...
+BREAK
+</pre>
+	</p>
+    
+<p><font color="#FF0000">checkjob判断职业 checkherojob(判断英雄职业) </font>
+<pre>[@job]
+#IF
+	checkjob warrior
+#ACT
+	SENDMSG 6	战士
+	CLOSE
+#ELSEACT
+	GOTO @job2
+BREAK
+
+[@job2]
+#IF
+	checkjob wizard
+#ACT
+	SENDMSG 6	法师
+#ELSEACT
+	SENDMSG 6	道士
+	CLOSE
+BREAK    
+</pre>
+	</p>
+    
+     <p><font color="#FF0000">转换性别</font>
+<pre>#IF
+	gender man
+#ACT
+	;to woman
+	CHANGEGENDER	1
+#ELSEACT
+	CHANGEGENDER	0
+BREAK        
+</pre>
+	</p>  
+    
+     <p><font color="#FF0000">檢查背包中指定物品是否 大於等於</font>
+<pre>//CHECKITEMW 檢查佩戴物品
+//checkitem 物品名 數量
+#IF
+	checkitem 雷霆战戒 1
+#SAY
+	yes
+#ELSESAY
+	no
+BREAK
+</pre>
+	</p>
+          
+</div>
+
+<div class="mydiv"><a name="io"></a>
+	<p><font color="#FF0000">io</font>
+<pre>
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">角色名 写入文件</font>
+<pre>写入/读取/检测 角色名 是否在 指定文件中
+(已经被写入的名字 不会被重复写入)
+AddNAMELIST		PATH
+DelNAMELIST		PATH
+CHECKNAMELIST	PATH
+为当前路径 MirServer\Mir200\Envir\Market_Def
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">用户输入框</font>
+<pre>可以使用脚本为用户提供一个 字符串/数值 输入框
+脚本头需要使用 (@@InPutString @@InPutInteger ) 标注需要使用的 输入框类型
+@@InPutStringX @@InPutIntegerX 定义一个 输入框回调 (字符串会被自动 trim)
+@InPutStringX @InPutIntegerX 为对应回调代码
+输入内容 存储在对应 SX NX 中
+X为 [0,99]的 数值 
+
+(@@InPutString @@InPutInteger )
+
+[@Main]
+【&lt;輸入文本/@@InPutString0&gt;】	\
+【&lt;輸入數字/@@InPutInteger0&gt;】	\	\
+
+【&lt;关闭/@exit&gt;】
+
+
+[@InPutString0]
+#ACT
+	sendmsg  6 &lt;$STR(S0)>&gt;
+	GOTO @len
+[@len]
+#IF
+	CheckStringlength &lt;$STR(S0)&gt; 	&gt;	2
+#ACT
+	sendmsg  6 大於2個字符
+#ELSEACT
+	sendmsg  6 不大於2個字符
+BREAK
+
+[@InPutInteger0]
+#ACT
+	sendmsg  6 &lt;$STR(N0)&gt;
+
+
+[@IsInFilterList]
+#ACT
+	MESSAGEBOX 输入数据中包含了非法字符,请重新编辑!
+
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">注意</font>
+<pre>对于变量中字符串 的操作 应该 使用  &lt;$STR(S0)>&gt; (S0为变量名) 
+否则 代码可能不会正常运行
+</pre>
+	</p>
+</div>    
+
+</td></tr></table>
+</body>
+</html>

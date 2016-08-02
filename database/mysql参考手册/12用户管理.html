@@ -1,0 +1,208 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>用户管理</title>
+</head>
+<body>
+<table align="center"><tr><td>
+	<p>
+    <h2>
+    <a href="#priv_table">权限表</a><br />
+    <a href="#login">登录</a><br />
+    <a href="#add">新建用户</a><br />
+    <a href="#priv">设置权限</a>
+    </h2>
+    </p>
+	
+    <a name="priv_table">
+	<p>
+	<h3>
+ 		<font color="#FF0000">权限表</font>
+    	<p>user...db...host...tables_priv...colums_priv</p>
+    	<P>
+        user表
+        <br />共39个字段分别为<em>用户列 权限列 安全列 资源控制</em>
+        <br />资源控制
+        	<table border="2">
+            <tr><td>字段</td><td>描述</td></tr>
+            <tr><td>max_questions</td><td>每小时可执行的查询数</td></tr>
+            <tr><td>max_updates</td><td>每小时可执行的更新数</td></tr>
+            <tr><td>max_connections</td><td>每小时可建立连接数</td></tr>
+            <tr><td>max_user_connections</td><td>单个用户可同时具有的连接数，默认为0表示没有限制</td></tr>
+            </table>
+        </P>
+        
+        <p>
+        db表和host表
+        <br />可分为<em>用户列 权限列</em>
+        <br />用户列 db有 host db user ;host有host db
+        <br />权限列db比host多create_routine_priv 和 alter_routine_priv 分别表示创建和修改存储过程的权限
+        </p>
+        
+        <p>
+        tables_priv表和colums_priv 对单表和表某字段设置权限
+        <table border="2">
+        <tr><td>字段</td><td>描述</td></tr>
+        <tr><td>tables_priv</td></tr>
+        <tr><td>host</td><td>主机</td></tr>
+        <tr><td>db</td><td>数据库</td></tr>
+        <tr><td>user</td><td>用户</td></tr>
+        <tr><td>table_name</td><td>表名</td></tr>
+        <tr><td>table_priv</td><td>对表操作的权限</td></tr>
+        <tr><td>column_priv</td><td>对列操作的权限</td></tr>
+        <tr><td>timestamp</td><td>修改权限时间</td></tr>
+        <tr><td>grantor</td><td>表示是谁设置的权限</td></tr>
+        <tr><td>colums_priv</td></tr>
+        <tr><td>host</td><td></td></tr>
+        <tr><td>db</td><td></td></tr>
+        <tr><td>user</td><td></td></tr>
+        <tr><td>table_name</td><td></td></tr>
+        <tr><td>column_name</td><td></td></tr>
+        <tr><td>column_priv</td><td></td></tr>
+        <tr><td>timestamp</td><td></td></tr>
+        </table>
+        </p>
+        <p>
+        procs_priv表 对存储过程 存储函数权限设置
+         <table border="2">
+        <tr><td>字段</td><td>描述</td></tr>
+        <tr><td>host</td><td>主机</td></tr>
+        <tr><td>db</td><td>数据库</td></tr>
+        <tr><td>user</td><td>用户</td></tr>
+        <tr><td>routine_name</td><td>存储过程或存储函数名</td></tr>
+        <tr><td>routine_type</td><td>为function(表示是函数)或procedure(表示是过程)</td></tr>
+        <tr><td>proc_priv</td><td>权限可为execute ,alter routine,grant</td></tr>
+        <tr><td>timestamp</td><td>修改权限时间</td></tr>
+        <tr><td>grantor</td><td>表示是谁设置的权限</td></tr>
+        </table>
+        </p>
+    </h3>
+	</p>
+    </a>
+    
+    <a name='login'>
+    <p>
+    <h3>
+    <font color="#FF0000">登录</font>
+    mysql -h 192.168.137.1 -u root -P 
+    <table border="2">
+   	<tr><td>参数</td><td>描述</td></tr>
+    <tr><td>-u</td><td>用户名</td></tr>
+    <tr><td>-p</td><td>输入密码</td></tr>
+    <tr><td>-h</td><td>指明连接地址</td></tr>
+    <tr><td>-P</td><td>指明连接端口</td></tr>
+    <tr><td>-e</td><td>指定登录后执行的sql语句 执行完成后退出mysql</td></tr>
+    <tr><td>DatabaseName</td><td>使用的数据库</td></tr>
+    </table>
+    </h3>
+    </p>
+    </a>
+    
+    <a name='add'>
+    <p>
+    <h3>
+    
+    
+    <p>
+    <font color="#FF0000">新建用户</font><br />
+    create user 'name'@'localhost' identified by 'password';<br />
+    insert into mysql.user(host,user,password,ssl_cipher,x509_issuer,x509_subject) values <br />('localhost','name',password('password'),'','','');<br />
+    grant select on 'name'@'localhost' identified by 'password';<br />
+    刷新权限 flush  privileges;
+    </p>
+   <p>
+    <font color="#FF0000">删除用户</font><br />
+    drop user 'name'@'localhost';<br />
+    delete from mysql.user where host='localhost' and user='name';
+    </p>
+    
+    <p>
+    <font color="#FF0000">修改密码</font><br />
+    mysqladmin -u name -p password "new password";<br />
+    update mysql.user set password=password('new password') where user='...' and host='...';<br />
+    set password=password('new password');<br />
+    set password for 'name'@‘localhost’= password('new password');<br />
+    grant select on *.* to 'name'@'localhost' identified by 'password';
+    </p>
+    <p>
+   <font color="#FF0000">root忘记密码</font><br />
+    --skip-grant-tables mysql停止权限验证<br />
+    win mysqld --skip-grant-tables<br />
+    linux /etc/init.d/mysql start --mysqld --skip-grant-tables
+    </p>
+   
+    </h3>
+    </p>
+    </a>
+    
+    
+     <a name='priv'>
+    <p>
+    <h3>
+    <font color="#FF0000">设置权限</font>
+    <P>
+    授权<br />
+    grant select on *.* to 'name'@'localhost' <br />
+    grant priv_type [(column_list)] on databases.table to user [identified by[password] 'password']<br />
+    [,user [identified by[password] 'password']]<br />
+    [with with_option [with_option] ...]<br />
+    priv_type指明权限 column_list指明作用于表达列未指明作用于全表 <br />
+    with_option取值<br />
+    grant option:  被授权用户可将此权限授予其他用户<br />
+    max_queries_per_hour count: 用户每小时可查询count次<br />
+    max_updates_per_hour count: 用户每小时可更新count次<br />
+    max_connections_per_hour count: 用户每小时可连接count次<br />
+    max_user_connections count: 单个用户可同时连接数
+    </P>
+    
+    <P>
+    收回权限<br />
+    revoke update on *.* from 'name'@'localhost';<br />
+    revoke all privileges ,gant option from user[,user];//收回所有权限<br />
+    revoke priv_type[(column_list)] on database.table from user,[user]<br />
+    </P>
+    
+    <P>
+    查看权限<br />
+    select * from mysql.user;<br />
+    show grants for 'name'@'localhost';
+    </P>
+    
+    <p>mysql权限
+    <table border="2">
+    <tr><td>权限名</td><td>user表中对应项</td><td>权限范围</td></tr>
+    <tr><td>create</td><td>create_priv</td><td>数据库 表 索引</td></tr>
+    <tr><td>drop</td><td>drop_priv</td><td>数据库 表</td></tr>
+    <tr><td>grant option</td><td>grant_priv</td><td>数据库 表 存储过程 存储函数</td></tr>
+    <tr><td>references</td><td>references_priv</td><td>数据库 表</td></tr>
+    <tr><td>alter</td><td>alter_priv</td><td>修改表</td></tr>
+    <tr><td>delete</td><td>delete_priv</td><td>删除表</td></tr>
+    <tr><td>index</td><td>index_priv</td><td>用索引查询表</td></tr>
+    <tr><td>insert</td><td>insert_priv</td><td>插入表</td></tr>
+    <tr><td>select</td><td>select_priv</td><td>查询表</td></tr>
+    <tr><td>update</td><td>update_priv</td><td>更新表</td></tr>
+    <tr><td>create view</td><td>create_view_priv</td><td>创建视图</td></tr>
+    <tr><td>show view</td><td>show_view_priv</td><td>查看视图</td></tr>
+    <tr><td>alter routine</td><td>alter_routine_priv</td><td>修改存储过程 函数</td></tr>
+    <tr><td>create routine</td><td>create_routine_priv</td><td>创建存储过程 函数</td></tr>
+    <tr><td>execute</td><td>execute_priv</td><td>执行存储过程 函数</td></tr>
+    <tr><td>file</td><td>file_priv</td><td>加载服务器主机上的文件</td></tr>
+    <tr><td>create temporary tables</td><td>create_tmp_table_priv</td><td>创建临时表</td></tr>
+    <tr><td>lock tables</td><td>lock_tables_priv</td><td>锁定表</td></tr>
+    <tr><td>create user</td><td>create_user_priv</td><td>创建用户</td></tr>
+    <tr><td>process</td><td>process_priv</td><td>服务器管理</td></tr>
+    <tr><td>reload</td><td>reload_priv</td><td>重新加载权限表</td></tr>
+    <tr><td>replication client</td><td>repl_client_priv</td><td>服务器管理</td></tr>
+    <tr><td>replication slave</td><td>repl_slave_priv</td><td>服务器管理</td></tr>
+    <tr><td>show databases</td><td>show_db_priv</td><td>查看数据库</td></tr>
+    <tr><td>shutdown</td><td>shutdown_priv</td><td>关闭数据库</td></tr>
+    <tr><td>super</td><td>super_priv</td><td>超级权限</td></tr>
+    </table>
+    </p>
+    </h3>
+    </p>
+    </a>
+</td></tr></table>
+</body>
+</html>

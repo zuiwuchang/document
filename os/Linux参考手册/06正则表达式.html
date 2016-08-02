@@ -1,0 +1,198 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>正则表达式</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1>
+    	<p><font color="#FF0000">正则表达式</font><br />
+        	对字符串处理的一种通用工具<br />
+            linux 采用posix标准
+		</p>
+        <a href="#base">基础正则表达式</a> <br />
+        <a href="#grep">grep</a> <br />
+        <a href="#sed">sed</a> <br />
+        <a href="#egrep">扩展的正则表达式</a> <br />
+        <a href="#printf">printf</a> <br />
+        <a href="#awk">awk</a> <br />
+        <a href="#diff">文件比较</a> <br />
+        
+    </h1></p>
+    
+    <div class="div_box"><a name='base'><h3>
+    	<p><font color="#FF0000">基础正则表达式</font><br />
+        <table border="2">
+        <tr><td>特殊符号</td><td>含义</td></tr>
+        <tr><td>[:alnum:]</td><td>英文大小写 数字</td></tr>
+        <tr><td>[:alpha:]</td><td>英文大小写</td></tr>
+        <tr><td>[:blank:]</td><td>空格 [tab]</td></tr>
+        <tr><td>[:cntrl:]</td><td>键盘控制键 [cr] [lf] [tab] [del]</td></tr>
+        <tr><td>[:digit:]</td><td>数字</td></tr>
+        <tr><td>[:graph:]</td><td>除 空格 [tab] 外 所有按键</td></tr>
+        <tr><td>[:lower:]</td><td>小写英文</td></tr>
+        <tr><td>[:print:]</td><td>任何可被打印出的字符</td></tr>
+        <tr><td>[:punct:]</td><td>标点 ' ? , # $ ...</td></tr>
+        <tr><td>[:upper:]</td><td>大写英文</td></tr>
+        <tr><td>[:space:]</td><td>任何会产生空白的字符 空格 [tab] [cr]</td></tr>
+        <tr><td>[:xdigit:]</td><td>十六进制数字</td></tr>
+        </table>
+        
+        
+        <br /><br />
+        
+        <table border="2">
+        <tr><td><font color="#FF0000">RE字符</font></td><td>含义</td></tr>
+        <tr><td><font color="#FF0000">^</font>word</td><td>word在行首</td></tr>
+        <tr><td>word<font color="#FF0000">$</font></td><td>word在行尾</td></tr>
+        <tr><td>.</td><td>一定有一个任意字符</td></tr>
+        <tr><td>\</td><td>转义字符</td></tr>
+        <tr><td>c<font color="#FF0000">*</font></td><td>重复<font color="#FF0000">前一个</font>字符 0 到 任意次</td></tr>
+        <tr><td>[list]</td><td>包含list中的一个字符</td></tr>
+        <tr><td>[n1-n2]</td><td>包含[n1,n2]连续编码的一个字符</td></tr>
+        <tr><td>[^list]</td><td>不包含list中的字符</td></tr>
+        <tr><td>[^n1-n2]</td><td>...</td></tr>
+        <tr><td>c<font color="#FF0000">\{n,m\}</font></td><td>连续[n,m]个前一个字符<br /> \{n\} n个<br /> \{n,\} [n,+∞)个<br /></td></tr>
+        </table>        
+        </p>
+        
+   	</h3></a></div> 
+   	
+    <div class="div_box"><a name='grep'><h3>
+    	<p><font color="#FF0000">grep '正则表达式' filename</font><br />
+        -a	//将binary文件以text文件方式查找<br />
+        -c	//计算找到次数<br />
+        -i	//忽略大小写<br />
+        -n	//输出行号<br />
+        -v	//反向查找 既没有指定字符在显示出来<br />
+        <br />
+        -A	//后接数字 代表把找到的行 其后 指定行数也显示出了<br />
+        -B	//后接数字 代表把找到的行 其前 指定行数也显示出了<br />
+        --color=auto	
+        </p>
+        <p><font color="#FF0000">example</font><br />
+        ls -al | grep "^a.*"<br />
+        grep "^a.*" ~/		//从目录下所有文件中查找<br />
+        grep "^a.*" ~/test	//从指定文件中查找
+        </p>
+   	</h3></a></div>
+	<div class="div_box"><a name='sed'><h3>
+    	<p><font color="#FF0000">sed</font><br />
+    	对指定行数据 进行 删除 增加 替换<br />
+        </p>
+        
+        <p><font color="#FF0000">sed [-nefr] [动作]</font><br />
+    	-n	//使用安静模式 默认stdin的所有数据都会显示到屏幕 -n 只有sed处理过的[n1,n2]数据才显示<br />
+        -e	//直接在命令行上进行sed动作<br />
+        -f	//直接将sed动作写在一个文件内 -f filename 对文件进行sed<br />
+        -r	//使用扩展到正则表达式 （默认基础）<br />
+        -i	//直接修改读取的文件内容 而不是由屏幕输出<br />
+        <br />
+        [动作] //<font color="#FF0000">动作部分要用 ' 括起来</font><br /><br />
+        sed 可接多个 [动作] 此时 每个动作前都需要添加 -e <br />
+        [n1][,n2]function	//在[n1,n2]行进行function<br />
+        [n1]function	//只处理n1行<br />
+        [n1][$]function	//n1行到末尾<br />
+        <br />
+        function 参数<br />
+        a	//后接字符串 在目前行下列新添一行 写入指定字符串<br />
+        c	//后接字符串 用指定字符串替换[n1,n2]<br />
+        d	//删除[n1,n2]<br />
+        i	//后接字符串 在目前行上列新添一行 写入指定字符串<br />
+        p	//打印[n1,n2]<br />
+        s	//正则表达式替换  <font color="#FF0000">s/旧字符串/新字符串/g</font>旧字符串可用正则表达式指定<br />	
+        </p>
+        <p><font color="#FF0000">example</font><br />
+    	ls -l | sed -n '1,2p'	//<font color="#FF0000">动作部分要用 ' 括起来</font>
+        </p>
+    </h3></a></div>
+	<div class="div_box"><a name='egrep'><h3>
+    	<p><font color="#FF0000">扩展的正则表达式</font><br />
+    	grep不支持扩展正则表达式 要用egrep
+        <table border="2">
+        <tr><td>RE字符</td><td>含义</td></tr>
+        <tr><td>+</td><td>重复一个或多个前一个字符</td></tr>
+        <tr><td>?</td><td>0个或一个前一个字符</td></tr>
+        <tr><td>|</td><td>逻辑或</td></tr>
+        <tr><td>()</td><td>将括号内合成一个组</td></tr>
+        <tr><td>()+</td><td>多个重复的组 类似 +</td></tr>
+        </table>
+        </p>
+    </h3></a></div>
+    
+    <div class="div_box"><a name='printf'><h3>
+    	<p><font color="#FF0000">printf</font><br />
+    	将每行数据每个字段安指定方式显示 字段以[tab]或和空格 隔开<br />
+        不能用于管道<br />
+        \a	//输出警告声<br />
+        \b	//退个键<br />
+        \f	//清屏<br />
+        \n	//换行<br />
+        \r	//Enter<br />
+        \t	//水平[tab]<br />
+        \v	//垂直[tab]<br />
+        \xNN	//NN为两位数字 列出十六进制 NN 代表的字符<br /><br />
+        
+        %s %i...同c语言
+        </p>
+        
+        <p><font color="#FF0000">example</font><br />
+    	printf '%10s %5i %8.2f\n' $(cat a.txt)<br />
+        printf '%10s %5i %8.2f\n' $(cat a.txt | grep "this is a test" )
+        </p>
+    </h3></a></div>
+    <div class="div_box"><a name='awk'><h3>
+    	<p><font color="#FF0000">awk</font><br />
+        将数据每行以指定分隔符(默认空格 [tab])分成不同字段 多每个字段进行处理	<br />
+        awk '条件1{动作1}条件2{动作2}...' filename<br />
+        $0 //整行数据<br />
+        $1 //字段1<br />
+        $2 //字段2<br /><br />
+        
+        NF	//第几行拥有的字段总数<br />
+        NR	//正在处理的是 第几行 数据<br />
+        FS	//当前分隔符
+        </p>
+        
+        <p><font color="#FF0000">example</font><br />
+        cat /etc/passwd | awk '{FS=":"}$3&lt;10{print $1 "\t" $3}'<br />
+        //将管道中 字段3数据 小于10的 行 字段1 指定3 打印 那之前改变分隔符为: <br /><br />
+        比较符号<br />
+        ><br />
+        &lt;<br />
+       	>=<br />
+        &lt;=<br />
+        ==<br />
+        !=
+       
+        </p>
+        
+  	</h3></a></div>
+
+	<div class="div_box"><a name='diff'><h3>
+    	<p><font color="#FF0000">文件比较</font><br />
+        
+       	</p>
+        
+        <p><font color="#FF0000">diff [-bBi] from-file to-file</font><br />
+        以行为单位比较文件<br />
+        -b	//忽略空格的不同 (a b) 和 (a &nbsp;&nbsp;&nbsp; b)相同<br />
+        -B	//忽略空白行区别<br />
+        -i	//忽略大小写
+        <br />
+        结果<br />
+        4d3	//左边第4行被删除了 基准是右边第三行<br />
+        6c5	//左边第6行被替换成右边第5行
+        </p>
+        <p><font color="#FF0000">cmp [-s] file1  file2</font><br />
+        以字节为单位比较文件<br />
+        -s //将所有不同列出 默认只列出第一处
+        </p>
+  	</h3></a></div>
+    
+    
+</td></tr></table>
+</body>
+</html>

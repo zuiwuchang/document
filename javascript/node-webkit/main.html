@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>dark</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#node-webkit">node-webkit</a>
+		<a href="#evi">環境配置</a>
+		<a href="#Hellow">Hellow World</a>
+		<a href="#package">package.json</a>
+	</div>
+
+	<div class="note"><a name="node-webkit"></a>
+		<p><span class="flag">node-webkit</span>
+<pre><span class="care">node-webkit</span>
+node-webkit 一個將 webkit(現在使用 Chromium) node 結合
+以 使用 html js 開發 桌面 程序的 開源(MIT) 跨平台 框架
+
+官網 <a href="https://github.com/nwjs/nw.js/" target="_blank">https://github.com/nwjs/nw.js/</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="evi"></a>
+		<p><span class="flag">環境配置</span>
+<pre>1	從官網下載 最新 release 包 並解壓
+2	將 解壓的包 加入 PATH 變量
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Hellow"></a>
+		<p><span class="flag">Hellow World</span>
+<pre>1	編輯 一個 html 作為 入口
+
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+	&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
+	&lt;title&gt;Hellow World&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Hellow World
+&lt;/body&gt;
+&lt;/html&gt;
+
+
+
+2	編輯 package.json 配置 webkit 容器
+{
+  "name": "nw-demo",
+  "version": "0.0.1",
+  "main": "index.html"
+}
+
+
+
+3	執行 nv package.json/. 運行 程序
+	亦可 將 代碼 打包到 zip中 運行
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="package"></a>
+		<p><span class="flag">package.json</span>
+<pre>
+{
+
+	"main": "index.html",	//入口點
+
+	"name": "nw-demo",		//全局 唯一 應用名 小寫字符串
+
+	"description": "demo app of node-webkit",
+	
+	"nodejs":true,		//是否啟用 node.js
+	"single-instance":true,	//是否只允許1個實例
+
+	"version": "0.1.0",
+
+	"keywords": [ "demo", "node-webkit" ],
+
+	"window": {
+
+		"title": "node-webkit demo",	//窗口標題
+
+		"icon": "link.png",
+
+		"toolbar": true,	//是否創建 導航欄
+
+		"frame": false,
+
+		"width": 800,
+
+		"height": 500,
+
+		"position": "mouse",	//窗口打開 位置 null center mouse
+
+		"min_width": 400,
+
+		"min_height": 200,
+
+		"max_width": 800,
+
+		"max_height": 600,
+
+		"resizable":true,	//是否可調整窗口大小 
+
+		"always-on-top":false,	//是否始終前置
+
+		"fullscreen":false,	//全屏
+
+		"show_in_taskbar":true	//在系統任務欄上顯示 圖標
+
+	},
+
+	"webkit": {
+		"plugin": true
+	}
+
+}
+</pre>
+		</p>
+	</div>
+
+</body>
+</html>

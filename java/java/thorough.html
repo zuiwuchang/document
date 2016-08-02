@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>深入</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#base">深入</a>
+		<a href="#child">繼承</a>
+		<a href="#interface">interface</a>
+	</div>
+
+	<div class="note"><a name="base"></a>
+		<p><span class="flag">深入</span>
+<pre>java 存在4中訪問權限
+public protected private 包訪問權限
+
+若不指定 則為包訪問權限(只能此包訪問)
+
+java中若參數為(java最SB的行為) 
+基本型別 則為值傳遞
+<span class="care">(String 是值傳遞 java中每個String都是不同的 Object)</span>
+否則 引用傳遞
+
+對於class 不能使用=賦值
+這相當於建立了一個引用
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="child"></a>
+		<p><span class="flag">繼承</span>
+<pre>java 只能單繼承(弱爆)
+但java有 所謂的接口 子類可以繼承多個接口
+
+//定義一個child類 派生自 father
+public class child extends father
+{};
+
+java 使用 super. 訪問被子類覆蓋的數據
+
+java使用 abstract 定義抽象類 和抽象方法(簽名沒有 優雅的 =0)
+
+在類名前 加上 final 的類 不能被其他類繼承
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="interface"></a>
+		<p><span class="flag">interface</span>
+<pre>java中 所謂的接口 既只有 static final 變量 靜態變量 和 方法簽名
+
+public interface interface1
+{
+static final String name="name";
+void get_name();
+}
+
+//繼承接口使用 implements
+class child implements interface1
+{}
+class child extends father implements interface1,interface2,interface3...
+{}
+
+
+常用接口
+Cloneable 推薦覆蓋Object clone() java.lang 對象拷貝
+
+除非String 8給基本類的包裝類外 其他類的 clone() 只是複製對象的引用 而非複製真實數據
+String 8給基本類的包裝類 clone() 複製真實數據
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

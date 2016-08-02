@@ -1,0 +1,209 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>软件安装</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1>
+    	<p><font color="#FF0000">描述</font><br />
+        	Linux 下软件的安装方式
+		</p>
+    	<a href="#Tarball">源码安装Tarball软件</a> <br />
+        <a href="#rpm">RPM</a> <br />
+        <a href="#yum">YUM</a> <br />
+        
+        <a href="#APT">DPKG APT</a>
+    </h1></p>
+    
+    <div class="div_box"><a name='Tarball'><h3>
+    	<p><font color="#FF0000">源码安装Tarball软件</font><br />
+        	软件发行商将源码用tar打包由用户自己编译的程序，Tarball一般包括 源文件 检测文件(configure 或 config 等) 说明文件(INSTALL 或 README)
+        </p>
+        <p><font color="#FF0000">一般步骤</font><br />
+        ./configure //建立Makefile文件夹<br />
+        make clean	//清除上次编译生成的目标文件<br />
+        make	//编译<br />
+        make install //安装
+        </p>
+        <p><font color="#FF0000">注意</font><br />
+        一般用 ./configure --help 可获取 configure 参数说明
+        一般用 ./configure --prefix=PATH 可指定安装路径
+        </p>
+	
+    </h3></a></div>
+    
+    <div class="div_box"><a name='rpm'><h3>
+    	<p><font color="#FF0000">RPM</font>	</p>
+    	<p><font color="#FF0000">描述</font><br />
+        	软件发行商将程序在固定版本linux上编译后直接将二进制程序给用户安装，并在安装时保存程序版本信息等。<br />
+            dpkg apt-get[APT] (Debian B2D Ubuntu ...)<br />
+            rmp yum[YUM] (Red_Hat Fedora CentOS SuSE ...)<br />
+            rpm -> redhat package manager
+        </p>
+        <p><font color="#FF0000">RPM安装</font><br />
+        	rpm -i *.rpm //i 意为install 后接安装文件名 多个文件以空格隔开<br />
+            -h //以安装信息状态栏显示安装进度<br />
+            -v //查看更详细安装信息<br />
+            <font color="#FF0000">rpm -ivh a.rpm b.rpm http://web/path/test.rpm ...</font><br />
+            
+            <table border="2">
+            <tr><td>其他安装参数</td><td>含义</td><td>使用时机</td><td>example</td></tr>
+            <tr><td>--nodeps</td><td>发生依赖问题时依然安装</td><td></td><td></td></tr>
+            <tr><td>--replacefiles</td><td>若文件已经安装或出现版本不和问题依然安装</td><td></td><td></td></tr>
+            <tr><td><font color="#FF0000">--replacepkgs</font></td><td>若文件已然安装则重新安装</td><td>有一批rpm要安装但其中部分已经安装</td><td>rpm -ivh *.rpm --replacepkgs</td></tr>
+            <tr><td>--force</td><td></td><td>--replacefiles与--replacepkgs的并集</td><td></td></tr>
+            <tr><td><font color="#FF0000">--test</font></td><td>检测程序是否可安装到当前linux版本而不会进行安装</td><td>可用于找出依赖关系</td><td>rpm -ivh test.rpm --test</td></tr>
+            <tr><td>--justdb</td><td>rpm数据库损坏可用才参数修复之</td><td></td><td></td></tr>
+            <tr><td>--nosignature</td><td>略过数字证书检查</td><td></td><td></td></tr>
+            <tr><td>--prefix新路径</td><td>指定安装路径</td><td></td><td>rpm -ivh test.rpm --prefix/usr/local</td></tr>
+            <tr><td>--noscripts</td><td>不让软件安装时执行某些系统指令</td><td></td><td></td></tr>
+            </table>
+            
+        </p>
+        
+        <p><font color="#FF0000">RPM升级</font><br />
+        	rpm -Uvh *.rpm //更新 若未安装则安装之<br />
+            rpm -Fvh *.rpm //更新 若未安装跳过之<br />
+            此外其他可用参数同安装
+        </p>
+        
+        <p><font color="#FF0000">RPM查询</font><br />
+        	<table border="2">
+            <tr><td>参数</td><td>含义</td></tr>
+            <tr><td>-q</td><td>rmp -q gcc 查询软件是否安装</td></tr>
+            <tr><td>-qi</td><td>列出软件详细信息</td></tr>
+            <tr><td>-ql</td><td>列出软件所有的目录和完整文件名</td></tr>
+            <tr><td>-qa</td><td>列出所有已安装软件名</td></tr>
+            <tr><td>-qc</td><td>列出软件所有配置文件(找出/etc/下文件罢)</td></tr>
+            <tr><td>-qd</td><td>列出软件所有帮助文件(找出与man相关文件罢)</td></tr>
+            <tr><td>-qR</td><td>列出软件有关的依赖软件所含文件</td></tr>
+            <tr><td>-qf</td><td>由指定文件名找出是那个已安装软件</td></tr>
+            <tr><td>-qp</td><td>列出指定rpm文件的信息</td></tr>
+            <tr><td>...</td><td>...</td></tr>
+            </table>
+        </p>
+        
+         <p><font color="#FF0000">RPM验证</font><br />
+        	rpm -Va //列出所有可能被改过的文件<br />
+            rpm -V 已安装软件名 //若此软件包含文件被改过 列出信息<br />
+            rpm -Vp *.rpm //列出rmp软件包内可能被改信息<br />
+            rpm -Vf 文件名 //列出文件是否被改过<br /><br />
+            rpm -V logrotate<br />
+            ..5....T c /etc/logrotate.conf //此为-V返回信息 c(此位指明是什么文件)前有八个占位信息 含义如下<br /><br />
+            S 文件容量被改<br />
+            M 文件类型或属性（rwx）被改<br />
+            5 MD5指纹变化<br />
+            D 设置主/次代码被改<br />
+            L link路径变化<br />
+            U 文件所有者变化<br />
+            G 文件所有属用户组变化<br />
+            T 文件创建时间变化<br /><br />
+            c还可能的值<br />
+            c 设置文件<br />
+            d 文档<br />
+            g 文件不属于任何软件<br />
+            l 授权文件<br />
+            r 自述文件
+        </p>
+        
+        <p><font color="#FF0000">RPM卸载 重建数据库</font><br />
+        rpm -e 软件名 // 若软件被其他软件依赖不能卸载
+        
+        rpm --rebuilddb//重建数据库(由于经常 删除 升级 安装 软件 某些操作可能会导致rpm数据库损坏)
+        </p>
+	</h3></a></div>
+    
+    <div class="div_box"><a name='yum'><h3>
+    	<p><font color="#FF0000">YUM</font><br />
+  			软件发行商把rpm包放在域名服务容器上，用户通过yum直接在线下载安装。
+        </p>
+        
+        <p><font color="#FF0000">查询</font><br />
+  			yum search gcc	//找出容器中和raid相关的软件<br />
+            yum info gcc //列出容器中此软性版本名称等信息<br />
+            yum list g* //找寻容器中名称含有g的软件
+        </p>
+        
+        <p><font color="#FF0000">安装 与 升级</font><br />
+  			yum install gcc //安装gcc<br />
+            yum update gcc //更新gcc<br />
+            yum update //更新整个系统
+        </p>
+        
+        <p><font color="#FF0000">删除软件</font><br />
+  			yum remove 软件名 
+        </p>
+        
+        <p><font color="#FF0000">容器设置添加源</font><br />
+  			在 /etc/yum.repos.d/ 下新建后缀名为 .repo 的文件里面填源信息 源格式如下;<br />
+            [base]<br />
+name=CentOS-$releasever - Base<br />
+mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os<br />
+#baseurl=http://mirror.centos.org/centos/$releasever/os/$basearch/<br />
+enable=1<br />
+gpgcheck=1<br />
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6<br /><br />
+		[base]中base为容器名可顺便取 name后接对容器的描述可顺便写 mirrorlist后接容器可用镜像点 baseurl接容器实际地址<br />
+        
+        enable 为1启用容器 0 不启用<br />
+        gpgcheck 为1启用文件证书验证 0不启用<br />
+        gpgkey= 数字证书公匙位置
+        </p>
+        
+        <font color="#FF0000">容器正确的地址下都有个repodata文件夹 此文件夹就是分析rpm依赖数据的放置处<br /><img  src="image/rpm.PNG" /><br />上图容器地址为http://apt.sw.be/redhat/el6/en/i386/dag/</font>
+        
+        <p><font color="#FF0000">other</font><br />
+        yum repolist all //列出当前使用的所有容器名<br />
+        yum clean all//删除下载过的所有容器相关数据<br />
+        yum clean [packages|headers|all]//packages 删除所有已下载软件的文件  headers删除所有已下载的软件文件头
+        </p>
+ 	</h3></a></div>
+    
+    
+    <div class="div_box"><a name='APT'><h3>
+    	<p><font color="#FF0000">DKPG APT</font><br />
+        	同RPM YUM只不过是用于 Debian 系linux
+        </p>
+         <p>
+         <font color="#FF0000">DPKG</font><br />
+        <font color="#FF0000">dpkg -i  安装一个Debian包裹文件，如你手动下载的文件。<br />
+        dpkg -r  移除一个已安装的包裹。<br />
+        dpkg -P 完全清除一个已安装的包裹。和 remove 不同的是，remove 只是删掉数据和可执行文件，purge 另外还删除所有的配制文件。<br />
+        </font>
+        dpkg -c  列出的内容content。<br />
+        dpkg -I  列出提取包裹信息。<br />
+        dpkg -L  列出已安装包裹的所有文件清单。同时请看 dpkg -c 来检查一个 .deb 文件的内容。tscn_com<br />
+        <div style=" background-color:#000"><font color="#FFFFFF">dokg -l 包名 查询包安装状态
+        <pre>
+illusive_man@Cerberus:~$ dpkg -l gedit<br /><br />期望状态=未知(u)/安装(i)/删除(r)/清除(p)/保持(h)<br />| 状态=未安装(n)/已安装(i)/仅存配置(c)/仅解压缩(U)/配置失败(F)/不完全安装(H)/触发器等待(W)/触发器未决(T)<br />|/ 错误?=(无)/须重装(R) (状态，错误：大写=故障)<br /><br />||/ 名称                         版本               Architecture         描述<br />+++-==============================-====================-====================-=================================================================<br />ii  gedit                          3.6.1-0ubuntu1       i386                 official text editor of the GNOME desktop environment<br />
+        </pre></font></div>
+         </p>
+        
+        <p>
+        
+        <font color="#FF0000">APT<br />apt-cache search package 搜索包<br />
+        apt-cache show package 获取包的相关信息，如说明、大小、版本等<br />
+        sudo apt-get install package 安装包<br /></font>
+        sudo apt-get install package --reinstall 重新安装包<br />
+        sudo apt-get -f install 修复安装"-f = ——fix-missing"<br />
+        <font color="#FF0000">sudo apt-get remove package 删除包<br />
+        sudo apt-get remove package - - purge 删除包，包括删除配置文件等<br />
+        sudo apt-get update 更新源<br />
+        sudo apt-get upgrade 更新已安装的包 若新版本需要新的依赖环境而系统没有 将不做改动<br />
+        sudo apt-get dist-upgrade 更新已安装的包 若新版本需要新的依赖环境而系统没有 将安装依赖并升级包<br />
+        sudo apt-get dselect-upgrade 使用 dselect 升级<br />
+        </font>apt-cache depends package 了解使用依赖<br />
+        apt-cache rdepends package 是查看该包被哪些包依赖<br />
+        sudo apt-get build-dep package 安装相关的编译环境<br />
+        apt-get source package 下载该包的源代码<br />
+        sudo apt-get clean && sudo apt-get autoclean 清理无用的包<br />
+        sudo apt-get check 检查是否有损坏的依赖<br />
+        </p>
+	</h3></a></div>
+    
+</td></tr></table>
+</body>
+</html>

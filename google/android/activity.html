@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>android</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#activity">activity</a>
+		<a href="#use">使用activity</a>
+	</div>
+
+	<div class="note"><a name="activity"></a>
+		<p><span class="flag">activity</span>
+<pre>activity 是android中 為用戶 提供可視的交互接口
+
+activity 存在4中 狀態 
+running		運行中 此時 位於 activity棧頂 擁有焦點 可以和用戶 交互
+paused		被其他activity 覆蓋 失去焦點 不在和用戶交互
+stopped		activity 不再可見
+killed		activity 完成 或者 被系統 移除內存
+
+<img src="images/activity/activity_lifecycle.png">
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>當 activity 處於 paused 或者 stopped時 如果 系統需要 
+可能會將 activity 完全 移除內存
+
+故對於 複雜應用 需要 在OnPause()中 持久化 數據 在 OnResume()中 恢復數據
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="use"></a>
+		<p><span class="flag">使用activity</span>
+<pre>1	從 	android.app.Activity 派生子類
+2	重新 OnCreate 在其中 初始化 view ...
+3	編輯 AndroidManifest.xml 為 activity 配置必要信息
+4	調用 startActivity 啟動 activity
+5	調用 finish 結束 activity
+</pre>
+		</p>
+		<p><span class="flag">常用方法 xml屬性</span>
+<pre><table><tr><td>xml attr</td><td>function</td><td>note</td></tr>
+<tr><td>android:name</td><td></td><td>指定activity 類名</td></tr>
+<tr><td>android:theme</td><td></td><td>指定使用的 主題</td></tr>
+<tr><td>android:label</td><td></td><td>指定activity 顯示名稱</td></tr>
+<tr><td>android:icon</td><td></td><td>指定activity 顯示圖標</td></tr>
+
+<tr><td>...</td><td></td><td></td></tr>
+</table>
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><span class="care">activity_man.xml</span>
+&lt;TableLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.dark.myfirstapp.MainActivity"
+    android:orientation="vertical"
+    &gt;
+    
+   
+    &lt;TableRow android:layout_width="wrap_content"&gt;
+    	&lt;TextView android:text="name:"
+	   	    android:layout_width="wrap_content"
+	   	    android:layout_height="wrap_content"/&gt;
+    	&lt;EditText android:text="illusive man"
+    	   android:id="@+id/edit_name"
+	   	    android:layout_width="wrap_content"
+	   	    android:layout_height="wrap_content"/&gt;
+    &lt;/TableRow&gt;
+    
+    &lt;TableRow android:layout_width="wrap_content"&gt;
+    	&lt;TextView android:text="work:"
+	   	    android:layout_width="wrap_content"
+	   	    android:layout_height="wrap_content"/&gt;
+    	&lt;EditText android:text="work for cerberus"
+	   	    android:id="@+id/edit_work"
+	   	    android:layout_width="wrap_content"
+	   	    android:layout_height="wrap_content"/&gt;
+    &lt;/TableRow&gt;
+    
+    &lt;TableRow android:layout_width="wrap_content"&gt;
+    	&lt;Button android:text="go"
+	   	    android:id="@+id/button_go"
+	   	    android:layout_width="wrap_content"
+	   	    android:layout_height="wrap_content"/&gt;
+    &lt;/TableRow&gt;
+
+
+&lt;/TableLayout &gt;
+
+
+
+<span class="care">activity_info.xml</span>
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.dark.myfirstapp.MainActivity"
+    
+    android:orientation="vertical"
+    &gt;
+    
+  	&lt;TextView android:text=""
+  	    android:id="@+id/textview_show"
+   	    android:layout_width="wrap_content"
+   	    android:layout_height="wrap_content"/&gt;
+  	
+    &lt;Button android:text="back"
+        android:id="@+id/button_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+	/&gt;
+&lt;/LinearLayout&gt;
+
+
+
+<span class="care">AndroidManifest.xml</span>
+...
+	&lt;activity
+		android:name=".InfoActivity"
+		android:label="activity test info" &gt;
+	&lt;/activity&gt;
+...
+
+
+
+<span class="care">MainActivity.java</span>
+...
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		
+		Button b = (Button)findViewById(R.id.button_go);
+		b.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v){
+				//獲取 填入數據
+				String name = ((EditText)findViewById(R.id.edit_name)).getText().toString();
+				String work = ((EditText)findViewById(R.id.edit_work)).getText().toString();
+				
+				//將數據 寫入 Bundle
+				Bundle bundle = new Bundle();
+				bundle.putString("name", name);
+				bundle.putString("work", work);
+				
+				
+				//創建 activity
+				Intent intent = new Intent(MainActivity.this,InfoActivity.class);
+				intent.putExtras(bundle);  //傳入參數
+				
+				//啟動 activity  並需要 獲取 返回值
+				startActivityForResult(intent,0x1102);
+				//startActivity(intent);
+			}
+		});
+	}
+	
+	//處理 activity 返回值
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// TODO Auto-generated method stub
+		if(requestCode == 0x1102 && resultCode == RESULT_OK){
+			Bundle bundle = data.getExtras();
+			Log.i("activity result", bundle.getString("rs"));
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+...
+
+
+
+<span class="care">InfoActivity.java</span>
+public class InfoActivity extends Activity {
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		
+		setContentView(R.layout.activity_info);
+		
+		//獲取參數
+		Intent intent = getIntent();
+		Bundle bundle = intent.getExtras();
+		String str = "this is ";
+		str += bundle.getString("name");
+		str += "\n";
+		str += bundle.getString("work");
+		
+		TextView v = (TextView) findViewById(R.id.textview_show);
+		v.setText(str);
+		
+		Button b = (Button)findViewById(R.id.button_back);
+		b.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v){
+				//設置 activity 返回值
+				Bundle bundle = new Bundle();
+				bundle.putString("rs", "activity result");
+				Intent intent = new Intent(InfoActivity.this,MainActivity.class);
+				intent.putExtras(bundle); 
+				
+				setResult(RESULT_OK,intent);
+				//結束activity
+				finish();
+			}
+		});
+	}
+
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

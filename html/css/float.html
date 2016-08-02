@@ -1,0 +1,297 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>css</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+
+<p>
+	<a href="#display">display 塊屬性</a><br />
+    <a href="#margin">margin</a><br />
+    <a href="#box-sizing">box-sizing 元素尺寸</a><br />
+    <a href="#position">position 位置</a><br />
+    <a href="#float">float 浮動</a><br />
+    <a href="#Responsive">媒体查询</a><br />
+    <a href="#inline-block">inline-block</a><br />
+    
+</p>
+
+
+<div class="mydiv"><a name="display"></a>
+	<p><font color="#FF0000">display 塊屬性</font>
+<pre>每個元素通常都 有一個默認的display值 大多數是block 或inline
+不過我們可以手動修改display值 例如 li 改為 inline 以製作水平菜單
+</pre>
+	</p>
+    <p><font color="#FF0000">block</font>
+<pre>對於 block是一個 塊元素 , 一個塊元素會新啟一行 並盡可能充滿容器
+(div p from header footer sction ...)
+</pre>
+	</p>
+    <p><font color="#FF0000">inline</font>
+<pre>對於inline是一個行內元素 其不會打亂佈局
+(span a ...)
+</pre>
+	</p>
+    <p><font color="#FF0000">none</font>
+<pre>對於 none 用來在不刪除 元素的情況下 隱藏元素
+和 visibility: hidden 不同 none 不會為元素保留本應該顯示的空間 (visibility: hidden 會)
+</pre>
+	</p>
+    <p><font color="#FF0000">其他取值</font>
+<pre><table class="dataintable">
+<tbody><tr>
+<th>值</th>
+<th>描述</th>
+</tr>
+
+<tr>
+<td>none</td>
+<td>此元素不会被显示。</td>
+</tr>
+
+<tr>
+<td>block</td>
+<td>此元素将显示为块级元素，此元素前后会带有换行符。</td>
+</tr>
+
+<tr>
+<td>inline</td>
+<td>默认。此元素会被显示为内联元素，元素前后没有换行符。</td>
+</tr>
+
+<tr>
+<td>inline-block</td>
+<td>行内块元素。（CSS2.1 新增的值）</td>
+</tr>
+
+<tr>
+<td>list-item</td>
+<td>此元素会作为列表显示。</td>
+</tr>
+
+<tr>
+<td>run-in</td>
+<td>此元素会根据上下文作为块级元素或内联元素显示。</td>
+</tr>
+
+<tr>
+<td>compact</td>
+<td>CSS 中有值 compact，不过由于缺乏广泛支持，已经从 CSS2.1 中删除。</td>
+</tr>
+
+<tr>
+<td>marker</td>
+<td>CSS 中有值 marker，不过由于缺乏广泛支持，已经从 CSS2.1 中删除。</td>
+</tr>
+
+<tr>
+<td>table</td>
+<td>此元素会作为块级表格来显示（类似 &lt;table&gt;），表格前后带有换行符。</td>
+</tr>
+
+<tr>
+<td>inline-table</td>
+<td>此元素会作为内联表格来显示（类似 &lt;table&gt;），表格前后没有换行符。</td>
+</tr>
+
+<tr>
+<td>table-row-group</td>
+<td>此元素会作为一个或多个行的分组来显示（类似 &lt;tbody&gt;）。</td>
+</tr>
+
+<tr>
+<td>table-header-group</td>
+<td>此元素会作为一个或多个行的分组来显示（类似 &lt;thead&gt;）。</td>
+</tr>
+
+<tr>
+<td>table-footer-group</td>
+<td>此元素会作为一个或多个行的分组来显示（类似 &lt;tfoot&gt;）。</td>
+</tr>
+
+<tr>
+<td>table-row</td>
+<td>此元素会作为一个表格行显示（类似 &lt;tr&gt;）。</td>
+</tr>
+
+<tr>
+<td>table-column-group</td>
+<td>此元素会作为一个或多个列的分组来显示（类似 &lt;colgroup&gt;）。</td>
+</tr>
+
+<tr>
+<td>table-column </td>
+<td>此元素会作为一个单元格列显示（类似 &lt;col&gt;）</td>
+</tr>
+
+<tr>
+<td>table-cell</td>
+<td>此元素会作为一个表格单元格显示（类似 &lt;td&gt; 和 &lt;th&gt;）</td>
+</tr>
+
+<tr>
+<td>table-caption</td>
+<td>此元素会作为一个表格标题显示（类似 &lt;caption&gt;）</td>
+</tr>
+
+<tr>
+<td>inherit</td>
+<td>规定应该从父元素继承 display 属性的值。</td>
+</tr>
+</tbody></table>
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="margin"></a>
+	<p><font color="#FF0000">margin</font>
+<pre>margin: 0 auto; 可以讓元素水平居中(必須同時 指定 width)
+(width 會使用瀏覽器產生 滾動條[如果需要的話] 可以使用 max-width屬性 替代 width)
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="box-sizing"></a>
+	<p><font color="#FF0000">box-sizing 元素尺寸</font>
+<pre>margin 和 padding 會因為邊距 而撑大元素
+(故若不使用 box-sizin 需要用數學 計算一個 比實際需求小 的尺寸)
+指定 box-sizing 屬性可以 使元素不被撑大
+
+(IE8以下只能滾回原始的 數學計算)
+-webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="position"></a>
+	<p><font color="#FF0000">position 位置</font>
+<pre>元素默認 position 值為 static 表示其不會被 特殊定位
+relative  同 static 除非指定額外屬性 left top right bottom 會使用元素偏離正常位置(相對父元素) 
+其他元素不會調整彌補它離開後的空隙 
+</pre>
+	</p>
+    <p><font color="#FF0000">fixed</font>
+<pre>fixed 使元素 相對 窗口位置顯示
+.fixed {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 200px;
+  background-color: white;
+}
+</pre>
+	</p>
+    <p><font color="#FF0000">absolute</font>
+<pre>absolute 同fixed 不過 其不是相對 窗口 而是相對 最近的 position 祖先元素
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="float"></a>
+	<p><font color="#FF0000">float 浮動</font>
+<pre>float 浮動 是position外 另外一個常用 屬性
+</pre>
+	</p>
+    <p><font color="#FF0000">clear</font>
+<pre>clear: left;
+clear: right;
+clear: both;
+
+用來清除浮動
+
+.box {
+  float: left;
+  width: 200px;
+  height: 100px;
+  margin: 1em;
+}
+.after-box {
+  clear: left;
+}
+&lt;div class="box"&gt;
+我感觉好像我在漂浮！
+&lt;/div&gt;
+
+&lt;section class="after-box"&gt;
+使用 clear 我们就可以将这个段落移动到浮动元素 div 下面。你需要用 left 值才能清除元素的向左浮动。你还可以用 right 或 both 来清除向右浮动或同时清除向左向右浮动。
+
+&lt;/section&gt;
+</pre>
+	</p>    
+    <p><font color="#FF0000">overflow</font>
+<pre>float 的元素 可能溢出父元素 設置如下值 可解決
+overflow: auto;
+zoom: 1;			//ie6 此需要設置此值
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="Responsive"></a>
+	<p><font color="#FF0000">媒体查询</font>
+<pre>响应式设计（Responsive Design） 可以查詢 屏幕寬度 以在不同 情況使用不同的css
+@media screen and (min-width:600px) {
+  nav {
+    float: left;
+    width: 25%;
+  }
+  section {
+    margin-left: 25%;
+  }
+}
+@media screen and (max-width:599px) {
+  nav li {
+    display: inline;
+  }
+}
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="inline-block"></a>
+	<p><font color="#FF0000">inline-block</font>
+<pre>可以創建 許多網格 鋪滿屏幕
+以前的方式
+.box {
+  float: left;
+  width: 200px;
+  height: 100px;
+  margin: 1em;
+}
+.after-box {
+  clear: left;
+}
+<img src="image/float/old.PNG" />
+
+使用inline-block
+.box2 {
+  display: inline-block;
+  width: 200px;
+  height: 100px;
+  margin: 1em;
+}
+<img src="image/float/new.PNG" />
+</pre>
+	</p>
+    <p><font color="#FF0000">注意</font>
+<pre><img src="image/float/care.PNG" />
+</pre>
+	</p>
+</div>
+
+</td></tr></table>
+</body>
+</html>
+
+
+
+
+
+
+
+

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>android</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#string">字符串資源</a>
+		<a href="#color">顏色資源</a>
+		<a href="#i18n">國際化</a>
+	</div>
+
+	<div class="note"><a name="string"></a>
+		<p><span class="flag">字符串資源</span>
+<pre>字符串資源 一般 位於 res/values/string.xml 下
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><span class="care">string.xml</span>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;resources&gt;
+
+	&lt;string name="myname"&gt;illusive man&lt;/string&gt;
+
+&lt;/resources&gt;
+
+
+
+<span>xml中 使用字符串資源</span>
+&lt;TextView android:text="@string/myname"
+	android:autoLink="email"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"/&gt;
+
+
+
+<span>java中 使用字符串資源</span>
+Log.i("source string", getResources().getString(R.string.myname));
+</pre>
+	</div>
+
+	<div class="note"><a name="color"></a>
+		<p><span class="flag">顏色資源</span>
+<pre>字符串資源 一般 位於 res/values/color.xml 下
+
+以 
+#RGB
+#ARGB
+#RRGGBB
+#AARRGGBB
+形式 指定值
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><span class="care">color.xml</span>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;resources&gt;
+
+	&lt;color name="myname"&gt;#f00&lt;/color&gt;
+
+&lt;/resources&gt;
+
+
+
+<span>xml中 使用字符串資源</span>
+&lt;TextView android:text="@string/myname"
+	android:textColor="@color/myname"
+	android:autoLink="email"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"/&gt;
+
+
+
+<span>java中 使用字符串資源</span>
+getResources().getColor(R.color.myname);
+</pre>
+	</div>
+
+	<div class="note"><a name="i18n"></a>
+		<p><span class="flag">國際化</span>
+<pre>android 對 i18n 有完備的 支持 不只是字符串 所有的資源 
+都可以在 不同環境下 有不同的 定義
+
+只需要 在 res/ 下創建 對應語言 文件夾 在此文件夾下 
+定義當前語言 使用資源 即可
+
+values-zh-rTW	正體中文
+values-zh-rHK	正體中文(香港)
+values-zh-rCN	殘體中文
+values-da-rDK	德文
+values-en-rUS	美式英文
+
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><span class="care">res/values-zh-rTW/string.xml</span>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;resources&gt;
+
+	&lt;string name="myname"&gt;幻影人&lt;/string&gt;
+&lt;/resources&gt;
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

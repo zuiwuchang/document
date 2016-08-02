@@ -1,0 +1,132 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#channel">channel</a>
+		<a href="#sync">sync 包</a>
+		
+		
+	</div>
+
+	<div class="note"><a name="channel"></a>
+		<p><span class="flag">channel</span>
+<pre>channel 是一個 線程安全的 通道 可以使用之 來同步goroutine
+
+channel 是雙向通道 我們亦可創建 單向通道
+
+使用channel發送字符串 int等基本型別是安全的 
+然發送指針 引用 不能保證數據安全 除非文檔有單獨說明如*regexp.Regexp
+(因爲無法保證 指針 引用在發送後 接收前 其內容不被改變)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="sync"></a>
+		<p><span class="flag">sync 包</span>
+<pre>sync 包 提供了 其他語言中 常用的同步 方法 如 互恥量 讀寫鎖
+</pre>
+		</p>
+
+		<p><span class="flag">sync.Once</span>
+<pre>sync.Once 型別的 Do方法 用於 在多個goroutine中 只執行一次
+
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+var once sync.Once
+
+func work(i int, ch chan int32) {
+	once.Do(func() {
+		fmt.Println("only once")
+	})
+
+	fmt.Println(i)
+	ch <- 0
+}
+func main() {
+	count := 5
+	ch := make(chan int32, 4)
+	for i := 0; i < count; i++ {
+		go work(i, ch)
+	}
+
+	for count > 0 {
+		<-ch
+		count -= 1
+	}
+}
+</pre>
+		</p>
+		<p><span class="flag">sync.Mutex</span>
+<pre>sync.Mutex 型別是一個 互斥量 
+//鎖定/解鎖
+func (m *Mutex) Lock()
+func (m *Mutex) Unlock()
+
+package main
+
+import (
+	"fmt"
+	"sync"
+	"time"
+)
+
+var mutex sync.Mutex
+
+func work(ch chan int) {
+	fmt.Println("work")
+
+	mutex.Lock()
+	fmt.Println("work ...")
+	mutex.Unlock()
+
+	ch <- 0
+}
+func main() {
+	fmt.Println("Lock")
+	mutex.Lock()
+	fmt.Println("start goroutine")
+	ch := make(chan int)
+	go work(ch)
+	time.Sleep(1000 * time.Millisecond)
+	fmt.Println("Unlock")
+	mutex.Unlock()
+
+	<-ch
+}
+</pre>
+		</p>
+
+		<p><span class="flag">sync.RWMutex</span>
+<pre>sync.RWMutex 型別是一個讀寫鎖
+func (rw *RWMutex) Lock()
+func (rw *RWMutex) RLock()
+func (rw *RWMutex) RLocker() Locker
+func (rw *RWMutex) RUnlock()
+func (rw *RWMutex) Unlock()
+</pre>
+		</p>
+
+		<p><span class="flag">sync.Cond</span>
+<pre>sync.Cond 型別 用於實現生產者 消費者模型
+func NewCond(l Locker) *Cond
+func (c *Cond) Broadcast()
+func (c *Cond) Signal()
+func (c *Cond) Wait()
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

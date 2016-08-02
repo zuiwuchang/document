@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>定时器</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1><a href="#IO">IO 定时器</a></h1></p>
+    <p><h1><a href="#DPC">DPC 定时器</a></h1></p>
+    <p><h1><a href="#SLEEP">KeDelayExecutionThread 暂停</a></h1></p>
+    
+    
+      <div class="div_box"><a name="IO"></a><h2>
+        <p><font color="#FF0000">IO 定时器</font><br />
+     	IO 定时器可注册一个例程 系统每秒调用此例程一次
+<pre>//初始化定时器
+NTSTATUS 
+  IoInitializeTimer(
+    IN PDEVICE_OBJECT  DeviceObject,		//关联的设备对象
+    IN PIO_TIMER_ROUTINE  TimerRoutine,		//例程
+    IN PVOID  Context				//传给例程的参数
+    );
+//例程声明
+VOID
+  IoTimer(
+    IN PDEVICE_OBJECT pDevObj,
+    __in_opt PVOID  Context
+    );
+
+//启动定时器 需要先初始化
+VOID 
+  IoStartTimer(
+    IN PDEVICE_OBJECT  DeviceObject
+    );
+//关闭定时器
+VOID 
+  IoStopTimer(
+    IN PDEVICE_OBJECT  DeviceObject
+    );
+</pre>
+        
+        </p>
+        <p><font color="#FF0000">注意</font><br />
+     	此例程运行在IRQL = DISPATCH_LEVEL  故只能定义在非分页内存中<br />
+        此例程运行在任意线程上 故不可直接读取进程数据
+        驱动被卸载 定时器也失效
+        </p>
+ 	</h2></div>
+    
+    <div class="div_box"><a name="DPC"></a><h2>
+        <p><font color="#FF0000">DPC 定时器</font><br />
+        可以注册一个 例程 让系统 每隔指定时间 调用之
+        DPC 例程需要同时 用到 定时器KTIMER 和 KDPC 两个对象
+<pre>//初始化  KTIMER
+VOID 
+  KeInitializeTimer(
+    IN PKTIMER  Timer
+    );
+//初始化  KDPC
+VOID 
+  KeInitializeDpc(
+    IN PRKDPC  Dpc,
+    IN PKDEFERRED_ROUTINE  DeferredRoutine,		//DPC例程
+    IN PVOID  DeferredContext					//传入例程的参数
+    );
+//激活 Timer 每次调用KeSetTimer 只能激活一次DPC例程调用 若要循环 在例程中调用KeSetTimer
+BOOLEAN 
+  KeSetTimer(
+    IN PKTIMER  Timer,
+    IN LARGE_INTEGER  DueTime,		//单位 100ns RtlConvertLongToLargeInteger(-10000000) 时间间隔RtlConvertLongToLargeInteger 将long转化为 LARGE_INTEGER
+    IN PKDPC  Dpc OPTIONAL
+    );
+DueTime为正 表示从1601年1月1日经过的时刻 为负表示从现在开始经过的时刻
+    
+//关闭 Timer
+BOOLEAN 
+  KeCancelTimer(
+    IN PKTIMER  Timer
+    );
+</pre>
+        </p>
+        
+         <p><font color="#FF0000">注意</font><br />
+     	此例程运行在IRQL = DISPATCH_LEVEL  故只能定义在非分页内存中<br />
+        驱动被卸载前 需要关闭定时器
+        </p>
+        
+        <p><font color="#FF0000">单位换算</font><br />
+     	<pre>1秒=1000毫秒(ms) 
+1毫秒=1／1,000秒(s) 
+1秒=1,000,000 微秒(μs) 
+1微秒=1／1,000,000秒(s) 
+1秒=1,000,000,000 纳秒(ns) 
+1纳秒=1／1,000,000,000秒(s) 
+1秒=1,000,000,000,000 皮秒(ps) 
+1皮秒=1／1,000,000,000,000秒(s)
+
+unsigned   int   0～4294967295   
+int   2147483648～2147483647 
+unsigned long 0～4294967295
+long   2147483648～2147483647
+long long的最大值：9223372036854775807
+long long的最小值：-9223372036854775808
+unsigned long long的最大值：1844674407370955161
+
+__int64的最大值：9223372036854775807
+__int64的最小值：-9223372036854775808
+unsigned __int64的最大值：18446744073709551615</pre>
+        </p>
+ 	</h2></div>
+    <div class="div_box"><a name="SLEEP"></a><h2>
+        <p><font color="#FF0000">KeDelayExecutionThread 暂停</font><br />
+        类似于应用层的Sleep
+<pre>NTSTATUS 
+  KeDelayExecutionThread(
+    IN KPROCESSOR_MODE  WaitMode,	//驱动应设置为 KernelMode 
+    IN BOOLEAN  Alertable,			//FALSE
+    IN PLARGE_INTEGER  Interval		//时间 单位 100ns
+    );
+    IRQL: <= APC_LEVEL
+</pre>
+        </p>
+  	</h2></div>
+</td></tr></table>
+</body>
+</html>

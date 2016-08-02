@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>wxGrid</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#wxGrid">wxGrid</a>
+		
+	</div>
+
+	<div class="note"><a name="wxGrid"></a>
+		<p><span class="flag">wxGrid</span>
+<pre>wxGrid 是一個類似 office 表格 的控件
+
+表格中 每個 元素 都可以自定義
+
+<img src="images/ctrl/1.pNG">
+</pre>
+		</p>
+
+		<p><span class="flag">事件</span>
+<pre>void handlerFuncName(wxGridEvent& event)
+
+
+
+EVT_GRID_CELL_CHANGING(func):
+	The user is about to change the data in a cell. The new cell value as string is available from GetString() event object method. This event can be vetoed if the change is not allowed. Processes a wxEVT_GRID_CELL_CHANGING event type.
+
+EVT_GRID_CELL_CHANGED(func):
+	The user changed the data in a cell. The old cell value as string is available from GetString() event object method. Notice that vetoing this event still works for backwards compatibility reasons but any new code should only veto EVT_GRID_CELL_CHANGING event and not this one. Processes a wxEVT_GRID_CELL_CHANGED event type.
+
+EVT_GRID_CELL_LEFT_CLICK(func):
+	The user clicked a cell with the left mouse button. Processes a wxEVT_GRID_CELL_LEFT_CLICK event type.
+
+EVT_GRID_CELL_LEFT_DCLICK(func):
+	The user double-clicked a cell with the left mouse button. Processes a wxEVT_GRID_CELL_LEFT_DCLICK event type.
+
+EVT_GRID_CELL_RIGHT_CLICK(func):
+	右擊表格某項
+	(wxEVT_GRID_CELL_RIGHT_CLICK event type)
+
+EVT_GRID_CELL_RIGHT_DCLICK(func):
+	The user double-clicked a cell with the right mouse button. Processes a wxEVT_GRID_CELL_RIGHT_DCLICK event type.
+
+EVT_GRID_EDITOR_HIDDEN(func):
+	某個表格 編輯器 已經隐藏
+	(wxEVT_GRID_EDITOR_HIDDEN event type)
+
+EVT_GRID_EDITOR_SHOWN(func):
+	某個表格 編輯器 已經顯示 
+	(wxEVT_GRID_EDITOR_SHOWN event type)
+
+EVT_GRID_LABEL_LEFT_CLICK(func):
+	The user clicked a label with the left mouse button. Processes a wxEVT_GRID_LABEL_LEFT_CLICK event type.
+
+EVT_GRID_LABEL_LEFT_DCLICK(func):
+	The user double-clicked a label with the left mouse button. Processes a wxEVT_GRID_LABEL_LEFT_DCLICK event type.
+
+EVT_GRID_LABEL_RIGHT_CLICK(func):
+	右擊 標題
+	(wxEVT_GRID_LABEL_RIGHT_CLICK event type)
+
+EVT_GRID_LABEL_RIGHT_DCLICK(func):
+	The user double-clicked a label with the right mouse button. Processes a wxEVT_GRID_LABEL_RIGHT_DCLICK event type.
+
+EVT_GRID_SELECT_CELL(func):
+	The given cell was made current, either by user or by the program via a call to SetGridCursor() or GoToCell(). Processes a wxEVT_GRID_SELECT_CELL event type.
+
+EVT_GRID_COL_MOVE(func):
+	The user tries to change the order of the columns in the grid by dragging the column specified by GetCol(). This event can be vetoed to either prevent the user from reordering the column change completely (but notice that if you don't want to allow it at all, you simply shouldn't call wxGrid::EnableDragColMove() in the first place), vetoed but handled in some way in the handler, e.g. by really moving the column to the new position at the associated table level, or allowed to proceed in which case wxGrid::SetColPos() is used to reorder the columns display order without affecting the use of the column indices otherwise. This event macro corresponds to wxEVT_GRID_COL_MOVE event type.
+
+EVT_GRID_COL_SORT(func):
+	This event is generated when a column is clicked by the user and its name is explained by the fact that the custom reaction to a click on a column is to sort the grid contents by this column. However the grid itself has no special support for sorting and it's up to the handler of this event to update the associated table. But if the event is handled (and not vetoed) the grid supposes that the table was indeed resorted and updates the column to indicate the new sort order and refreshes itself. This event macro corresponds to wxEVT_GRID_COL_SORT event type.
+
+EVT_GRID_TABBING(func):
+	This event is generated when the user presses TAB or Shift-TAB in the grid. It can be used to customize the simple default TAB handling logic, e.g. to go to the next non-empty cell instead of just the next cell. See also wxGrid::SetTabBehaviour(). This event is new since wxWidgets 2.9.5.
+</pre>
+		</p>
+
+		<p><span class="flag">成員函數</span>
+<pre>//返回當前行數
+int 	GetGridCursorCol () const
+ 
+//返回當前列數
+int 	GetGridCursorRow () const
+
+//返回總行數
+int 	GetNumberCols () const
+
+//返回列數
+int 	GetNumberRows () const
+
+...
+</pre>
+		</p>
+        
+        <p><span class="flag">example</span>
+<pre>#include &lt;wx/grid.h&gt;
+
+void    acFrame::InitPanelItem()
+{
+...
+    wxPanel* panel  =   new wxPanel(this);
+    panels_[DARK_PANEL_INDEX_ITEM]   =   panel;
+
+    wxBoxSizer* sizer=new wxBoxSizer(wxHORIZONTAL);
+    panel->SetSizer(sizer);
+
+    //創建表格
+    wxGrid* gird = new wxGrid(panel,wxID_ANY);
+
+    //創建n行 m列 (n m 不包括標題 行列)
+    gird->CreateGrid(8,10);
+
+    //設置指定行 高度
+    gird->SetRowSize(0,60);
+    //... 列 ... 寬度
+    gird->SetColSize(0,120);
+
+    //設置 指定位置 表格的 文本 只讀屬性
+    gird->SetCellValue(0,0,_("read only"));
+    gird->SetReadOnly(0,0,true);
+
+    //指定 指定位置 表格的 文本 顏色 背景色
+    gird->SetCellValue(3,3,_("Green"));
+    gird->SetCellTextColour(3,3,*wxRED);
+    gird->SetCellBackgroundColour(3,3,*wxLIGHT_GREY);
+
+    //... 第一行 數據格式 為 float 保留小數點後 2位
+    gird->SetColFormatFloat(1,-1,2);
+    
+    //... 使用新的 繪製樣式 以及編輯模式
+    gird->SetCellRenderer(1,0,new wxGridCellBoolRenderer());
+    gird->SetCellEditor(1,0,new wxGridCellBoolEditor());
+
+
+    sizer->Add(gird,1,wxEXPAND|wxALL,5);
+    top_sizer_->Add(panel,1,wxEXPAND|wxALL,10);
+
+...
+}
+</pre>
+        </p>
+	</div>
+	
+</div>
+</body>
+</html>

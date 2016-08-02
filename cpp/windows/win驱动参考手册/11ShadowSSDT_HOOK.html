@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>ShadowSSDT_HOOK</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1><a href="#ShadowSSDT_HOOK">ShadowSSDT_HOOK</a></h1></p>
+    
+    <div class="div_box"><a name="ShadowSSDT_HOOK"></a><h2>
+    	<p><font color="#FF0000">ShadowSSDT_HOOK</font><br />
+        影子系统描述符表 win32k.sys<br />
+      	原理同 SSDT HOOK<br />
+        不过 SSDT 函数地址记录在KeServiceDescriptorTable中
+        ShadowSSDT 函数地址记录在 KeServiceDescriptorTableShadow中
+    	     
+   		</p>
+        
+        <p><font color="#FF0000">注意</font><br />
+      	KeServiceDescriptorTableShadow 并未导出 故不能 extern 获得其地址<br /><br />
+        
+        可通过其 相对KeServiceDescriptorTable的偏移获取地址 <font color="#FF0000">不同os版本偏移可能不同</font><br />
+        <br />
+        也可通过代码查找定位 其前 0x10 个字节 与KeServiceDescriptorTable前10个字节相同<br />
+        <br />
+        KeServiceDescriptorTableShadow 的函数在win32k.sys中<br />
+        KeServiceDescriptorTableShadow 中的函数似乎只能在程序中调用
+        </p>
+       
+        <p><font color="#FF0000">ShadowSSDT_HOOK结构</font><br />
+        <img src="image/ShadowSSDT_HOOK/ShadowSSDT_HOOK.PNG" /><br />
+        83fbeb40为KeServiceDescriptorTable表开始<br />
+        +0x10 既83fbeb50 是函数地址表(数组首地址 既83b5b000)<br />
+        +0x18 既83fbeb58 是函数数量(既数组长度0x339)<br /><br />
+        x win32k!*<br />
+       	bp win32k!NtUserPostMessage<br />
+bp win32k!NtUserShowWindow<br />
+bp win32k!NtUserFindWindow<br />
+bp win32k!NtUserDestroyWindow<br />
+bp win32k!NtUserPostMessage<br />
+dd poi 83b5b000
+        </p>
+    </h2></div>
+    
+    
+   
+    
+</td></tr></table>
+</body>
+</html>

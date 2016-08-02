@@ -1,0 +1,395 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>发现调试器</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1><a href="#IsDebuggerPresent">IsDebuggerPresent</a></h1></p>
+    <p><h1><a href="#CheckRemoteDebuggerPresent">CheckRemoteDebuggerPresent</a></h1></p>
+    <p><h1><a href="#NtGlobalFlag">(os?) PEB NtGlobalFlag标志</a></h1></p>
+    <p><h1><a href="#PEB.ProcessHeap.Flags">(os?) PEB.ProcessHeap.Flags标志</a></h1></p>
+    <p><h1><a href="#PEB.ProcessHeap.ForceFlags">(os?) PEB.ProcessHeap.ForceFlags标志</a></h1></p>
+    <p><h1><a href="#SEH">SetUnhandledExceptionFilter </a></h1></p>
+    <p><h1><a href="#SEH1">EXCEPTION_EXECUTE_HANDLER </a></h1></p>
+    <p><h1><a href="#SeDebugPrivilege">SeDebugPrivilege 权限</a></h1></p>
+    
+    <div class="div_box"><a name="IsDebuggerPresent"></a><h2>
+    <p><font color="#FF0000">IsDebuggerPresent</font></p>
+    
+    <p>
+    	<pre>Win32 API
+BOOL WINAPI IsDebuggerPresent(void);//返回 进程是否被调试
+         
+<font color="#FF0000">被调试进程 在ring3 下 其PEB 结构中的 BeingDebugged 会被设置为非0
+IsDebuggerPresent 只是简单的返回此值</font>
+         
+亦可直接用汇编获取 BeingDebugged 
+mov eax,fs:[0]		//指向TEB
+mov eax, fs:[0x30];	//TEB偏移 0x30 处是 PEB结构
+mov eax,[eax+0x2];	//TEB偏移 0x2 处是 BeingDebugged(DWORD)
+ 		</pre>
+        
+        <font color="#FF0000">anti-anti</font><br />
+        直接将 BeingDebugged 设置为0 这不会影响正常调试
+    </p>
+    </h2></div>    
+    <div class="div_box"><a name="CheckRemoteDebuggerPresent"></a><h2>
+    <p><font color="#FF0000">CheckRemoteDebuggerPresent</font></p>
+    <p>
+    <pre>Win32 API
+BOOL WINAPI CheckRemoteDebuggerPresent(	 	//通过指针pbDebuggerPresent返回 指定进程 是否处于调试状态 
+  __in     HANDLE hProcess,			//进程句柄
+  __inout  PBOOL pbDebuggerPresent		//被调试返回TRUE 否则FALSE
+);
+	
+<font color="#FF0000">CheckRemoteDebuggerPresent 最终会调用ring0 函数NtQueryInformationProcess 检查进程是否处于调试
+CheckRemoteDebuggerPresent ring3下会调用 ZwQueryInformationProcess 故亦可直接调用 ZwQueryInformationProcess</font>
+
+    NTSTATUS WINAPI ZwQueryInformationProcess( 			//查询进程信息
+  __in       HANDLE ProcessHandle,				//进程句柄
+  __in       PROCESSINFOCLASS ProcessInformationClass,		//指明要查询进程何种信息 7查询debug_port 详见msdn
+  __out      PVOID ProcessInformation,				//返回数据缓冲区 debug_port为0 返回0 否则返回 0xFFFFFFFF int为-1
+  __in       ULONG ProcessInformationLength,			//缓冲区长
+  __out_opt  PULONG ReturnLength				//实际返回数据长度 可为NULL
+);
+
+<font color="#FF0000">ZwQueryInformationProcess example</font><br />
+typedef NTSTATUS (WINAPI *ZwQueryInformationProcess)(
+  __in       HANDLE ProcessHandle,
+  __in       DWORD/*PROCESSINFOCLASS*/ ProcessInformationClass,
+  __out      PVOID ProcessInformation,
+  __in       ULONG ProcessInformationLength,
+  __out_opt  PULONG ReturnLength
+);
+	HANDLE handle_dll=LoadLibrary(L"ntdll.dll");
+	if(handle_dll)
+	{
+		ZwQueryInformationProcess QueryInformationProcess=(ZwQueryInformationProcess)GetProcAddress((HMODULE)handle_dll,"ZwQueryInformationProcess");
+		if(QueryInformationProcess)
+		{
+			is_debug=0;
+			QueryInformationProcess(handle_process,7,&is_debug,sizeof(is_debug),NULL);
+			tmp.Format(L"%d\tZwQueryInformationProcess\r\n",is_debug);
+		}
+		else
+		{
+			MessageBox(L"无法定位函数 ZwQueryInformationProcess");
+		}
+	}
+	else
+	{
+		MessageBox(L"无法加载 ntdll.dll");
+	}
+    </pre>
+    
+    
+    <font color="#FF0000">anti-anti</font><br />
+    ring0下 hook NtQueryInformationProcess<br />
+    NtQueryInformationProcess将 检查内核下 进程_EPROCESS 结构的 DebugPort 是否为0(不可直接设置此值为0 )<br /><br />
+    
+    <font color="#FF0000">anti-anti example</font><br />
+<pre><h1>.h</h1>
+//原函数指针声明
+extern "C"
+typedef
+NTSTATUS (__stdcall *OldNtQueryInformationProcess)(
+  __in       HANDLE ProcessHandle,
+  __in       PROCESSINFOCLASS ProcessInformationClass,
+  __out      PVOID ProcessInformation,
+  __in       ULONG ProcessInformationLength,
+  __out_opt  PULONG ReturnLength
+);
+
+
+//自定义hook函数
+
+extern "C"
+NTSTATUS __stdcall MyNtQueryInformationProcess(
+  __in       HANDLE ProcessHandle,
+  __in       PROCESSINFOCLASS ProcessInformationClass,
+  __out      PVOID ProcessInformation,
+  __in       ULONG ProcessInformationLength,
+  __out_opt  PULONG ReturnLength
+);
+
+VOID Hook_NtQueryInformationProcess();
+VOID Unhook_NtQueryInformationProcess();
+
+<h1>.cpp</h1>
+#include"myhook.h"
+#include"hook.h"
+OldNtQueryInformationProcess RealNtQueryInformationProcess;
+
+#pragma PAGE_MEMORY
+extern "C"
+NTSTATUS __stdcall MyNtQueryInformationProcess(
+  __in       HANDLE ProcessHandle,
+  __in       PROCESSINFOCLASS ProcessInformationClass,
+  __out      PVOID ProcessInformation,
+  __in       ULONG ProcessInformationLength,
+  __out_opt  PULONG ReturnLength
+)
+{
+	
+	NTSTATUS status = STATUS_SUCCESS;
+
+	status=RealNtQueryInformationProcess(ProcessHandle,ProcessInformationClass,ProcessInformation,ProcessInformationLength,ReturnLength);
+ 
+	if(STATUS_SUCCESS==status && 7==ProcessInformationClass)
+	{
+		*(ULONG*)ProcessInformation=0;
+		KdPrint(("%d\n",*(ULONG*)ProcessInformation));
+	}
+
+	
+	return status;
+}
+#pragma PAGE_MEMORY
+VOID Hook_NtQueryInformationProcess()
+{
+	ULONG index=0xEA;
+	ULONG my_address=(ULONG)MyNtQueryInformationProcess;
+	ULONG cur_address=GetCurSsdtFunctionAddr(index);
+	if(my_address!=cur_address)
+	{
+		cur_address=SetCurSsdtFunctionAddr(index,my_address);
+		RealNtQueryInformationProcess=(OldNtQueryInformationProcess)cur_address;
+		KdPrint(("Hook ok old NtQueryInformationProcess=0x%08X",cur_address));
+	}
+	else
+	{
+		KdPrint(("already Hook "));
+	}
+}
+#pragma PAGE_MEMORY
+VOID Unhook_NtQueryInformationProcess()
+{
+	ULONG index=0xEA;
+	ULONG my_address=(ULONG)MyNtQueryInformationProcess;
+	ULONG cur_address=GetCurSsdtFunctionAddr(index);
+	
+	if(my_address==cur_address)
+	{
+		cur_address=SetCurSsdtFunctionAddr(index,(ULONG)RealNtQueryInformationProcess);
+		KdPrint(("Unhook ok old NtQueryInformationProcess=0x%08X",cur_address));
+	}
+	else
+	{
+		KdPrint(("no my Hook "));
+	}
+}
+</pre>
+    </p>
+    
+    </h2></div>
+	
+    <div class="div_box"><a name="NtGlobalFlag"></a><h2>
+        <p><font color="#FF0000">PEB NtGlobalFlag标志</font> <br />
+        被调试进程 在ring3 下 其PEB 结构中的 NtGlobalFlag 会被设置上 <br />
+        FLG_HEAP_ENABLE_TAIL_CHECK (0x10)<br />
+        FLG_HEAP_ENABLE_FREE_CHECK (0x20)<br />
+        FLG_HEAP_VALIDATE_PARAMETERS (0x40)
+        </p>
+        
+        <p><font color="#FF0000">eaxmple</font>
+        <pre>mov eax, fs:[0x30];
+//获取 NtGlobalFlag 标志
+mov eax,[eax+0x68];
+and eax,0x70;
+mov is_debug,eax;
+</pre>
+        </p>
+        
+        <p><font color="#FF0000">anti-anti</font><br />
+        直接取消这三个标志  这不会影响调试<br />
+        mov eax, fs:[0x30];<br />
+		//获取 NtGlobalFlag 地址<br />
+		add eax,0x68;	<br />
+		mov ebx,0x70;<br />
+		not ebx;<br />
+		and [eax],ebx;
+        </p>
+        
+    </p></h2></div>
+    
+    <div class="div_box"><a name="PEB.ProcessHeap.Flags"></a><h2>
+        <p><font color="#FF0000">PEB.ProcessHeap.Flags标志</font> <br />
+        <font color="#FF0000">未</font>被调试进程 在ring3 下 其PEB 结构中的 ProcessHeap 结构 的 Flags 值应该为2<br />
+        调试会被设置上其他值 or Flags,...
+        </p>
+        
+        <p><font color="#FF0000">eaxmple</font>
+        <pre>//获取 PEB
+mov eax,fs:[0x30];
+//获取 ProcessHeap (nt!_HEAP结构)
+mov eax,[eax+0x18];
+//获取 Flags 未调试为2
+mov eax,[eax+0x40];
+sub eax,2;
+mov is_debug,eax;
+</pre>
+        </p>
+         <p><font color="#FF0000">anti-anti</font><br />
+         直接设置PEB.ProcessHeap.Flags此标志为2 同时设置PEB.ProcessHeap.ForceFlags为0<font color="#FF0000">否则</font> <br />在程序结束 或其他情况下可能出错 可以在特殊情况下(比如程序堆栈发生变化时)恢复此标志 正确值<br />
+<pre>mov eax,fs:[0x30];
+mov eax,[eax+0x18];
+add eax,0x40;
+mov ebx,[eax];
+mov flags,ebx;
+xor ebx,ebx;
+mov ebx,0x2;
+mov [eax],ebx;</pre>        
+         </p>
+    </p></h2></div>
+    <div class="div_box"><a name="PEB.ProcessHeap.ForceFlags"></a><h2>
+       <font color="#FF0000">未</font>被调试进程 在ring3 下 其PEB 结构中的 ProcessHeap 结构 的 ForceFlags 值应该为0<br />
+        调试会被设置上其他值 ForceFlags,...
+        </p>
+        
+        <p><font color="#FF0000">eaxmple</font>
+        <pre>//获取 PEB
+mov eax,fs:[0x30];
+//获取 ProcessHeap (nt!_HEAP结构)
+mov eax,[eax+0x18];
+//获取 ForceFlags 未调试为0
+mov eax,[eax+0x44];
+mov is_debug,eax;
+</pre>
+        </p>
+        
+        <p><font color="#FF0000">anti-anti</font><br />
+        直接设置这个标志为0  这不会影响调试<br />
+        mov eax,fs:[0x30];<br />
+		mov eax,[eax+0x18];<br />
+		add eax,0x44;<br />
+		xor ebx,ebx;<br />
+		mov [eax],ebx;</p>
+        
+    </p></h2></div>
+     <div class="div_box"><a name="SEH"></a><h2>
+        <p><font color="#FF0000">SetUnhandledExceptionFilter</font> <br />
+        SetUnhandledExceptionFilter函数 运行自定义一个回调函数用以 处理未处理的异常<br />
+        故 可用SetUnhandledExceptionFilter注册一个回调函数 于其中设置标志 表示程序未被调试 在检测代码触发一个异常一执行回调<br />
+        若程序被调试 会被调试器捕获到异常 而不会执行回调
+        </p>
+        <p><font color="#FF0000">example</font> <br />
+<pre>//通过 SetUnhandledExceptionFilter 保存是否被调试
+	BOOL static_is_debug; 
+	//保存原未处理异常 处理函数
+	LPTOP_LEVEL_EXCEPTION_FILTER lp_old_exception;
+	//自定义未处理异常 处理函数
+	LONG WINAPI CDialogRing3::myUnhandledExceptionFilter(_EXCEPTION_POINTERS* ExceptionInfo);
+    
+    <font color="#FF0000">回调</font>
+LONG WINAPI CDialogRing3::myUnhandledExceptionFilter(_EXCEPTION_POINTERS* ExceptionInfo)
+{
+	//恢复原回调
+	SetUnhandledExceptionFilter(lp_old_exception);
+
+	//修改EXCEPTION_CONTINUE_EXECUTION返回地址
+	ExceptionInfo->ContextRecord->Eip+=1;
+	//设置未被调试标志
+    static_is_debug=FALSE;		
+    //返回eip继续执行
+	return EXCEPTION_CONTINUE_EXECUTION;
+}
+    
+    <font color="#FF0000">触发断点</font>
+    static_is_debug=TRUE;
+	lp_old_exception=SetUnhandledExceptionFilter(myUnhandledExceptionFilter);
+	__asm
+	{
+		int 3;
+	}
+	CString tmp;
+	tmp.Format(L"%d",static_is_debug);
+	MessageBox(tmp);
+    </pre>
+        </p>
+        <p><font color="#FF0000">anti-anti</font><br />
+        忽略int 3 和 单步 <font color="#FF0000">似乎这没用</font>
+        </p>
+  	</h2></div>
+    
+     <div class="div_box"><a name="SEH1"></a><h2>
+        <p><font color="#FF0000">EXCEPTION_EXECUTE_HANDLER</font> <br />
+        同样是利用 SEH 结构化异常处理
+        </p>
+        <p><font color="#FF0000">example</font>
+<pre>BOOL is_debug=-1;
+	__try
+	{
+		__asm
+		{
+			int 3;
+            //或者设置TF为1 既引发单步异常
+            //pushfd;
+			//or dword ptr[esp],0x100;
+			//popfd;
+		}
+		is_debug=1;
+	}
+	__except(EXCEPTION_EXECUTE_HANDLER)
+	{
+		is_debug=0;
+	}
+	
+	SetDlgItemInt(IDC_EDIT1,is_debug);</pre>
+    <p><font color="#FF0000">anti-anti</font><br />
+    调试器忽略anti中的异常(既调试器不捕获此异常 而让原程序自己处理) 如这里的 int 3
+    </p>
+       	</p>
+ 	 </h2></div>
+     <div class="div_box"><a name="SeDebugPrivilege"></a><h2>
+        <p><font color="#FF0000">SeDebugPrivilege 权限</font> <br />
+        进程默认没有 SeDebugPrivilege 权限 调试器打开的进程会从调试器继承SeDebugPrivilege权限<br />
+        拥有SeDebugPrivilege权限的进程 可以打开csrss.exe
+        </p>
+        <p><font color="#FF0000">example</font> <br />
+<pre>CString tmp;
+	BOOL is_debug=-1;
+	HANDLE handle_process=CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0);
+	PROCESSENTRY32 process;
+	process.dwSize=sizeof(PROCESSENTRY32);
+	if(INVALID_HANDLE_VALUE!=handle_process)
+	{
+		if(Process32First(handle_process,&process))
+		{
+			do
+			{
+				if(!wcscmp(L"csrss.exe",process.szExeFile))
+				{
+					HANDLE hProcess=OpenProcess(PROCESS_QUERY_INFORMATION,FALSE,process.th32ProcessID);
+					if(hProcess)
+					{
+						is_debug=1;
+						CloseHandle(hProcess);
+					}
+					else
+					{
+						is_debug=0;
+					}
+					break;
+				}
+			}
+			while(Process32Next(handle_process,&process));
+		}
+
+		CloseHandle(handle_process);
+	}
+	tmp.Format(L"%d\tSeDebugPrivilege",is_debug);
+	m_edit.SetWindowText(tmp);</pre>
+        </p>
+        
+        <p><font color="#FF0000">anti-anti</font> <br />
+        用调试器附加 而不是直接加载
+        </p>
+        
+ 	</h2></div>
+</td></tr></table>
+</body>
+</html>

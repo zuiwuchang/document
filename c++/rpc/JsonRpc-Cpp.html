@@ -1,0 +1,154 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>JsonRpc-Cpp</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#jsoncpp">jsoncpp</a>
+		<a href="#JsonRpc-Cpp">JsonRpc-Cpp</a>
+		
+		
+	</div>
+	<div class="note"><a name="jsoncpp"></a>
+		<p><span class="flag">jsoncpp</span>
+<pre>jsoncpp 是一個開源 跨平台 的c++ json解析庫
+
+在 jsoncpp 中 每個節點 都是一個 Json::Value 容器
+
+官網<a target="_blank" href="http://jsoncpp.sourceforge.net/index.html">http://jsoncpp.sourceforge.net/index.html</a>
+</pre>
+		</p>
+		<p><span class="flag">編譯</span>
+<pre>1	編譯 jsoncpp 需要 安裝 SCons(一個 基礎 python的 類似 make的工具)
+(故之前 還需要 先 安裝 python)
+
+2	從jsoncpp官網下載 最新 源碼 並解壓
+
+3	在源碼目錄 執行 scons platform=mingw 編輯jsoncpp
+	(除了mingw 還可以使用 )
+	suncc: Sun C++ (Solaris)
+	vacpp: Visual Age C++ (AIX)
+	mingw
+	msvc6: Microsoft Visual Studio 6 service pack 5-6
+	msvc70: Microsoft Visual Studio 2002
+	msvc71: Microsoft Visual Studio 2003
+	msvc80: Microsoft Visual Studio 2005
+	msvc90: Microsoft Visual Studio 2008
+	linux-gcc: Gnu C++ (linux, also reported to work for Mac OS X)
+
+4	可選的 cd jsoncpp-master\bin\mingw 運行 test_lib_json.exe jsontestrunner.exe
+	測試 編譯是否正確
+
+5	將 jsoncpp-master\include\json 複製到 include 目錄
+	... jsoncpp-master\libs\mingw\libjson_mingw_libmt.a 複製到 lib ...
+
+6	愉快的 使用 jsoncpp 操作json數據
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;iostream&gt;
+#include &lt;cstdio&gt;
+#include &lt;json/json.h&gt;
+int main()
+{
+    std::string str;
+    <span class="care">//生成 json</span>
+    {
+        //每個json節點
+        Json::Value object;
+
+        //基本型別
+        object["int"]   =   0;
+        object["string"]   =   "utf8";
+        object["bool"]   =   true;
+
+        //json
+        object["object"]  =   object;
+
+        //數組
+        Json::Value arrays,array_objects;
+        for(int i=0;i&lt;10;++i)
+        {
+                arrays.append(i);
+                array_objects.append(object);
+        }
+        object["array"]    =   arrays;
+        object["objects"]    =   array_objects;
+
+        //生成json字符串
+        str =   object.toStyledString();
+        std::cout&lt;&lt;str&lt;&lt;std::endl;
+    }
+
+
+    <span class="care">//解析 json</span>
+    {
+        //解析器
+        Json::Reader reader;
+        Json::Value root;
+        if(reader.parse(str,root))
+        {
+            puts("基本型別");
+            std::cout&lt;&lt;root["int"].asInt()&lt;&lt;"\n"
+                &lt;&lt;root["string"].asString()&lt;&lt;"\n"
+                &lt;&lt;root["bool"].asBool()&lt;&lt;"\n";
+
+            puts("\n數組");
+            Json::Value arrays = root["array"];
+            for(std::size_t i=0;i&lt;arrays.size();++i)
+            {
+                if(arrays[i].isInt())
+                {
+                        std::cout&lt;&lt;arrays[i].asInt();
+                }
+            }
+            puts("");
+            for(Json::Value::iterator iter=arrays.begin();iter!=arrays.end();++iter)
+            {
+                std::cout&lt;&lt;iter.index()&lt;&lt;"-"&lt;&lt;iter-&gt;asInt()&lt;&lt;"\n";
+            }
+
+            puts("\n\n對象");
+            for(Json::Value::iterator iter=root.begin();iter!=root.end();++iter)
+            {
+                std::cout&lt;&lt;iter.key();
+                if(iter-&gt;isString())
+                {
+                    std::cout&lt;&lt;iter-&gt;asString()&lt;&lt;"\n";
+                }
+
+            }
+
+        }
+
+        //不存在項
+        Json::Value no = root["123"];
+        if(no.empty())
+        {
+            std::cout&lt;&lt;"\nnot fount\n";
+        }
+    }
+
+	return 0;
+}
+</pre>
+		</p>
+
+	</div>
+
+
+	<div class="note"><a name="JsonRpc-Cpp"></a>
+		<p><span class="flag">JsonRpc-Cpp</span>
+<pre>
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+

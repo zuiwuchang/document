@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>非对称加密</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1>
+    	<p><font color="#FF0000">描述</font><br />
+        	非对称加密
+		</p>
+        <a href="#RSA">RSA</a> <br />
+        <a href="#ElGamal">ElGamal</a> <br />
+        
+    </h1></p>
+    
+    <div class="div_box"><a name='RSA'><h3>
+    	<p><font color="#FF0000">RSA</font><br />
+        基于大数分解 密钥长度 512到65536中64的倍数
+        </p>
+    	<p><font color="#FF0000">example</font><br />  	
+        <pre>final String KEY_ALGORITHM=&quot;RSA&quot;;		//算法名		<br />final int KEY_SIZE=1024;			//密钥长度<br />		<br />String str=&quot;this is &quot;+KEY_ALGORITHM;<br />System.out.println(&quot;原文:&quot;+str);<br />		<br />//生成密钥对
+KeyPairGenerator keyPairGen=KeyPairGenerator.getInstance(KEY_ALGORITHM);	<br />keyPairGen.initialize(KEY_SIZE);				//初始化密钥工厂<br />KeyPair keyPair = keyPairGen.generateKeyPair();			//生成密钥对<br />byte[] public_key=keyPair.getPublic().getEncoded();		//获取公钥byte数据<br />byte[] private_key=keyPair.getPrivate().getEncoded();		//获取私钥byte数据<br />System.out.println(&quot;公钥:&quot;+new String(Hex.encode(public_key)));<br />System.out.println(&quot;私钥:&quot;+new String(Hex.encode(private_key)));<br />		<br />//加密<br />KeyFactory keyFactory=KeyFactory.getInstance(KEY_ALGORITHM);<br />//X509EncodedKeySpec x509KeySpec=new X509EncodedKeySpec(public_key);	//此两行由保存的public key byte数据<br />//PublicKey publicKey=keyFactory.generatePublic(x509KeySpec);		//恢复public key				<br />Cipher cipher=Cipher.getInstance(keyFactory.getAlgorithm());<br />cipher.init(Cipher.ENCRYPT_MODE,/*publicKey*/ keyPair.getPublic());<br />byte[] data=cipher.doFinal(str.getBytes());<br />System.out.println(&quot;密文:&quot;+new String(Hex.encode(data)));<br />str=new String(Hex.encode(data));<br />		<br />//解密<br />//KeyFactory keyFactory=KeyFactory.getInstance(KEY_ALGORITHM);<br />//cipher=Cipher.getInstance(keyFactory.getAlgorithm());<br />//PKCS8EncodedKeySpec pkcs8KeySpec=new PKCS8EncodedKeySpec(private_key);	//此两行由保存的private key byte数据<br />//PrivateKey privateKey=keyFactory.generatePrivate(pkcs8KeySpec);		//恢复private key	<br />cipher.init(Cipher.DECRYPT_MODE, /*privateKey*/keyPair.getPrivate());<br />data=cipher.doFinal(data);<br />System.out.println(&quot;解密:&quot;+new String(data));
+        </pre>
+        </p>
+        
+        <p><font color="#FF0000">注意</font><br />
+        既可以用 public key 加密 private key 解密<br />
+        也可以用 private key 加密 public key 解密<br />
+        <font color="#FF0000">由byte数据 恢复 public key 和 private key 所用到密钥材料是不同的类 见上文实例</font>
+        </p>
+    </h3></a></div>
+   
+    <div class="div_box"><a name='ElGamal'><h3>
+    	<p><font color="#FF0000">ElGamal</font><br />
+        用法同RSA<br />
+        基于离散对数问题 密钥长度 160到16384中8的倍数
+        </p>
+  	</h3></a></div>
+</td></tr></table>
+</body>
+</html>

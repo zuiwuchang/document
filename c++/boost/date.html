@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>時間與日期</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#timer">計時器 timer</a>
+		<a href="#progress_display">進度條 progress_display</a>
+		<a href="#date_time">時間日期概念</a>
+		<a href="#date">日期處理 date</a>
+		<a href="#date_duration">日期長度 date_duration days</a>
+		<a href="#date_period">日期區間 date_period</a>
+		<a href="#date_iterator">日期迭代器 date_iterator</a>
+		<a href="#time_duration">時間長度 time_duration</a>
+		<a href="#ptime">時間點 ptime</a>
+		<a href="#time_period">時間區間 time_period</a>
+		<a href="#time_iterator">時間迭代器 time_iterator</a>
+		<a href="#prebuilt">嵌入源碼</a>
+	</div>
+
+	<div class="note"><a name="timer"></a>
+		<p><span class="flag">計時器 timer</span>
+<pre>#include&lt;boost\timer.hpp&gt;
+
+timer 類似一個計時器 可以返回以秒為單位的double時間
+以std::clock()實現 內部以一個std::clock_t _start_time記錄clock值
+其精度為 CLOSKS_PER_SEC 宏定義 win32下是 1000(毫秒) Linux下是1000000(微妙) 
+</pre>
+		</p>
+		<p><span class="flag">相關接口</span>
+<pre>timer()				//設置_start_time=std::clock()
+void restart()			//重設_start_time=std::clock() 以初始化計時
+double elapsed_max()		//返回最大的計時值
+double elapsed_min()		//返回最小的計時值
+double elapsed()		//返回經過多時間秒數	return  double(std::clock() - _start_time) / CLOCKS_PER_SEC;
+</pre>
+		</p>
+		<p><span class="flag">progress_timer</span>
+<pre>#include&lt;boost\progress.hpp&gt;
+
+progress_timer繼承自timer 
+其唯一的不同在於析構時自動向std::cout&lt;&lt;progress_timer.elapsed()&lt;&lt; " s\n"&lt;&lt; std::endl;
+其次progress_timer( std::ostream & os = std::cout )可以指定一個輸出流 以替換掉std::cout
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>timer win32精確到0.001秒 Linux精確到0.000001秒
+progress_timer 只精確到0.01秒
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="progress_display"></a>
+		<p><span class="flag">進度條 progress_display</span>
+<pre>#include&lt;boost\progress.hpp&gt;
+progress_display用於向std::cout顯示一個進度條
+<img src="image/時間與日期/progress_display.PNG" />
+第三行的*代表了當前進度
+</pre>
+		</p>
+		<p><span class="flag">相關接口</span>
+<pre>progress_display( 
+	unsigned long expected_count,	//進度條 最大進度值
+	std::ostream & os = std::cout,	//輸出流
+	const std::string & s1 = "\n", //leading strings		//第一行開頭文本
+	const std::string & s2 = "",	//第二行開頭文本
+	const std::string & s3 = "" )	//第三行開頭文本
+
+
+void restart( unsigned long expected_count )  //重設最大進度值 並更改當前進度為0
++=	//更新進度
+++	//更新進度
+unsigned long count()			//返回當前進度
+unsigned long expected_count()	//返回最大進度值
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>在進度條完成前 如果向輸出流寫入數據 將打亂進度條
+解決的辦法是 可以在下次跟新進度時 
+restart重設一個新的進度條 並+=指定其進度為此時的值
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="date_time"></a>
+		<p><span class="flag">時間日期概念</span>
+<pre>date_time庫是boost的 時間 日期 處理庫
+其使用 (公曆)格利高里曆
+<span class="care">date_time庫需要編譯
+bjam --toolset=msvc-10.0 --with-date_time --build-type=complete --prefix=D:\Boost install</span>
+</pre>
+		</p>
+		<p><span class="flag">date_time庫 時間日期概念</span>
+<pre>date_time庫將時間處理 分為 時間點 時間段 時長 三個概念
+
+
+
+時間	是一個向前向後無線延長的實數軸
+時間點	是數軸上的一點
+時間段	是數軸上的一個前開後閉區間
+時長	是兩個時間點之差
+
+時間點+時長=時間點
+時長+時長=時長
+時間段 交 時間段 =時間段
+時間點 子集於 時間段
+
+date_time枚舉類special_values 代表特殊時間
+pos_infin	表示正無線
+neg_infin	表示負無線
+not_a_date_time	無效時間
+min_date_time	最小日期或時間
+max_date_time	最大日期或時間
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="date"></a>
+		<p><span class="flag">日期處理 date</span>
+<pre>#include&lt;boost\date_time\gregorian\gregorian.hpp&gt;
+using namespace boost::gregorian;
+</pre>
+		</p>
+		<p><span class="flag">時間點 日期 date</span>
+<pre>date_time庫以date類 以32位整數表示一個日期 其以天為單位 包含了 年 月 日 信息
+date能夠表示 [1400-01-01,9999-12-13] 之間的日期
+</pre>
+		</p>
+		<p><span class="flag">相關接口</span>
+<pre>//以年月日構造一個日期 月 日 以1 開始計數
+//構造日期無效分別拋出 bad_year bad_month bad_day_of_month
+date(year_type y, month_type m, day_type d)
+date(const ymd_type& ymd)
+date()		//構造一個無效日期 定義 #define DATE_TIME_NO_DEFAULT_CONSTRUCTOR可以禁止此構造函數
+=
+
+比較日期相等
+&lt;
+&lt;=
+&gt;
+&gt;=
+==
+!=
+
+
+//返回年月日
+year_type	year()
+month_type	month()
+day_type	day()
+
+//返回ymd_type 一個同時包含 年月日 的結構
+date::ymd_type year_month_day()
+
+//返回星期數 0為星期天
+day_of_week_type day_of_week()
+//返回一年中第多少天 [1,366] 閏年365
+day_of_year_type day_of_year()
+//返回當月最後一天的 日期
+date end_of_month()
+//返回這是一年中第幾周 [0,53]
+int week_number()
+
+
+//是否是一個無線日期
+bool is_infinity()
+//是否是一個負無線日期
+bool is_neg_infinity()
+//是否是一個正無線日期
+bool is_pos_infinity()
+//是否是一個無效日期
+bool is_not_a_date()
+//是否是一個特殊日期
+bool is_special()
+
+//運算
+...
+</pre>
+		</p>
+		<p><span class="flag">輔助API</span>
+<pre>date直接支持io流操作 故可直接 &lt;&lt; 和 &gt;&gt; 操作
+std::cout&lt;&lt;date 的輸出格式為 年 英文月前三個字母 日
+2013-Sep-19
+
+//字符串轉date 日期無效分別拋出 bad_year bad_month bad_day_of_month
+from_string("1999-12-31")
+from_string("1999/12/31")
+from_undelimited_string("19990131")
+
+工廠類<span class="care">day_clock</span>其static方法
+date local_day()			//返回本地日期
+date::ymd_type local_day_ymd()		//返回本地日期的date::ymd_type結構
+date universal_day()			//UTC...
+date::ymd_type universal_day_ymd()	//UTC...
+
+//date轉字符串
+//YYYY-mmm-DD	mmm是英文月份前三個字母
+to_simple_string
+to_simple_wstring
+
+//YYYYMMDD
+to_iso_string
+to_iso_wstring
+
+//YYYY-MM-DD
+to_iso_extended_string
+to_iso_extended_wstring
+
+//date轉tm tm的tm_hour tm_min tm_sec 均為0
+to_tm
+//tm轉date 忽略tm的tm_hour tm_min tm_sec
+date_from_tm
+
+gregorian_calendar類被date在內部使用 用戶很少用到 但其有兩個方法十分常用
+static bool is_leap_year(year_type)		//返回年份是否是閏年
+static unsigned short end_of_month_day(year_type y, month_type m); 	//返回根據 年 月 返回最後一天
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="date_duration"></a>
+		<p><span class="flag">日期長度 date_duration days</span>
+<pre>#include&lt;boost\date_time\gregorian\gregorian.hpp&gt;
+using namespace boost::gregorian;
+
+
+date_duration用以表示日期長度
+date_time庫為date_duration 定義了一個typedef days
+</pre>
+		</p>
+		<p><span class="flag">相關接口</span>
+<pre>//以天為單位 構造一個日期長度
+date_duration(long);
+date_duration(special_values);
+
+==
+!=
+&lt;
+&lt;=
+&gt;
+&gt;=
+
+=
+-
+++
+--
+/ //除法只支持出書為整數 而不能為另外一個日期長度
+
+//返回日期長度
+long days()
+
+bool is_special()
+bool is_negative()
+...
+</pre>
+		</p>
+		<p><span class="flag">other</span>
+<pre>weeks 是days的子類 用以直接構造一個以周為單位的時長
+
+
+weeks可以和days 直接+ -
+days可以直接和整數 + -
+
+
+
+years months 分別用以構造 年 月 時長
+
+
+years可以和months 直接+ -(years+-months 將返回一個 months) 不能和 days weeks + -
+years的number_of_years 返回表示的年長
+months的number_of_months返回表示的月長
+years和months支持和整數 * /
+</pre>
+		</p>
+		<p><span class="flag">日期運算</span>
+<pre>兩個date相減 返回一個 days
+date + 或 - 一個日期長度 得到新的日期
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>ate+ 或- years 或 months 時 若日期是月某 新的日期 亦然是月某
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="date_period"></a>
+		<p><span class="flag">日期區間 date_period</span>
+<pre>#include&lt;boost\date_time\gregorian\gregorian.hpp&gt;
+using namespace boost::gregorian;
+
+date_period用以表示時間軸上的一個 前開後閉區間
+</pre>
+		</p>
+		<p><span class="flag">相關接口</span>
+<pre>//構造
+date_period(date,date)
+date_period(date,days)
+
+
+date begin()
+date end()
+date last()	//返回最後一天
+
+//返回長度 以天為單位
+days length()
+bool is_null()	//返回長度是否為0
+
+//比較
+==
+//如果包含交集 比較將無意義
+&lt;	以begin 和end比較
+&lt;=
+&gt;
+&gt;=
+
+//日期是否在區間前 後
+bool is_before(date)
+bool is_after(date)
+
+//區間是否包含 日期 另外一個區間
+bool contains(date)
+bool contains(date_period)
+
+//兩個區間是否存在交集
+bool intersects(date_period)
+
+//返回兩個區間的交集 不存在返回無效區間
+date_period intersects(date_period)
+
+//返回兩個區間是否相鄰
+bool is_adjacent(date_period)
+
+//返回區間並集
+date_period merge(date_period)	//若區間無交集或不相鄰 返回無效區間
+date_period span(date_period)	//合併兩區間 和 區間存在的間隔
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="date_iterator"></a>
+		<p><span class="flag">日期迭代器 date_iterator</span>
+<pre>#include&lt;boost\date_time\gregorian\gregorian.hpp&gt;
+using namespace boost::gregorian;
+
+date_iterator 日期迭代器 提供了以 ++ -- 改變日期的能力
+提供了 day_iterator week_iterator month_iterator year_iterator 
+
+迭代器的構造需要一個 date 和一個整數n 表示++ -- 的步長為 n 天 周 月 年
+
+date_iterator-&gt;
+*date_iterator 返回 date
+date_iterator重載了比較操作符 可以不*date_iterator 而直接和date比較
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="time_duration"></a>
+		<p><span class="flag">時間長度 time_duration</span>
+<pre>#include&lt;boost\date_time\posix_time\posix_time.hpp&gt;
+using namespace boost::posix_time;
+
+time_duration是一個包含 時 分 秒  微妙 的時間長度
+若定義了BOOST_DATE_TIME_POSIX_TIME_STD_CONFIG 可精確的納秒
+
+time_duration的子類 hours minutes seconds millisec/milliseconds microsec/microseconds /nanose/nanoseconds度量了不同分辨率的時間
+</pre>
+		</p>
+		<p><span class="flag">相關接口</span>
+<pre>//構造一個 1小時 10分 30秒 1毫秒(1000微妙)的time_duration
+time_duration(1,10,30,1000);
+
+//由字符串 轉time_duration
+time_duration d=duration_from_string("1:10:30:001")
+
+支持全方位四則運算
+
+//返回 時 分 秒 微妙
+hours()
+minutes()
+seconds()
+fractional_seconds()
+
+//返回總的 秒數 毫秒數 微妙數
+total_seconds()
+total_milliseconde()
+total_microseconds()
+
+//返回是否是負數
+bool is_negative()
+
+//將時間長度取負
+invert_sign()
+
+is_...類似date_duration
+
+//轉字符串 類型date_duration
+to_simple_string(date_duration)	HH:MM:SS. fffffffff
+to_iso_string(date_duration)		HHMMSS,fffffffff
+
+//轉tm結構
+to_tm(date_duration)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="ptime"></a>
+		<p><span class="flag">時間點 ptime</span>
+<pre>#include&lt;boost\date_time\posix_time\posix_time.hpp&gt;
+using namespace boost::posix_time;
+
+ptime 相當於 一個日期加上一個時間長度
+</pre>
+		</p>
+		<p><span class="flag">相關接口</span>
+<pre>//
+ptime(date,time_duration);
+其他類似date
+...
+
+//返回date部分以供操作時間點
+date date();
+//返回time_duration以供操作時間點
+time_duration time_of_day()
+</pre>
+		</p>
+		<p><span class="flag">輔助API</span>
+<pre>//字符串轉ptime
+time_from_string("2010-3-5 01:00:00");
+from_iso_string("20100305T010000");
+
+second_clock::local_time()	//返回本地時間 精度為秒
+microsec_clock::universal_time()	//返回UTC時間 精度為微妙
+
+//轉字符串f是秒的小數部分為0 不顯示 T是時間和日期的分隔符
+to_simple_string(ptime)		//YYYY-mmm-DD HH:MM:SS.fffffffff
+to_iso_string(ptime)		//YYYYMMDDTHHMMSS,fffffffff
+to_iso_extended_string(ptime)	//YYYY-MM-DDTHH:MM:SS,fffffffff
+
+//轉tm
+to_tm(ptime)
+
+//time_t FILETIME 轉ptime
+from_time_t(time_t) 
+from_ftime&lt;ptime&gt;(FILETIME)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="time_period"></a>
+		<p><span class="flag">時間區間 time_period</span>
+<pre>#include&lt;boost\date_time\posix_time\posix_time.hpp&gt;
+using namespace boost::posix_time;
+
+time_period 代表了一個時間區間 類似date_period
+</pre>
+		</p>
+		<p><span class="flag">相關接口</span>
+<pre>time_period(ptime,ptime);
+time_period(ptime,time_duration);
+
+...
+shift(hours(1))	//平移1小時
+expand(hours(1))//向兩端擴展1小時(既擴展了2小時)
+
+...其他參見date_period
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="time_iterator"></a>
+		<p><span class="flag">時間迭代器 time_iterator</span>
+<pre>#include&lt;boost\date_time\posix_time\posix_time.hpp&gt;
+using namespace boost::posix_time;
+
+time_iterator重載了比較操作符 故可直接和 ptime比較
+time_iterator以一個 ptime 和 一個 time_period代表++ --的步長 構造
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="prebuilt"></a>
+		<p><span class="flag">嵌入源碼</span>
+<pre>1	創建 date_time_prebuilt.cpp 並加入工程
+
+2	//date_time_prebuilt.cpp
+	#define BOOST_DATE_TIME_SOURCE
+	#include&lt;libs\date_time\src\gregorian\greg_names.hpp&gt;
+
+3	在使用 data_time 庫前 #define BOOST_DATE_TIME_SOURCE
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><span class="care">//date_time_prebuilt.cpp</span>
+#include"stdafx.h"
+
+#define BOOST_DATE_TIME_SOURCE
+
+#include&lt;libs\date_time\src\gregorian\greg_names.hpp&gt;
+
+<span class="care">// BoostTest.cpp </span>
+#include "stdafx.h"
+<span class="care">#define BOOST_DATE_TIME_SOURCE</span>
+#include&lt;boost\date_time\gregorian\gregorian.hpp&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	boost::gregorian::date d(boost::gregorian::day_clock::local_day());
+
+	std::cout&lt;&lt;d&lt;&lt;std::endl;
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

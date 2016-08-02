@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>git</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#git">git</a>
+		<a href="#proxy">proxy</a>
+		<a href="#command">基本命令</a>
+		<a href="#branch">分支</a>
+		<a href="#remote">遠程倉庫</a>
+		<a href="#server">server</a>
+		
+	</div>
+
+	<div class="note"><a name="git"></a>
+		<p><span class="flag">git</span>
+<pre>git 分佈式版本控制系統 由GitHub的	Chris Wanstrath	PJ Hyett	Tom Preston-Werner	開發
+
+git 不需要 中央服務器 所有 的使用者都是 相同的 對象 
+然一般 會建立 一個用戶 作為 中央服務器 以方便 多人在此更新 代碼
+
+
+
+GitHub官網 為開源項目 提供 免費的 git 中央服務器 服務(閉源項目需要付費)
+<a href="https://github.com/" target="_blank">https://github.com/</a>
+</pre>
+		</p>
+		<p><span class="flag">安裝 git</span>
+<pre>linux sudo yun -y git
+
+
+
+win32 需要安裝 msysgit(git for window 非官方) git的 win32 移植程式 
+<a target="_blank" href="https://msysgit.github.io/">https://msysgit.github.io/</a>
+
+//設置 名稱 email
+git config --global user.name "zuiwuchang"
+git config --global user.email "zuiwuchang@gmail.com"
+</pre>
+		</p>
+	</div>
+	
+	<div class="note"><a name="proxy"></a>
+		<p><span class="flag">proxy</span>
+<pre>vi ~/.gitconfig
+[http]  
+    proxy = http://127.0.0.1:8087  
+    sslVerify = false	//不驗證ssl證書(沒法GoAgent沒有證書)
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="command"></a>
+		<p><span class="flag">基本命令</span>
+<pre>//初始化當前目錄 為git倉庫 
+git init
+
+//將 文件 提交到 緩存
+git add FileName 
+
+//將 緩存 提交到 倉庫
+git commit -m "note text"
+
+//查看 當前 倉庫 狀態
+git status
+
+//比較 文件變化情況
+git diff FileName
+
+//顯示 倉庫上傳 記錄 
+git log [--pretty=oneline]
+	<span class="care">--pretty=oneline 不顯示日期 作者</span>
+
+//到達指定 版本位置
+git reset --hard Id
+	<span class="care">HEAD 表示當前版本 HEAD^上個版本 HEAD~n上n個版本/HEAD^^...</span>
+
+//撤銷工作區的 所有修改
+git checkout -- FileName
+
+//撤銷 緩衝區的 修改 到當前版本
+git reset HEAD FileName
+
+//刪除 文件 (只是記錄到 緩衝區 還需要 git commit)
+git rm FileName
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="branch"></a>
+		<p><span class="flag">分支</span>
+<pre>//查看 分支 當前分支前 帶有 *
+git branch [-r]
+	<span class="care">-r 查看遠程分支</span>
+
+//創建 分支
+git branch [dev]
+
+//刪除 分支
+git branch -d [dev]
+
+//刪除 遠程 分支
+git push origin :[dev]
+
+//切換分支
+git checkout [dev]
+
+//創建 分支 並且 切換到此分支
+git checkout -b [dev]
+
+//合併指定分支到當前 分支
+git merge [dev]
+
+
+//建立分支 並且 更新為遠程指定分支
+git checkout -b [dev] origin/[dev]
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="remote"></a>
+		<p><span class="flag">遠程倉庫</span>
+<pre>//創建一個 裸倉庫(此類型 才可以被 推送)
+git init --bare [name.git]
+
+//下載 遠程 倉庫
+git clone git@github.com:michaelliao/gitskills.git
+
+//將指定分支 推送到 遠程 倉庫
+git push origin [master]
+
+//獲取 遠程倉庫中 指定 分支
+git pull origin [master]
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>git默認 拒絕push操作
+需要vi .git/config 添加
+[receive]
+denyCurrentBranch = ignore
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="server"></a>
+		<p><span class="flag">server</span>
+<pre>//安裝 git
+sudo yun -y git
+
+//增加一個 用戶 作為 git 管理
+sudo adduser git
+
+//創建倉庫
+git init --bare
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

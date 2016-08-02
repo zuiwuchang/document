@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>http</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#action">action</a>
+		<a href="#routes">routes</a>
+		<a href="#response">response</a>
+		<a href="#session">session flash</a>
+		<a href="#Body">Body parsers</a>
+		 
+		
+	</div>
+
+	<div class="note"><a name="action"></a>
+		<p><span class="flag">action</span>
+<pre>action 是一個 http 請求的映射(一個 static method)
+其返回 play.mvc.Result 作為 http請求
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre><span class="care">*.java</span>
+package controllers;
+
+import play.*;
+import play.mvc.*;
+
+import views.html.*;
+
+public class Application extends Controller {
+
+    public static Result index(String name) {
+    	return ok("Got request " + request() + "! param_name=" 
+    		+ name);
+        //return ok(index.render("Your new application is ready."));
+    }
+
+}
+
+
+
+<span class="care">routes</span>
+GET     /index.html                          controllers.Application.index(<span class="care">name</span>)
+</pre>
+		</p>
+
+		<p><span class="flag">Results</span>
+<pre>Result ok = ok("Hello world!");	//以 200 返回模板 給瀏覽器渲染
+Result notFound = notFound();
+Result pageNotFound = notFound("&lt;h1&gt;Page not found&lt;/h1&gt;").as("text/html");
+Result badRequest = badRequest(views.html.form.render(formWithErrors));
+Result oops = internalServerError("Oops");
+Result anyStatus = status(488, "Strange response type");
+
+
+
+重定向
+There are several helpers available to create redirect results:
+
+public static Result index() {
+    return redirect("/user/home");
+}
+The default is to use a 303 SEE_OTHER response type, but you can also specify a more specific status code:
+
+public static Result index() {
+    return temporaryRedirect("/user/home");
+}
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>routes 路由函數的參數 是寫參數名 而非型別
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="routes"></a>
+		<p><span class="flag">routes</span>
+<pre>/conf/routes 文件用於 配置 路由
+
+GET   /clients/:id          controllers.Clients.show(id: Long)
+GET   /items/$id<[0-9]+>    controllers.Items.show(id: Long)
+
+
+# Extract the page parameter from the query string.
+# i.e. http://myserver.com/?page=index
+GET   /                     controllers.Application.show(page)
+
+
+# Extract the page parameter from the path.
+# i.e. http://myserver.com/index
+GET   /:page                controllers.Application.show(page)
+
+
+# Extract the page parameter from the path, or fix the value for /
+GET   /                     controllers.Application.show(page = "home")
+GET   /:page                controllers.Application.show(page)
+
+
+# Pagination links, like /clients?page=3
+GET   /clients              controllers.Clients.list(page: Int ?= 1)
+
+
+# The version parameter is optional. E.g. /api/list-all?version=3.0
+GET   /api/list-all         controllers.Api.list(version ?= null)
+
+
+..詳見 Play 官網
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="response"></a>
+		<p><span class="flag">response</span>
+<pre>response() 返回值 可是設置 response 各種信息
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>JsonNode json = Json.toJson(object);
+Result jsonResult = ok(json);
+will set the Content-Type header to application/json.
+
+
+Result htmlResult = ok("&lt;h1&gt;Hello World!&lt;/h1&gt;").as("text/html");
+public static Result index() {
+    response().setContentType("text/html");
+    response().setHeader(CACHE_CONTROL, "max-age=3600");
+    response().setHeader(ETAG, "xxx");
+    return ok("&lt;h1&gt;Hello World!&lt;/h1&gt;");
+}
+
+response().setCookie("theme", "blue");
+response().setCookie(
+        "theme",        // name
+        "blue",         // value
+        3600,           // maximum age
+        "/some/path",   // path
+        ".example.com", // domain
+        false,          // secure
+        true            // http only
+);
+
+public static Result index() {
+    response().setContentType("text/html; charset=iso-8859-1");
+    return ok("&lt;h1&gt;Hello World!&lt;/h1&gt;", "iso-8859-1");
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="session"></a>
+		<p><span class="flag">session</span>
+<pre>Storing data into the Session
+As the Session is just a Cookie, it is also just an HTTP header, but Play provides a helper method to store a session value:
+
+public static Result login() {
+    session("connected", "user@gmail.com");
+    return ok("Welcome!");
+}
+The same way, you can remove any value from the incoming session:
+
+public static Result logout() {
+    session().remove("connected");
+    return ok("Bye");
+}
+Reading a Session value
+You can retrieve the incoming Session from the HTTP request:
+
+public static Result index() {
+    String user = session("connected");
+    if(user != null) {
+        return ok("Hello " + user);
+    } else {
+        return unauthorized("Oops, you are not connected");
+    }
+}
+Discarding the whole session
+If you want to discard the whole session, there is special operation:
+
+public static Result logout() {
+    session().clear();
+    return ok("Bye");
+}
+
+</pre>
+		</p>
+		<p><span class="flag">flash</span>
+<pre>public static Result save() {
+    flash("success", "The item has been created");
+    return redirect("/home");
+}
+Then in the index action, you could check if the success message existed in the flash scope, and if so, render it:
+
+public static Result index() {
+    String message = flash("success");
+    if(message == null) {
+        message = "Welcome!";
+    }
+    return ok(message);
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Body"></a>
+		<p><span class="flag">Body parsers</span>
+<pre>Body parsers
+
+What is a body parser?
+An HTTP request (at least for those using the POST and PUT operations) contains a body. This body can be formatted with any format specified in the Content-Type header. A body parser transforms this request body into a Java value.
+
+Note: You can’t write BodyParser implementation directly using Java. Because a Play BodyParser must handle the body content incrementally using an Iteratee[Array[Byte], A] it must be implemented in Scala.
+
+However Play provides default BodyParsers that should fit most use cases (parsing Json, Xml, Text, uploading files). And you can reuse these default parsers to create your own directly in Java; for example you can provide an RDF parsers based on the Text one.
+
+
+
+The BodyParser Java API
+When working with request bodies, ensure that have the following imports in your controller:
+
+import play.mvc.*;
+import play.mvc.Http.*;
+In the Java API, all body parsers must generate a play.mvc.Http.RequestBody value. This value computed by the body parser can then be retrieved via request().body():
+
+public static Result index() {
+    RequestBody body = request().body();
+    return ok("Got body: " + body);
+}
+You can specify the BodyParser to use for a particular action using the @BodyParser.Of annotation:
+
+@BodyParser.Of(BodyParser.Json.class)
+public static Result index() {
+    RequestBody body = request().body();
+    return ok("Got json: " + body.asJson());
+}
+
+
+
+The Http.RequestBody API
+As we just said all body parsers in the Java API will give you a play.mvc.Http.RequestBody value. From this body object you can retrieve the request body content in the most appropriate Java type.
+
+Note: The RequestBody methods like asText() or asJson() will return null if the parser used to compute this request body doesn’t support this content type. For example in an action method annotated with @BodyParser.Of(BodyParser.Json.class), calling asXml() on the generated body will return null.
+
+
+
+Default body parser: AnyContent
+If you don’t specify your own body parser, Play will use the default one guessing the most appropriate content type from the Content-Type header:
+
+text/plain: String, accessible via asText()
+application/json: JsonNode, accessible via asJson()
+application/xml, text/xml or application/XXX+xml: org.w3c.Document, accessible via asXml()
+application/form-url-encoded: Map<String, String[]>, accessible via asFormUrlEncoded()
+multipart/form-data: Http.MultipartFormData, accessible via asMultipartFormData()
+Any other content type: Http.RawBuffer, accessible via asRaw()
+For example:
+
+public static Result save() {
+    RequestBody body = request().body();
+    String textBody = body.asText();
+
+    if(textBody != null) {
+        return ok("Got: " + textBody);
+    } else {
+        return badRequest("Expecting text/plain request body");
+    }
+}
+
+
+
+Max content length
+Text based body parsers (such as text, json, xml or formUrlEncoded) use a max content length because they have to load all the content into memory.
+
+There is a default maximum content length of 100KB. It can be overridden by specifying the parsers.text.maxLength property in application.conf:
+
+parsers.text.maxLength=128K
+You can also specify a maximum content length via the @BodyParser.Of annotation:
+
+// Accept only 10KB of data.
+@BodyParser.Of(value = BodyParser.Text.class, maxLength = 10 * 1024)
+public static Result index() {
+    if(request().body().isMaxSizeExceeded()) {
+        return badRequest("Too much data!");
+    } else {
+        return ok("Got body: " + request().body().asText());
+    }
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

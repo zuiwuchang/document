@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>雙緩衝</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1><a href="#DrawCachedBitmap">雙緩衝</a></h1>
+    
+    </p>
+    
+    
+    
+    <div class="div_box"><a name="DrawCachedBitmap"></a>
+    <p><font color="#FF0000">雙緩衝</font>
+<pre>GDI+ 提供了方便的雙緩衝方式 和優化
+只需要創建一個Bitmap作為 內存畫布 繪製完成後 使用 DrawImage 將 Bitmap 繪製到指定設備 即可
+
+此外 GDI+ 提供了 CachedBitmap 和 DrawCachedBitmap
+CachedBitmap 是一個將 Bitmap 和指定 繪圖設備 運算後的 優化 緩衝數據 使用DrawCachedBitmap 可以比 DrawImage 更高效的 
+繪製到指定設備
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>	CRect rect;
+	GetClientRect(rect);
+	
+	//內存畫布
+	Gdiplus::Bitmap		bitmap(rect.Width(),rect.Height());
+	Gdiplus::Graphics	graphics_catche(&amp;bitmap);
+
+	//繪製操作
+	//graphics_catche.Draw...
+
+	//繪製到設備
+	Gdiplus::Graphics graphics(m_hWnd);
+	Gdiplus::CachedBitmap cache_bitmap(&amp;bitmap,&amp;graphics);
+	graphics.DrawCachedBitmap(&amp;cache_bitmap,0,0);    
+</pre>    
+	</p>
+    
+    </div>
+
+</td></tr></table>
+</body>
+</html>

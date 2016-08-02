@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>TLS表</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+    <p><h1><font color="#FF0000">TLS表</font></h1></p>
+    
+    <h2>
+    <a href="#TLS">TLS表</a><br />
+    
+    </h2>
+   
+    <div class="div_boxex"><a name="TLS"></a><p><h3>
+    	<p><h2><font color="#FF0000">TLS表</font></h2><br />
+        TLS表記錄了TLS信息 其為一個 IMAGE_TLS_DIRECTORY 結構
+<pre>typedef struct _IMAGE_TLS_DIRECTORY32 {
+    DWORD   StartAddressOfRawData;		//TLS數據塊開始地址
+    DWORD   EndAddressOfRawData;		//TLS數據塊結束地址(不包含用0填充的數據)
+    DWORD   AddressOfIndex;             // PDWORD					索引地址數組
+    DWORD   AddressOfCallBacks;         // PIMAGE_TLS_CALLBACK *	TLS回調地址數組	以0結尾
+    DWORD   SizeOfZeroFill;				//用0填充大小
+    DWORD   Characteristics;			//保留未使用
+} IMAGE_TLS_DIRECTORY32;
+typedef IMAGE_TLS_DIRECTORY32 * PIMAGE_TLS_DIRECTORY32;</pre>
+        </p>
+   	</h3></p></div>
+    
+    
+</td></tr></table>
+</body>
+</html>

@@ -1,0 +1,579 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>SSDT_HOOK</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1><a href="#why">原理</a></h1></p>
+    <p><h1><a href="#read">读取SSDT地址</a></h1></p>
+    <p><h1><a href="#example">example</a></h1></p>
+    <p><h1><a href="#naked">注意</a></h1></p>
+    
+    <div class="div_box"><a name="why"></a><h2>
+    <p><font color="#FF0000">原理</font><br />
+        <p><font color="#FF0000">winapi 分类</font><br />
+         <pre>USER   (user32.dll)    //管理窗口 菜单 对话框 控件
+GDI    (gdi32.dll)     //物理设备上执行绘图操作 win32k.sys (进入内核是 通过Shadow SSDT)
+KERBRL (kernel32.dll)  //非gui资源 如 线程 进程 文件同步 
+
+ntknlpa.exe+ntkrnlpa.lib //nt驱动的支持</pre>
+    	</p>
+        
+        <p><font color="#FF0000">Native API(Ntdll.dll)</font><br />
+         
+    	</p>
+        
+        <p><font color="#FF0000">SSDT</font><br />
+         <pre>System Service Descriptor Table //系统服务描述表 联系ring3和ring0的通道</pre>
+    	</p>
+        
+         <p><font color="#FF0000">API调用过程</font><br />
+         <pre>ring3   OpenProcess
+ring3   ntdll.OpenProcess
+ring3   ntdll.ZwOpenProcess 
+ring3   ntdll.KifastSystemCall  //此函数根据传入参数调用不同的内核 Zw api
+
+进入ring0 
+
+ring0 ntknlpa.ZwOpenProcess
+查询SSDT
+ring0 ntknlpa.ntOpenProcess</pre>
+         </p>
+    	     
+   	</p>
+   	</h2></div>
+	
+	 <div class="div_box"><a name="read"></a><h2>
+     <p><font color="#FF0000">读取SSDT地址</font><br />
+        <p><font color="#FF0000">SSDT结构</font><br />
+        <pre>SSDT记录了一个地址 此地址指向一个数组 此数组是内核函数地址 通过<font color="#FF0000">extern ULONG KeServiceDescriptorTable</font>导入此地址
+
+typedef struct ServiceDescriptorTable {
+   PVOID ServiceTableBase;    //每个元素此成员都指向SSTD基址
+   PVOID ServiceCounterTable; //包含着 SSDT 中每个服务被调用次数的计数器。这个计数器一般由sysenter 更新。
+   unsigned int NumberOfServices;//由 ServiceTableBase 描述的服务的数目。
+   PVOID ParamTableBase; //包含每个系统服务参数字节数表的基地址-系统服务参数表
+   }  </pre>
+        </p>
+     </p>
+     
+     <p><font color="#FF0000">使SSDT表可写</font><br />
+     <pre>方法一 更改注册表 -最简单的做法
+HKLM\SYSTEM\CurrentControlset\Control\SessionManger\MemoryManagement\
+EnforceWriteProtection=0
+与
+HKLM\SYSTEM\CurrentControlset\Control\SessionManger\MemoryManagement\
+DisablePagingExecutive=1
+
+方法二 改变CR0寄存器的第1位wp位 置0-常用
+方法三 通过Memory Descriptor List(MDL)-正规做法</pre>
+     </p>
+     
+      <p><font color="#FF0000">读取SSDT中函数当前地址 以汇编方式</font><br />
+      <pre>extern "C" ULONG KeServiceDescriptorTable;
+#pragma INIT_MEMORY
+ULONG GetCurFunctionAddr(ULONG index)
+{
+	ULONG function_addr;
+	__asm
+	{
+		push eax;
+		push ebx;
+			mov eax,KeServiceDescriptorTable;
+			mov eax,[eax];
+			mov ebx,index;	//函数索引
+			shl ebx,2;		//计算函数偏移 左移两位 相当于*4 或 imul ebx,ebx,4 
+			add eax,ebx;	
+			mov eax,[eax];
+			mov function_addr,eax;
+		pop ebx;
+		pop eax;
+	}
+	return function_addr;
+}</pre>
+      </p>
+      
+      <p><font color="#FF0000">读取SSDT中函数当前地址 以c++方式</font><br />
+      <pre>//声明SSDT结构
+typedef struct _ServiceDescriptorTable 
+{
+   PVOID ServiceTableBase;
+   PVOID ServiceCounterTable;
+   unsigned int NumberOfServices;
+   PVOID ParamTableBase;
+}ServiceDescriptorTable,*LPServiceDescriptorTable;
+
+extern "C" LPServiceDescriptorTable KeServiceDescriptorTable;
+
+#pragma INIT_MEMORY
+ULONG GetCurFunctionAddr(ULONG index)
+{
+	ULONG function_addr=0;
+
+	PLONG base=(PLONG)(KeServiceDescriptorTable->ServiceTableBase);
+	
+	function_addr=base[index];
+	return function_addr;
+}
+</pre>
+      </p>
+      
+       <p><font color="#FF0000">读取SSDT中函数原地址</font><br />
+       <pre>PVOID //返回函数原地址
+  MmGetSystemRoutineAddress(
+    IN PUNICODE_STRING  SystemRoutineName //函数名
+    ); 
+    
+UNICODE_STRING function_name;
+RtlInitUnicodeString(&function_name,L"NtOpenProcess");
+SSDT_NtOpenProcess_Old_Addr=(ULONG)MmGetSystemRoutineAddress(&function_name);
+KdPrint(("NtOpenProcess_Old_Addr=%0x\n",SSDT_NtOpenProcess_Old_Addr));</pre>
+       </p>
+     </h2></div>
+     <div class="div_box"><a name="example"></a><h2>
+     	<p><font color="#FF0000">example</font><br />
+     		<p><font color="#FF0000">driver.h</font><br />
+     		<pre>//driver.h
+#pragma once
+
+
+#ifdef __cplusplus	//若是c++编译 以c符号方式导入
+extern "C"
+{
+#endif
+
+#include &lt;NTDDK.h&gt;
+
+#ifdef __cplusplus
+}
+#endif 
+
+#define PAGE_MEMORY code_seg("PAGE")		//分页内存
+#define LOCKED_MEMORY code_seg()			//非分页
+#define INIT_MEMORY code_seg("INIT")		//INIT内存 此内存指明只在加载驱动时加载 驱动加载成功后自动卸载
+
+//程序员自定义扩展设备结构 以描述不同设备的信息
+typedef struct _DEVICE_EXTENSION {
+	PDEVICE_OBJECT pDevice;
+	UNICODE_STRING ustrDeviceName;	//设备名称
+	UNICODE_STRING ustrSymLinkName;	//符号链接名
+} DEVICE_EXTENSION, *PDEVICE_EXTENSION;
+
+
+#define IOCTL_DIRECT_IN  CTL_CODE(FILE_DEVICE_UNKNOWN,0x800,METHOD_IN_DIRECT,FILE_WRITE_DATA | FILE_READ_DATA)
+#define IOCTL_DIRECT_HOOK CTL_CODE(FILE_DEVICE_UNKNOWN,0x801,METHOD_OUT_DIRECT,FILE_WRITE_DATA | FILE_READ_DATA)
+#define IOCTL_DIRECT_UNHOOK CTL_CODE(FILE_DEVICE_UNKNOWN,0x802,METHOD_OUT_DIRECT,FILE_WRITE_DATA | FILE_READ_DATA)
+
+// 函数声明
+
+//创建设备对象 辅助函数
+NTSTATUS CreateDevice (IN PDRIVER_OBJECT pDriverObject);
+//卸载例程函数 设备卸载时I/O管理器中的调用
+VOID UnloadDevice (IN PDRIVER_OBJECT pDriverObject);
+
+
+NTSTATUS CreateDispatchRoutine(IN PDEVICE_OBJECT pDevObj,IN PIRP pIrp);
+NTSTATUS CloseDispatchRoutine(IN PDEVICE_OBJECT pDevObj,IN PIRP pIrp);
+NTSTATUS ControlDispatchRoutine(IN PDEVICE_OBJECT pDevObj,IN PIRP pIrp);
+
+NTSTATUS WriteDirectIn(IN PIRP pIrp,ULONG inSize,ULONG outSize);
+void Hook();
+void UnHook();
+
+ULONG GetCurFunctionAddr(ULONG index);
+ULONG SetCurFunctionAddr(ULONG index,ULONG addr);
+
+//定义一个函数指针类型
+extern "C" typedef NTSTATUS  (__stdcall *HookNtOpenProcess)( 
+	OUT	PHANDLE ProcessHandle, 
+	IN	ACCESS_MASK DesiredAccess, 
+	IN	POBJECT_ATTRIBUTES ObjectAttributes, 
+	IN	PCLIENT_ID ClientId ) ;
+
+
+//HOOK 函数声明
+extern "C" NTSTATUS __stdcall MyNtOpenProcess( 
+	OUT	PHANDLE ProcessHandle, 
+	IN	ACCESS_MASK DesiredAccess, 
+	IN	POBJECT_ATTRIBUTES ObjectAttributes, 
+	IN	PCLIENT_ID ClientId );</pre>
+            </p>
+            <p><font color="#FF0000">driver.cpp</font>
+            <pre>//driver.cpp
+
+#include "Driver.h"
+
+//导入KeServiceDescriptorTable表
+extern "C" ULONG KeServiceDescriptorTable;
+//记录原函数地址
+HookNtOpenProcess realNtOpenProcess;
+//记录被保护进程 pid
+HANDLE protected_pid;
+//记录是否被保护
+bool isHook=false;
+
+#pragma INIT_MEMORY
+extern "C" NTSTATUS DriverEntry (IN PDRIVER_OBJECT pDriverObject,IN PUNICODE_STRING pRegistryPath	) 
+{
+	KdPrint(("DriverEntry begin\n"));
+	//__asm int 3;
+	
+	NTSTATUS status;
+
+	//注册设备卸载例程
+	pDriverObject->DriverUnload = UnloadDevice;
+
+	////注册irp例程
+	pDriverObject->MajorFunction[IRP_MJ_CREATE] = CreateDispatchRoutine;
+	pDriverObject->MajorFunction[IRP_MJ_CLOSE] = CloseDispatchRoutine;
+
+	
+	pDriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] = ControlDispatchRoutine;
+	//创建驱动设备对象
+	status = CreateDevice(pDriverObject);
+
+	KdPrint(("DriverEntry end\n"));
+	return status;
+}
+
+
+#pragma INIT_MEMORY
+ULONG GetCurFunctionAddr(ULONG index)
+{
+	ULONG function_addr;
+	__asm
+	{
+		push eax;
+		push ebx;
+			mov eax,KeServiceDescriptorTable;
+			mov eax,[eax];
+			mov ebx,index;	//函数索引
+			shl ebx,2;		//计算函数偏移 左移两位 相当于*4 或 imul ebx,ebx,4 
+			add eax,ebx;	
+			mov eax,[eax];
+			mov function_addr,eax;
+		pop ebx;
+		pop eax;
+	}
+	return function_addr;
+}
+
+#pragma INIT_MEMORY
+ULONG SetCurFunctionAddr(ULONG index,ULONG addr)
+{
+	ULONG function_addr;
+	__asm
+	{
+		push eax;
+		push ebx;
+
+		//去除页面保护
+		cli;
+			mov eax,cr0;
+			and eax,not 10000h; //and eax,0FFFEFFFFh
+			mov cr0,eax;
+
+			mov eax,KeServiceDescriptorTable;
+			mov eax,[eax];
+			mov ebx,index;	//函数索引
+			shl ebx,2;		//计算函数偏移 左移两位 相当于*4 或 imul ebx,ebx,4 
+			add eax,ebx;
+			mov ebx,[eax];
+			mov function_addr,ebx;
+
+			mov ebx,addr;
+			mov [eax],ebx;
+		
+		//恢复页面保户
+		cli;
+			mov eax,cr0;
+			or eax,10000h; 
+			mov cr0,eax ;
+			sti;
+
+		pop ebx;
+		pop eax;
+	}
+	return function_addr;
+}
+
+#pragma INIT_MEMORY
+NTSTATUS CreateDevice (IN PDRIVER_OBJECT pDriverObject) 
+{
+	KdPrint(("CreateDevice begin\n"));
+
+	NTSTATUS status;
+	//设备对象 指针
+	PDEVICE_OBJECT pDevObj;
+	//设备对象扩展结构 指针
+	PDEVICE_EXTENSION pDevExt;
+	
+	//设备名称
+	UNICODE_STRING devName;
+	RtlInitUnicodeString(&devName,L"\\Device\\SSDT_HOOK");
+	
+	//创建设备
+	status = IoCreateDevice( pDriverObject,			//驱动对象
+						sizeof(DEVICE_EXTENSION),	//设备扩展结构大小
+						&(UNICODE_STRING)devName,	//设备名 或 NULL
+						FILE_DEVICE_UNKNOWN,		//设备类型 FILE_DEVICE_UNKNOWN 未知虚拟设备，且为独占(既只能被一个应用程序使用) 
+						0, TRUE,
+						&pDevObj );					//设备地址 out
+
+	if (!NT_SUCCESS(status))
+		return status;
+
+	//以直接的方式读写(既不使用缓冲区)
+	pDevObj->Flags |= DO_DIRECT_IO;
+
+	//填充扩展结构数据
+	pDevExt = (PDEVICE_EXTENSION)pDevObj->DeviceExtension;
+	pDevExt->pDevice = pDevObj;
+	pDevExt->ustrDeviceName = devName;
+	
+	//符号链接名
+	UNICODE_STRING symLinkName;
+	RtlInitUnicodeString(&symLinkName,L"\\??\\SSDT_HOOK");
+	
+	//创建符号链接
+	pDevExt->ustrSymLinkName = symLinkName;
+	status = IoCreateSymbolicLink( &symLinkName,&devName );
+	
+	if (!NT_SUCCESS(status)) 
+	{
+		IoDeleteDevice( pDevObj );
+		return status;
+	}
+	
+	KdPrint(("CreateDevice sucess and end\n"));
+	return STATUS_SUCCESS;
+}
+
+
+
+#pragma PAGE_MEMORY
+VOID UnloadDevice (IN PDRIVER_OBJECT pDriverObject) 
+{
+	KdPrint(("UnloadDevice begin\n"));
+	
+	//获取设备链表 加载的设备被自动保存在一个链表中
+	PDEVICE_OBJECT	pNextObj = pDriverObject->DeviceObject;
+	
+	//遍历设备链表
+	while (pNextObj) 
+	{
+		//获取设备扩展结构
+		PDEVICE_EXTENSION pDevExt = (PDEVICE_EXTENSION)pNextObj->DeviceExtension;
+
+		//删除符号链接
+		UNICODE_STRING pLinkName = pDevExt->ustrSymLinkName;
+		IoDeleteSymbolicLink(&pLinkName);
+		
+		//删除设备
+		IoDeleteDevice(pNextObj);
+
+		//指向链表下一节点
+		pNextObj = pNextObj->NextDevice;
+	}
+
+	KdPrint(("UnloadDevice end\n"));
+}
+
+
+
+
+#pragma PAGE_MEMORY
+NTSTATUS DispatchRoutine(IN PDEVICE_OBJECT pDevObj,IN PIRP pIrp) 
+{
+	KdPrint(("DispatchRoutine begin\n"));
+	
+	//...根据要实现的功能
+	//...完成一些事情
+	//...代码省略
+
+	NTSTATUS status = STATUS_SUCCESS;
+	//设置完成irp状态 是否成功等
+	pIrp->IoStatus.Status = status;
+	//设置irp实际操作字节数
+	pIrp->IoStatus.Information = 0;	// bytes xfered
+	//指示完成此irp
+	IoCompleteRequest( pIrp, IO_NO_INCREMENT );
+	
+	KdPrint(("DispatchRoutine end\n"));
+	return status;
+}
+#pragma PAGE_MEMORY
+NTSTATUS CreateDispatchRoutine(IN PDEVICE_OBJECT pDevObj,IN PIRP pIrp)
+{
+	KdPrint(("CreateDispatchRoutine begin\n"));
+	
+	NTSTATUS status = STATUS_SUCCESS;
+	//...根据要实现的功能
+	//...完成一些事情
+	//...代码省略
+
+	IoCompleteRequest( pIrp, IO_NO_INCREMENT );
+	KdPrint(("CreateDispatchRoutine end\n"));
+	return status;
+}
+#pragma PAGE_MEMORY
+NTSTATUS CloseDispatchRoutine(IN PDEVICE_OBJECT pDevObj,IN PIRP pIrp)
+{
+	KdPrint(("CloseDispatchRoutine begin\n"));
+	
+	NTSTATUS status = STATUS_SUCCESS;
+	UnHook();
+	IoCompleteRequest( pIrp, IO_NO_INCREMENT );
+	KdPrint(("CloseDispatchRoutine end\n"));
+	return status;
+}
+#pragma PAGE_MEMORY
+NTSTATUS ControlDispatchRoutine(IN PDEVICE_OBJECT pDevObj,IN PIRP pIrp)
+{
+	KdPrint(("ControlDispatchRoutine begin\n"));
+	
+	NTSTATUS status = STATUS_NOT_SUPPORTED;
+	pIrp->IoStatus.Information=0; //设置返回的实际操作字节数 无实意(既程序员自定)
+
+	//从irp堆栈结构中 获取设备对象的 irp 结构
+	PIO_STACK_LOCATION lpIoStack=IoGetCurrentIrpStackLocation(pIrp);
+
+	//如果成功获取到 irp 结构
+	if(lpIoStack)
+	{
+		//判断控制码
+		switch(lpIoStack->Parameters.DeviceIoControl.IoControlCode)
+		{
+		case IOCTL_DIRECT_IN://写如到驱动
+			status=WriteDirectIn(pIrp,lpIoStack->Parameters.DeviceIoControl.InputBufferLength,lpIoStack->Parameters.DeviceIoControl.OutputBufferLength);
+			break;
+		case IOCTL_DIRECT_HOOK://从驱动读数据到用户层
+			status=STATUS_SUCCESS;
+			Hook();
+			break;
+		case IOCTL_DIRECT_UNHOOK:
+			status=STATUS_SUCCESS;
+			UnHook();
+			break;
+		}
+
+	}
+
+	//设置pIrp状态 否则驱动无法继续进行其他工作
+	pIrp->IoStatus.Status=STATUS_SUCCESS;//返回成功
+	IoCompleteRequest( pIrp, IO_NO_INCREMENT );
+	KdPrint(("ControlDispatchRoutine end\n"));
+	return status;
+}
+
+
+#pragma PAGE_MEMORY
+NTSTATUS WriteDirectIn(IN PIRP pIrp,ULONG inSize,ULONG outSize)
+{
+	KdPrint(("WriteDirectIn begin\n"));
+	NTSTATUS status = STATUS_SUCCESS;
+
+	//获取用户层传入的 输入缓冲区内容拷贝 的地址
+	PVOID lp_input_buffer=pIrp->AssociatedIrp.SystemBuffer;
+
+	__asm
+	{
+		push eax;
+		mov eax,lp_input_buffer;
+		mov eax,[eax];
+		mov protected_pid,eax;
+		pop eax;
+	}
+	KdPrint(("WriteDirectIn pid=%d\n",protected_pid));
+	
+	
+	pIrp->IoStatus.Information=4;
+
+	KdPrint(("WriteDirectIn end%d\n"));
+
+	return status;
+}
+
+
+#pragma PAGE_MEMORY
+void Hook()
+{
+	KdPrint(("HOOK begin\n"));
+	
+	if(!isHook)
+	{
+		ULONG index=0xbe;
+		realNtOpenProcess=(HookNtOpenProcess)SetCurFunctionAddr(index,(ULONG)MyNtOpenProcess);
+		isHook=true;
+	}
+	KdPrint(("HOOK end%d\n"));
+	
+}
+
+#pragma PAGE_MEMORY
+void UnHook()
+{
+	KdPrint(("UNHOOK begin\n"));
+	
+	ULONG index=0xbe;
+	if(isHook)
+	{
+		SetCurFunctionAddr(index,(ULONG)realNtOpenProcess);
+		isHook=false;
+	}
+	KdPrint(("UNHOOK end%d\n"));
+	
+}
+
+#pragma PAGE_MEMORY
+extern "C" NTSTATUS __stdcall MyNtOpenProcess( 
+	OUT	PHANDLE ProcessHandle, 
+	IN	ACCESS_MASK DesiredAccess, 
+	IN	POBJECT_ATTRIBUTES ObjectAttributes, 
+	IN	PCLIENT_ID ClientId ) 
+{ 
+	NTSTATUS status=STATUS_SUCCESS; 
+	
+	//调用原 NtOpenProcess
+	status=(NTSTATUS)realNtOpenProcess( ProcessHandle, DesiredAccess, ObjectAttributes, ClientId ); 	
+
+	//如果 NtOpenProcess 调用成功
+	if(ClientId) 
+	{ 
+		//获取被打开进程 pid
+		HANDLE pid = ClientId->UniqueProcess; 	 
+
+		// 如果是被保护的PID，则拒绝访问，并将句柄设置为空 
+		if(pid == protected_pid) 
+		{ 
+			ProcessHandle=NULL;
+			status=STATUS_ACCESS_DENIED;
+			//PsLookupProcessByProcessId((ULONG)PID,&EP);
+			/*获取调用此函数的 未公开结构 以获得其进程名
+			EP=PsGetCurrentProcess();			 
+			KdPrint((" ACESS Process Name  --:%s--   \n",(PTSTR)((ULONG)EP+0x174)));
+			*/
+		} 
+	} 
+
+	return status; 
+} </pre>
+            </p>
+        </p>
+        
+     </h2></div>
+     <div class="div_box"><a name="naked"></a><h2>
+     	<p><font color="#FF0000">注意</font><br />
+        在hook时(特别是inline) 需要自定义函数 嵌入汇编代码 <br /><font color="#FF0000">但编译器会自动生成额外的 代码(如 retn,sub esp)等</font> 以让高级语言程序员 不用关心 底层代码原理<br />
+        可以在 函数声明前 加上<font color="#FF0000">__declspec(naked)</font> 如__declspec(naked) int add(int x,int y)<br />
+        此时编译器不会生成任何 多余汇编 <font color="#FF0000">但这意味着 要自己处理 堆栈平衡等</font>
+        
+        </p>
+  	</h2></div>
+</td></tr></table>
+</body>
+</html>

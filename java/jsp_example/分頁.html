@@ -1,0 +1,230 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>web</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">分頁</font>
+</p>
+
+<p>
+	<a href="#page">分頁</a><br /><br />
+    <a href="#page2">更好分頁方式</a><br /><br />
+    
+    
+</p>
+
+
+<div class="mydiv"><a name="page"></a>
+	<p><font color="#FF0000">分頁</font>
+    </p>
+    
+    <p><font color="#FF0000">jsp code</font>
+<pre>&lt;div class="main_div"&gt;
+
+	&lt;%		<font color="#FF0000">//java 初始化</font>
+	int article_page = 0;	//當前頁
+	int page_count	=	7;	//每頁顯示數量
+	String s_page	=	request.getParameter("page");
+	if(s_page !=null)
+	{
+		article_page	=	Integer.parseInt(s_page);
+	}
+	
+	//獲取總頁數
+	int pages	=	ArticlesDB.instance().getAllResult() ;
+	--pages;
+	pages	/= page_count;
+	%&gt;
+
+
+	<font color="#FF0000">&lt;!--	為javascript記錄 總頁數	當前頁面--&gt;</font>
+	&lt;a id="page_count" name="&lt;%=pages%&gt;"&gt;&lt;/a&gt;
+	&lt;a id="page_now" name="&lt;%=article_page%>"&gt;&lt;/a&gt;
+	&lt;a id="page_url" name="./post.jsp"&gt;&lt;/a&gt;
+	
+	<font color="#FF0000">&lt;!--	翻頁事件	--&gt;</font>
+	&lt;p&gt;
+	&lt;input type="button" value="first" name="go_page_first"/&gt;
+	&lt;input type="button" value="pre" name="go_page_pre"/&gt;
+	&lt;input type="button" value="next" name = "go_page_next" /&gt;
+	&lt;input type="button" value="last" name="go_page_last"/&gt;
+	&lt;input type="button" value="go"  name="go_page_top_index"/&gt;
+	&lt;input type="text" value="&lt;%=article_page %&gt;" id = "go_page_top_val" /&gt;[0,&lt;%=pages %&gt;](&lt;%=article_page %&gt;)
+	&lt;/p&gt;
+	
+	<font color="#FF0000">&lt;%//返回並輸出本頁內容</font>
+	ArrayList&lt;Article&gt; list	=	ArticlesDB.instance().getArticleLists(article_page,page_count);
+	Iterator&lt;Article&gt; iterator = list.iterator();
+	while(iterator.hasNext())  
+	{
+		Article article	=	iterator.next();
+		SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		String date	=	df.format(new Date(article.getDatetime()));
+		String title	=	article.getTitle();
+		//...	
+	}
+	%&gt;
+
+	<font color="#FF0000">&lt;!--	翻頁事件	--&gt;</font>
+	&lt;p&gt;
+	&lt;input type="button" value="first" name="go_page_first"/&gt;
+	&lt;input type="button" value="pre" name="go_page_pre"/&gt;
+	&lt;input type="button" value="next" name = "go_page_next" /&gt;
+	&lt;input type="button" value="last" name="go_page_last"/&gt;
+	&lt;input type="button" value="go"  name="go_page_bottom_index"/&gt;
+	&lt;input type="text" value="&lt;%=article_page %&gt;" id = "go_page_bottom_val" /&gt;[0,&lt;%=pages %&gt;](&lt;%=article_page %&gt;)
+	&lt;/p&gt;   	
+&lt;/div&gt;
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">javascript code</font>
+<pre>//分頁腳本
+$(document).ready(function(){
+	//事件綁定
+	
+	$("input[name=go_page_first]").click(go_page_first);
+	$("input[name=go_page_last]").click(go_page_last);
+	
+	$("input[name=go_page_pre]").click(go_page_pre);
+	$("input[name=go_page_next]").click(go_page_next);
+	
+	$("input[name=go_page_top_index]").click(go_page_top_index);
+	$("input[name=go_page_bottom_index]").click(go_page_bottom_index);
+	
+});
+
+function go_page_first()
+{
+	var now	=	$("#page_now").attr("name");
+	if(now != 0){
+		var url	=	$("#page_url").attr("name");
+		url	+=	"?page=0";
+		window.location.href=url;
+	}
+}
+
+function go_page_last()
+{
+	var now	=	$("#page_now").attr("name");
+	var count	=	$("#page_count").attr("name");
+	if(now != count)
+	{
+		var url	=	$("#page_url").attr("name");
+		url	+=	"?page="	+	count;
+		window.location.href=url;
+	}
+}
+
+function go_page_pre()
+{
+	var now	=	$("#page_now").attr("name");
+	--now;
+	if(now &gt;= 0)
+	{
+		var url	=	$("#page_url").attr("name");
+		url	+=	"?page="	+	now;
+		window.location.href=url;
+	}
+}
+function go_page_next()
+{
+	var now	=	$("#page_now").attr("name");
+	var count	=	$("#page_count").attr("name");
+	++now;
+	if(now &lt;= count)
+	{
+		var url	=	$("#page_url").attr("name");
+		url	+=	"?page="	+	now;
+		window.location.href=url;
+	}
+}
+
+function go_page_top_index()
+{
+	var now	=	$("#page_now").attr("name");
+	var count	=	$("#page_count").attr("name");
+	var go	=	$("#go_page_top_val").val();
+	
+	if(go &lt;=  count
+			&& go &gt;= 0
+			&& go != now
+			)
+	{
+		var url	=	$("#page_url").attr("name");
+		url	+=	"?page="	+	go;
+		window.location.href=url;
+	}
+}
+function go_page_bottom_index()
+{
+	var now	=	$("#page_now").attr("name");
+	var count	=	$("#page_count").attr("name");
+	var go	=	$("#go_page_bottom_val").val();
+	
+	if(go &lt;=  count
+			&& go &gt;= 0
+			&& go != now
+			)
+	{
+		var url	=	$("#page_url").attr("name");
+		url	+=	"?page="	+	go;
+		window.location.href=url;
+	}
+}
+</pre>
+	</p>
+</div>
+<div class="mydiv"><a name="page2"></a>
+	<p><font color="#FF0000">更好分頁方式</font>
+<pre>&lt;div&gt;
+	&lt;%
+	//单页显示数量
+	int page_count	=	10;
+	
+	//计算页数
+	database.SingletonDatabase db	=	database.SingletonDatabase.instance();
+	int total_pages	=	db.getAdministratorTotals();
+	total_pages += page_count - 1;
+	total_pages	/= page_count;
+	
+	//根据浏览器参数 获取显示第n页
+	Integer current_page	=	new Integer(0);
+	if(total_pages &gt; 0){
+		String str	=	request.getParameter("page");
+		if(str != null){
+			str	=	str.trim();
+			try{
+				current_page	=	Integer.parseInt(str);
+				if(current_page + 1 &gt; total_pages){
+						current_page	=	total_pages - 1;
+					
+				}
+			}
+			catch(java.lang.NumberFormatException e){		
+			}
+		}
+	}
+	
+	//获取当前页数据
+	java.util.ArrayList&lt;AdminUser&gt; infos	=	db.getAdministratorInfos(current_page, page_count);
+	if(infos != null){
+		for(AdminUser info:infos){
+			out.print(info.getId());
+			out.print(info.getUser());
+		}
+	}
+	%&gt;
+&lt;/div&gt;
+</pre>
+    </p>
+</div>
+             
+</td></tr></table>
+</body>
+</html>

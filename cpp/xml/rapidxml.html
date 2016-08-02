@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>rapidxml</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1><font color="#FF0000">rapidxml</font></h1></p>
+		rapidxml开源库提供了跨平台内存模式下对xml的解析<br />
+        include "rapidxml.hpp	//解析<br />
+        rapidxml_print.hpp	//输出<br />
+        rapidxml_utils.hpp	//从文件解析<br />
+        rapidxml_iterators.hpp 	//迭代器<br />
+        <a href="http://rapidxml.sourceforge.net/index.htm">官网:http://rapidxml.sourceforge.net/index.htm</a>
+    <p>
+    <h2>
+    <a href="#care">注意</a><br />
+    <a href="#doc">解析器</a><br />
+    <a href="#node">增加节点</a><br />
+    <a href="#attr">增加属性</a><br />
+    <a href="#while">遍历</a><br />
+    <a href="#iter">迭代器</a><br />
+    <a href="#save">存储到文件 stringbuffer 從文件字符串解析</a><br />
+    <a href="#del">删除节点 属性 </a>
+    
+    </h2></p>
+    
+    <div>
+      <p><a name="care" /><font color="#FF0000">注意</font><br />
+      增加节点 属性 從字符串解析 等 rapidxml只是 记录了其指针 而没进行拷贝<br />
+      <font color="#FF0000">故要在 使用解析器期間保證 指針指向的字符串 在生存週期內  </font><br />
+      如 <br />
+      wchar_t test[10]=L"test";<br />
+      root->append_node(doc.allocate_node(rapidxml::node_element,test));<br />
+      wcscpy(test,L"123"); //节点名由test变成123<br /><br />
+      </p>
+    </div>
+    
+    <div>
+      <p><a name="doc" /><font color="#FF0000">//xml_document&lt;typename Ch = char&gt;</font><br />
+        rapidxml::xml_document&lt;&gt; doc;	//解析器<br />
+        rapidxml::xml_node&lt;&gt; * decl=doc.allocate_node(rapidxml::node_declaration);//xml聲明<br />
+        //增加xml聲明屬性<br />
+		decl->append_attribute(doc.allocate_attribute("version","1.0"));<br />
+		decl->append_attribute(doc.allocate_attribute("encoding","utf-8"));<br />
+        doc.append_node(decl);</p>
+      <p> <a name="node" />rapidxml::xml_node&lt;&gt; *insertNote=NULL;<br />
+        rapidxml::xml_node&lt;&gt; *note=doc.allocate_node(rapidxml::node_element,&quot;root&quot;); <br />
+        note-&gt;append_node(doc.allocate_node(rapidxml::node_element,&quot;test&quot;,&quot;1&quot;));	//在末尾增加子节点<br />
+        note-&gt;append_node(insertNote=doc.allocate_node(rapidxml::node_element,&quot;test&quot;,&quot;2&quot;));<br />
+        note-&gt;insert_node(insertNote,doc.allocate_node(rapidxml::node_element,&quot;test&quot;,&quot;3&quot;));	//在指定位置前增加子节点<br />
+        doc.append_node(note);	//把root加入到节点树中<br />
+  <br />
+        <a name="attr" />rapidxml::xml_attribute&lt;&gt; *insertAttr=NULL;<br />
+        insertNote-&gt;append_attribute(doc.allocate_attribute(&quot;attr1&quot;,&quot;a&quot;));<br />
+        insertNote-&gt;append_attribute(insertAttr=doc.allocate_attribute(&quot;attr2&quot;,&quot;b&quot;)); <br />
+        insertNote-&gt;insert_attribute(insertAttr,doc.allocate_attribute(&quot;attr3&quot;,&quot;c&quot;));<br />
+  <br />
+  <br />
+        std::cout&lt;&lt;&quot;生成的xml树\n&quot;&lt;&lt;doc&lt;&lt;std::endl&lt;&lt;std::endl;</p>
+      <p> <br />
+        <a name="while"><font color="#FF0000">std::cout&lt;&lt;&quot;遍历子节点\n&quot;;</font><br />
+        if(note=doc.first_node(&quot;root&quot;))<br />
+        {<br />
+        note=note-&gt;first_node();<br />
+        while(note)<br />
+        {<br />
+        std::cout&lt;&lt;note-&gt;value()&lt;&lt;std::endl;<br />
+        note=note-&gt;next_sibling();<br />
+        }<br />
+  <br />
+        }</p>
+      <p> std::cout&lt;&lt;&quot;\n遍历节点属性\n&quot;;<br />
+        if(note=doc.first_node(&quot;root&quot;))<br />
+        {<br />
+        note=note-&gt;first_node();<br />
+        while(note)<br />
+        {<br />
+        insertAttr=note-&gt;first_attribute();<br />
+        while(insertAttr)<br />
+        {<br />
+        std::cout&lt;&lt;insertAttr-&gt;value()&lt;&lt;std::endl;<br />
+        insertAttr=insertAttr-&gt;next_attribute();<br />
+        }<br />
+        note=note-&gt;next_sibling();<br />
+        }<br />
+  <br />
+        }</p>
+      <p> <a name="iter"><font color="#FF0000">std::cout&lt;&lt;&quot;\n迭代器遍历节点\n&quot;;</font><br />
+        note=doc.first_node(&quot;root&quot;);<br />
+        rapidxml::node_iterator &lt;char&gt; iter(note);	//此处传入的是要遍历节点的父节点<br />
+        while(iter.operator-&gt;())	//debug 下会报错 详见重载-&gt;声明<br />
+        {<br />
+        std::cout&lt;&lt;iter-&gt;value()&lt;&lt;std::endl;<br />
+        ++iter;<br />
+        }<br />
+  <br />
+        std::cout&lt;&lt;&quot;\n迭代器遍历属性\n&quot;;<br />
+        note=doc.first_node(&quot;root&quot;)-&gt;last_node();<br />
+        rapidxml::attribute_iterator&lt;char&gt; attrIter(note);<br />
+        while(attrIter.operator-&gt;())	//debug 下会报错 详见重载-&gt;声明<br />
+        {<br />
+        std::cout&lt;&lt;attrIter-&gt;value()&lt;&lt;std::endl;<br />
+        ++attrIter;<br />
+        }</p>
+      <p><a name="save" /><font color="#FF0000"> //写入文件</font><br />
+        std::ofstream fout(&quot;text.xml&quot;,std::ios::trunc);<br />
+        fout&lt;&lt;doc;<br />
+        fout.close();<br />
+  <br />
+        //从文件读取<br />
+        rapidxml::file&lt;&gt; fdoc(&quot;text.xml&quot;); <br />
+        std::cout&lt;&lt;&quot;\n从文件读取到的字符串:\n&quot;&lt;&lt;fdoc.data()&lt;&lt;std::endl;<br />
+        從字符串解析<br />
+        doc.clear();<br />
+        doc.parse&lt;0&gt;(fdoc.data());   //模板參數0代表字符串結尾標誌 傳入參數是一個以0結尾的字符串 char*<br />
+        std::cout&lt;&lt;&quot;从字符串解析:\n&quot;&lt;&lt;doc&lt;&lt;std::endl;</p>
+      <p> //写入到stringbuffer &lt;sstreanm&gt;<br />
+        std::ostringstream stringbuffer;<br />
+        stringbuffer&lt;&lt;doc;<br />
+        std::cout&lt;&lt;&quot;\nxml写入到stringbuffer\n&quot;&lt;&lt;stringbuffer.str()&lt;&lt;std::endl;<br />
+  <br />
+        <a name="del" /><font color="#FF0000">/*删除节点</font><br />
+        note-&gt;remove_all_nodes();<br />
+        function remove_first_node()<br />
+        function remove_last_node()<br />
+        function remove_node(xml_node&lt; Ch &gt; *where)<br />
+        function remove_all_nodes()<br />
+      </p>
+      <p> 删除属性<br />
+        note-&gt;remove_all_attributes();<br />
+        function remove_first_attribute()<br />
+        function remove_last_attribute()<br />
+        function remove_attribute(xml_attribute&lt; Ch &gt; *where)<br />
+        function remove_all_attributes()<br />
+        */</p>
+      <pre>&nbsp;
+    </pre>
+    </div>
+    
+</td></tr></table>
+</body>
+</html>

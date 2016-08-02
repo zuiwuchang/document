@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>環境配置Win32</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">環境配置Win32</font>
+</p>
+
+<p>
+	<a href="#MinGW">安裝 編譯器 MinGW</a><br />
+    <a href="#wxWidgets">編譯 wxWidgets</a><br />
+    <a href="#IDE">安裝IDE CodeBlocks</a><br />
+	
+</p>
+
+
+<div class="mydiv"><a name="MinGW"></a>
+	<p><font color="#FF0000">安裝 編譯器 MinGW</font>
+<pre>MinGW 是一個將GCC編譯器和GNU Binutils移植到Win32平台下的產物 為Win32提供了一個 GCC的 編譯環境
+官網<a href="http://mingw.org/">http://mingw.org/</a>
+</pre>
+    </p>
+    <p><font color="#FF0000">安裝 步驟</font>
+<pre>1	登錄官網 下載 mingw 得到mingw-get-setup.exe(一個 mingw組件 安裝管理器)
+2	運行 mingw-get-setup.exe 設置安裝 路徑
+3	更具需要選擇安裝組件 一般選擇 
+	mingw32-base
+	mingw32-gcc-g++ 
+	既可
+4	點擊菜單 installation -> apply changes 更新組件 漫長等待安裝完成
+5	配置環境變量
+	[MINGW_HOME]	...\MinGW\bin
+	[PATH]			%MINGW_HOME%\bin
+	[LIBRARY_PATH]		%MINGW_HOME%\lib
+	[C_INCLUDE_PATH]	%MINGW_HOME%\include
+	[CPLUS_INCLUDE_PATH]	%MINGW_HOME%\include\c++\3.2.3;%MINGW_HOME%\include\c++\3.2.3\mingw32;%MINGW_HOME%\include\c++\3.2.3\backward;%MINGW_HOME%\include
+</pre>    
+    </p>
+    
+</div>
+    
+<div class="mydiv"><a name="wxWidgets"></a>
+	<p><font color="#FF0000">編譯 wxWidgets</font>
+<pre>1	從 wxWidgets 官網下載 Windows 版本 源碼 安裝
+2	打開cmd 進入 E:\wxWidgets-2.8.12\build\msw 
+3	輸入編譯命令 mingw32-make -f makefile.gcc MONOLITHIC=0 SHARED=0 UNICODE=1 BUILD=release
+4	等待漫長的 編譯完成 輸出到 E:\wxWidgets-2.8.12\lib\gcc_(lib/dll)
+
+編譯命令參數
+BUILD  debug/release (編譯版本 debug库名带后缀d)
+
+SHARED 	1 (dll)	(生成動態庫[動態庫發布 需帶dll] 或 靜態庫)
+
+MONOLITHIC 1(1個)	(編譯成1个独立的库 还是多个 库)
+
+UNICODE 1(unicode)	(wxWidgets是否支持unicode 漢字必須unicode)
+</pre>
+    </p>
+    
+    <p><font color="#FF0000">編譯庫錯誤</font>
+<pre>若出現 error: 'NMTVDISPINFOWW' was not declared in this scope 
+                 TV_DISPINFO *info = (TV_DISPINFO *)lParam; 
+		... 
+	makefile.gcc:10490: recipe for target 'gcc_mswu\corelib_treectrl.o' failed
+mingw32-make: *** [gcc_mswu\corelib_treectrl.o] Error 1
+
+
+<font color="#FF0000">解決</font>
+修改 /mingw/include/commctrl.h 2217行
+#define TV_DISPINFO __AW(NMTVDISPINFO)
+為 
+#define TV_DISPINFO NMTVDISPINFO                         
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">編譯 wxWidgets項目錯誤</font>
+<pre>若 出現 沒有 #include&lt;setup.h&gt; 這個文件
+這是 一個 win32下的 bug(wxWidgets2.8.12) 
+copy wx\msw\setup0.h wx\setup.h
+</pre>    
+    </p>
+</div>    
+
+<div class="mydiv"><a name="IDE"></a>
+	<p><font color="#FF0000">安裝IDE CodeBlocks</font>
+<pre>CodeBlocks 一個開源 免費 的跨平台 編譯器
+
+1	下載 CodeBlocks
+2	安裝	CodeBlocks
+3	設置 CodeBlocks 使用編譯器 為 GUN GCC Compiler
+4	設置 wxWidgets 路徑 Settings -> Global Variable
+	添加 變量 wx
+	設置 wxWidgets base inlude lib 目錄 如圖
+	<img src="image/環境配置Win32/ide.PNG" />    
+</pre>    
+    </p>
+</div>    
+
+</td></tr></table>
+</body>
+</html>

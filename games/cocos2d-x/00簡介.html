@@ -1,0 +1,320 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>cocos2d-x</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#cocos2d-x">cocos2d-x</a> 
+		<a href="#get">環境配置 win32</a> 
+
+		<a href="#utf8">亂碼</a> 
+		<a href="#hello">hello word</a> 
+	</div>
+
+	<div class="note"><a name="cocos2d-x"></a>
+		<p><span class="flag">cocos2d-x</span>
+<pre>一個開源 免費 跨平台的 2D遊戲引擎 對多種編程語言提供了接口
+底層使用 opengl es 2.0 渲染
+<span class="care">(其 html5 版本 受到google支助)</span>
+
+cocos2d-x 主要提供了 ios android 的移動支持 
+同時 對 windows linux mac BlackBerry Bada Marmalade Windows Phone ... 提供了支持 
+
+官網<a href="http://cn.cocos2d-x.org/">http://cn.cocos2d-x.org/</a></pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="get"></a>
+		<p><span class="flag">環境配置 win32</span>
+<pre>1	從官方下載 最新穩定版 得到 cocos2d-x-2.2.5.zip 並解壓
+(運行 cocos2d-win32.vc2010.sln 可以打開 示例項目 TestCpp 是使用功能的完整示例)
+
+2	打開cocos2d-win32.vc2010.sln為所有生成項目(示例可以不用生成) 並且copy到vs lib目錄
+
+3	將 cocos2dx\include 加入 include 目錄
+
+4	每次新項目 copy template\multi-platform-cpp\proj.win32
+
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="utf8"></a>
+		<p><span class="flag">亂碼</span>
+<pre>cocos2d-x 只能識別utf-8 編碼 故不能顯示 ascill 或 unicode 的中文 需要將其轉化為 utf8
+將所有 文字 用utf8 保存 到 單獨文件中 由程序讀出 是個不錯的選擇(這樣既可以解決亂碼 又方便國際化)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="hello"></a>
+		<p><span class="flag">hello word</span>
+<pre>win32 的template項目 中主要有 3個人 c++相關 實現 
+main				程序入口 初始化 cocos2d-x 窗口 設置 分辨率等
+class AppDelegate	由cocos2d::CCApplication派生 代表了 應用程序 實例
+class HelloWorld	由cocos2d::CCLayer派生 示例中 作為背景場景
+</pre>
+    	</p>
+
+        <p><span class="flag">example</span>
+<pre><span class="care">main.h</span>
+#ifndef __MAIN_H__
+#define __MAIN_H__
+
+#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
+
+// Windows Header Files:
+#include &lt;windows.h&gt;
+#include &lt;tchar.h&gt;
+
+// C RunTime Header Files
+#include "CCStdC.h"
+
+#endif    // __MAIN_H__
+
+<span class="care">main.cpp</span>
+#include "main.h"
+#include "AppDelegate.h"
+#include "CCEGLView.h"
+
+USING_NS_CC;
+
+int APIENTRY _tWinMain(HINSTANCE hInstance,
+                       HINSTANCE hPrevInstance,
+                       LPTSTR    lpCmdLine,
+                       int       nCmdShow)
+{
+    UNREFERENCED_PARAMETER(hPrevInstance);
+    UNREFERENCED_PARAMETER(lpCmdLine);
+
+    // create the application instance
+    AppDelegate app;
+    CCEGLView* eglView = CCEGLView::sharedOpenGLView();
+    eglView->setViewName("HelloCpp");
+    eglView->setFrameSize(480, 320);
+    return CCApplication::sharedApplication()->run();
+}
+
+
+
+<span class="care">AppDelegate.h</span>
+#ifndef  _APP_DELEGATE_H_
+#define  _APP_DELEGATE_H_
+
+#include "cocos2d.h"
+
+/**
+@brief    The cocos2d Application.
+
+The reason for implement as private inheritance is to hide some interface call by CCDirector.
+*/
+class  AppDelegate : private cocos2d::CCApplication
+{
+public:
+    AppDelegate();
+    virtual ~AppDelegate();
+
+    /**
+    @brief    Implement CCDirector and CCScene init code here.
+    @return true    Initialize success, app continue.
+    @return false   Initialize failed, app terminate.
+    */
+    virtual bool applicationDidFinishLaunching();
+
+    /**
+    @brief  The function be called when the application enter background
+    @param  the pointer of the application
+    */
+    virtual void applicationDidEnterBackground();
+
+    /**
+    @brief  The function be called when the application enter foreground
+    @param  the pointer of the application
+    */
+    virtual void applicationWillEnterForeground();
+};
+
+#endif // _APP_DELEGATE_H_
+
+<span class="care">AppDelegate.cpp</span>
+#include "AppDelegate.h"
+#include "HelloWorldScene.h"
+
+USING_NS_CC;
+
+AppDelegate::AppDelegate() {
+
+}
+
+AppDelegate::~AppDelegate() 
+{
+}
+
+//初始化場景
+bool AppDelegate::applicationDidFinishLaunching() {
+    // initialize director
+    CCDirector* pDirector = CCDirector::sharedDirector();
+    CCEGLView* pEGLView = CCEGLView::sharedOpenGLView();
+
+    pDirector->setOpenGLView(pEGLView);
+	
+    // turn on display FPS
+    pDirector->setDisplayStats(true);
+
+    // set FPS. the default value is 1.0/60 if you don't call this
+    pDirector->setAnimationInterval(1.0 / 60);
+
+    // create a scene. it's an autorelease object
+    CCScene *pScene = HelloWorld::scene();
+
+    // run
+    pDirector->runWithScene(pScene);
+
+    return true;
+}
+
+// This function will be called when the app is inactive. When comes a phone call,it's be invoked too
+//設備時被暫停 被調用 (如有來電)
+void AppDelegate::applicationDidEnterBackground() {
+    CCDirector::sharedDirector()->stopAnimation();
+
+    // if you use SimpleAudioEngine, it must be pause
+    // SimpleAudioEngine::sharedEngine()->pauseBackgroundMusic();
+}
+
+// this function will be called when the app is active again
+//設備時被激活 被調用
+void AppDelegate::applicationWillEnterForeground() {
+    CCDirector::sharedDirector()->startAnimation();
+
+    // if you use SimpleAudioEngine, it must resume here
+    // SimpleAudioEngine::sharedEngine()->resumeBackgroundMusic();
+}
+
+
+
+<span class="care">HelloWorldScene.h</span>
+#ifndef __HELLOWORLD_SCENE_H__
+#define __HELLOWORLD_SCENE_H__
+
+#include "cocos2d.h"
+
+class HelloWorld : public cocos2d::CCLayer
+{
+public:
+    // Here's a difference. Method 'init' in cocos2d-x returns bool, instead of returning 'id' in cocos2d-iphone
+    virtual bool init();  
+
+    // there's no 'id' in cpp, so we recommend returning the class instance pointer
+    static cocos2d::CCScene* scene();
+    
+    // a selector callback
+    void menuCloseCallback(CCObject* pSender);
+    
+    // implement the "static node()" method manually
+    CREATE_FUNC(HelloWorld);
+};
+
+#endif // __HELLOWORLD_SCENE_H__
+
+<span class="care">HelloWorldScene.cpp</span>
+#include "HelloWorldScene.h"
+USING_NS_CC;
+
+CCScene* HelloWorld::scene()
+{
+    // 'scene' is an autorelease object
+    CCScene *scene = CCScene::create();
+    
+    // 'layer' is an autorelease object
+    HelloWorld *layer = HelloWorld::create();
+
+    // add layer as a child to scene
+    scene->addChild(layer);
+
+    // return the scene
+    return scene;
+}
+
+// on "init" you need to initialize your instance
+bool HelloWorld::init()
+{
+    //////////////////////////////
+    // 1. super init first
+    if ( !CCLayer::init() )
+    {
+        return false;
+    }
+    
+    CCSize visibleSize = CCDirector::sharedDirector()->getVisibleSize();
+    CCPoint origin = CCDirector::sharedDirector()->getVisibleOrigin();
+
+    /////////////////////////////
+    // 2. add a menu item with "X" image, which is clicked to quit the program
+    //    you may modify it.
+
+    // add a "close" icon to exit the progress. it's an autorelease object
+    CCMenuItemImage *pCloseItem = CCMenuItemImage::create(
+                                        "CloseNormal.png",
+                                        "CloseSelected.png",
+                                        this,
+                                        menu_selector(HelloWorld::menuCloseCallback));
+    
+	pCloseItem->setPosition(ccp(origin.x + visibleSize.width - pCloseItem->getContentSize().width/2 ,
+                                origin.y + pCloseItem->getContentSize().height/2));
+
+    // create menu, it's an autorelease object
+    CCMenu* pMenu = CCMenu::create(pCloseItem, NULL);
+    pMenu->setPosition(CCPointZero);
+    this->addChild(pMenu, 1);
+
+    /////////////////////////////
+    // 3. add your codes below...
+
+    // add a label shows "Hello World"
+    // create and initialize a label
+	CCLabelTTF* pLabel = CCLabelTTF::create("Hellow Word", "Arial", 24);
+    
+    // position the label on the center of the screen
+    pLabel->setPosition(ccp(origin.x + visibleSize.width/2,
+                            origin.y + visibleSize.height - pLabel->getContentSize().height));
+
+    // add the label as a child to this layer
+    this->addChild(pLabel, 1);
+
+    // add "HelloWorld" splash screen"
+    CCSprite* pSprite = CCSprite::create("HelloWorld.png");
+
+    // position the sprite on the center of the screen
+    pSprite->setPosition(ccp(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
+
+    // add the sprite as a child to this layer
+    this->addChild(pSprite, 0);
+    
+    return true;
+}
+
+
+void HelloWorld::menuCloseCallback(CCObject* pSender)
+{
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT) || (CC_TARGET_PLATFORM == CC_PLATFORM_WP8)
+	CCMessageBox("You pressed the close button. Windows Store Apps do not implement a close button.","Alert");
+#else
+    CCDirector::sharedDirector()->end();
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+    exit(0);
+#endif
+#endif
+}
+
+</pre>
+	   </p>
+    </div>
+    
+</div>
+</body>
+</html>

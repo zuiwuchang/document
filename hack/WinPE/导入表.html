@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>导入表</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+    <p><h1><font color="#FF0000">导入表</font></h1></p>
+    
+    <h2>
+    <a href="#import">导入表</a><br />
+    <a href="#image">图解</a><br />
+    <a href="#IMAGE_IMPORT_DESCRIPTOR">IMAGE_IMPORT_DESCRIPTOR</a><br />
+    <a href="#IMAGE_THUNK_DATA">桥</a><br />
+    
+    
+    </h2>
+    <div class="div_boxex"><a name="import"></a><p><h3>
+    	<p><h2><font color="#FF0000">导入表</font></h2><br />
+        	导入表 记录了程序导入函数信息 数据目录中的IAT 也和此相关<br />
+           <font color="#FF0000">导入表是 IMAGE_IMPORT_DESCRIPTOR 结构的数组 以一个全0数据代表导入表结束<br />
+           每个 IMAGE_IMPORT_DESCRIPTOR 代表了一个导入的dll</font>
+           
+        </p>
+   	</h3></p></div>
+    
+    <div class="div_boxex"><a name="image"></a><p><h3>
+    	<p><h2><font color="#FF0000">图解</font></h2><br />
+        	<p>导入表<br /><img src="img/导入表/import.PNG" />
+            </p>
+           <p>桥1 或 桥2(IAT)<br /><img src="img/导入表/iat.PNG" />
+            </p>
+            <p>导入表<br /><img src="img/导入表/import1.PNG" />
+            </p>
+            <p><font color="#FF0000">导入表 内存中 桥2 被修改 指向函数地址</font><br /><img src="img/导入表/import2.PNG" />
+            </p>
+            <p>导入表 内存中 多个导入库<br /><img src="img/导入表/import3.PNG" />
+            </p>
+        </p>
+   	</h3></p></div>
+    
+    <div class="div_boxex"><a name="IMAGE_IMPORT_DESCRIPTOR"></a><p><h3>
+    	<p><h2><font color="#FF0000">IMAGE_IMPORT_DESCRIPTOR</font></h2><br />
+        	<pre>typedef struct _IMAGE_IMPORT_DESCRIPTOR {
+    union {
+        DWORD   Characteristics;
+        <font color="#FF0000">DWORD   OriginalFirstThunk;	//桥1 最高位为0 表示导入符号是一个RVA数值 为1 表示导入到符号是一个名称 </font>
+    } DUMMYUNIONNAME;
+    
+    DWORD   TimeDateStamp;         	//时间戳
+    DWORD   ForwarderChain;             //链表的前一个结构
+    <font color="#FF0000">DWORD   Name;			//指向dll名字的起始RVA 以\0的ansi
+    DWORD   FirstThunk;                 //桥2 RVA</font>
+} IMAGE_IMPORT_DESCRIPTOR;
+            </pre>
+        </p>
+   	</h3></p></div>
+     <div class="div_boxex"><a name="IMAGE_THUNK_DATA"></a><p><h3>
+    	<p><h2><font color="#FF0000">桥</font></h2><br />
+        	桥1 桥2 都是 IMAGE_THUNK_DATA 结构数组 其指向了 对应dll导入函数的 hint/name(索引/名称)<br />
+            桥1 为 INT<br />
+            <font color="#FF0000">桥2 为 IAT PE加载到内存后桥2(IAT)中内容会被修改为 指向对应函数入口点</font><br />
+            <font color="#FF0000">桥以一个全0的 IMAGE_THUNK_DATA代表此dll导入函数结束</font>
+           
+        </p>
+        <p><h2><font color="#FF0000">IMAGE_THUNK_DATA</font></h2>
+        <pre>typedef struct _IMAGE_THUNK_DATA32 {
+    union {
+        DWORD ForwarderString;      // PBYTE 
+      <font color="#FF0000">  DWORD Function;             // PDWORD PE加载后桥2被修改 指向函数VA</font>
+      <font color="#FF0000">  DWORD Ordinal;			//若最高位为1 低7位表示 函数序列(故最高位为0 union才能表示另外三个含义)</font>
+      <font color="#FF0000">  DWORD AddressOfData;        // PIMAGE_IMPORT_BY_NAME 指向了 保存hint/name的结构RVA </font>
+    } u1;
+} IMAGE_THUNK_DATA32;</pre>
+        </p>
+        
+        <p><h2><font color="#FF0000">IMAGE_IMPORT_BY_NAME</font></h2>
+        <pre>typedef struct _IMAGE_IMPORT_BY_NAME {
+    WORD    Hint;		//索引
+    BYTE    Name[*];	//大小不确定 以\0结尾的ansi字符串 代表函数名
+} IMAGE_IMPORT_BY_NAME, *PIMAGE_IMPORT_BY_NAME;</pre>
+        </p>
+   	</h3></p></div>
+    
+</td></tr></table>
+</body>
+</html>

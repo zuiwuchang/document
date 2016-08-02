@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>DOM</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#DOM">DOM</a>
+		<a href="#HTML">HTML DOM</a>
+	</div>
+	<div class="note"><a name="DOM"></a>
+		<p><span class="flag">DOM</span>
+<pre>DOM接口可以操作所有符合DOM规范的文档
+</pre>
+	</p>
+	
+	<p><span class="flag">访问节点</span>
+<pre>//返回指定id的节点
+document.getElementById(id);
+
+//返回指定name的节点数组
+document.getElementsByName(name);
+
+//返回指定标签的节点数组(tag为*返回全部节点)
+document.getElementsByTagName(tag); 
+
+
+
+//第一个子节点
+document.firstChild;
+
+//最后一个子节点
+document.lastChild;
+
+//返回是否有子节点
+document.hasChildNodes();
+
+//子节点数组
+document.childNodes;
+</pre>
+		</p>
+		
+		<p><span class="flag">处理节点</span>
+<table>
+	<tr><td>方法或属性</td><td>描述</td></tr>
+	<tr><td>node.nodeName</td><td>节点名(如 DIV)</td></tr>
+	<tr><td>node.nodeType</td><td>节点类型(如 1)</td></tr>
+	<tr><td>node.setAttribute(name,value);</td><td></td></tr>
+	<tr><td>node.getAttribute(name);</td><td></td></tr>
+</table>
+		</p>
+		<p><span class="flag">修改创建节点</span>
+<pre>//创建文本节点
+document.createTextNode(data);
+
+//根据指定标签名创建节点
+document.createElement(tagName);
+
+//创建文档碎片
+document.createDocumentFragment();
+
+
+
+//删除指定子节点
+node.removeChild(node);
+
+//在指定子节点前添加节点
+node.insertBefore(insertNode,whereNode);
+
+//用指定节点替换子节点
+node.replaceChild(inserteNode,replaceNode);
+
+//添加一个节点到子节点尾
+node.appendChild(app);
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="HTML"></a>
+		<p><span class="flag">HTML DOM</span>
+<pre>HTML DOM提供了对HTML更简单方便的操作方式
+
+可不用setAttribute getAttribute操作属性 
+直接用 node.属性名=
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

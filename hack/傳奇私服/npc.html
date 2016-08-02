@@ -1,0 +1,242 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>傳奇私服</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">npc</font>
+</p>
+
+<p>
+	<a href="#npc">npc</a><br />
+	<a href="#add">添加npc</a><br />
+    <a href="#scripts">npc觸發腳本</a><br />
+    <a href="#language">腳本語法</a><br /> 
+    <a href="#sell">物品買賣腳本</a><br />
+   
+</p>
+
+
+<div class="mydiv"><a name="npc"></a>
+	<p><font color="#FF0000">npc</font>
+<pre>npc 信息在
+MirServer\Mir200\Envir\Npcs.txt
+MirServer\Mir200\Envir\Merchant.txt
+中
+
+對於 腳本在
+Envir/Npc_Def/调用文件-地图.txt
+Envir/Market_Def/调用文件-地图.txt
+
+
+Npcs中為管理npc
+Merchant中為交易npc
+然Merchant 和 Merchant可以混合用
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="add"></a>
+	<p><font color="#FF0000">添加交易npc</font>
+<pre>編輯 MirServer\Mir200\Envir\Merchant.txt
+
+如下
+;交易NPC列表配置文件
+;调用文件	地图	X	Y	人物姓名	数量	代码	刷新时间
+传送/测试	3	333	333	测试npc		0	8	0
+
+调用文件
+	單擊npc 觸發 腳本
+地圖 X Y
+	npc 出現位置
+人物姓名
+	npc顯示名稱
+數量
+
+代碼
+	npc外觀(打開npc.wil/npc.wzl 圖片組第一張編號/60)
+刷新時間            
+</pre> 
+	</p>
+</div>
+
+<div class="mydiv"><a name="scripts"></a>
+	<p><font color="#FF0000">交易npc觸發腳本</font>
+<pre>MirServer\Mir200\Envir\Merchant.txt 中 的 
+Envir/Market_Def/调用文件-地图.txt
+就是 npc 觸發的 腳本
+</pre> 
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>[@main]
+选择传送测试内容	\
+【&lt;测试等级大于40/@测试1&gt;】	【&lt;测试等级等于40/@测试2&gt;】	【&lt;关闭/@exit&gt;】
+
+[@测试1]
+#IF
+	CHECKLEVELEX > 40
+
+#ACT
+	SENDMSG 6 "测试 yes"
+	CLOSE			;关闭对话框
+
+#ELSEACT
+	SENDMSG 6 "测试 no"
+
+BREAK
+
+
+[@测试2]
+#IF
+	CHECKLEVELEX = 40
+#ACT
+	SENDMSG 6 "测试 yes"
+	GOTO @test
+	
+#ELSEACT
+	SENDMSG 6 "测试 no"
+	GOTO @main
+BREAK
+
+[@test]
+【&lt;测试等级大于40/@测试1&gt;】	【&lt;测试等级等于40/@测试2&gt;】	\
+【&lt;关闭/@exit&gt;】
+</pre>
+	</p>
+</div>
+
+
+<div class="mydiv"><a name="language"></a>
+	<p><font color="#FF0000">腳本語法</font>
+<pre>以	[@*]	定義一個	程序段([@main] 為入口點)
+
+以	&lt;/&gt;	定義一個 用戶選擇的交互接口 
+以	/	隔開 顯示的選擇名 和 觸發命令(程序段) 
+
+以 IF BREAK 	定義一個 判斷(IF 後接條件)
+以 ACT		後接 true 時 執行命令
+以 ELSEACT	後接 false 時 執行命令
+
+以 GOTO [@*]	將出現執行 跳轉到指定程序段
+
+以 \回車	 為顯示換行
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">注意</font>
+<pre>此腳本語法 充滿了 bug
+在 break 之後的 語句 將會被 if為真 執行 或被 else執行 
+其 被 歸到 最近的 一個 if 或 else 程序塊中
+(不建議 在break後 寫代碼)
+
+IF之 處理 ACT ELSEACT 執行命令外
+亦可 SAY ELSESAY 顯示 文本 然此語法 充滿 bug(不建議 使用)
+可以選擇 直接 GOTO 到一個 新程序段 顯示 如example 的 [@test]
+
+
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="sell"></a>
+	<p><font color="#FF0000">物品買賣腳本</font>
+<pre>買賣腳本 語法同 普通腳本
+不同 其必須在開頭 標記 支持的 特殊段（操作） 
+一些程序段 必須用指定名 不如 買 必須使用 sell 賣物品
+還要在 開頭 以 % 指定物價 調整(%200 以200%的物價)
+以 + 數字 指定 支持的操作
+在結尾 以 [goods] 指定商店物品
+</pre>
+	</p>
+
+	<p><font color="#FF0000">特殊段</font>
+<pre>
+@s_repair 特殊修理
+@buy 购买东西
+@sell 出售东西
+@repair 普通修理
+@makedrug 制作毒药
+@storage 保管物品
+@getback 取回物品
+@exit 关闭窗口
+@upgradenow 升级武器
+@getbackupgnow 取回武器
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">+數字</font>
+<pre>+40 买肉 
++1 卖肉 
++43 武器有关(修) 
++15 头盔 
++10 买衣服 
++11 修衣服 
++26 修手镯类 
++0 买各种药水 
++42 卖各种药水 
++30 蜡烛等.
++25 特殊水
++3 买卷轴,书类 
++4 卖书类 
++19 项链 
++20 项链 
++21 项链 
++22 买戒指 
++23 卖戒指 
++24 买手镯 
++26 卖手镯 
++5 修炼武器或买武器 
++6 修炼武器或卖武器 
+</pre>
+	</p>
+    
+	<p><font color="#FF0000">example</font>
+<pre>(@buy @sell @repair @s_repair )
+%100
++10
++11
++15
+[@main]
+欢迎光临，您想要些什么？ \
+根据这个城堡的主人&lt;$LORD&gt;的命令，\
+我们特别对&lt;$OWNERGUILD&gt;的成员提供20%的折扣。\ \
+ &lt;买/@buy&gt;头盔\
+ &lt;卖/@sell&gt;头盔\
+ &lt;修补/@repair&gt;头盔\ 
+ &lt;特殊修理/@s_repair&gt;\ 
+ &lt;离开/@exit&gt;
+
+[@buy]
+你想买什么样的头盔？\ \
+ &lt;返回/@Main&gt;
+
+[@sell]
+把你要卖的头盔给我看看，我会给你个估价。\ \
+ &lt;返回/@Main&gt;
+
+[@repair]
+请放上去要修补的头盔。\ \
+ &lt;返回/@Main&gt;
+
+[~@repair]
+看来修补得很不错。\ \
+ &lt;返回/@Main&gt;
+
+[goods]
+;名称 数量 时间(分钟)
+青铜头盔	5	10
+魔法头盔	5	10
+道士头盔	8	10
+骷髅头盔	8	10
+</pre>
+	</p>
+</div>
+
+</td></tr></table>
+</body>
+</html>

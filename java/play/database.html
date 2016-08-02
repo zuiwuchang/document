@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>database</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#jdbc">jdbc</a>		 
+	</div>
+
+	<div class="note"><a name="jdbc"></a>
+		<p><span class="flag">jdbc</span>
+<pre>將 驅動 放入 項目 /lib(play2以後 需要自己創建 此文件夾) 下
+
+編輯 /conf/application.conf
+db.default.driver=org.mariadb.jdbc.Driver
+db.default.url="mysql://root:12345678@localhost/db_name" 
+
+import play.db.*;
+DataSource ds = DB.getDatasource();
+Connection connection = DB.getConnection();
+
+...詳見 play官網
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

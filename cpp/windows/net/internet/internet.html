@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>internet</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+
+    <p><h1><font color="#FF0000">internet</font></h1></p>
+    
+    <h2>
+    <a href="#base">WinInet</a><br />
+    <a href="#AFX">全局函數</a><br />
+    <a href="#http">http</a><br />
+    
+    </h2>
+    
+    <div class="div_box"><a name="base"></a><p><h3>
+    	<p><h2><font color="#FF0000">WinInet</font></h2>
+        win32 提供了一組 WinInet API 以方便web客戶端程序的編寫 其提供了對 http ftp gopher(此協議已經基本消亡) 等協議的支持<br />
+        WinInet類 是對 WinInet API 的封裝 
+        </p>
+        
+   	</h3></p></div>
+    <div class="div_box"><a name="AFX"></a><p><h3>
+    	<p><h2><font color="#FF0000">全局函數</font></h2>
+         #include&lt;afxinet.h &gt;<br />
+        WinInet類 相關的全局函數
+       
+        
+<pre><font color="#FF0000">//解析 URL</font> 
+BOOL AFXAPI AfxParseURL(
+   LPCTSTR pstrURL,			//需要解析的URL <font color="#FF0000">vs2010下測試發現 端口號寫在尾似乎會解析錯誤</font> 
+   DWORD& dwServiceType,		//返回協議類型
+   CString& strServer,			//返回服務器地址
+   CString& strObject,			//返回請求文件
+   INTERNET_PORT& nPort			//返回請求端口
+);
+<font color="#FF0000">wServiceType取值</font>
+AFX_INET_SERVICE_FTP 
+<font color="#FF0000">AFX_INET_SERVICE_HTTP		http協議</font>
+AFX_INET_SERVICE_HTTPS 
+AFX_INET_SERVICE_GOPHER 
+AFX_INET_SERVICE_FILE 
+AFX_INET_SERVICE_MAILTO 
+AFX_INET_SERVICE_NEWS 
+AFX_INET_SERVICE_NNTP 
+AFX_INET_SERVICE_TELNET 
+AFX_INET_SERVICE_WAIS 
+AFX_INET_SERVICE_MID 
+AFX_INET_SERVICE_CID 
+AFX_INET_SERVICE_PROSPERO 
+AFX_INET_SERVICE_AFS 
+AFX_INET_SERVICE_UNK 
+
+<font color="#FF0000">//根據句柄返回 Internet句柄類型</font>
+DWORD AFXAPI AfxGetInternetHandleType(
+ HINTERNET hQuery 
+);
+<font color="#FF0000">wServiceType取值</font>
+INTERNET_HANDLE_TYPE_INTERNET 
+INTERNET_HANDLE_TYPE_CONNECT_FTP 
+INTERNET_HANDLE_TYPE_CONNECT_GOPHER 
+INTERNET_HANDLE_TYPE_CONNECT_HTTP 
+INTERNET_HANDLE_TYPE_FTP_FIND 
+INTERNET_HANDLE_TYPE_FTP_FIND_HTML 
+INTERNET_HANDLE_TYPE_FTP_FILE 
+INTERNET_HANDLE_TYPE_FTP_FILE_HTML 
+INTERNET_HANDLE_TYPE_GOPHER_FIND 
+INTERNET_HANDLE_TYPE_GOPHER_FIND_HTML 
+INTERNET_HANDLE_TYPE_GOPHER_FILE 
+INTERNET_HANDLE_TYPE_GOPHER_FILE_HTML 
+INTERNET_HANDLE_TYPE_HTTP_REQUEST 
+
+<font color="#FF0000">拋出Internet異常 CInternetException </font>
+void AFXAPI AfxThrowInternetException(
+   DWORD dwContext,		//發生錯誤的操作的上下文
+   DWORD dwError = 0 		//發生錯誤的錯誤代碼
+);
+
+</pre>
+    	</p>
+        
+        <p><h2><font color="#FF0000">example</font></h2>
+<pre>CString tmp;
+
+	CString url=L"http://127.0.0.1:8080/test/index.html";
+	DWORD dwServiceType;
+	CString strServer,strObject;
+	INTERNET_PORT nPort;
+
+	if(AfxParseURL(url,dwServiceType,strServer,strObject,nPort))
+	{
+
+		tmp.Format( L"url		=%s\r\n"
+					<font color="#FF0000">L"dwServiceType	=%d\r\n"		//	3
+					L"strServer		=%s\r\n"	//	127.0.0.1
+					L"strObject		=%s\r\n"	//	/test/index.html
+					L"nPort		=%d"			//	8080</font>
+			,url.GetBuffer(),dwServiceType,strServer.GetBuffer(),strObject.GetBuffer(),nPort
+			);
+
+		MessageBox(tmp);
+	}
+	else
+	{
+		MessageBox(L"解析URL失败");
+	}</pre>
+        </p>
+    </h3></p></div>
+    <div class="div_box"><a name="http"></a><p><h3>
+    	<p><h2><font color="#FF0000">http</font></h2>
+        #include&lt;afxinet.h &gt;<br />
+        用以 以http協議 請求一個url地址 將返回http請求結果(html)
+        </p>
+        <p><h2><font color="#FF0000">example</font></h2>
+<pre>CString tmp;
+	//定義一個 HTTP session
+	CInternetSession session(L"HTTP Session");
+	CString url=L"http://www.ip138.com/";
+	
+	DWORD dwServiceType;
+	CString strServer,strObject;
+	INTERNET_PORT nPort;
+
+	//解析URL
+	AfxParseURL(url,dwServiceType,strServer,strObject,nPort);
+
+	//用以保存一個連接
+	CHttpConnection* lp_http_connection=NULL;
+	//用以保存返回的 html 文件
+	CHttpFile* lp_http_file=NULL;
+	
+	CString header;
+	DWORD dwStatusCode;
+	try
+	{
+		//連接到URL
+		lp_http_connection = session.GetHttpConnection(strServer,nPort);
+		//請求文件
+		lp_http_file=lp_http_connection->OpenRequest(CHttpConnection::HTTP_VERB_GET,strObject);
+
+		//設置頭
+		lp_http_file->AddRequestHeaders(header);
+		//發送請求
+		lp_http_file->SendRequest();
+		//查詢請求是否成功
+		lp_http_file->QueryInfoStatusCode(dwStatusCode);
+		if(HTTP_STATUS_OK==dwStatusCode)
+		{
+
+			char buffer[READ_BUFFER]={0};
+			UINT nRead=1;
+			std::string str;
+			while(true)
+			{
+				memset(buffer,0,sizeof(buffer));
+				//讀取文件
+				nRead=lp_http_file->Read(buffer,READ_BUFFER);
+				if(nRead)
+				{
+					str.insert(str.end(),buffer,buffer+READ_BUFFER);
+				}
+				else
+				{
+					break;
+				}
+			}
+			tmp+=dark::utility::wstring::AnsiToUnicode(str).c_str();
+			SetDlgItemTextW(IDC_EDIT1,tmp);
+		}
+	}
+	catch(::CInternetException* e)
+	{
+		wchar_t buffer[1024]={0};
+		e->GetErrorMessage(buffer,1024);
+		MessageBox(buffer);
+		e->Delete();
+	}
+
+	//釋放資源
+	if(lp_http_connection)
+	{
+		delete lp_http_connection;
+	}
+
+	if(lp_http_file)
+	{
+		delete lp_http_file;
+	}
+	//關閉 session
+	session.Close();</pre>
+        </p>
+  	</h3></p></div>
+</td></tr></table>
+</body>
+</html>

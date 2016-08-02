@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>傳奇私服</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">地圖添加</font>
+</p>
+
+<p>
+	<a href="#map">地圖添加</a><br />
+    <a href="#server">server</a><br />
+     <a href="#client">client</a><br />
+    
+   
+</p>
+
+
+<div class="mydiv"><a name="map"></a>
+	<p><font color="#FF0000">地圖添加</font>
+<pre>*.map	(數據)
+*.wil	(索引)
+*.wix	(圖像數據)
+</pre> 
+	</p>
+</div>
+
+<div class="mydiv"><a name="server"></a>
+<p><font color="#FF0000">server</font>
+<pre>將 *.map 複製到  MirServer\Mir200\Map\
+
+打開 MirServer\Mir200\Envir\MapInfo.txt 設置地圖 信息
+
+[地图id 地图名]		地图定义	
+id x y -> id x y	设置切位置图
+
+如
+[0 比奇省]
+[0122 皇宫]
+0	346,186	->	0122	11,41
+0	347,186	->	0122	12,42
+0	348,187	->	0122	13,43
+0122	11,42	->	0	346,187
+0122	12,43	->	0	348,188   
+
+打開 E:\MirServer\Mir200\Envir\MiniMap.txt 設置小地圖
+地圖id 小地圖id+1(小地圖id 見 client)
+如
+0	101
+1	102
+2	105
+</pre>
+</p>
+</div>
+
+<div class="mydiv"><a name="client"></a>
+<p><font color="#FF0000">client</font>
+<pre>將  *.map 複製到 Map\
+將 *.wil/*.wix *.map 複製到 data\
+
+使用 Wil编辑器.exe 編輯器 打開 data\mmap.wzl(/data\mmap.wil) (查看小地圖id) 
+導出全部圖片
+將 新增地圖 加入 取個id
+導入 新的 data\mmap.* 覆蓋原文件
+</pre>
+</p>
+</div>
+
+</td></tr></table>
+</body>
+</html>

@@ -1,0 +1,439 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>消息</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h2>
+    <a href="#send">發送消息</a><br />
+    <a href="#Msg">UINT Msg</a><br />
+    <a href="#wParam">wParam lParam</a><br />
+    <a href="#VK">虛擬鍵碼表</a><br />
+    <a href="#WM_USER">自定義消息</a><br /><br />
+    
+    <a href="#WM_MOUSEHOVER">WM_MOUSEHOVER WM_MOUSELEAVE</a><br />
+    
+    <br />
+     <a href="#WM_SYSCOMMAND">WM_SYSCOMMAND</a><br />
+     <a href="#WM_LBUTTONDBLCLK">WM_LBUTTONDBLCLK WM_RBUTTONDBLCLK</a><br />
+     
+     
+    </h2></p>
+    
+    <div class="div_box"><h2><a name="send"></a>
+        <p><font color="#FF0000">發送消息</font><br />
+<pre>//同步 需要等待消息被處理 函數才返回 (返回消息處理結果)
+LRESULT SendMessage(          HWND hWnd,
+    UINT Msg,
+    WPARAM wParam,
+    LPARAM lParam
+);
+//異步 函數立刻返回	(成功返回非0)
+BOOL PostMessage(          HWND hWnd,
+    UINT Msg,
+    WPARAM wParam,
+    LPARAM lParam
+);
+</pre>
+        </p>
+        <p><font color="#FF0000">注意</font><br />
+        SendMessage將一個消息 投遞到消息隊列 並且等待消息被處理才返回<br />
+        PostMessage將一個消息 投遞到消息隊列 不等待消息處理離開返回
+        </p>
+    </h2></div>
+   
+   	<div class="div_box"><h2><a name="Msg"></a>
+        <p><font color="#FF0000">UINT Msg</font><br />
+        Msg指定了消息類型
+        </p>
+        <p><font color="#FF0000">常用消息</font><br />
+<pre>//鼠標 左 右 中 按下 抬起 雙擊
+#define WM_LBUTTONDOWN                  0x0201
+#define WM_LBUTTONUP                    0x0202
+#define WM_LBUTTONDBLCLK                0x0203
+#define WM_RBUTTONDOWN                  0x0204
+#define WM_RBUTTONUP                    0x0205
+#define WM_RBUTTONDBLCLK                0x0206
+#define WM_MBUTTONDOWN                  0x0207
+#define WM_MBUTTONUP                    0x0208
+#define WM_MBUTTONDBLCLK                0x0209
+
+//鍵盤 一個按鍵 按下 抬起 
+#define WM_KEYDOWN                      0x0100
+#define WM_KEYUP                        0x0101
+
+//按下一個字符
+#define WM_CHAR                         0x0102
+</pre>
+        </p>
+        
+  	</h2></div>
+    
+    <div class="div_box"><h2><a name="wParam"></a>
+        <p><font color="#FF0000">wParam lParam</font><br />
+        wParam lParam 指示了消息具體參數 對於不同消息類型 其含義不同
+        </p>
+        
+        <p><font color="#FF0000">WM_LBUTTONDOWN...</font>
+<pre>lParam 包含了鼠標相對窗口 坐標	(低16位x 高16位 y)
+DWORD x,y;
+x=lParam&0xFFFF;
+y=lParam>>16;
+
+lParam=y&lt;&lt;16|x;
+
+//將 窗口坐標 轉換為 屏幕坐標
+WINUSERAPI
+BOOL
+WINAPI
+ClientToScreen(
+    __in HWND hWnd,
+    __inout LPPOINT lpPoint);
+    
+//將 屏幕坐標 轉換為 窗口坐標
+WINUSERAPI
+BOOL
+WINAPI
+ScreenToClient(
+    __in HWND hWnd,
+    __inout LPPOINT lpPoint);
+</pre>
+        </p>
+        
+        <p><font color="#FF0000">WM_KEYDOWN...</font>
+        wParam	是虛擬鍵碼
+        </p>
+        
+        <p><font color="#FF0000">WM_CHAR</font>
+        wParam	是按下字符的anscill
+        </p>
+	</h2></div>
+    
+    <div class="div_box"><h2><a name="VK"></a>
+        <p><font color="#FF0000">虛擬鍵碼表</font><br />
+        
+        <table border="1" cellpadding="2" style="border-collapse:collapse;">
+<tbody><tr>
+<th>虚拟键码</th>
+<th>&nbsp;对应值&nbsp;</th>
+<th>对应键</th>
+</tr>
+<tr><td>VK_LBUTTON</td><td>1</td><td>鼠标左键</td></tr>
+<tr><td>VK_RBUTTON</td><td>2</td><td>鼠标右键</td></tr>
+<tr><td>VK_CANCEL</td><td>3</td><td>Cancel</td></tr>
+<tr><td>VK_MBUTTON</td><td>4</td><td>鼠标中键</td></tr>
+<tr><td>VK_XBUTTON1</td><td>5</td><td></td></tr>
+<tr><td>VK_XBUTTON2</td><td>6</td><td></td></tr>
+<tr><td>VK_BACK</td><td>8</td>
+<td>Backspace</td>
+</tr>
+<tr><td>VK_TAB</td><td>9</td>
+<td>Tab</td>
+</tr>
+<tr><td>VK_CLEAR</td><td>12</td>
+<td>Clear</td>
+</tr>
+<tr><td>VK_RETURN</td><td>13</td>
+<td>Enter</td>
+</tr>
+<tr><td>VK_SHIFT</td><td>16</td>
+<td>Shift</td>
+</tr>
+<tr><td>VK_CONTROL</td><td>17</td>
+<td>Ctrl</td>
+</tr>
+<tr><td>VK_MENU</td><td>18</td>
+<td>Alt</td>
+</tr>
+<tr><td>VK_PAUSE</td><td>19</td>
+<td>Pause</td>
+</tr>
+<tr><td>VK_CAPITAL</td><td>20</td><td>Caps Lock</td></tr> 
+<tr><td>VK_KANA</td><td>21</td><td></td></tr>
+<tr><td>VK_HANGUL</td><td>21</td><td></td></tr>
+<tr><td>VK_JUNJA</td><td>23</td><td></td></tr>
+<tr><td>VK_FINAL</td><td>24</td><td></td></tr>
+<tr><td>VK_HANJA</td><td>25</td><td></td></tr>
+<tr><td>VK_KANJI</td><td>25*</td><td></td></tr>
+<tr><td>VK_ESCAPE</td><td>27</td><td>Esc</td></tr>
+<tr><td>VK_CONVERT</td><td>28</td><td></td></tr>
+<tr><td>VK_NONCONVERT</td><td>29</td><td></td></tr>
+<tr><td>VK_ACCEPT</td><td>30</td><td></td></tr>
+<tr><td>VK_MODECHANGE</td><td>31</td><td></td></tr>
+<tr><td>VK_SPACE</td><td>32</td><td>Space</td></tr>
+<tr><td>VK_PRIOR</td><td>33</td><td>Page Up</td></tr>
+<tr><td>VK_NEXT</td><td>34</td><td>Page Down</td></tr>
+<tr><td>VK_END</td><td>35</td><td>End</td></tr>
+<tr><td>VK_HOME</td><td>36</td><td>Home</td></tr>
+<tr><td>VK_LEFT</td><td>37</td><td>Left Arrow</td></tr>
+<tr><td>VK_UP</td><td>38</td><td>Up Arrow</td></tr>
+<tr><td>VK_RIGHT</td><td>39</td><td>Right Arrow</td></tr>
+<tr><td>VK_DOWN</td><td>40</td><td>Down Arrow</td></tr>
+<tr><td>VK_SELECT</td><td>41</td><td>Select</td></tr>
+<tr><td>VK_PRINT</td><td>42</td><td>Print</td></tr>
+<tr><td>VK_EXECUTE</td><td>43</td><td>Execute</td></tr>
+<tr><td>VK_SNAPSHOT</td><td>44</td><td>Snapshot</td></tr>
+<tr><td>VK_INSERT</td><td>45</td><td>Insert</td></tr>
+<tr><td>VK_DELETE</td><td>46</td><td>Delete</td></tr>
+<tr><td>VK_HELP</td><td>47</td><td>Help</td></tr>
+<tr><td></td><td>48</td><td>0</td></tr>
+<tr><td></td><td>49</td><td>1</td></tr>
+<tr><td></td><td>50</td><td>2</td></tr>
+<tr><td></td><td>51</td><td>3</td></tr>
+<tr><td></td><td>52</td><td>4</td></tr>
+<tr><td></td><td>53</td><td>5</td></tr>
+<tr><td></td><td>54</td><td>6</td></tr>
+<tr><td></td><td>55</td><td>7</td></tr>
+<tr><td></td><td>56</td><td>8</td></tr>
+<tr><td></td><td>57</td><td>9</td></tr>
+<tr><td></td><td>65</td><td>A</td></tr>
+<tr><td></td><td>66</td><td>B</td></tr>
+<tr><td></td><td>67</td><td>C</td></tr>
+<tr><td></td><td>68</td><td>D</td></tr>
+<tr><td></td><td>69</td><td>E</td></tr>
+<tr><td></td><td>70</td><td>F</td></tr>
+<tr><td></td><td>71</td><td>G</td></tr>
+<tr><td></td><td>72</td><td>H</td></tr>
+<tr><td></td><td>73</td><td>I</td></tr>
+<tr><td></td><td>74</td><td>J</td></tr>
+<tr><td></td><td>75</td><td>K</td></tr>
+<tr><td></td><td>76</td><td>L</td></tr>
+<tr><td></td><td>77</td><td>M</td></tr>
+<tr><td></td><td>78</td><td>N</td></tr>
+<tr><td></td><td>79</td><td>O</td></tr>
+<tr><td></td><td>80</td><td>P</td></tr>
+<tr><td></td><td>81</td><td>Q</td></tr>
+<tr><td></td><td>82</td><td>R</td></tr>
+<tr><td></td><td>83</td><td>S</td></tr>
+<tr><td></td><td>84</td><td>T</td></tr>
+<tr><td></td><td>85</td><td>U</td></tr>
+<tr><td></td><td>86</td><td>V</td></tr>
+<tr><td></td><td>87</td><td>W</td></tr>
+<tr><td></td><td>88</td><td>X</td></tr>
+<tr><td></td><td>89</td><td>Y</td></tr>
+<tr><td></td><td>90</td><td>Z</td></tr>
+<tr><td>VK_LWIN</td><td>91</td><td></td></tr>
+<tr><td>VK_RWIN</td><td>92</td><td></td></tr>
+<tr><td>VK_APPS</td><td>93</td><td></td></tr>
+<tr><td>VK_SLEEP</td><td>95</td><td></td></tr>
+<tr><td>VK_NUMPAD0</td><td>96</td><td>小键盘 0</td></tr>
+<tr><td>VK_NUMPAD1</td><td>97</td><td>小键盘 1</td></tr>
+<tr><td>VK_NUMPAD2</td><td>98</td><td>小键盘 2</td></tr>
+<tr><td>VK_NUMPAD3</td><td>99</td><td>小键盘 3</td></tr>
+<tr><td>VK_NUMPAD4</td><td>100</td><td>小键盘 4</td></tr>
+<tr><td>VK_NUMPAD5</td><td>101</td><td>小键盘 5</td></tr>
+<tr><td>VK_NUMPAD6</td><td>102</td><td>小键盘 6</td></tr>
+<tr><td>VK_NUMPAD7</td><td>103</td><td>小键盘 7</td></tr>
+<tr><td>VK_NUMPAD8</td><td>104</td><td>小键盘 8</td></tr>
+<tr><td>VK_NUMPAD9</td><td>105</td><td>小键盘 9</td></tr>
+<tr><td>VK_MULTIPLY</td><td>106</td><td>小键盘 *</td></tr>
+<tr><td>VK_ADD</td><td>107</td><td>小键盘 +</td></tr>
+<tr><td>VK_SEPARATOR</td><td>108</td><td>小键盘 Enter</td></tr>
+<tr><td>VK_SUBTRACT</td><td>109</td><td>小键盘 -</td></tr>
+<tr><td>VK_DECIMAL</td><td>110</td><td>小键盘 .</td></tr>
+<tr><td>VK_DIVIDE</td><td>111</td><td>小键盘 /</td></tr>
+<tr><td>VK_F1</td><td>112</td><td>F1</td>
+</tr><tr><td>VK_F2</td><td>113</td><td>F2</td>
+</tr><tr><td>VK_F3</td><td>114</td><td>F3</td>
+</tr><tr><td>VK_F4</td><td>115</td><td>F4</td>
+</tr><tr><td>VK_F5</td><td>116</td><td>F5</td>
+</tr><tr><td>VK_F6</td><td>117</td><td>F6</td>
+</tr><tr><td>VK_F7</td><td>118</td><td>F7</td>
+</tr><tr><td>VK_F8</td><td>119</td><td>F8</td>
+</tr><tr><td>VK_F9</td><td>120</td><td>F9</td>
+</tr><tr><td>VK_F10</td><td>121</td><td>F10</td>
+</tr><tr><td>VK_F11</td><td>122</td><td>F11</td>
+</tr><tr><td>VK_F12</td><td>123</td><td>F12</td>
+</tr><tr><td>VK_F13</td><td>124</td><td></td></tr>
+<tr><td>VK_F14</td><td>125</td><td></td></tr>
+<tr><td>VK_F15</td><td>126</td><td></td></tr>
+<tr><td>VK_F16</td><td>127</td><td></td></tr>
+<tr><td>VK_F17</td><td>128</td><td></td></tr>
+<tr><td>VK_F18</td><td>129</td><td></td></tr>
+<tr><td>VK_F19</td><td>130</td><td></td></tr>
+<tr><td>VK_F20</td><td>131</td><td></td></tr>
+<tr><td>VK_F21</td><td>132</td><td></td></tr>
+<tr><td>VK_F22</td><td>133</td><td></td></tr>
+<tr><td>VK_F23</td><td>134</td><td></td></tr>
+<tr><td>VK_F24</td><td>135</td><td></td></tr>
+<tr><td>VK_NUMLOCK</td><td>144</td><td>Num Lock</td></tr> 
+<tr><td>VK_SCROLL</td><td>145</td><td>Scroll</td></tr>
+<tr><td>VK_LSHIFT</td><td>160</td><td></td></tr>
+<tr><td>VK_RSHIFT</td><td>161</td><td></td></tr>
+<tr><td>VK_LCONTROL</td><td>162</td><td></td></tr>
+<tr><td>VK_RCONTROL</td><td>163</td><td></td></tr>
+<tr><td>VK_LMENU</td><td>164</td><td></td></tr>
+<tr><td>VK_RMENU</td><td>165</td><td></td></tr>
+<tr><td>VK_BROWSER_BACK</td><td>166</td><td></td></tr>
+<tr><td>VK_BROWSER_FORWARD</td><td>167</td><td></td></tr>
+<tr><td>VK_BROWSER_REFRESH</td><td>168</td><td></td></tr>
+<tr><td>VK_BROWSER_STOP</td><td>169</td><td></td></tr>
+<tr><td>VK_BROWSER_SEARCH</td><td>170</td><td></td></tr>
+<tr><td>VK_BROWSER_FAVORITES</td><td>171</td><td></td></tr>
+<tr><td>VK_BROWSER_HOME</td><td>172</td><td></td></tr>
+<tr><td>VK_VOLUME_MUTE</td><td>173</td><td>VolumeMute</td></tr>
+<tr><td>VK_VOLUME_DOWN</td><td>174</td><td>VolumeDown</td></tr>
+<tr><td>VK_VOLUME_UP</td><td>175</td><td>VolumeUp</td></tr>
+<tr><td>VK_MEDIA_NEXT_TRACK</td><td>176</td><td></td></tr>
+<tr><td>VK_MEDIA_PREV_TRACK</td><td>177</td><td></td></tr>
+<tr><td>VK_MEDIA_STOP</td><td>178</td><td></td></tr>
+<tr><td>VK_MEDIA_PLAY_PAUSE</td><td>179</td><td></td></tr>
+<tr><td>VK_LAUNCH_MAIL</td><td>180</td><td></td></tr>
+<tr><td>VK_LAUNCH_MEDIA_SELECT</td><td>181</td><td></td></tr>
+<tr><td>VK_LAUNCH_APP1</td><td>182</td><td></td></tr>
+<tr><td>VK_LAUNCH_APP2</td><td>183</td><td></td></tr>
+<tr><td>VK_OEM_1</td><td>186</td><td>; :</td></tr>
+<tr><td>VK_OEM_PLUS</td><td>187</td><td>= +</td></tr>
+<tr><td>VK_OEM_COMMA</td><td>188</td><td></td></tr>
+<tr><td>VK_OEM_MINUS</td><td>189</td><td>- _</td></tr>
+<tr><td>VK_OEM_PERIOD</td><td>190</td><td></td></tr>
+<tr><td>VK_OEM_2</td><td>191</td><td>/ ?</td></tr>
+<tr><td>VK_OEM_3</td><td>192</td><td>` ~</td></tr>
+<tr><td>VK_OEM_4</td><td>219</td><td>[ {</td></tr>
+<tr><td>VK_OEM_5</td><td>220</td><td>\ |</td></tr>
+<tr><td>VK_OEM_6</td><td>221</td><td>] }</td></tr>
+<tr><td>VK_OEM_7</td><td>222</td><td>' "</td></tr>
+<tr><td>VK_OEM_8</td><td>223</td><td></td></tr>
+<tr><td>VK_OEM_102</td><td>226</td><td></td></tr>
+<tr><td>VK_PACKET</td><td>231</td><td></td></tr>
+<tr><td>VK_PROCESSKEY</td><td>229</td><td></td></tr>
+<tr><td>VK_ATTN</td><td>246</td><td></td></tr>
+<tr><td>VK_CRSEL</td><td>247</td><td></td></tr>
+<tr><td>VK_EXSEL</td><td>248</td><td></td></tr>
+<tr><td>VK_EREOF</td><td>249</td><td></td></tr>
+<tr><td>VK_PLAY</td><td>250</td><td></td></tr>
+<tr><td>VK_ZOOM</td><td>251</td><td></td></tr>
+<tr><td>VK_NONAME</td><td>252</td><td></td></tr>
+<tr><td>VK_PA1</td><td>253</td><td></td></tr>
+<tr><td>VK_OEM_CLEAR</td><td>254</td><td></td></tr>
+</tbody></table>
+        </p>
+ 	</h2></div>
+    <div class="div_box"><h2><a name="WM_USER"></a>
+        <p><font color="#FF0000">自定義消息</font><br />
+        #define WM_... WM_USER+n<br />
+        ON_MESSAGE(WM_...,&Class...::fun..)
+        </p>
+  	</h2></div>
+    
+    <div class="div_box"><h2><a name="WM_MOUSEHOVER"></a>
+        <p><font color="#FF0000">WM_MOUSEHOVER WM_MOUSELEAVE</font><br />
+<pre>MFC程序 默認 不產生WM_MOUSEHOVER WM_MOUSELEAVE 除非 使用_TrackMouseEvent
+void CmfcDlgDlg::OnMouseMove(UINT nFlags, CPoint point)
+{
+    // TODO: 在此添加消息处理程序代码和/或调用默认值
+    //GetDlgItem(IDC_BUTTON)->SetWindowText("Move");
+
+    if (!m_bTracking)
+    {
+        TRACKMOUSEEVENT tme;
+        tme.cbSize = sizeof(TRACKMOUSEEVENT);
+        tme.dwFlags = TME_LEAVE | TME_HOVER;//要触发的消息
+        tme.hwndTrack = this->m_hWnd;
+        tme.dwHoverTime = 10;// 若不设此参数，则无法触发mouseHover
+
+        if (::_TrackMouseEvent(&tme)) //MOUSELEAVE|MOUSEHOVER消息由此函数触发
+        {
+            m_bTracking = true;   
+        }
+    }
+
+    CDialogEx::OnMouseMove(nFlags, point);
+}
+
+
+void CmfcDlgDlg::OnMouseHover(UINT nFlags, CPoint point)
+{
+    // TODO: 在此添加消息处理程序代码和/或调用默认值
+    GetDlgItem(IDC_BUTTON)->SetWindowText("Hover");
+    m_bTracking = false;
+    CDialogEx::OnMouseHover(nFlags, point);
+}
+
+
+void CmfcDlgDlg::OnMouseLeave()
+{
+    // TODO: 在此添加消息处理程序代码和/或调用默认值
+    GetDlgItem(IDC_BUTTON)->SetWindowText("Leave");
+    m_bTracking = false;
+    CDialogEx::OnMouseLeave();
+}
+</pre>
+		</p>
+        
+        <p><font color="#FF0000">注意</font><br />
+<pre>無論多次調用 或一次調用 _TrackMouseEvent 只會使WM_MOUSEHOVER WM_MOUSELEAVE產生一次
+故 之後需要 再次調用 _TrackMouseEvent
+在WM_MOUSEMOVE中調用 _TrackMouseEvent 是個好主意
+</pre>
+		</p>
+	</h2></div>
+        
+    <div class="div_box"><h2><a name="WM_SYSCOMMAND"></a>
+        <p><font color="#FF0000">WM_SYSCOMMAND</font><br />
+        發送到窗口的系統消息
+        </p>
+         <p><font color="#FF0000">wParam</font><br />
+        指示具體消息內容
+<pre>SC_CLOSE
+Closes the window.
+SC_CONTEXTHELP
+Changes the cursor to a question mark with a pointer. If the user then clicks a control in the dialog box, the control receives a WM_HELP message.
+SC_DEFAULT
+Selects the default item; the user double-clicked the window menu.
+SC_HOTKEY
+Activates the window associated with the application-specified hot key. The lParam parameter identifies the window to activate.
+SC_HSCROLL
+Scrolls horizontally.
+SC_KEYMENU
+Retrieves the window menu as a result of a keystroke. For more information, see the Remarks section.
+<font color="#FF0000">SC_MAXIMIZE</font>
+Maximizes the window.
+SC_MINIMIZE
+Minimizes the window.
+SC_MONITORPOWER
+Sets the state of the display. This command supports devices that have power-saving features, such as a battery-powered personal computer. 
+The lParam parameter can have the following values:
+
+1 - the display is going to low power
+
+2 - the display is being shut off
+
+SC_MOUSEMENU
+Retrieves the window menu as a result of a mouse click.
+SC_MOVE
+Moves the window.
+SC_NEXTWINDOW
+Moves to the next window.
+SC_PREVWINDOW
+Moves to the previous window.
+SC_RESTORE
+Restores the window to its normal position and size.
+SC_SCREENSAVE
+Executes the screen saver application specified in the [boot] section of the System.ini file.
+SC_SIZE
+Sizes the window.
+SC_TASKLIST
+Activates the Start menu.
+SC_VSCROLL
+Scrolls vertically</pre>        
+        </p>
+         <p><font color="#FF0000">lParam</font><br />
+        如果是鼠標消息 低字節包含y坐標 高字節x坐標	否則不使用此參數<br />
+        如果是鼠標選擇菜單 此值為-1代表使用系統加速鍵 為0使用助記符
+        </p>
+  	</h2></div>
+    
+    <div class="div_box"><h2><a name="WM_LBUTTONDBLCLK"></a>
+        <p><font color="#FF0000">WM_LBUTTONDBLCLK WM_RBUTTONDBLCLK</font><br />
+<pre>必須為窗口指定 CS_DBLCLKS 風格 才能接受WM_LBUTTONDBLCLK WM_RBUTTONDBLCLK 消息
+</pre>
+		</p>
+</h2>    
+</td></tr></table>
+</body>
+</html>

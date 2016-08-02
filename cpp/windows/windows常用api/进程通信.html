@@ -1,0 +1,204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>进程通信</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1>
+    <a href="#book">剪贴板</a><br />
+    <a href="#pipe">匿名管道</a><br />
+   
+    </h1></p>
+    
+    <div class="div_box"><a name='book'><p><h2>
+    <p><font color="#FF0000">剪贴板</font></p>
+    <p>
+    剪贴板只能同时有一个拥有则 所以获取所有权写入数据后 必须马上释放所有权
+    </p>
+    
+    <p><font color="#0000CC">写入数据到剪贴板</font>
+    <pre>
+    if(OpenClipboard()) /*打开剪贴板*/
+	{
+		if(EmptyClipboard())/*清空剪贴板 并使当前打开剪贴板的窗口获取剪贴板的所有权*/
+		{
+			CString wcs=L"this is a test";
+			int len=(wcs.GetLength()+1)*sizeof(wchar_t);
+			/*申请内存 并返回内存句柄(指向内存链表)  GlobalAlloc(GMEM_MOVEABLE,len) 申请内存 并返回内存句柄指向内存地址*/
+			HANDLE hClip=GlobalAlloc(GMEM_MOVEABLE,len);
+			/*根据指向内存链表的句柄获取内存地址*/
+			wchar_t * pBuf=(wchar_t *)GlobalLock(hClip);
+			wcscpy_s(pBuf,len/2,wcs.GetBuffer(0));
+			GlobalUnlock(hClip);
+			/*设置剪贴板*/
+			SetClipboardData(CF_UNICODETEXT,hClip);
+			/*关闭剪贴板 释放其所有权*/
+			CloseClipboard();					
+		}
+	}
+    </pre></p>
+    <p>
+    <font color="#0000CC">从剪贴板获取数据</font>
+    <pre>
+    if(OpenClipboard())
+	{
+		if(IsClipboardFormatAvailable(CF_UNICODETEXT))/*获取剪贴板中是否有指定格式的数据*/	
+		{
+			HANDLE hClip=GetClipboardData(CF_UNICODETEXT);
+			wchar_t *pBuf=(wchar_t *)GlobalLock(hClip);
+			CString wcs;
+			wcs.Format(L"%s",pBuf);
+			GlobalUnlock(hClip);
+			CloseClipboard();
+			MessageBox(wcs);
+		}
+	}
+    </pre></p>
+    
+    <p>
+    <font color="#0000CC">写入数据到剪贴板 延迟提交</font><br />
+    延迟提交不会立刻写入数据到剪贴板 而在有程序读取剪贴板或 本程序结束时才将数据写入剪贴板<br />
+    
+    在SetClipboardData(CF_UNICODETEXT,hClip);时 传递 hClip=NULL以启动延迟提交;<br />
+    
+    当剪贴板中的数据依然是本程序设置的NULL时(既没有其他程序再次向剪贴板写入数据)<br />
+     当程序退出时收到WM_RENDERALLFORMATS消息 当有程序读取剪贴板收到 WM_RENDERFORMAT <br />
+     (此时 WM_RENDERFORMAT写入数据不需要再调用OpenClipboard 和 EmptyClipboard WM_RENDERALLFORMATS却需要<br />
+    当设置数据后 再有程序读取剪贴板 不会收到WM_RENDERFORMAT 但当程序退出时依然会收到WM_RENDERALLFORMATS
+    <pre>
+    static bool IsSetClip=false; 
+	if(!IsSetClip && WM_RENDERFORMAT==message  )
+	{
+		IsSetClip=true;
+		CString wcs=L"this is a test";
+			int len=(wcs.GetLength()+1)*sizeof(wchar_t);
+			/*申请内存 并返回内存句柄(指向内存链表)  GlobalAlloc(GMEM_MOVEABLE,len) 申请内存 并返回内存句柄指向内存地址*/
+			HANDLE hClip=GlobalAlloc(GMEM_MOVEABLE,len);
+			/*根据指向内存链表的句柄获取内存地址*/
+			wchar_t * pBuf=(wchar_t *)GlobalLock(hClip);
+			wcscpy_s(pBuf,len/2,wcs.GetBuffer(0));
+			GlobalUnlock(hClip);
+			/*设置剪贴板*/
+			SetClipboardData(CF_UNICODETEXT,hClip);
+	}else if(!IsSetClip && WM_RENDERALLFORMATS==message)
+	{
+		if(OpenClipboard()) /*打开剪贴板*/
+		{
+			if(EmptyClipboard())/*清空剪贴板 并使当前打开剪贴板的窗口获取剪贴板的所有权*/
+			{
+				IsSetClip=true;
+				CString wcs=L"this is a test";
+				int len=(wcs.GetLength()+1)*sizeof(wchar_t);
+				/*申请内存 并返回内存句柄(指向内存链表)  GlobalAlloc(GMEM_MOVEABLE,len) 申请内存 并返回内存句柄指向内存地址*/
+				HANDLE hClip=GlobalAlloc(GMEM_MOVEABLE,len);
+				/*根据指向内存链表的句柄获取内存地址*/
+				wchar_t * pBuf=(wchar_t *)GlobalLock(hClip);
+				wcscpy_s(pBuf,len/2,wcs.GetBuffer(0));
+				GlobalUnlock(hClip);
+				/*设置剪贴板*/
+				SetClipboardData(CF_UNICODETEXT,hClip);
+				CloseClipboard();					
+			}
+		}
+	}
+    </pre>
+    </p>
+    </h2></p></a></div>
+   
+   <div class="div_box"><a name='pipe'><p><h2>
+    <p><font color="#FF0000">匿名管道</font></p>
+ 	<p><font color="#0000CC">描述</font>
+    创建匿名管道 设置管道读取句柄被子继承继承 通过管道读写句柄通信
+    </p>
+    
+    <p><font color="#0000CC">创建子进程</font></p>
+    <pre>
+    BOOL WINAPI CreateProcess(
+  __in_opt     LPCTSTR lpApplicationName,    /*可执行文件名(包括扩展名) 只在当前搜索 不搜索path和系统目录 可为NULL在lpCommandLine中指定文件名*/
+  __inout_opt  LPTSTR lpCommandLine, /*执行参数 可于此指定执行文件(可以不加扩展名) 以空格隔开文件名 和参数(文件名包括空格要有引号) 搜索文件1程序加载目录2父进程当前目录3系统目录4windows目录5path目录*/
+  __in_opt     LPSECURITY_ATTRIBUTES lpProcessAttributes,  //进程安全性 NULL 设置为系统默认值
+  __in_opt     LPSECURITY_ATTRIBUTES lpThreadAttributes,
+  __in         BOOL bInheritHandles,			//指定新启进程是否可继承本进程可被继承的句柄
+  __in         DWORD dwCreationFlags,           //设置创建标记 0
+  __in_opt     LPVOID lpEnvironment,            //新进程环境 NULL使用本进程环境信息
+  __in_opt     LPCTSTR lpCurrentDirectory,      //子进程当前目录(必须是完整目录) NULL使用当前目录
+  __in         LPSTARTUPINFO lpStartupInfo,     //新进程窗口 显示信息;
+  __out        LPPROCESS_INFORMATION lpProcessInformation  //返回新进程标识信息
+);
+
+
+    </pre>
+ 
+    <p><font color="#0000CC">创建管道</font>
+    <pre>
+    BOOL WINAPI CreatePipe(
+  __out     PHANDLE hReadPipe,  /*返回管道读句柄*/
+  __out     PHANDLE hWritePipe,  /*返回管道写句柄*/
+  __in_opt  LPSECURITY_ATTRIBUTES lpPipeAttributes,/*安全描述符号 指示句柄是否可被子进程继承*/
+  __in      DWORD nSize			/*管道缓冲区大小 为0使用系统默认大小*/
+);
+
+typedef struct _SECURITY_ATTRIBUTES {  
+	DWORD nLength;  /*结构体大小*/
+    LPVOID lpSecurityDescriptor;  /*安全描述 NULL 系统默认安全描述*/ 
+    BOOL bInheritHandle;  /*TRUE 句柄可被继承 FALSE 句柄不可被继承*/
+} SECURITY_ATTRIBUTES,  *PSECURITY_ATTRIBUTES,  *LPSECURITY_ATTRIBUTES;
+
+
+    </pre>
+    
+    
+    <font color="#FF0000">example</font>
+    <pre>
+    HANDLE hRead,hWrite;
+	SECURITY_ATTRIBUTES pipeSecurity;
+	pipeSecurity.nLength=sizeof(SECURITY_ATTRIBUTES);
+	pipeSecurity.lpSecurityDescriptor=0;
+	pipeSecurity.bInheritHandle=TRUE;
+	if(!CreatePipe(&hRead,&hWrite,&pipeSecurity,0) )
+	{
+		MessageBox(L"创建管道失败");
+		return ;
+	}
+	
+	STARTUPINFOA startupinfo;
+	memset(&startupinfo,0,sizeof(STARTUPINFOA));
+	startupinfo.cb=sizeof(STARTUPINFOA);
+
+	startupinfo.dwFlags=STARTF_USESHOWWINDOW|STARTF_USESTDHANDLES;
+	startupinfo.wShowWindow=SW_HIDE;
+//	startupinfo.hStdInput=;
+	startupinfo.hStdOutput=hWrite;
+	startupinfo.hStdError=hWrite;
+
+	PROCESS_INFORMATION process_information;
+	<font color="#FF0000">//cmd不支持unicode所以CreateProcessA</font>
+	if(!CreateProcessA(NULL,"cmd /C net user",0,0,TRUE,0,0,0,&startupinfo,&process_information))
+	{
+		MessageBox(L"创建子进程失败");
+		return ;
+	}
+	CloseHandle(hWrite);
+	CloseHandle(process_information.hProcess);
+	CloseHandle(process_information.hThread);
+	
+	DWORD dw;
+	char readBuffer[200]={0};
+	std::string str;
+	while(ReadFile(hRead,readBuffer,_countof(readBuffer),&dw,NULL))
+	{
+		str+=readBuffer;
+		memset(readBuffer,0,_countof(readBuffer)*sizeof(char));
+	}
+	CloseHandle(hRead);
+	MessageBoxA(m_hWnd,str.c_str(),"test",MB_OK);
+    </pre>
+   </h2></p></a></div>
+   
+   
+</td></tr></table>
+</body>
+</html>

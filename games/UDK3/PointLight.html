@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>UDK3</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#PointLight">點光源</a>
+		
+		
+	</div>
+
+	<div class="note"><a name="PointLight"></a>
+		<p><span class="flag">點光源</span>
+<pre>點光源 用於 以一個點為中心 向四周發散 光
+
+按下鍵盤 L 在要增加點光源的位置 左擊增加之
+</pre>		
+		</p>
+
+		<p><span class="flag">常用屬性</span>
+<pre>(光照半徑)
+Light	->	Light Compoent	->	PointLightComponent	->Radius
+
+
+
+(亮度 1表示 100% f表示 f×100%)
+Light	->	Light Compoent	->	LightComponent	->	Brightness
+
+(陰影投射控制)
+...	Can Affect Dynamic Primitives Outside Dynamic Channel
+...	Cast Composite Shadows
+...	Cast Dynamic Shadows
+...	Cast Static Shadows
+
+(是否啟用光源)
+...	Enabled
+
+(設置光色)
+...	Light Color
+
+
+
+Light	->	Lightmass	->	Lightmass Settings	->	Shadow Exponent
+
+...	Light Source Radius
+</pre>
+		</p>
+	</div>
+	
+</div>
+</body>
+</html>
+

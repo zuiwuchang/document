@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>v8</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#v8">v8</a>
+		<a href="#gyp">gyp 及其他依賴</a>
+		<a href="#win">win編譯</a>
+		<a href="#vs">vs編譯</a>
+	</div>
+	<div class="note"><a name="v8"></a>
+		<p><span class="flag">v8</span>
+<pre>v8 是 Google 使用c++開發的一個 開源(BSD) javascript腳本引擎
+最初用於 Google 的 Chrome 項目
+
+其不同於以往的js引擎(解釋執行) 而是即時編譯成二進制執行 js 
+從而 極高的 提升了 js的 執行效率
+
+其可以方便的 實現 c++和 js的交換
+
+v8可以運行在
+Linux Mac Windows Android ...
+
+官網<a href="https://developers.google.com/v8/build" target="_blank">https://developers.google.com/v8/build</a>
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>編譯v8 需要使用 GYP(google開發的一個 超讚的 代碼構造工具 用以取代 cmake make ...)
+
+Android下編譯則需要使用 D8OnAndroid
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="gyp"></a>
+		<p><span class="flag">gyp</span>
+<pre>gyp 是google 為chrome項目 開發的一個 開源(BSD) 代碼構造工具
+類似於 cmake等
+編譯v8 和開源的 chromium 需要使用 gyp
+
+官網<a target="_blank" href="https://code.google.com/p/gyp/">https://code.google.com/p/gyp/</a>
+</pre>
+		</p>
+
+		<p><span class="flag">安裝gyp 及其他依賴</span>
+<pre>//下載gyp
+git clone https://chromium.googlesource.com/experimental/external/gyp
+
+//安裝gyp python
+python setup.py install
+
+//svn check out cygwin http://src.chromium.org/svn/trunk/deps/third_party/cygwin 到v8/third_party/cygwin下
+
+//如果報錯 提示 third_party/icu/icu.gpy not found
+//下載 icu.gpy
+svn co https://src.chromium.org/chrome/trunk/deps/third_party/icu46 
+並將其中內容 全部 copy到 v8的third_party/icu 目錄下
+</pre>
+		</p>
+
+		
+	</div>
+
+	<div class="note"><a name="win"></a>
+		<p><span class="flag">win編譯</span>
+<pre>v8編譯 需要
+
+1	下載v8源碼 需要git
+	git clone <a target="_blank" href="https://chromium.googlesource.com/v8/v8.git">https://chromium.googlesource.com/v8/v8.git</a>
+	或者 
+	git clone <a target="_blank" href="http://github.com/v8/v8-git-mirror">http://github.com/v8/v8-git-mirror</a>
+
+2	安裝 GYP
+
+3	使用minGw 編譯 或者使用 vs編譯
+	(minGw 需要Python 環境
+	打開 mingw shell 
+	運行 tools/mingw-generate-makefiles.sh
+	make ia32.release (unfortunately -jX doesn't seem to work here)
+	make ia32.release.check -j8
+	)
+	(vs 需要Python 環境
+	python build\gyp_v8
+
+	"c:\Program Files (x86)\Microsoft Visual Studio 9.0\Common7\IDE\devenv.com" /build Release build\All.sln
+	得到靜態庫 
+	)
+
+</pre>
+		</p>
+		<p><span class="flag">編譯參數</span><br/>
+Optional parameters<a href="#Optional_parameters" class="section_anchor"></a></h4><ul><li><tt>-j</tt> specifies the number of parallel build processes. Set it (roughly) to the number of CPU cores your machine has. The GYP/make based V8 build also supports distcc, so you can compile with <tt>-j100</tt> or so, provided you have enough machines around. </li></ul><ul><li><tt>OUTDIR=foo</tt> specifies where the compiled binaries go. It defaults to <tt>./out/</tt>. In this directory, a subdirectory will be created for each architecture and mode. You will find the d8 shell's binary in <tt>foo/ia32.release/d8</tt>, for example. </li></ul><ul><li><tt>library=shared</tt> or <tt>component=shared_library</tt> (the two are completely equivalent) builds V8 as a shared library (<tt>libv8.so</tt>). </li></ul><ul><li><tt>soname_version=1.2.3</tt> is only relevant for shared library builds and configures the SONAME of the library. Both the SONAME and the filename of the library will be <tt>libv8.so.1.2.3</tt> if you specify this. Due to a peculiarity in GYP, if you specify a custom SONAME, the library's path will no longer be encoded in the binaries, so you'll have to run d8 as follows: </li><pre class="prettyprint"><span class="pln">LD_LIBRARY_PATH</span><span class="pun">=</span><span class="kwd">out</span><span class="pun">/</span><span class="pln">ia32</span><span class="pun">.</span><span class="pln">release</span><span class="pun">/</span><span class="pln">lib</span><span class="pun">.</span><span class="pln">target </span><span class="kwd">out</span><span class="pun">/</span><span class="pln">ia32</span><span class="pun">.</span><span class="pln">release</span><span class="pun">/</span><span class="pln">d8</span></pre></ul><ul><li><tt>console=readline</tt> enables readline support for the d8 shell. You need readline development headers for this (<tt>libreadline-dev</tt> on Ubuntu). </li></ul><ul><li><tt>disassembler=on</tt> enables the disassembler for release mode binaries (it's always enabled for debug binaries). This is useful if you want to inspect generated machine code. </li></ul><ul><li><tt>snapshot=off</tt> disables building with a heap snapshot. Compiling will be a little faster, but V8’s start up will be slightly slower. </li></ul><ul><li><tt>gdbjit=on</tt> enables GDB JIT support. </li></ul><ul><li><tt>liveobjectlist=on</tt> enables the Live Object List feature. </li></ul><ul><li><tt>vfp3=off</tt> is only relevant for ARM builds with snapshot and disables the use of VFP3 instructions in the snapshot. </li></ul><ul><li><tt>debuggersupport=off</tt> disables the javascript debugger. </li></ul><ul><li><tt>werror=no</tt> omits the -Werror flag. This is especially useful for not officially supported C++ compilers (e.g. newer versions of the GCC) so that compile warnings are ignored. </li></ul><ul><li><tt>strictaliasing=off</tt> passes the -fno-strict-aliasing flag to GCC. This may help to work around build failures on officially unsupported platforms and/or GCC versions. </li></ul><ul><li><tt>regexp=interpreted</tt> chooses the interpreted mode of the irregexp regular expression engine instead of the native code mode. </li></ul><ul><li><tt>hardfp=on</tt> creates "hardfp" binaries on ARM. </li>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>google在中華淪陷區是被封了的 故需要使用代理才能 下載代碼
+github 大多時候亦是被封了的 但偶爾可以連接 沒有代理 可以 試下人品
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="vs"></a>
+		<p><span class="flag">vs編譯</span>
+<pre>1	安裝python環境
+
+2	下載安裝 gyp
+	git clone https://chromium.googlesource.com/external/gyp
+	python setup.py install
+
+3	下載v8源碼
+	git clone https://chromium.googlesource.com/v8/v8.git
+
+4	執行 python build/gyp_v8 -Dtarget_arch=ia32 生成 vs 工程文件
+	<span>-Dtarget_arch 可選參數 -Dtarget_arch=x64
+	-Dcomponent=shared_library</span>
+
+5	使用vs編譯 
+	"c:\Program Files (x86)\Microsoft Visual Studio 9.0\Common7\IDE\devenv.com" /build Release build\All.sln
+	亦可 Debug 
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

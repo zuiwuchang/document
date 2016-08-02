@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>監視文件映射</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1><a href="#PsSetLoadImageNotifyRoutine">監視文件映射 PsSetLoadImageNotifyRoutine</a></h1></p>
+   
+    
+    
+    <div class="div_box"><a name="PsSetLoadImageNotifyRoutine"></a><h2>
+    <p><font color="#FF0000">監視文件映射 PsSetLoadImageNotifyRoutine</font><br />
+    PsSetLoadImageNotifyRoutine註冊一個回調函數 <br />
+    當有文件被 加載 或 映射時到內存時 (如可運行在運行之前) 系統調用回調<br /><br />
+    
+    PsRemoveLoadImageNotifyRoutine 移除回調函數<br />
+    
+    IRQL: PASSIVE_LEVEL
+    </p>
+    
+    <p><font color="#FF0000">函數聲明</font>    
+<pre>//註冊一個回調函數
+NTSTATUS
+  PsSetLoadImageNotifyRoutine(
+    IN PLOAD_IMAGE_NOTIFY_ROUTINE  NotifyRoutine		//回調函數
+    );
+    
+//回調函數聲明
+VOID
+(*PLOAD_IMAGE_NOTIFY_ROUTINE) (
+    IN PUNICODE_STRING  FullImageName,				//映射文件名 如 a.exe
+    IN HANDLE  ProcessId, // where image is mapped		//映射進程句柄
+    IN PIMAGE_INFO  ImageInfo					//包含映射文件被映射到 詳情
+    );
+
+//IMAGE_INFO 結構
+typedef struct  _IMAGE_INFO {
+    union {
+        ULONG  Properties;
+        struct {
+            ULONG ImageAddressingMode  : 8; //code addressing mode	始終設置為IMAGE_ADDRESSING_MODE_32BIT
+            ULONG SystemModeImage      : 1; //system mode image
+            ULONG ImageMappedToAllPids : 1; //mapped in all processes	始終設置為0
+            ULONG Reserved             : 22;				始終設置為0
+        };
+    };
+    PVOID  ImageBase;				//映射到VA
+    ULONG  ImageSelector;			//始終為0
+    ULONG  ImageSize;				//映射後佔用內存大小
+    ULONG  ImageSectionNumber;			//始終為0
+} IMAGE_INFO, *PIMAGE_INFO;
+
+//移除回調函數
+NTSTATUS
+  PsRemoveLoadImageNotifyRoutine(
+    IN PLOAD_IMAGE_NOTIFY_ROUTINE  NotifyRoutine 
+    );
+</pre>
+		</p>
+    </h2></div>
+
+</td></tr></table>
+</body>
+</html>

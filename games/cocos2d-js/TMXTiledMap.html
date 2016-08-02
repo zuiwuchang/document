@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>cocos2d-js</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#TMXTiledMap">TMXTiledMap 磚塊地圖</a> 
+		<a href="#Tiled">Tiled</a> 
+		
+	</div>
+
+	<div class="note"><a name="TMXTiledMap"></a>
+		<p><span class="flag">TMXTiledMap 磚塊地圖</span>
+<pre><span class="care">Class
+cc.TMXTiledMap
+
+Defined in: CCTMXTiledMap.js
+Extends cc.Node</span>
+</pre>
+		</p>
+
+		<p><span class="flag">用處</span>
+<pre>TMXTiledMap 對磚塊地圖 進行了 支持 
+</pre>
+		</p>
+
+		<p><span class="flag">屬性</span>
+<pre>//地圖 寬/高 (磚塊數量 而非 像素等)
+mapWidth
+mapHeight
+
+//每塊磚的 寬/高 (單位:像素)
+tileWidth
+tileHeight
+
+//地圖定位(90度俯視 還是斜45度角 或6邊形)
+mapOrientation
+
+//一個 map 保存了所有地圖屬性
+properties
+
+//對象層數組
+objectGroups
+</pre>
+		</p>
+
+		<p><span class="flag">方法</span>
+<pre>//構造函數 創建 地圖 
+ctor(tmxFile, resourcePath)
+
+//創建 地圖 使實例化和加載地圖 可以分開
+initWithTMXFile(tmxFile)
+
+//返回/設置 地圖尺寸(尺寸是磚塊數量 而非像素) (obj.width obj.height)
+getMapSize()
+setMapSize(Var)
+	<span class="care">Parameters:
+	{cc.Size} Var</span>
+
+//根據名稱 返回圖層 TMXLayer
+getLayer(layerName)
+
+//根據名字返回 對象層 TMXObjectGroup
+getObjectGroup(groupName)
+
+//返回/設置 objectGroups
+getObjectGroups()
+setObjectGroups(Var)
+	<span class="care">Parameters:
+	{Array} Var</span>
+
+//返回properties
+getProperties()
+
+//返回/設置 properties[propertyName]
+getProperty(propertyName)
+setProperties(Var)
+	<span class="care">Parameters:
+	{object} Var</span>
+
+//返回/設置 每塊磚的 像素大小(obj.width obj.height)
+getTileSize()
+setTileSize(Var)
+	<span class="care">Parameters:
+	{cc.Size} Var</span>
+
+//返回/設置 mapOrientation
+getMapOrientation()
+setMapOrientation(Var)
+	<span class="care">Parameters:
+	{Number} Var</span>
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre><span class="care">官方示例</span>
+1.//create a TMXTiledMap with file name
+var tmxTiledMap = new cc.TMXTiledMap("res/orthogonal-test1.tmx");
+2.
+//create a TMXTiledMap with content string and resource path
+var resources = "res/TileMaps";
+var filePath = "res/TileMaps/orthogonal-test1.tmx";
+var xmlStr = cc.loader.getRes(filePath);
+var tmxTiledMap = new cc.TMXTiledMap(xmlStr, resources);
+
+<span class="care">實例對象 和加載地圖分開</span>
+var map = new cc.TMXTiledMap();
+var ok = map.initWithTMXFile("res/a.tmx");
+if(ok){
+	this.addChild(map, 0, TAG_TILE_MAP);
+}
+</pre>
+		</p>
+
+    </div>
+
+    <div class="note"><a name="Tiled"></a>
+		<p><span class="flag">Tiled</span>
+<pre>Tiled 一個開源 跨平台的 tile map 製作工具
+官網<a target="_blank" href="http://www.mapeditor.org/download.html">http://www.mapeditor.org/download.html</a>
+</pre>
+		</p>
+	</div>
+    
+</div>
+</body>
+</html>

@@ -1,0 +1,238 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>v8</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#SpiderMonkey">SpiderMonkey</a>
+		<a href="#win32">環境配置 win32</a>
+		<a href="#hellow">hellow world</a>
+		<a href="#call">c js 互相 調用</a>
+		
+	</div>
+
+	<div class="note"><a name="SpiderMonkey"></a>
+		<p><span class="flag">SpiderMonkey</span>
+<pre>SpiderMonkey 一個 開源(MPL)的 javascript 引擎(亦是最早的一個)
+由Netscape開發 現在由 Mozilla基金会 維護
+
+官網<a target="_blank" href="http://www.mozilla.org/js/spidermonkey/">http://www.mozilla.org/js/spidermonkey/</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="win32"></a>
+		<p><span class="flag">環境配置 win32</span>
+<pre>1	從官網 下載 最新 源碼
+2	從官網下載 MozillaBuildSetup 工具
+3	運行MozillaBuildSetup中的 start-shell-msvc2010.bat (如果用vs2010編譯)
+4	cd 源碼/js/src
+5	.configure
+6	make
+7	將 源碼/js/src/dist 中的 include 加入include目錄 lib 為庫文件
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="hellow"></a>
+		<p><span class="flag">hellow world</span>
+<pre>1	初始化 js 執行環境 JS_NewRuntime
+2	初始話 棧 上下文 JS_NewContext
+3	初始化 全局對象 加載 標準庫 
+4	和 js 交互
+5	釋放 棧 上下文
+6	釋放 js執行 環境
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>// This is an example for SpiderMonkey 24.
+// For SpiderMonkey 31 or 38, see each comment.
+
+#define XP_WIN
+#include &lt;mozjs-24.2.0\jsapi.h&gt;
+#pragma comment(lib,"mozjs-24.lib")
+/* The class of the global object. */
+static JSClass global_class = {
+    "global",
+    JSCLASS_GLOBAL_FLAGS,
+    // [SpiderMonkey 38] Following Stubs are removed. Remove those lines.
+    JS_PropertyStub,
+    JS_DeletePropertyStub,
+    JS_PropertyStub,
+    JS_StrictPropertyStub,
+    JS_EnumerateStub,
+    JS_ResolveStub,
+    JS_ConvertStub
+};
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	// [SpiderMonkey 31 38] need this
+    //JS_Init();
+	
+	//初始化 運行環境
+	JSRuntime *rt = JS_NewRuntime(8L * 1024 * 1024, JS_USE_HELPER_THREADS);
+	assert(rt);
+
+	//初始化 棧的 上下文
+	JSContext *cx = JS_NewContext(rt, 8192);
+	assert(cx);
+
+	//創建全局對象 
+	JS::RootedObject global(cx, JS_NewGlobalObject(cx, &global_class, nullptr));
+    //JS::RootedObject global(cx, JS_NewGlobalObject(cx, &global_class, nullptr, JS::FireOnNewGlobalHook));
+	
+	JS::RootedValue rval(cx);
+	assert(global);
+	{
+		//創建 訪問global的 隔離環境 
+		JSAutoCompartment ac(cx, global);
+		//初始化 標準 函數 等
+		JS_InitStandardClasses(cx, global);
+
+		//執行js
+		const char *script = "'hello'+'world, it is '+new Date()";
+		const char *filename = "noname";
+		int lineno = 1;
+		// [SpiderMonkey 24] The type of rval parameter is 'jsval *'.
+		bool ok = JS_EvaluateScript(cx, global, script, strlen(script), filename, lineno, rval.address());
+		// [SpiderMonkey 38] JS_EvaluateScript is replaced with JS::Evaluate.
+		// JS::CompileOptions opts(cx);
+		// opts.setFileAndLine(filename, lineno);
+		// bool ok = JS::Evaluate(cx, global, opts, script, strlen(script), &rval);
+		//bool ok = JS_EvaluateScript(cx, global, script, strlen(script), filename, lineno, &rval);
+		assert(ok);
+	}
+	JSString *str = rval.toString();
+    printf("%s\n", JS_EncodeString(cx, str));
+
+	//釋放上下文
+	JS_DestroyContext(cx);
+	//釋放 運行環境
+	JS_DestroyRuntime(rt);
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="call"></a>
+		<p><span class="flag">c js 互相 調用</span>
+<pre>c 調用 js 之需要 使用 JS_CallFunctionName 即可
+js 調用 c 只需要 使用 JS_DefineFunction 註冊 函數 即可
+</pre>
+		</p>
+		<p><span class="flag">c js 互相 調用</span>
+<pre>// This is an example for SpiderMonkey 24.
+// For SpiderMonkey 31 or 38, see each comment.
+
+#define XP_WIN
+#include <mozjs-24.2.0\jsapi.h>
+#pragma comment(lib,"mozjs-24.lib")
+/* The class of the global object. */
+static JSClass global_class = {
+    "global",
+    JSCLASS_GLOBAL_FLAGS,
+    // [SpiderMonkey 38] Following Stubs are removed. Remove those lines.
+    JS_PropertyStub,
+    JS_DeletePropertyStub,
+    JS_PropertyStub,
+    JS_StrictPropertyStub,
+    JS_EnumerateStub,
+    JS_ResolveStub,
+    JS_ConvertStub
+};
+
+// [SpiderMonkey 31/38] Use bool instead of JSBool.
+// c 函數 定義 
+static JSBool sum(JSContext *cx, unsigned argc, jsval *vp)
+{
+  JS::CallArgs args = CallArgsFromVp(argc, vp);
+ 
+  int s = 0;
+  //訪問參數
+  for(std::size_t i=0;i&lt;args.length();++i)
+  {
+	  s += args[i].toInt32();
+  }
+
+  //設置返回值
+  args.rval().setInt32(s);
+  return true;
+}
+
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	// [SpiderMonkey 31 38] need this
+    //JS_Init();
+	
+	//初始化 運行環境
+	JSRuntime *rt = JS_NewRuntime(8L * 1024 * 1024, JS_USE_HELPER_THREADS);
+	assert(rt);
+
+	//初始化 棧的 上下文
+	JSContext *cx = JS_NewContext(rt, 8192);
+	assert(cx);
+
+	//創建全局對象 
+	JS::RootedObject global(cx, JS_NewGlobalObject(cx, &global_class, nullptr));
+    //JS::RootedObject global(cx, JS_NewGlobalObject(cx, &global_class, nullptr, JS::FireOnNewGlobalHook));
+	
+	JS::RootedValue rval(cx);
+	assert(global);
+	{
+		//創建 隔離環境
+		JSAutoCompartment ac(cx, global);
+		//初始化 標準 函數 等
+		JS_InitStandardClasses(cx, global);
+
+		<span class="care">//註冊 c 函數</span>
+		JSFunction* fun = JS_DefineFunction(cx, global, "sum", sum, 3/*參數數量*/, 0);
+		/*{
+			static JSFunctionSpec my_functions[] = {
+			  JS_FN("sum", sum, 3, 0),
+			  //...一次註冊 多個函數
+			  JS_FS_END
+			};
+			assert(JS_DefineFunctions(cx, global, my_functions));
+		}
+		*/
+		assert(fun);
+
+		
+		<span class="care">//c 調用 js</span>
+		//設置參數
+		//JS::AutoValueArray<3> argv(cx);	//[SpiderMonkey 31 38] 可用
+		JS::AutoValueVector argv(cx);
+		argv.resize(3);
+		argv[0].setInt32(1);
+		argv[1].setInt32(2);
+		argv[2].setInt32(3);
+		//調用 js 函數
+		//ok = JS_CallFunctionName(cx,global,"sum",3,argv,rval);	//[SpiderMonkey 31 38] 可用
+		bool ok = JS_CallFunctionName(cx,global,"sum",3,argv.begin(),rval.address());
+		assert(ok);
+		//獲取返回值
+		printf("%d\n", rval.toInt32());
+	}
+	//釋放上下文
+	JS_DestroyContext(cx);
+	//釋放 運行環境
+	JS_DestroyRuntime(rt);
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

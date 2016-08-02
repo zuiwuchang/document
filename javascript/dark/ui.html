@@ -1,0 +1,152 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>dark</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#ui">ui</a>
+		<a href="#listctrl">listctrl</a>
+	</div>
+
+	<div class="note"><a name="ui"></a>
+		<p><span class="flag">ui</span>
+<pre><span class="care">定義</span>
+dark.ui.js
+
+<span class="care">依賴</span>
+dark.core.js
+
+<span class="care">namespace</span>
+dark.ui
+
+<span class="care">描述</span>
+一些ui控件 的基類
+
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="listctrl"></a>
+		<p><span class="flag">listctrl</span>
+<pre>dark.ui.listctrl.css
+
+dark.ui.listctrl.js
+
+
+
+一個listctrl
+<img src="image/ui/listctrl.PNG" />
+</pre>
+		</p>
+
+		<p><span class="flag">方法</span>
+<pre>//創建列表實例
+listctrl.create	=	function(_param)
+	_param 取值
+	{"element":$("#select")				//被替換為listctrl的jquery元素 若不傳入 需要手動將listctrl添加到頁面
+		,"multiple":"multiple"			//是否可多選
+		,"click_item":function(e,element){	//單擊 item	觸發
+			alert(element.text());
+		}
+		,"change_item":function(){		//item 選項改變 觸發
+			alert("change")
+		}
+	}
+
+//listctrl 的jquery元素實例    
+instance.jQuery
+
+//返回 item 數量
+instance.size	=	function() 
+
+//清空列表
+instance.clear	=	function()
+
+//根據索引 刪除元素 erase(0,1,2...)
+instance.erase	=	function()
+
+//插入元素
+instance.insert	=	function(_where/*-1 最後*/,_value/*值*/,_text/*顯示文本 默認=_value*/)
+
+//返回/設置 高度
+instance.height	=	function(_height)
+
+//返回/設置 寬度
+instance.width	=	function(_width)
+
+//返回(無參)/選中(根據索引 (0,1,2,...)) 指定項
+instance.select	=	function()
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre><span class="care">html</span>
+...
+&lt;script language="javascript" src="scripts/jquery-1.8.3.min.js"&lt;&gt;/script&gt;
+
+&lt;script language="javascript" src="ui/dark.core.js"&lt;&gt;/script&gt;
+&lt;link href="ui/dark.ui.listctrl.css" rel="stylesheet" type="text/css" /&gt;
+&lt;script language="javascript" src="ui/dark.ui.listctrl.js"&lt;&gt;/script&gt;
+&lt;script language="javascript" src="scripts/main.js"&lt;&gt;/script&gt;
+
+...
+&lt;select id="select"&gt;
+    &lt;option selected='selected' value="kk"&gt;index_0&lt;/option&gt;
+    &lt;option&gt;1&lt;/option&gt;
+    &lt;option selected='selected'&gt;2&lt;/option&gt;
+    &lt;option&gt;31&lt;/option&gt;
+    &lt;option&gt;4&lt;/option&gt;
+    &lt;option&gt;5&lt;/option&gt;
+    &lt;option&gt;6&lt;/option&gt;
+    &lt;option&gt;7&lt;/option&gt;
+    &lt;option&gt;8&lt;/option&gt;
+    &lt;option&gt;9&lt;/option&gt;
+    &lt;option&gt;10&lt;/option&gt;
+&lt;/select&gt;
+...
+
+
+
+<span class="care">main.js</span>
+$(document).ready(function(){
+	var listctrl	=	dark_namespace("dark.ui.listctrl");
+	
+	listctrl	=	listctrl.create(
+		{"element":$("#select")			//被替換為listctrl的元素
+		,"multiple":"multiple"			//使用 多項 選擇
+		,"click_item":function(e,element){	//單擊 item
+				alert(element.text());
+			}
+		,"change_item":function(){		//改變選項
+				alert("change")
+			}
+		}
+	);
+	
+	listctrl.erase(1);
+	listctrl.height(150);
+	listctrl.width(300);
+	listctrl.insert(-1,1);
+	
+	listctrl.select(1,2,3);
+	listctrl.select().each(function(index, element) {
+        var e = $(element);
+		alert("index = " + e.index() + "\n"
+		+ "val = " + e.attr("data-value") + "\n"
+		+ "text = " + e.text() + "\n"
+		);
+    });
+	
+});
+</pre>
+		</p>
+	</div>
+
+</div>
+
+</body>
+</html>

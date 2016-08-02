@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>資源表</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+    <p><h1><font color="#FF0000">資源表</font></h1></p>
+    
+    <h2>
+    <a href="#resources">資源表</a><br />
+    <a href="#image">图解</a><br />
+    <a href="#class">資源類型</a><br />
+   
+    
+    </h2>
+    <div class="div_boxex"><a name="resources"></a><p><h3>
+    	<p><h2><font color="#FF0000">資源表</font></h2><br />
+        	資源表用於保存 程序需要用到的資源 <br />
+           <font color="#FF0000">資源表一三層結構表示 每層包含一個 IMAGE_RESOURCE_DIRECTORY 和 IMAGE_RESOURCE_DIRECTORY_ENTRY 結構<br />
+           IMAGE_RESOURCE_DIRECTORY 用以確定其後緊跟的 IMAGE_RESOURCE_DIRECTORY_ENTRY 數目<br />
+           
+           </font>
+<pre>typedef struct _IMAGE_RESOURCE_DIRECTORY {
+    DWORD   Characteristics;		//必須為0
+    DWORD   TimeDateStamp;			//創建時間
+    WORD    MajorVersion;			//資源版本號 大部分為0
+    WORD    MinorVersion;			//同上
+    WORD    NumberOfNamedEntries;	//以名稱命名資源個數
+    WORD    NumberOfIdEntries;		//以id命名資源個數
+//  IMAGE_RESOURCE_DIRECTORY_ENTRY DirectoryEntries[];
+} IMAGE_RESOURCE_DIRECTORY, *PIMAGE_RESOURCE_DIRECTORY;
+
+typedef struct _IMAGE_RESOURCE_DIRECTORY_ENTRY {
+    union {
+        struct {
+            DWORD NameOffset:31;
+            DWORD NameIsString:1;					//是否是以名稱命名
+        } DUMMYSTRUCTNAME;
+        DWORD   Name;								//名稱相對資源表偏移 指向IMAGE_RESOURCE_DIR_STRING_U結構
+        WORD    Id;
+    } DUMMYUNIONNAME;								//名稱或id
+    union {
+        DWORD   OffsetToData;
+        struct {
+            DWORD   OffsetToDirectory:31;
+            DWORD   DataIsDirectory:1;				//為1 低位指向下層目錄 否則指向最終資源塊(當第三層時)
+        } DUMMYSTRUCTNAME2;
+    } DUMMYUNIONNAME2;								//指向下層資源 相對資源表偏移
+} IMAGE_RESOURCE_DIRECTORY_ENTRY, *PIMAGE_RESOURCE_DIRECTORY_ENTRY;
+
+typedef struct _IMAGE_RESOURCE_DIR_STRING_U {
+    WORD    Length;					//名稱長度不包含 0 且 不以0為字符串結尾
+    WCHAR   NameString[ 1 ];		
+} IMAGE_RESOURCE_DIR_STRING_U, *PIMAGE_RESOURCE_DIR_STRING_U;
+</pre>
+           
+        </p>
+   	</h3></p></div>
+    
+    <div class="div_boxex"><a name="image"></a><p><h3>
+    	<p><h2><font color="#FF0000">图解</font></h2><br />
+        	<img src="img/資源表/directory.PNG" /><br />
+            <img src="img/資源表/tree.PNG" /><br />
+        	<img src="img/資源表/image.PNG" /><br />
+            第一層 每個IMAGE_RESOURCE_DIRECTORY_ENTRY代表了一種資源類型 並且最終指向一個第二層結構<br /><br />
+            
+            第二層 每個IMAGE_RESOURCE_DIRECTORY_ENTRY代表了一個資源的id或名稱 並且最終指向一個第三層資源<br /><br />
+            
+            第三層 每個IMAGE_RESOURCE_DIRECTORY_ENTRY最終指向IMAGE_RESOURCE_DATA_ENTRY <br /><br />
+            
+            IMAGE_RESOURCE_DATA_ENTRY標明了資源的RVA和大小
+        </p>
+   	</h3></p></div>
+    <div class="div_boxex"><a name="class"></a><p><h3>
+    	<p><h2><font color="#FF0000">資源類型</font></h2>
+        <table>
+        <tr><td>數值</td><td>常量</td><td>含義</td></tr>
+        <tr><td>1</td><td>RT_CURSOR</td><td>光標</td></tr>
+        <tr><td>2</td><td>RT_BIMAP</td><td>位圖</td></tr>
+        <tr><td>3</td><td>RT_ICON</td><td>圖標</td></tr>
+        <tr><td>4</td><td>RT_MENU</td><td>菜單</td></tr>
+        <tr><td>5</td><td>RD_DIALOG</td><td>對話框</td></tr>
+        <tr><td>6</td><td>RT_STRING</td><td>字符串</td></tr>
+        <tr><td>7</td><td>RT_FONTDIR</td><td>字體目錄(或稱為二進制資源)</td></tr>
+        <tr><td>8</td><td>RT_FONT</td><td>字體</td></tr>
+        <tr><td>9</td><td>RT_ACCELERATOR</td><td>加速鍵</td></tr>
+        <tr><td>10</td><td>RT_RCDATA</td><td>未格式化資源</td></tr>
+        <tr><td>11</td><td>RT_MESSAGETABLE</td><td>消息表</td></tr>
+        <tr><td>12</td><td>RT_GROUP_CURSOR</td><td>光標組</td></tr>
+        <tr><td>14</td><td>RT_GROUP_ICON</td><td>圖標組</td></tr>
+        <tr><td>16</td><td>RT_VERSION</td><td>版本</td></tr>
+        <tr><td>...</td><td></td><td>其他 或自定義 資源</td></tr>        
+        </table>
+        
+    	</p>
+    </h3></p></div>
+   
+    
+</td></tr></table>
+</body>
+</html>

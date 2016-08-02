@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Puppy</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#Puppy">Puppy</a>
+		<a href="#usb">安裝到usb</a>
+		
+	</div>
+	
+	<div class="note"><a name="Puppy"></a>
+		<p><span class="flag">Puppy</span>
+<pre>Puppy 一个小型(當前6.0版本 iso 只有200mb) 輕便 快速 的 獨立 linux 發行版
+官方log是只 dog
+
+官網 <a target="_blank" href="http://puppylinux.org/">http://puppylinux.org/</a>
+
+
+
+PAE		支持 64GB RAM
+NO_PAE	只能使用 4GB RAM
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="usb"></a>
+		<p><span class="flag">安裝到usb</span>
+<pre>1	從官網下載 os 鏡像
+
+2	下載 UNetbootin <a target="_blank"  href="http://unetbootin.github.io/">http://unetbootin.github.io/</a>
+
+3	使用 UNetbootin 將鏡像 安裝到usb
+
+4	編輯 isolinux.cfg 文件 將 最後的
+	append initrd=initrd.gz pmedia=<span class="care">cd</span> 修改為
+	append initrd=initrd.gz pmedia=<span class="care">usbflash</span>
+
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

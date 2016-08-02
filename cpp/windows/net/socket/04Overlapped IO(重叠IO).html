@@ -1,0 +1,172 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>04Overlapped IO(重叠IO)</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+
+    <p><h1><font color="#FF0000">Overlapped IO(重叠IO)</font></h1></p>
+    
+    <h2>
+    <a href="#Overlapped">Overlapped IO</a><br />
+    
+    
+    </h2>
+    
+    <div class="div_box"><a name="Overlapped"></a><p><h3>
+    	<p><h2><font color="#FF0000">Overlapped IO</font></h2>
+        #include&lt;WinSock2.h&gt;<br />
+#include&lt;Mswsock.h&gt;<br />
+#pragma comment (lib,"Mswsock.lib")<br />
+#pragma comment (lib,"WS2_32.lib")<br /><br />
+
+        Overlapped IO允許 向系統提交多個 IO 請求 當請求完成時 將得到系統通知<br />
+        需要將每個 IO 請求和 WSAOVERLAPPED 關聯(具體做法是在調用WSA...函數時 傳入WSAOVERLAPPED結構)<br />
+        (WSAOVERLAPPED結構中 包含一個 event 對象 當IO請求完成 其會變為激發態)
+        <br /><br />
+        
+<pre>        使用重疊操作 對應的socket應該 替換成 WSA...<br />
+        WSASend
+        WSARecv
+        AcceptEx
+        ...</pre>
+        </p>
+      	
+        <p><h2><font color="#FF0000">相關API</font></h2>
+<pre>
+//創建一個 WSAEVENT 失敗返回WSA_INVALID_EVENT (NULL) (以 人工重置 方式工作 初始化為 未激發)
+//如果需要自動重置 可以使用 CreateEvent 
+WSAEVENT  WSACreateEvent (void);
+
+//重疊結構
+typedef struct _WSAOVERLAPPED {
+  DWORD  Internal; 					//保存i/o請求錯誤碼
+  DWORD  InternalHigh; 					/異步操作完成時保存設計傳輸字節
+  DWORD  Offset; 					//文件操作偏移低32位 非文件應該為0 否則可能導致io失敗
+  DWORD  OffsetHigh; 					//...高
+  WSAEVENT  hEvent;					//事件對象句柄
+} WSAOVERLAPPED, FAR * LPWSAOVERLAPPED;        
+
+//等待重疊IO完成事件 (返回值 WSA_WAIT_IO_COMPLETION 只有fAlertable為TRUE 時才有可能)
+DWORD WSAWaitForMultipleEvents(
+  __in  DWORD cEvents,				//等待的WSAEVENT數組大小
+  __in  const WSAEVENT* lphEvents,		//WSAEVENT數組地址
+  __in  BOOL fWaitAll,				//TRUE 全部激發才返回
+  __in  DWORD dwTimeout,			//等待超時 WSA_INFINITE 一直等待
+  __in  BOOL fAlertable				//FALSE (當用於完成例程時才啟用TRUE)
+);
+
+//當io完成時 獲取重疊操作是否成功  （<font color="#FF0000">如果socket關閉 如網絡異常斷開連接 返回FALSE</font>）
+BOOL WSPGetOverlappedResult(
+  __in   SOCKET s,				//要查詢的 socket
+  __in   LPWSAOVERLAPPED lpOverlapped,		//餘socket關聯的 WSAOVERLAPPED
+  __out  LPDWORD lpcbTransfer,			//返回重疊操作實際操作字節數 如WSASend 發送了多少數據
+  __in   BOOL fWait,				//(設置為TRUE io完成 此返回才返回) (FALSE IO正在操作函數依然返回)
+  __out  LPDWORD lpdwFlags,			//返回標誌 <font color="#FF0000">對於WSARecv(==0 客戶機斷開)</font> WSASend 為實際傳輸字節 
+  __out  LPINT lpErrno				//返回一個錯誤碼 不能為NULL
+);
+
+
+<font color="#FF0000">WSA...</font>
+//創建一個支持重疊的socket
+SOCKET WSASocket(
+  __in  int af,					//同socket函數
+  __in  int type,				//同socket函數
+  __in  int protocol,				//同socket函數
+  __in  LPWSAPROTOCOL_INFO lpProtocolInfo,	//通常NULL
+  __in  GROUP g,							//系統保留 0
+  __in  DWORD dwFlags				//WSA_FLAG_OVERLAPPED 代表使用重疊io
+);
+
+//接收一個socket連接  ERROR_IO_PENDING == WSAGetLastError （）
+BOOL AcceptEx(
+  __in   SOCKET sListenSocket,			/監聽socket
+  __in   SOCKET sAcceptSocket,			//接受連接的套接字 需要自己創建
+  __in   PVOID lpOutputBuffer,			//緩衝區 用於三種數據接收 新建連接發送的第一個數據塊  服務器本地地址 客戶機地址 
+  __in   DWORD dwReceiveDataLength,		//緩衝區 保留多大數據用於接收 <font color="#FF0000">數據塊</font> 為0 AcceptEx不會數據塊
+  __in   DWORD dwLocalAddressLength,		//緩衝區 ... <font color="#FF0000">服務器本地地址</font> ...
+  __in   DWORD dwRemoteAddressLength,		//緩衝區 ... <font color="#FF0000">客戶機地址</font> ...
+  __out  LPDWORD lpdwBytesReceived,		//返回實際操作字節數<font color="#FF0000">同步操作下此值才會被設置</font>
+  __in   LPOVERLAPPED lpOverlapped		//WSAOVERLAPPED結構
+);
+<font color="#FF0000">返回ip
+void GetAcceptExSockaddrs(
+  __in   PVOID lpOutputBuffer,			//AcceptEx 傳入的緩衝區
+  __in   DWORD dwReceiveDataLength,		//AcceptEx 傳入 數據塊 大小
+  __in   DWORD dwLocalAddressLength,	//AcceptEx 傳入 本地地址 大小
+  __in   DWORD dwRemoteAddressLength,	//AcceptEx 傳入 遠程地址 大小
+  __out  LPSOCKADDR* LocalSockaddr,		//不能為NULL 返回 本地地址
+  __out  LPINT LocalSockaddrLength,		//...		返回地址大小
+  __out  LPSOCKADDR* RemoteSockaddr,	//...		遠程
+  __out  LPINT RemoteSockaddrLength		//...
+);
+SOCKADDR_IN*	local;
+					SOCKADDR_IN*	remote;
+					int	local_len,remote_len;
+
+					GetAcceptExSockaddrs(overlappedex.buffer.get(),0,0,overlappedex.size_buffe
+						,(sockaddr**)&local,&local_len,(sockaddr**)&remote,&remote_len);
+		
+					char* lp=inet_ntoa(remote->sin_addr);
+</font>
+//接受數據 成功返回0	WSA_IO_PENDING	==	WSAGetLastError()
+int WSARecv(
+  __in     SOCKET s,
+  __inout  LPWSABUF lpBuffers,				// 指向WSABUF的數組 用於存儲數據
+  __in     DWORD dwBufferCount,				//WSABUF數組大小
+  __out    LPDWORD lpNumberOfBytesRecvd,		//返回傳輸字節數(不能為NULL)
+  __inout  LPDWORD lpFlags,						//（通常DWORD flags=0）
+  __in     LPWSAOVERLAPPED lpOverlapped,		//WSAOVERLAPPED結構
+  __in     LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine	//NULL (用於完成例程時使用)
+);
+typedef struct _WSABUF {
+  u_long  len; 			//緩衝區大小
+  char FAR  *buf; 		//緩衝區
+} WSABUF, FAR * LPWSABUF;
+
+//發送數據 參數同 WSARecv
+int WSASend(
+  __in   SOCKET s,
+  __in   LPWSABUF lpBuffers,
+  __in   DWORD dwBufferCount,
+  __out  LPDWORD lpNumberOfBytesSent,
+  __in   DWORD dwFlags,
+  __in   LPWSAOVERLAPPED lpOverlapped,
+  __in   LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
+);
+
+<font color="#FF0000">dwLocalAddressLength dwRemoteAddressLength的大小應該比 當前協議允許的最大地址 長度大16字節
+如 tcp 協議 大小為 sizeof(SOCKADDRIN)+16</font>
+</pre>
+        </p>
+        
+        
+        <p><h2><font color="#FF0000">注意</font></h2>
+        <font color="#FF0000">返回0 調用WSAGetLastError() 如果返回 WSA_IO_PENDING 或 ERROR_IO_PENDING... 代表一個IO投遞成功</font><br /><br />
+        
+        直接使用socket創建的套接字亦可使用重疊 因為socket默認會以WSA_FLAG_OVERLAPPED標準創建套接字<br /><br />
+        
+       <font color="#FF0000">在WSAWaitForMultipleEvents 後 應該將關聯的 重疊結構設置為未激發 </font><br /><br />
+        
+       <pre><font color="#FF0000">重疊操作無法直接獲取是那個網絡事件完成 常用的做法是擴展 WSAOVERLAPPED 結構 在投遞io時 設置io類型
+typedef struct _WSAOVERLAPPEDEX_     
+{
+	WSAOVERLAPPED	overapped;
+    int				io_type;
+}WSAOVERLAPPEDEX,*LWSAOVERLAPPEDEX;
+       </font>
+       
+       重疊io同時最多等待 WSA_MAXIMUM_WAIT_EVENTS (64) 個io
+       
+       <h1><font color="#FF0000">重疊io在內部 傳輸的是  WSAOVERLAPPED的地址 故在io完成前 不能銷毀此  WSAOVERLAPPED </font><br /><br />
+       </h1>
+        </p>
+   	</h3></p></div>
+    
+    
+</td></tr></table>
+</body>
+</html>

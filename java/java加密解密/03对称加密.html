@@ -1,0 +1,141 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>对称加密</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1>
+    	<p><font color="#FF0000">描述</font><br />
+        	java中 <br />
+            DES加密的密匙材料建议采用DESKeySpec<br />
+            DESede...DESedeKeySpec     <br />
+            其他均参照AES(DES 和 DESede 也可如此)    <br />
+		</p>
+        <a href="#algorithm">算法</a> <br />
+        <a href="#add">填充方式</a> <br />
+        <a href="#ECB">工作模式</a> <br />
+        <a href="#AES">AES</a> <br />
+        <a href="#PBE">PBE</a> <br />
+    </h1></p>
+    <div class="div_box"><a name='algorithm'><h3>
+    	<p><font color="#FF0000">算法</font><br />
+    	<table border="2">
+        <tr><td>算法名</td><td>密钥长度</td></tr>
+        <tr>
+          <td>DES</td>
+          <td>56 64</td></tr>
+        <tr>
+          <td>DESede</td>
+          <td>112 128 168 192</td></tr>
+        <tr>
+          <td>AES</td>
+          <td>128 192 256</td></tr>
+        <tr>
+          <td>IDEA</td>
+          <td>128</td></tr>
+        
+        </table>
+        </p>
+    </h3></a></div>
+    
+    <div class="div_box"><a name='add'><h3>
+    	<p><font color="#FF0000">填充方式</font><br />
+    	NoPadding<br />
+        PKCS5Padding<br />
+        PKCS7Padding<br />
+        ISO10126Padding<br />
+        ZeroBytePadding
+    	</p>
+    </h3></a></div>
+    
+    <div class="div_box"><a name='ECB'><h3>
+    	<p><font color="#FF0000">工作模式</font><br />
+        ECB	不需要iv 下面的都需要<br />
+        CBC	<br />
+        CFB	<br />
+        OFB	<br />
+        CTR	
+        </p>
+        <p><font color="#FF0000">ECB</font><br />
+        Electronic Code Book(电子密码本模式)<br />
+        每次加密都产生独立的分组 各组互不干扰
+        </p>
+        
+        <p><font color="#FF0000">CBC</font><br />
+        Cipher Book Chaining (密文链接模式)<br />
+        前面前 加密块先与前一块加密的密文异或 然后在和密钥加密<br />
+        第一块加密数据 先和iv异或 在和密匙加密
+        </p>
+        
+        <p><font color="#FF0000">CFB</font><br />
+        Cipher Feed Back (密文反馈模式)<br />
+        
+        </p>
+        
+        <p><font color="#FF0000">OFB</font><br />
+        Output Feed Back (输出反馈模式)<br />
+        
+        </p>
+        
+        <p><font color="#FF0000">CTR</font><br />
+        Counter (计算器模式)<br />
+        
+        </p>
+        
+  	</h3></a></div>
+    
+    <div class="div_box"><a name='AES'><h3>
+    	<p><font color="#FF0000">AES</font><br />
+       	  <pre>final String KEY_ALGORITHM=&quot;AES&quot;;					//算法名称<br />final String CIPHER_ALGORITHM=KEY_ALGORITHM+&quot;/ECB/PKCS5Padding&quot;;	//工作模式 和 填充方式<br />				<br />String str=&quot;this is &quot;+KEY_ALGORITHM;<br />System.out.println(&quot;原文:&quot;+str);<br />				<br />//产生密钥<br />KeyGenerator kg=KeyGenerator.getInstance(KEY_ALGORITHM,"BC");<br />kg.init(128);						//传入key位数<br />SecretKey secretKey = kg.generateKey();			//产生key<br />//byte[] key=secretKey.getEncoded();			//保存key的byte数据<br />				<br />//加密<br />Cipher cipher=Cipher.getInstance(CIPHER_ALGORITHM,&quot;BC&quot;);//BC 从BouncyCastle获取算法 不填为从sun库<br />cipher.init(Cipher.ENCRYPT_MODE, secretKey);		//产生加密器<br />byte[] data=cipher.doFinal(str.getBytes());		//加密<br />str=new String(Hex.encode(data));<br />System.out.println(&quot;密文:&quot;+str);<br />				<br />//解密<br />//SecretKey secretKey=new SecretKeySpec(key,KEY_ALGORITHM);	//由保存的key byte数据恢复key<br />cipher=Cipher.getInstance(CIPHER_ALGORITHM,&quot;BC&quot;);<br />cipher.init(Cipher.DECRYPT_MODE, secretKey);			//产生解密器<br />data=cipher.doFinal(data);					//解密<br />str=new String(data);<br />System.out.println(&quot;解密:&quot;+str);</pre>
+  	  	</p>
+        
+        <p><font color="#FF0000">需要iv的工作模式example</font>
+        <pre>
+final String KEY_ALGORITHM=&quot;AES&quot;;					//算法名称<br />final String CIPHER_ALGORITHM=KEY_ALGORITHM+&quot;/CBC/PKCS5Padding&quot;;	//工作模式 和 填充方式<br />						<br />String str=&quot;this is &quot;+KEY_ALGORITHM;<br />//不同算法iv长度是不同的 最好是随便填 然后等编译器报错 就会提示需要的iv长度<br />byte[] iv = &quot;0123456789abcdef&quot;.getBytes();	//iv	<br />System.out.println(&quot;原文:&quot;+str);<br />						<br />//产生密钥<br />KeyGenerator kg=KeyGenerator.getInstance(KEY_ALGORITHM,&quot;BC&quot;);<br />kg.init(128);						//传入key位数<br />SecretKey secretKey = kg.generateKey();			//产生key<br />//byte[] key=secretKey.getEncoded();			//保存key的byte数据<br />						<br />//加密 <br />Cipher cipher=Cipher.getInstance(CIPHER_ALGORITHM,&quot;BC&quot;);//BC 从BouncyCastle获取算法 不填为从sun库<br />IvParameterSpec param = new IvParameterSpec(iv);		//初始化向量iv<br />cipher.init(Cipher.ENCRYPT_MODE, secretKey,param);		//产生加密器<br />byte[] data=cipher.doFinal(str.getBytes());		//加密<br />str=new String(Hex.encode(data));<br />System.out.println(&quot;密文:&quot;+str);<br />						<br />//解密<br />//SecretKey secretKey=new SecretKeySpec(key,KEY_ALGORITHM);	//由保存的key byte数据恢复key<br />cipher=Cipher.getInstance(CIPHER_ALGORITHM,&quot;BC&quot;);<br />//IvParameterSpec param = new IvParameterSpec(iv);<br />cipher.init(Cipher.DECRYPT_MODE, secretKey,param);			//产生解密器<br />data=cipher.doFinal(data);					//解密<br />str=new String(data);<br />System.out.println(&quot;解密:&quot;+str);
+        </pre>
+        </p>
+    </h3></a></div>
+    <div class="div_box"><a name='PBE'><h3>
+    	<p><font color="#FF0000">PBE</font><br />
+        PBE 由用户输入字符串 产生key 加密 期间加入盐 以增加破解难度
+        </p>
+        <p><font color="#FF0000">算法</font><br />
+        算法名	密匙长度<br /><br />
+        
+        java6实现<br />
+        PBEwithMD5andDES	56<br />
+        PBEwithMD5andTripleDES	168<br />
+        PBEwithSHA1andDESede	168<br />
+        PBEwithSHA1andRC2_40	128
+        <br /><br />
+        BC实现<br />
+        PBEwithMD5andDES	64<br />
+        PBEwithMD5andRC2	128<br />
+        PBEwithSHA1andDES	64<br />
+        PBEwithSHA1andRC2	128<br />
+        PBEwithSHAandIDEA-CBC	128<br />
+        PBEwithSHAand2-KeyTripleDes-CBC	128<br />
+        PBEwithSHAand3-KeyTripleDes-CBC	192<br />
+        PBEwithSHAand128BitRC2-CBC	128<br />
+        PBEwithSHAand128BitRC2-CBC	40<br />
+        PBEwithSHAand128BitRC4	128<br />
+        PBEwithSHAand40BitRC4	40<br />
+        PBEwithSHAandTwofish-CBC	256<br /><br />
+        
+        以上工作模式结尾CBC
+        </p>
+        <p><font color="#FF0000">example</font><br />
+        <pre>
+final String ALGORITHM=&quot;PBEwithMD5andDES&quot;;					//算法名称<br />final int SALT_COUNT=100;									//盐迭代加入次数<br />		<br />String str=&quot;this is PBE&quot;;<br />String password=&quot;this is my password&quot;;<br />System.out.println(&quot;原文:&quot;+str);<br />		<br />//初始化盐<br />byte[] salt=SecureRandom.getSeed(8);<br />System.out.println(&quot;加盐:&quot;+new String(Hex.encode(salt)));<br />		<br />//生成密钥<br />PBEKeySpec keySpec=new PBEKeySpec(password.toCharArray());<br />SecretKeyFactory keyFactory=SecretKeyFactory.getInstance(ALGORITHM);<br />SecretKey secretKey=keyFactory.generateSecret(keySpec);<br />		<br />//加密<br />PBEParameterSpec paramSpec=new PBEParameterSpec(salt,SALT_COUNT);<br />Cipher cipher=Cipher.getInstance(ALGORITHM);<br />cipher.init(Cipher.ENCRYPT_MODE, secretKey,paramSpec);<br />byte[] data=cipher.doFinal(str.getBytes());<br />System.out.println(&quot;密文:&quot;+new String(Hex.encode(data)));<br />		<br />//解密<br />//PBEParameterSpec paramSpec=new PBEParameterSpec(salt,SALT_COUNT);<br />cipher=Cipher.getInstance(ALGORITHM);<br />cipher.init(Cipher.DECRYPT_MODE, secretKey,paramSpec);<br />data=cipher.doFinal(data);<br />System.out.println(&quot;解密:&quot;+new String(data));
+        </pre>
+        </p>
+        
+        
+   	</h3></a></div>
+   
+</td></tr></table>
+</body>
+</html>

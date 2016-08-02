@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>system</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#filesystem">filesystem</a>
+		<a href="#basic_path">路徑處理</a>
+		<a href="#file_status">文件狀態</a>
+		<a href="#create">文件操作</a>
+		<a href="#stream">文件流</a>
+		<br>
+		<a href="#program_options">program_options</a>
+		
+		
+	</div>
+
+	<div class="note"><a name="filesystem"></a>
+		<p><span class="flag">filesystem</span>
+<pre>#include &lt;boost/filesystem.hpp&gt;
+namespace boost::filesystem
+
+
+
+filesystem 提供了 跨平台的 文件 操作
+
+<span class="care">filesystem庫需要編譯</span>
+bjam --toolset=msvc-10.0 --with-filesystem --build-type=complete --prefix=D:\Boost install
+
+
+
+filesystem 使用 system庫的 error_code system_error的子類filesystem_error 表示程序運行的 錯誤 
+基本上 所有操作都有兩種 重載形式 
+	一種是有個 error_code的輸出參數 調用函數後 必須檢查此參數 以驗證是否發生錯誤
+	一種是 沒有此參數 出錯時 拋出 filesystem_error 異常 
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>filesystem 庫 需要使用 system庫 故 使用前 必須編譯 system 庫
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="basic_path"></a>
+		<p><span class="flag">路徑處理</span>
+<pre>basic_path 使用 posix 語法提供了 通用的 目錄 路徑 表示
+
+basic_path 存在兩個 typedef
+typedef basic_path&lt;std::string,path_traits&gt; path
+typedef basic_path&lt;std::wstring,wpath_traits&gt; wpath
+</pre>
+		</p>
+		<p><span class="flag">常用函數</span>
+<pre>//構造 path
+path();	//空路徑
+path(const path& p);
+
+template &lt;class Source&gt;
+path(Source const& source, const codecvt_type& cvt=codecvt());
+
+template &lt;class InputIterator&gt;
+path(InputIterator begin, InputIterator end, const codecvt_type& cvt=codecvt());
+</pre>
+		</p>
+		<p><span class="flag">文件名 example</span>
+<pre>#include &lt;iostream&lt;
+#include &lt;boost/filesystem.hpp&gt;
+
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	boost::filesystem::path path;
+	assert(path.empty());
+
+	//獲取當前 路徑
+	path = boost::filesystem::current_path();
+	std::cout&lt;&lt;path&lt;&lt;"\n";
+
+
+	//追加路徑
+	path /= "cer";
+	std::cout&lt;&lt;path&lt;&lt;"\n";
+	//追加 字符串
+	path += "berus";	//path.append
+	std::cout&lt;&lt;path&lt;&lt;"\n";
+
+	//返回全路徑
+	path = ".";
+	std::cout&lt;&lt;boost::filesystem::system_complete(path)&lt;&lt;"\n";
+	
+	//判斷 是否是 合法 posix/windows 文件名
+	std::string name = "123.txt";
+	std::cout&lt;&lt;"posix "&lt;&lt;boost::filesystem::portable_posix_name(name)&lt;&lt;"\n"; //1
+	std::cout&lt;&lt;"windows "&lt;&lt;boost::filesystem::windows_name(name)&lt;&lt;"\n";  //1
+	//同 portable_posix_name 且 名稱中 不能出現 .
+	std::cout&lt;&lt;"portable_directory_name "&lt;&lt;boost::filesystem::portable_directory_name(name)&lt;&lt;"\n"; //0
+	//同 portable_posix_name 且 名稱中 只有1個 . 後綴名不超過3個
+	std::cout&lt;&lt;"portable_file_name "&lt;&lt;boost::filesystem::portable_file_name(name)&lt;&lt;"\n"; //1
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">路徑 example</span>
+<pre>#include&lt;iostream&gt;
+#include &lt;boost/filesystem.hpp&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//獲取當前 路徑
+	boost::filesystem::path path = boost::filesystem::current_path();
+	path /= "dark.txt";
+	//返回 標準格式 路徑字符串
+	std::cout&lt;&lt;path.string()&lt;&lt;"\n";
+
+	//返回 父路徑/文件名(不包含擴展名)/文件名/後綴名
+	std::cout&lt;&lt;path.parent_path()&lt;&lt;"\n";
+	std::cout&lt;&lt;path.stem()&lt;&lt;"\n";
+	std::cout&lt;&lt;path.filename()&lt;&lt;"\n";
+	std::cout&lt;&lt;path.extension()&lt;&lt;"\n";
+	//path.has_XXX
+
+	//返回是否是 全路徑
+	std::cout&lt;&lt;path.is_complete()&lt;&lt;"\n";
+
+	//返回 根 名/文件夾/路徑 <span class="care">path 必須是完整路徑</span>
+	std::cout&lt;&lt;path.root_name()&lt;&lt;"\n";	// F: linux下 返回 空(linux根沒名)
+	std::cout&lt;&lt;path.root_directory()&lt;&lt;"\n"; // /
+	std::cout&lt;&lt;path.root_path()&lt;&lt;"\n";  // F:/
+
+
+	//更改 擴展名
+	path.replace_extension(".text");
+	std::cout&lt;&lt;path&lt;&lt;"\n";
+	//移除 最後的文件名
+	path.remove_filename();
+	std::cout&lt;&lt;path&lt;&lt;"\n";
+
+	//以字典順序 大小寫銘感 比較
+	auto path1 = path / "add";
+	std::cout<<(path1 == path)<<"\n";
+
+	//遍歷 路徑包含的 字符串
+	std::cout&lt;&lt;path&lt;&lt;"\n";
+	auto pos = path.begin();
+	for(;pos!=path.end();++pos)
+	{
+		std::cout&lt;&lt;*pos&lt;&lt;"\n";
+	}
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>路徑 操作 不會 關心文件 是否存在 其只負責 處理 文件名 是否 合法
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="file_status"></a>
+		<p><span class="flag">文件狀態</span>
+<pre>filesystem 使用 class file_status 表示文件狀態
+
+
+
+class file_status
+{
+public:
+
+	// constructors
+	file_status() noexcept;
+	explicit file_status(file_type ft, perms prms = perms_not_known) noexcept;
+
+	// compiler generated
+	file_status(const file_status&) noexcept;
+	file_status& operator=(const file_status&) noexcept;
+	~file_status() noexcept;
+
+	// observers	返回狀態
+	file_type  type() const noexcept;
+	perms      permissions() const noexcept;
+
+	// modifiers	設置狀態
+	void       type(file_type ft) noexcept;
+	void       permissions(perms prms) noexcept;
+};
+
+
+
+enum file_type
+{
+	status_error, 	//文件存在 但 狀態 未知
+	file_not_found, //文件不存在
+	regular_file, 	//普通文件
+	directory_file,	//目錄
+
+	symlink_file, 	//鏈接文件
+	block_file, 	//塊設備文件
+	character_file, 	//字符設備
+	fifo_file, 		//管道設備
+	socket_file,	//socket設備
+
+	type_unknown	//類型未知
+};
+
+//下列函數 可方便 判斷 狀態
+
+exists()
+is_XXX
+
+//文件不是 regular_file directory_file symlink_file 時返回 true
+is_other(p)
+
+//p是目錄且其內無文件時返回 true 
+//或者 p是文件 文件長度為0 返回 true
+is_empty(p)	
+
+
+
+//返回 進入 main() 時 的路徑
+initial_path()
+
+//返回 當前路徑
+current_path()
+
+//返回文件大小 文件不存在 拋出異常
+file_size()
+
+//返回/設置 最後修改時間
+std::time_t last_write_time()
+last_write_time(std::time_t)
+
+
+//返回路徑 磁盤 空間 情況
+space_info space()
+
+struct space_info
+{
+	uintmax_t capacity;	//總大小
+	uintmax_t free;		//似乎 和 available 一樣
+	uintmax_t available;	//可用
+}
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;boost/filesystem.hpp&gt;
+#include &lt;boost/foreach.hpp&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//獲取當前 路徑
+	boost::filesystem::path path = boost::filesystem::current_path();
+	std::cout&lt;&lt;boost::filesystem::is_directory(path)&lt;&lt;"\n";
+	path = "c:/";
+	auto info = boost::filesystem::space(path);
+	const int GBYTES = 1024 * 1024 * 1024;
+	std::cout&lt;&lt;info.capacity / GBYTES&lt;&lt;" G\n";
+	std::cout&lt;&lt;info.free / GBYTES&lt;&lt;" G\n";
+	std::cout&lt;&lt;info.available / GBYTES&lt;&lt;" G\n";
+
+	std::system("pause");
+	return 0;
+}	
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="create"></a>
+		<p><span class="flag">文件操作</span>
+<pre>filesystem 提供了 以 path 表示的 文件 操作 函數
+
+//創建目錄
+create_directory
+//改名
+rename
+//刪除
+remove
+//拷貝
+copy_file
+
+
+
+basic_directory_iterator 提供了 迭代 目錄的 功能
+其存在兩個 typedef directory_iterator wdirectory_iterator
+	<span>basic_directory_iterator 迭代 子目錄</span>
+
+basic_recursive_directory_iterator 提供了 迭代 目錄的 功能
+其存在兩個 typedef recursive_directory_iterator wrecursive_directory_iterator
+	<span>basic_directory_iterator 迭代 子目錄</span>
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;boost/filesystem.hpp&gt;
+#include &lt;boost/foreach.hpp&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//獲取當前 路徑
+	boost::filesystem::path path = boost::filesystem::current_path();
+	boost::filesystem::directory_iterator end;
+	for(boost::filesystem::directory_iterator pos(path);pos!=end;++pos)
+	{
+		std::cout&lt;&lt;pos-&gt;path().filename()&lt;&lt;"\n";
+	}
+	
+	boost::filesystem::recursive_directory_iterator r_end;
+
+	int level = -1;
+	for(boost::filesystem::recursive_directory_iterator pos(path);pos!=r_end;++pos)
+	{
+		if(level != pos.level())
+		{
+			level = pos.level();
+			std::cout&lt;&lt;"\n當前深度 "&lt;&lt;level&lt;&lt;"\n";
+		}
+	
+		if(boost::filesystem::is_directory(pos->path()))
+		{
+			//no_push 可以 不進入 目錄
+			pos.no_push();
+		}
+
+		std::cout&lt;&lt;pos-&gt;path().filename()&lt;&lt;"\n";
+	}
+
+	std::system("pause");
+	return 0;
+}</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="stream"></a>
+		<p><span class="flag">文件流</span>
+<pre>#include &lt;boost\filesystem\fstream.hpp&gt;
+中 定義了 和 STL 98 中 一樣的 文件流
+只是 其支持 使用 path 操作文件
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="program_options"></a>
+		<p><span class="flag">program_options</span>
+<pre>#include &lt;boost/program_options.hpp&gt;
+namespace boost::program_options
+
+
+
+program_options 提供了 強力的 命令行 參數解析 功能
+
+<span class="care">program_options庫需要編譯</span>
+bjam --toolset=msvc-10.0 --with-program_options --build-type=complete --prefix=D:\Boost install
+
+
+
+
+program_options 由 3個組要組件 組成
+選項描述器	定義參數描述信息
+分析器		分析 參數
+存儲器		存儲 分析 結果
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>// boost_test.cpp : 定义控制台应用程序的入口点。
+//
+
+#include "stdafx.h"
+
+#include &lt;boost/program_options.hpp&gt;
+#include &lt;boost/foreach.hpp&gt;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//實例化 選項描述器
+	boost::program_options::options_description opts("demo options");
+
+	
+	//定義 要解析的 參數
+	opts.add_options()
+		("help,h","just a help info")
+		("filename,f",
+			boost::program_options::value&lt;std::string&gt;()//設置 參數值型別
+				-&gt;default_value("cnf.xml")	//默認值
+				-&gt;implicit_value("cnf.js"),	//隱含值
+			"to find file")
+		("FileName,F",
+		boost::program_options::value&lt;std::vector&lt;std::string&gt;&gt;()
+			-&gt;composing(),	//設置 可合併 多個值
+			"to find file");
+
+	//解析參數
+	boost::program_options::variables_map params;
+	boost::program_options::store(boost::program_options::parse_command_line(argc,argv,opts),params);
+
+	if(params.count("help"))
+	{
+		std::cout&lt;&lt;opts&lt;&lt;"\n";
+		return 0;
+	}
+	if(params.count("filename"))
+	{
+		std::cout&lt;&lt;params["filename"].as&lt;std::string&gt;()&lt;&lt;"\n";
+	}
+	if(params.count("FileName"))
+	{
+		
+		std::vector&lt;std::string&gt; vs = params["FileName"].as&lt;std::vector&lt;std::string&gt;&gt;();
+		BOOST_FOREACH(auto str,vs)
+		{
+			std::cout&lt;&lt;str&lt;&lt;" ";
+		}
+		std::cout&lt;&lt;"\n";
+		
+	}
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+
+
+
+</div>
+</body>
+</html>

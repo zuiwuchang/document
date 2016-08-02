@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>design-pattern</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#decorator-pattern">factor-pattern 工廠模式</a>
+		<a href="#example">example</a>
+	</div>
+
+	<div class="note"><a name="factor-pattern"></a>
+		<p><span class="flag">factor-pattern 工廠模式</span>
+<pre>工廠方法模式 定義了一個創建 對象的 接口 但由子類決定 要實例化那個類
+工廠方法讓類的實例化 推遲到子類
+
+
+
+抽象工廠模式 提供一個接口 用於創建 相關 或依賴對象的 家族
+而不需要明確指定具體類
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="example"></a>
+		<p><span class="flag">example</span>
+<pre>設想 你計劃通過 賭博 立業興邦
+而且你的賭場 遍布各地 然對於 不同的 賭場 
+你可能提供不同的服務 如華人更愛牌九 歐洲則喜愛玩撲克 ...
+
+你期望 所有的賭場 都安裝 你的 要求 運營
+此時 可借助 工廠方法 實現 賭場的 運營 而 由子類 決定 具體的服務
+</pre>
+		</p>
+		<p><span class="flag">example code</span>
+<pre>package main
+
+import (
+	"fmt"
+)
+
+//玩法 接口
+type PlayInterface interface {
+	Play()
+}
+
+//牌九
+type PaiGow struct {
+}
+
+func (p *PaiGow) Play() {
+	fmt.Println("牌九")
+}
+
+//撲克
+type Poker struct {
+}
+
+func (p *Poker) Play() {
+	fmt.Println("撲克")
+}
+
+//玩法 接口
+type CasinoInterface interface {
+	Server()
+	Create(PlayInterface)
+}
+
+//賭場 oo中 基類
+type Casino struct {
+	play PlayInterface
+}
+
+func (c *Casino) Server() {
+	c.play.Play()
+}
+func (c *Casino) Create(p PlayInterface) {
+	c.play = p
+}
+
+//go 沒有 類 派生 概念
+//對於 c++ 將 Crete 定義為 virtual 在子類中 覆蓋 創建具體實例即可
+//澳門 賭場
+func MakeCasinoMacau() CasinoInterface {
+	var rs CasinoInterface
+	rs = &Casino{}
+	rs.Create(&PaiGow{})
+	return rs
+}
+
+//拉斯維加斯 賭場
+func MakeCasinoLasVegas() CasinoInterface {
+	var rs CasinoInterface
+	rs = &Casino{}
+	rs.Create(&Poker{})
+	return rs
+}
+
+func main() {
+	c := MakeCasinoMacau()
+	c.Server()
+
+	c = MakeCasinoLasVegas()
+	c.Server()
+
+}
+</pre>
+		</p>
+		
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>动态链接库</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	<p><h1><font color="#FF0000">动态链接库</font></h1></p>
+    
+    <p><h2>Kernerl21.dll(内存 进程 线程 等管理) <br />
+    	User32.dll(用户界面窗口创建消息传递等)<br /> 
+        GDI32.dll(画图等文本显示等)</h2></p>
+    <p><h2>动态库 通常提供 lib(引入库) 和 dll(动态库) 两个文件<br />引入库包含被导出函数的符号名(连接器会链接它) dll包含被导入函数的实现和数据</h2></p>
+    
+    <p>
+    <h2>
+    <a href="#query">查看dll的导出函数</a><br />
+    <a href="#out">导出函数</a><br />
+    <a href="#impot">导入函数</a><br />
+    <a href="#module">模块定义文件</a><br />
+    <a href="#dllmain">DllMain</a><br />
+    <a href="#mfcdll">mfcdll</a><br />
+    <a href="#win32">win32 dll 支持mfc</a>
+    
+    </h2></p>
+    
+    <div class="div_box"><a name="query"><p><h3>
+    <h2>查看dll的导出函数</h2><br />
+    cmd中dumbin工具<br />
+    dumpbin -exports test.dll
+    </h3></p>
+    </a></div>
+    
+    <div class="div_box"><a name="out">
+    <p><h3>
+    <h2>导出函数</h2><br />
+    在函数前加入 _declspec(dllexport)<br />
+    <font color="#FF0000">example</font> _declspec(dllexport) int add(int a,int b){return a+b;}<br />
+    c++编译器导出一般会名字改编<br />
+    为了防止改名<font color="#FF0000">so</font>在_declspec前加入 extern "C"(导入亦然)<br />
+    <font color="#FF0000">extern "C" _declspec(dllexport) int add(int a,int b){return a+b;}</font><br />
+     不能如此导出类的部分函数 若函数调用约定改变(及非c调用约定)此声明无法阻止函数名改变<br />
+     <font color="#FF0000">so</font>使用模块定义文件
+    <br />
+    <h2>导出类</h2><br />
+    在class和classname中间加入 _declspec(dllexport)<br />
+    <font color="#FF0000">example</font> 
+    <pre>class _declspec(dllexport) test
+    {
+      public:
+      ...
+      protected:
+      ...
+      private:
+      ...
+    }
+            </pre>
+            <font color="#FF0000">导出类中部分函数</font> 
+    <pre>class test
+    {
+      public:
+      _declspec(dllexport) int add(int a,int b);
+      ...
+      protected:
+      ...
+      private:
+      ...
+    }
+            </pre>
+    </h3></p></a>
+    </div>
+    
+   
+    
+    <div class="div_box"><a name="impot"><p><h3>
+    <h2>使用dll</h2><br />
+    <p>动态导入</p>
+    <font color="#FF0000">
+    动态导入无需lib文件<br />
+    或动态导入 LoadLibrary("模块名");<br />
+    exampe
+    <pre>
+    HINSTANCE hin=LoadLibrary(L"test.dll");/*导入dll*/
+	if(!hin)
+	{
+		MessageBox(L"导入失败");
+	}
+	typedef int (*ADDPROC)(int a,int b);/*定义函数指针  typedef int (_stdcall *ADDPROC)(int a,int b);指明是标准调用约定非c*/
+	ADDPROC add=(ADDPROC)GetProcAddress(hin,"导出函数名");/*获取函数地址*/
+	if(!add)
+	{
+		MessageBox(L"获取函数地址失败");
+	}
+	add(1,2);
+    FreeLibrary(hin);
+    </pre>
+    </font>
+    
+    
+    <p>静态导入</p>
+    设置lib引入库位置 #pragma comment(lib,"dll.lib")<br />
+        
+    <h2>导入函数</h2> extern/*指明函数实现在外*/ 或  _declspec(dllimport)/*指明函数实现在外部dll中 从而生成比extern效率更高的代码*/<br />
+    <font color="#FF0000">example</font>_declspec(dllimport) int add(int a,int b);<br />
+    
+    
+    <h2>导入类</h2><br />
+    在class和classname中间加入 _declspecdllimport)<br />
+    <font color="#FF0000">example</font> 
+    <pre>class _declspec(dllimport) test
+    {
+      public:
+      ...
+      protected:
+      ...
+      private:
+      ...
+    }
+            </pre>
+            <font color="#FF0000">导入类中部分函数</font> 
+    <pre>class test
+    {
+      public:
+      _declspec(dllimport) int add(int a,int b);
+      ...
+      protected:
+      ...
+      private:
+      ...
+    }
+            </pre>
+            
+    </h3></p></a></div>
+    
+    <div class="div_box"><a name="module"><p><h3>
+    <h2>模块定义文件</h2><br />
+    新建*.def文件<br />
+    def文件内容<br /><pre>
+    LIBRARY dllname  /*此句可以省略 dllname必需和生产的dll同名 如LIBRARY test*/
+    EXPORTS   /*声明以下为设置的导出函数 和 函数名*/
+    add   /*导出add*/
+    subtest=sub   /*把内部定义的sub函数导出为subtest*/
+    
+    one @ 1 NONAME  /*NONAME指定不导出函数名 只导出序号*/
+	two @ 2			/*@ n 手动指定导出序号*/
+	three @	5
+    </pre>
+    <p><h2>注意</h2>
+    使用模塊定義文件導出的函數前 不能加上 extern "C"
+    </p>
+    </h3></p></a></div>
+    
+    <div class="div_box"><a name="dllmain"><p><h3>
+    <h2>DllMain</h2><br />
+    <pre>
+    BOOL WINAPI DllMain(
+  __in  HINSTANCE hinstDLL,/*dll被初次加载 通过此参数传递进来此dll模块实例句柄*/
+  __in  DWORD fdwReason,/*指示dll为何被调用*/
+  __in  LPVOID lpvReserved
+);
+	fdwReason
+    <table>
+    <tr><td>DLL_PROCESS_ATTACH<br />1</td><td>dll加载到进程的映射地址(既每个进程第一次调用时)</td></tr>
+    <tr><td>DLL_PROCESS_DETACH<br />0</td><td>dll从进程映射地址卸载(FreeLibrary或进程结束  FreeLibrary的次数=LoadLibrary)</td></tr>
+    <tr><td>DLL_THREAD_ATTACH<br />2</td><td>进程新启线程时统查看当前映射到进程地址空间中的所有DLL文件映像<br />并用值DLL_THREAD_ATTACH调用DLL的DllMain函数<br />即使新线程没使用dll中的导出内容</td></tr>
+    <tr><td>DLL_THREAD_DETACH<br />3</td><td>线程结束</td></tr>
+    </table>
+
+    </pre>
+    </h3></p></a></div>
+    
+    <div class="div_box"><a name="mfcdll"><p><h3>
+    	<p><font color="#FF0000"><h2>mfcdll 中可以使用mfc特性</h2></font>
+        <pre>
+        入口为从 CWinApp 继承的类
+        DLL_PROCESS_ATTACH 的处理在 InitInstance中
+        DLL_PROCESS_DETACH 的处理在 ExitInstance中
+        </pre>
+    	</p>
+        
+        <p><font color="#FF0000"><h2>mfcdll 中使用資源</h2></font>
+<pre>對於靜態 mfc dll 不需進行模塊狀態切換
+在動態mfc dll 中 mfc默認使用主程序資源句柄加載資源模板 <font color="#FF0000">(故此時需要切換資源模塊)</font>        
+        </pre>
+    	</p>
+        
+        <p><font color="#FF0000"><h2>切換資源模塊方法</h2></font>
+<pre><font color="#FF0000">方法一
+在主程序中 調用 AfxSetResourceHandle 設置資源模板</font>
+HINSTANCE exe=GetModuleHandle(NULL),
+		dll=GetModuleHandle(L"dll.dll");
+	//設置從dll加載資源
+	AfxSetResourceHandle(dll);
+	MyDialgg* dialg=new MyDialgg();
+	dialg->Create(MyDialgg::IDD,this);
+	//恢復默認(既從exe加載)
+	AfxSetResourceHandle(exe);
+	if(dialg)
+	{
+		dialg->SetWindowPos(0,0,0,0,0,SWP_NOZORDER|SWP_NOSIZE|SWP_SHOWWINDOW);
+	}    
+    
+<font color="#FF0000">方法二
+在dll中 調用 AfxSetResourceHandle 設置資源模板</font>
+	//獲取當前模板句柄
+	HINSTANCE old=AfxGetResourceHandle();
+	//設置以dll句柄為模板句柄
+	AfxSetResourceHandle(theApp.m_hInstance);
+	//調用 要使用資源的代碼
+	Create(MyDialgg::IDD,cwnd);
+
+	//恢復原值
+	AfxSetResourceHandle(old);
+
+<font color="#FF0000">方法三 此方法但debug下可能會應發一個斷言(此似乎是一個bug)
+在dll中 使用AFX_MANAGE_STATE(AfxGetStaticModuleState()) 宏</font>
+AFX_MANAGE_STATE(AfxGetStaticModuleState())
+Create(MyDialgg::IDD,cwnd);
+
+AfxGetStaticModuleState() 函數將創建一個模塊全局實例類 AFX_MODULE_STATE
+AFX_MANAGE_STATE宏將 AFX_MODULE_STATE 中句柄 設置為資源模當前句柄
+AFX_MODULE_STATE的析構將 恢復原設置
+
+<font color="#FF0000"><h2>方法四
+鑑於方法三的 合理性 但bug的存在 大可以 自己定義個類似的機制</h2></font>
+//dll.hpp
+#ifndef _DARK_DLL_
+#define _DARK_DLL_
+namespace dark
+{
+	namespace dll
+	{
+		class SetResourceHandle
+		{
+		public:
+			HINSTANCE old;
+			//構造設置資源句柄
+			SetResourceHandle(HINSTANCE hinstance)
+			{
+				old=AfxGetResourceHandle();
+				AfxSetResourceHandle(hinstance);
+			}
+			//析構恢復資源句柄
+			~SetResourceHandle()
+			{
+				AfxSetResourceHandle(old);
+			}
+		};
+	}
+}
+#endif	//dll
+
+
+
+	//實例化 設置 恢復 資源句柄
+	dark::dll::SetResourceHandle resource_handle(theApp.m_hInstance);
+	Create(MyDialgg::IDD,cwnd);
+       </pre>
+    	</p>
+    
+    </h3></p></a></div>
+    
+    <div class="div_box"><a name="win32"><p></a><h3>
+    <h2><a name="win32">win32 dll 支持mfc</a></h2><a name="win32"><br />
+    
+    <font color="#FF0000">在dllmain.cpp的 DllMain 函数上面添加如下定义</font>
+    </a><pre><a name="win32">#ifdef _DEBUG
+#undef THIS_FILE
+static char THIS_FILE[] = __FILE__;
+#endif
+
+#define new DEBUG_NEW
+
+#ifdef _X86_
+extern "C" { int _afxForceUSRDLL; }
+#else
+extern "C" { int __afxForceUSRDLL; }
+#endif </a></pre>
+
+	<a name="win32"><font color="#FF0000">修改stdafx.h的 #include &lt;windows.h&gt; 为如下内容</font>
+	</a><pre><a name="win32">#include &lt;afx.h&gt;
+#include &lt;afxwin.h&gt;</a></pre>
+    <a name="win32"><font color="#FF0000">修改项目属性 为 在共享中(或静态)使用mfc </font>
+	
+    
+    </a></h3><a name="win32"></p>
+    </a></div>
+</td></tr></table>
+</body>
+</html>

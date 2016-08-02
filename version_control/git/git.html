@@ -1,0 +1,273 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>svn</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#git">git</a>
+		<a href="#version">git 初始化</a>
+		<a href="#cache">暫存區</a>
+		<a href="#reset">git reset 重置</a>
+		<a href="#checkout">git checkout 檢出</a>
+		<a href="#stash">git stash 進度</a>
+	</div>
+		
+	<div class="note"><a name="git"></a>
+		<p><span class="flag">git</span>
+<pre>git 是一個開源(GNU General Public License) 快速 高效 靈活的 分佈式 版本控制 軟體
+
+git由 linus(linux 之父) 創作
+
+官網 <a target="_blank" href="http://git-scm.com/">http://git-scm.com/</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="version"></a>
+		<p><span class="flag">git 初始化</span>
+<pre>//顯示 git 版本
+git --version
+
+
+
+//配置 git 提交 用戶名 郵件地址
+git config --global user.name "zuiwuchang"
+git config --global user.email "zuiwuchang@gmail.com"
+	
+
+//在git命令輸出中 開啟 顏色 顯示
+git config --global color.ui true
+
+//讀取當前生效的 git 配置值
+git config section.key
+	git config user.name
+//設置當前生效的 git 配置值
+git config section.key value
+	git config user.name zuiwuchang
+
+
+
+//在 當前目錄/指定目錄 創建 git 版本庫
+git init [--bare] [path]
+	<span class="care">--bare 創建裸版本庫
+	path 版本庫 位置 默認 ./</span>
+
+//將 文件 增加到 暫存區
+git add [file] [-u] [-i]
+	<span class="care">-u 將本地 有改變的(包括 刪除 修改 新增) 操作都加入到 暫存區
+	-i 以交互方式 添加</span>
+
+//將 文件 從版本庫中 刪除
+git rm [file]
+
+//將 文件 從版本庫中 改名
+git mv [source] [dist]
+
+//提交版本
+git commit [--amend] [--allow-empty] -m "commit text"
+	<span class="care">-m 設置 提交 備註
+	--amend 對剛剛的提交 修改備註
+	--allow-empty 允許 不設置 用戶 郵件 提交 默認不允許
+	</span>
+
+//查看 提交 記錄
+git log [--stat] [--pretty=oneline] [-l HEAD]
+	<span class="care">--stat 顯示變更的 內容
+	--pretty=oneline 以精簡的方式 顯示 記錄
+	--pretty=raw ... 詳細 ...
+	-l 只顯示 指定分支</span>
+
+//獲取一份 完整的 git 克隆
+git clone source [dist]
+
+
+
+//在工作區 文件中 搜索 指定 內容
+git grep "搜索內容"
+
+//顯示 .git 所在目錄
+git rev-parse --git-dir
+
+//顯示 工作區目錄
+git rev-parse --show-toplevel
+
+//顯示 當前目錄 相對 工作區目錄
+git rev-parse --show-prefix
+
+//顯示 當前目錄 返回到 工作區目錄 的深度
+git rev-parse --show-cdup
+
+
+
+
+//查看 git 對象
+git cat-file [-t] [-s] [-p] obj 
+	<span>obj	要查看的對象
+	-t	對象型別
+	-s	對象大小
+	-p	對象數據</span>
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>git config --global
+記錄在 <span class="care">~/.gitconfig</span> 文件中
+
+git config
+記錄在 <span class="care">當前版本庫的 .git/config</span> 文件中
+
+git config --system
+記錄在 <span class="care">/etc/gitconfig</span> 文件中
+
+
+
+git config 命令 其實 可以操作 任何 ini 文件
+GIT_CONFIG=test.ini git config a.b "test ini"
+GIT_CONFIG=test.ini git config a.b
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="cache"></a>
+		<p><span class="flag">暫存區</span>
+<pre>
+//將 工作區的 文件 加入到 暫存區
+git add path
+
+
+
+//比較 工作區 和 暫存區  的 差異
+git diff [要比較多 分支]
+	<span class="care">[要比較多 分支] 不寫和 暫存區比較
+	HEAD	當前分支
+	</span>
+
+
+//查看 工作區 狀態
+git status [-s] [-b] 
+	<span class="care">-s 以精簡的方式 顯示
+	-b 顯示當前分支 名</span>
+
+
+
+//將 暫存區的 內容 以 HEAD指示的 版本 替換
+git reset HEAD
+
+//將 暫存區 的 指定文件 刪除
+git rm --cached &lt;file&gt;
+
+//用 暫存區 全部文件/指定文件 替換工作區
+git checkout  ./-- &lt;file&gt;
+
+//用 指定分支 全部文件/指定文件 替換 暫存區 
+git checkout HEAD [&lt;file&gt;]
+
+
+
+//將 工作區 和暫存區相比  沒有 改變的 全刪除
+git clean -fd
+
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="reset"></a>
+		<p><span class="flag">git reset 重置</span>
+<pre>git reset 用與將 操作 版本游標(HEAD)
+
+
+
+HEAD 指向最近的 一次 提交
+^ 其父提交
+
+//將工作區 暫存區 恢復到指定 游標
+git reset --hard HEAD
+git reset --hard {master}@{n}	//引用 git reflog 中的id值
+
+
+//將 暫存區 恢復到指定 游標
+git reset HEAD
+git reset
+
+//將 filename 移除 暫存區
+git reset HEAD filename
+
+
+//僅改變 版本庫 游標位置
+git reset --soft
+
+
+
+//顯示 版本庫操作記錄
+git reflog [show master]
+	<span class="care">show master 只顯示 master分支 記錄
+	</span>
+</pre>
+		</p>
+	</div>
+	
+	<div class="note"><a name="checkout"></a>
+		<p><span class="flag">git checkout 檢出</span>
+<pre>//將 HEAD 指向 指定分支
+git checkout branch
+
+//匯總 暫存區 工作區 與 HEAD 的差別
+git checkout
+git checkout HEAD
+
+//用暫存區的 filename 替換 工作區的 filename
+git checkout -- filename
+
+//維持 HEAD 不變 用 branch 的 filename 替換 暫存區 工作區 的 filename
+git checkout branch -- filename
+
+
+//用 暫存區的 所有文件 替換 工作區
+git checkout .
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="stash"></a>
+		<p><span class="flag">git stash 進度</span>
+<pre>//測試 要刪除的 本地 多餘 文件 目錄
+git clean -nd
+
+//刪除 本地 多餘的 文件 目錄
+git clean -fd
+
+
+
+//保存 進度(暫存區 工作區)
+git stash
+
+//顯示 保存的進度 列表
+git stash list
+
+//恢復進度(默認恢復最新進度) 並刪除此進度
+git stash pop [--index] [&lt;stash&gt;]
+	<span class="care">--index 恢復工作區的同時 嘗試恢復 暫存區
+	&lt;stash&gt; git stash list中的值</span>
+
+//同 pop 不過不會刪除 進度罷
+git stash apply
+
+//刪除 進度(默認刪除 最新進度)
+git stash drop [&lt;stash&gt;]
+
+//刪除 所有 進度
+git stash clear
+
+//基於進度 創建分支
+git stash branch [&lt;branchname&gt;] [&lt;stash&gt;]
+</pre>
+		</p>
+	</div>
+	
+
+</div>
+</body>
+</html>

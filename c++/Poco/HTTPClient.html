@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>HTTPClient</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#HTTPClient">HTTPClient</a>
+		<a href="#post">post example</a>
+	</div>
+
+	<div class="note"><a name="HTTPClient"></a>
+		<p><span class="flag">HTTPClient</span>
+<pre>Poco 提供了對 http 的訪問功能
+
+1	使用 HTTPClientSession 創建一個 http會話
+2	使用 HTTPRequest 創建一個 請求
+3	使用 HTTPClientSession的sendRequest 發出請求
+4	使用 HTTPResponse 創建一個 響應
+5	使用 HTTPClientSession的receiveResponse獲取響應
+
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;Poco/Net/HTTPClientSession.h&gt;
+#include &lt;Poco/Net/HTTPRequest.h&gt;
+#include &lt;Poco/Net/HTTPResponse.h&gt;
+#include &lt;Poco/StreamCopier.h&gt;
+#include &lt;Poco/URI.h&gt;
+#include &lt;Poco/Exception.h&gt;
+
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	try
+	{
+		const Poco::URI uri("http://127.0.0.1:1102/123.html?id=12");
+
+		//創建會話
+		Poco::Net::HTTPClientSession session(uri.getHost(),uri.getPort());
+
+		std::string path	=	uri.getPathAndQuery();
+		//創建請求 使用GET模式
+		Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_GET,path);
+			
+		//設置 http 頭信息	(可選)
+		{
+			//設置 keep-alive
+			session.setKeepAlive(true);
+			request.setKeepAlive(true);
+
+			//為請求設置 cookie 
+			Poco::Net::NameValueCollection name_value_c;
+			name_value_c.add("c1","v1");
+			name_value_c.add("c2","v2");
+			request.setCookies(name_value_c);
+		
+			//其他頭信息
+			request.set("User-Agent","Mozilla/5.0 (Windows NT 6.1; WOW64; rv:29.0) Gecko/20100101 Firefox/29.0");
+			//...
+		}
+
+		//設置超時時間 5 秒
+		session.setTimeout(Poco::Timespan(5,0));
+
+		//發出請求
+		session.sendRequest(request);
+		
+		//獲取響應
+		Poco::Net::HTTPResponse response;
+		std::istream&amp; rs	=	session.receiveResponse(response);
+		
+		std::string str;
+		Poco::StreamCopier::copyToString(rs,str);
+		//Poco::StreamCopier::copyStream(rs,std::cout);
+	}
+	catch(const Poco::Exception&amp; e)
+	{
+		std::cout&lt;&lt;e.displayText()&lt;&lt;std::endl;
+	}
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>需要在 session request 都設置 keep-alive 才能使用 keep-alive 請求
+
+需要在 sendRequest 之前設置超時 時間
+
+receiveResponse 時才將請求發送到服務器 sendRequest只能在Poco內部註冊一個將要發送請求的標記
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="post"></a>
+		<p><span class="flag">post example</span>
+<pre>#include &lt;Poco/Net/HTTPClientSession.h&gt;
+#include &lt;Poco/Net/HTTPRequest.h&gt;
+#include &lt;Poco/Net/HTTPResponse.h&gt;
+#include &lt;Poco/Net/HTMLForm.h&gt;
+#include &lt;Poco/StreamCopier.h&gt;
+#include &lt;Poco/URI.h&gt;
+#include &lt;Poco/Exception.h&gt;
+
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	try
+	{
+		const Poco::URI uri("http://127.0.0.1:1102/123.html?id=12");
+
+		//創建會話
+		Poco::Net::HTTPClientSession session(uri.getHost(),uri.getPort());
+
+		std::string path	=	uri.getPathAndQuery();
+		//創建請求 使用GET模式
+		Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_POST,path);
+			
+		//設置 http 頭信息	(可選)
+		{
+			//設置 keep-alive
+			session.setKeepAlive(true);
+			request.setKeepAlive(true);
+
+			//為請求設置 cookie 
+			Poco::Net::NameValueCollection name_value_c;
+			name_value_c.add("c1","v1");
+			name_value_c.add("c2","v2");
+			request.setCookies(name_value_c);
+		
+			//其他頭信息
+			request.set("User-Agent","Mozilla/5.0 (Windows NT 6.1; WOW64; rv:29.0) Gecko/20100101 Firefox/29.0");
+			//...
+		}
+
+		//設置超時時間 5 秒
+		session.setTimeout(Poco::Timespan(5,0));
+
+		//設置form
+		Poco::Net::HTMLForm form;
+		form.set("id", "123");
+		form.set("password", "pass");
+		form.prepareSubmit(request);
+			//form.setEncoding(Poco::Net::HTMLForm::ENCODING_MULTIPART);
+        
+		//發出請求
+		std::ostream& ostream = session.sendRequest(request);
+		form.write(ostream);			//寫入form信息
+
+		//獲取響應
+		Poco::Net::HTTPResponse response;
+		std::istream&amp; rs	=	session.receiveResponse(response);
+		
+		std::string str;
+		Poco::StreamCopier::copyToString(rs,str);
+		//Poco::StreamCopier::copyStream(rs,std::cout);
+	}
+	catch(const Poco::Exception&amp; e)
+	{
+		std::cout&lt;&lt;e.displayText()&lt;&lt;std::endl;
+	}
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

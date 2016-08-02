@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Sublime Text 3</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#vim">vim</a>
+		<a href="#Solarized">Solarized 配色</a>
+	</div>
+
+	<div class="note"><a name="vim"></a>
+		<p><span class="flag">vim</span>
+<pre>vim 由 vi 發展出的一個 開源(VIM) 跨平台 文本編輯器
+
+官網 <a target="_blank" href="http://www.vim.org/">http://www.vim.org/</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Solarized"></a>
+		<p><span class="flag">Solarized 配色</span>
+<pre>Solarized 是一個不錯的 vim 配色
+
+
+
+cd cd ~/.vim/bundle
+git clone https://github.com/altercation/vim-colors-solarized.git
+
+mv vim-colors-solarized/colors/solarized.vim ~/.vim/colors/
+
+vim ~/.vimrc 增加如下設置
+syntax enable
+set background=dark
+colorscheme solarized
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

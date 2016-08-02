@@ -1,0 +1,412 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>系統信息查詢</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1>
+    
+    <a href="#ZwQuerySystemInformation">系統信息查詢 ZwQuerySystemInformation</a><br />
+    <a href="#SystemProcessesAndThreadsInformation">枚舉進程 SystemProcessesAndThreadsInformation</a><br />
+    <a href="#SystemModuleInformation">枚舉模塊 SystemModuleInformation</a>
+    
+    </h1></p>
+   
+    <div class="div_box"><a name="ZwQuerySystemInformation"></a><h2>
+    <p><font color="#FF0000">系統信息查詢 ZwQuerySystemInformation</font><br />
+    ZwQuerySystemInformation 能夠查詢一些系統信息<br /><br />
+    
+    ring3 下需要 LoadLibrary(L"ntdll.dll");<br />
+    再GetProcAddress(handle_ntdll,"ZwQuerySystemInformation");<br /><br />
+    
+    ring0 只需要 直接聲明 (未文檔化)<br />
+    extern "C"<br />
+NTSYSAPI<br />
+NTSTATUS<br />
+NTAPI ZwQuerySystemInformation(<br />
+IN ULONG SystemInformationClass,<br />
+IN OUT PVOID SystemInformation,<br />
+IN ULONG SystemInformationLength,<br />
+OUT PULONG ReturnLength<br />
+);
+    </p>
+    
+    <p><font color="#FF0000">ZwQuerySystemInformation 聲明</font><br />
+<pre>//ZwQuerySystemInformation聲明
+typedef NTSTATUS (WINAPI *LpZwQuerySystemInformation)(
+  __in       SYSTEM_INFORMATION_CLASS SystemInformationClass,	//指定需要查詢的信息
+  __inout    PVOID SystemInformation,				//根據SystemInformationClass 返回不同的信息 54種不同信息
+  __in       ULONG SystemInformationLength,			//SystemInformation大小
+  __out_opt  PULONG ReturnLength				//SystemInformation為空 此值用於返回SystemInformation需要的大小
+);
+
+//SYSTEM_INFORMATION_CLASS聲明 需要自己聲明
+typedef enum _SYSTEM_INFORMATION_CLASS  
+{  
+    SystemBasicInformation,                 //  0 Y N  
+    SystemProcessorInformation,             //  1 Y N  
+    SystemPerformanceInformation,           //  2 Y N  
+    SystemTimeOfDayInformation,             //  3 Y N  
+    SystemNotImplemented1,                  //  4 Y N  
+    SystemProcessesAndThreadsInformation,   //  5 Y N	枚舉進程
+    SystemCallCounts,                       //  6 Y N  
+    SystemConfigurationInformation,         //  7 Y N  
+    SystemProcessorTimes,                   //  8 Y N  
+    SystemGlobalFlag,                       //  9 Y Y  
+    SystemNotImplemented2,                  // 10 Y N  
+    SystemModuleInformation,                // 11 Y N  
+    SystemLockInformation,                  // 12 Y N  
+    SystemNotImplemented3,                  // 13 Y N  
+    SystemNotImplemented4,                  // 14 Y N  
+    SystemNotImplemented5,                  // 15 Y N  
+    SystemHandleInformation,                // 16 Y N  
+    SystemObjectInformation,                // 17 Y N  
+    SystemPagefileInformation,              // 18 Y N  
+    SystemInstructionEmulationCounts,       // 19 Y N  
+    SystemInvalidInfoClass1,                // 20  
+    SystemCacheInformation,                 // 21 Y Y  
+    SystemPoolTagInformation,               // 22 Y N  
+    SystemProcessorStatistics,              // 23 Y N  
+    SystemDpcInformation,                   // 24 Y Y  
+    SystemNotImplemented6,                  // 25 Y N  
+    SystemLoadImage,                        // 26 N Y  
+    SystemUnloadImage,                      // 27 N Y  
+    SystemTimeAdjustment,                   // 28 Y Y  
+    SystemNotImplemented7,                  // 29 Y N  
+    SystemNotImplemented8,                  // 30 Y N  
+    SystemNotImplemented9,                  // 31 Y N  
+    SystemCrashDumpInformation,             // 32 Y N  
+    SystemExceptionInformation,             // 33 Y N  
+    SystemCrashDumpStateInformation,        // 34 Y Y/N  
+    SystemKernelDebuggerInformation,        // 35 Y N  
+    SystemContextSwitchInformation,         // 36 Y N  
+    SystemRegistryQuotaInformation,         // 37 Y Y  
+    SystemLoadAndCallImage,                 // 38 N Y  
+    SystemPrioritySeparation,               // 39 N Y  
+    SystemNotImplemented10,                 // 40 Y N  
+    SystemNotImplemented11,                 // 41 Y N  
+    SystemInvalidInfoClass2,                // 42  
+    SystemInvalidInfoClass3,                // 43  
+    SystemTimeZoneInformation,              // 44 Y N  
+    SystemLookasideInformation,             // 45 Y N  
+    SystemSetTimeSlipEvent,                 // 46 N Y  
+    SystemCreateSession,                    // 47 N Y  
+    SystemDeleteSession,                    // 48 N Y  
+    SystemInvalidInfoClass4,                // 49  
+    SystemRangeStartInformation,            // 50 Y N  
+    SystemVerifierInformation,              // 51 Y Y  
+    SystemAddVerifier,                      // 52 N Y  
+    SystemSessionProcessesInformation       // 53 Y N  
+  
+} SYSTEM_INFORMATION_CLASS;  
+</pre> 
+    </p>
+    </h2></div>
+	
+    <div class="div_box"><a name="SystemProcessesAndThreadsInformation"></a><h2>
+        <p><font color="#FF0000">枚舉進程 SystemProcessesAndThreadsInformation</font><br />
+        ZwQuerySystemInformation第二個參數傳入SystemProcessesAndThreadsInformation=5
+<pre>//SystemProcessesAndThreadsInformation 返回的結構
+typedef struct _SYSTEM_PROCESS_INFORMATION{
+ DWORD  NextEntryDelta;				//下一個進程的SYSTEM_PROCESS_INFORMATION 與當前SYSTEM_PROCESS_INFORMATION的偏移 byte
+ DWORD  ThreadCount;				//線程數
+ DWORD  Reserved1[6];
+ FILETIME ftCreateTime;
+ FILETIME ftUserTime;
+ FILETIME ftKernelTime;
+ UNICODE_STRING ProcessName;		//進程名
+ DWORD  BasePriority;
+ DWORD  ProcessId;					//進程id
+ DWORD  InheritedFromProcessId;		
+ DWORD  HandleCount;				//句柄數
+ DWORD  Reserved2[2];
+ DWORD  VmCounters;
+ DWORD  dCommitCharge;
+ PVOID  ThreadInfos[1];
+}SYSTEM_PROCESS_INFORMATION, *PSYSTEM_PROCESS_INFORMATION;
+</pre>
+        </p>
+        <p><font color="#FF0000">ring3 example</font><br />
+<pre>typedef enum _SYSTEM_INFORMATION_CLASS  
+{  
+    SystemBasicInformation,                 //  0 Y N  
+    SystemProcessorInformation,             //  1 Y N  
+    SystemPerformanceInformation,           //  2 Y N  
+    SystemTimeOfDayInformation,             //  3 Y N  
+    SystemNotImplemented1,                  //  4 Y N  
+    SystemProcessesAndThreadsInformation,   //  5 Y N	枚舉進程
+    SystemCallCounts,                       //  6 Y N  
+    SystemConfigurationInformation,         //  7 Y N  
+    SystemProcessorTimes,                   //  8 Y N  
+    SystemGlobalFlag,                       //  9 Y Y  
+    SystemNotImplemented2,                  // 10 Y N  
+    SystemModuleInformation,                // 11 Y N  
+    SystemLockInformation,                  // 12 Y N  
+    SystemNotImplemented3,                  // 13 Y N  
+    SystemNotImplemented4,                  // 14 Y N  
+    SystemNotImplemented5,                  // 15 Y N  
+    SystemHandleInformation,                // 16 Y N  
+    SystemObjectInformation,                // 17 Y N  
+    SystemPagefileInformation,              // 18 Y N  
+    SystemInstructionEmulationCounts,       // 19 Y N  
+    SystemInvalidInfoClass1,                // 20  
+    SystemCacheInformation,                 // 21 Y Y  
+    SystemPoolTagInformation,               // 22 Y N  
+    SystemProcessorStatistics,              // 23 Y N  
+    SystemDpcInformation,                   // 24 Y Y  
+    SystemNotImplemented6,                  // 25 Y N  
+    SystemLoadImage,                        // 26 N Y  
+    SystemUnloadImage,                      // 27 N Y  
+    SystemTimeAdjustment,                   // 28 Y Y  
+    SystemNotImplemented7,                  // 29 Y N  
+    SystemNotImplemented8,                  // 30 Y N  
+    SystemNotImplemented9,                  // 31 Y N  
+    SystemCrashDumpInformation,             // 32 Y N  
+    SystemExceptionInformation,             // 33 Y N  
+    SystemCrashDumpStateInformation,        // 34 Y Y/N  
+    SystemKernelDebuggerInformation,        // 35 Y N  
+    SystemContextSwitchInformation,         // 36 Y N  
+    SystemRegistryQuotaInformation,         // 37 Y Y  
+    SystemLoadAndCallImage,                 // 38 N Y  
+    SystemPrioritySeparation,               // 39 N Y  
+    SystemNotImplemented10,                 // 40 Y N  
+    SystemNotImplemented11,                 // 41 Y N  
+    SystemInvalidInfoClass2,                // 42  
+    SystemInvalidInfoClass3,                // 43  
+    SystemTimeZoneInformation,              // 44 Y N  
+    SystemLookasideInformation,             // 45 Y N  
+    SystemSetTimeSlipEvent,                 // 46 N Y  
+    SystemCreateSession,                    // 47 N Y  
+    SystemDeleteSession,                    // 48 N Y  
+    SystemInvalidInfoClass4,                // 49  
+    SystemRangeStartInformation,            // 50 Y N  
+    SystemVerifierInformation,              // 51 Y Y  
+    SystemAddVerifier,                      // 52 N Y  
+    SystemSessionProcessesInformation       // 53 Y N  
+  
+} SYSTEM_INFORMATION_CLASS;  
+
+typedef NTSTATUS (WINAPI *LpZwQuerySystemInformation)(
+  __in       SYSTEM_INFORMATION_CLASS SystemInformationClass,	//指定需要查詢的信息
+  __inout    PVOID SystemInformation,							//根據SystemInformationClass 返回不同的信息 54種不同信息
+  __in       ULONG SystemInformationLength,						//SystemInformation大小
+  __out_opt  PULONG ReturnLength								//SystemInformation為空 此值用於返回SystemInformation需要的大小
+);
+
+typedef struct _UNICODE_STRING {
+    USHORT Length;
+    USHORT MaximumLength;
+#ifdef MIDL_PASS
+    [size_is(MaximumLength / 2), length_is((Length) / 2) ] USHORT * Buffer;
+#else // MIDL_PASS
+    __field_bcount_part(MaximumLength, Length) PWCH   Buffer;
+#endif // MIDL_PASS
+} UNICODE_STRING;
+
+//SystemProcessesAndThreadsInformation 返回的結構
+typedef struct _SYSTEM_PROCESS_INFORMATION{
+ DWORD  NextEntryDelta;				//下一個進程的SYSTEM_PROCESS_INFORMATION 與當前SYSTEM_PROCESS_INFORMATION的偏移 byte
+ DWORD  ThreadCount;				//線程數
+ DWORD  Reserved1[6];
+ FILETIME ftCreateTime;
+ FILETIME ftUserTime;
+ FILETIME ftKernelTime;
+ UNICODE_STRING ProcessName;		//進程名
+ DWORD  BasePriority;
+ DWORD  ProcessId;					//進程id
+ DWORD  InheritedFromProcessId;		
+ DWORD  HandleCount;				//句柄數
+ DWORD  Reserved2[2];
+ DWORD  VmCounters;
+ DWORD  dCommitCharge;
+ PVOID  ThreadInfos[1];
+}SYSTEM_PROCESS_INFORMATION, *PSYSTEM_PROCESS_INFORMATION;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+
+	HMODULE handle_ntdll=LoadLibrary(L"ntdll.dll");
+	if(handle_ntdll)
+	{
+		LpZwQuerySystemInformation ZwQuerySystemInformation=(LpZwQuerySystemInformation)GetProcAddress(handle_ntdll,"ZwQuerySystemInformation");
+		if(ZwQuerySystemInformation)
+		{
+			ULONG dwSizeof=0;
+			ZwQuerySystemInformation(SystemProcessesAndThreadsInformation,NULL,0,&dwSizeof);
+			printf("need sizeof memory:%d\n",dwSizeof);
+			byte* lp=new byte[dwSizeof];
+			PSYSTEM_PROCESS_INFORMATION psystem_process_information;
+			if(!ZwQuerySystemInformation(SystemProcessesAndThreadsInformation,lp,dwSizeof,NULL))
+			{
+				psystem_process_information=(PSYSTEM_PROCESS_INFORMATION)lp;
+				while(true)
+				{
+					wprintf(L"pid=%d name=%s %d\n"
+						,psystem_process_information->ProcessId,psystem_process_information->ProcessName.Buffer,psystem_process_information->InheritedFromProcessId
+						);
+					if(psystem_process_information->NextEntryDelta)
+					{
+						psystem_process_information=(PSYSTEM_PROCESS_INFORMATION)((ULONG)psystem_process_information+psystem_process_information->NextEntryDelta);
+					}
+					else
+					{
+						break;
+					}
+				};
+			}
+			delete[] lp;
+		}
+		else
+		{
+			wprintf(L"無法定位函數 ZwQuerySystemInformation\n");
+		}
+	}
+	else
+	{
+
+		wprintf(L"無法載入 ntdll.dll\n");
+	}
+	system("pause");
+	return 0;
+}</pre>
+        </p>
+    </h2></div>
+    <div class="div_box"><a name="SystemModuleInformation"></a><h2>
+        <p><font color="#FF0000">枚舉模塊 SystemModuleInformation</font><br />
+        ZwQuerySystemInformation第二個參數傳入SystemModuleInformation=11
+        </p>
+        <p><font color="#FF0000">ring3 example</font><br />
+<pre>typedef enum _SYSTEM_INFORMATION_CLASS  
+{  
+    SystemBasicInformation,                 //  0 Y N  
+    SystemProcessorInformation,             //  1 Y N  
+    SystemPerformanceInformation,           //  2 Y N  
+    SystemTimeOfDayInformation,             //  3 Y N  
+    SystemNotImplemented1,                  //  4 Y N  
+    SystemProcessesAndThreadsInformation,   //  5 Y N	枚舉進程
+    SystemCallCounts,                       //  6 Y N  
+    SystemConfigurationInformation,         //  7 Y N  
+    SystemProcessorTimes,                   //  8 Y N  
+    SystemGlobalFlag,                       //  9 Y Y  
+    SystemNotImplemented2,                  // 10 Y N  
+    SystemModuleInformation,                // 11 Y N	系統模塊  
+    SystemLockInformation,                  // 12 Y N  
+    SystemNotImplemented3,                  // 13 Y N  
+    SystemNotImplemented4,                  // 14 Y N  
+    SystemNotImplemented5,                  // 15 Y N  
+    SystemHandleInformation,                // 16 Y N  
+    SystemObjectInformation,                // 17 Y N  
+    SystemPagefileInformation,              // 18 Y N  
+    SystemInstructionEmulationCounts,       // 19 Y N  
+    SystemInvalidInfoClass1,                // 20  
+    SystemCacheInformation,                 // 21 Y Y  
+    SystemPoolTagInformation,               // 22 Y N  
+    SystemProcessorStatistics,              // 23 Y N  
+    SystemDpcInformation,                   // 24 Y Y  
+    SystemNotImplemented6,                  // 25 Y N  
+    SystemLoadImage,                        // 26 N Y  
+    SystemUnloadImage,                      // 27 N Y  
+    SystemTimeAdjustment,                   // 28 Y Y  
+    SystemNotImplemented7,                  // 29 Y N  
+    SystemNotImplemented8,                  // 30 Y N  
+    SystemNotImplemented9,                  // 31 Y N  
+    SystemCrashDumpInformation,             // 32 Y N  
+    SystemExceptionInformation,             // 33 Y N  
+    SystemCrashDumpStateInformation,        // 34 Y Y/N  
+    SystemKernelDebuggerInformation,        // 35 Y N  
+    SystemContextSwitchInformation,         // 36 Y N  
+    SystemRegistryQuotaInformation,         // 37 Y Y  
+    SystemLoadAndCallImage,                 // 38 N Y  
+    SystemPrioritySeparation,               // 39 N Y  
+    SystemNotImplemented10,                 // 40 Y N  
+    SystemNotImplemented11,                 // 41 Y N  
+    SystemInvalidInfoClass2,                // 42  
+    SystemInvalidInfoClass3,                // 43  
+    SystemTimeZoneInformation,              // 44 Y N  
+    SystemLookasideInformation,             // 45 Y N  
+    SystemSetTimeSlipEvent,                 // 46 N Y  
+    SystemCreateSession,                    // 47 N Y  
+    SystemDeleteSession,                    // 48 N Y  
+    SystemInvalidInfoClass4,                // 49  
+    SystemRangeStartInformation,            // 50 Y N  
+    SystemVerifierInformation,              // 51 Y Y  
+    SystemAddVerifier,                      // 52 N Y  
+    SystemSessionProcessesInformation       // 53 Y N  
+  
+} SYSTEM_INFORMATION_CLASS;  
+
+typedef NTSTATUS (WINAPI *LpZwQuerySystemInformation)(
+  __in       SYSTEM_INFORMATION_CLASS SystemInformationClass,	//指定需要查詢的信息
+  __inout    PVOID SystemInformation,							//根據SystemInformationClass 返回不同的信息 54種不同信息
+  __in       ULONG SystemInformationLength,						//SystemInformation大小
+  __out_opt  PULONG ReturnLength								//SystemInformation為空 此值用於返回SystemInformation需要的大小
+);
+
+//每個結構 代表一個模塊
+typedef struct _SYSTEM_MODULE_INFORMATION_ENTRY {
+HANDLE Section;
+PVOID MappedBase;
+PVOID Base;						//加載基地址
+ULONG Size;
+ULONG Flags;
+USHORT LoadOrderIndex;
+USHORT InitOrderIndex;
+USHORT LoadCount;
+USHORT PathLength;
+CHAR ImageName[256];			//模塊名 如 \SystemRoot\system32\kdcom.dll
+}SYSTEM_MODULE_INFORMATION_ENTRY, *PSYSTEM_MODULE_INFORMATION_ENTRY;
+
+typedef struct _SYSTEM_MODULE_INFORMATION{
+ULONG Count;									//SYSTEM_MODULE_INFORMATION_ENTRY數組數目
+SYSTEM_MODULE_INFORMATION_ENTRY Module[1];		//SYSTEM_MODULE_INFORMATION_ENTRY數組
+}SYSTEM_MODULE_INFORMATION, *PSYSTEM_MODULE_INFORMATION;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+
+	HMODULE handle_ntdll=LoadLibrary(L"ntdll.dll");
+	if(handle_ntdll)
+	{
+		LpZwQuerySystemInformation ZwQuerySystemInformation=(LpZwQuerySystemInformation)GetProcAddress(handle_ntdll,"ZwQuerySystemInformation");
+		if(ZwQuerySystemInformation)
+		{
+			ULONG dwSizeof=0;
+			ZwQuerySystemInformation(SystemModuleInformation,NULL,0,&dwSizeof);
+			printf("need sizeof memory:%d\n",dwSizeof);
+			byte* lp=new byte[dwSizeof];
+			if(!ZwQuerySystemInformation(SystemModuleInformation,lp,dwSizeof,NULL))
+			{
+				PSYSTEM_MODULE_INFORMATION psystem_module_inormation=(PSYSTEM_MODULE_INFORMATION)lp;
+				printf("模塊數:%d\n",psystem_module_inormation->Count);
+				for(ULONG index=0;index&lt;psystem_module_inormation->Count;++index)
+				{
+					printf("name=%s imagebase=0x%08X\n"
+						,psystem_module_inormation->Module[index].ImageName,psystem_module_inormation->Module[index].Base
+						);
+				}
+			}
+			delete[] lp;
+		}
+		else
+		{
+			wprintf(L"無法定位函數 ZwQuerySystemInformation\n");
+		}
+	}
+	else
+	{
+
+		wprintf(L"無法載入 ntdll.dll\n");
+	}
+	system("pause");
+	return 0;
+}
+</pre>
+        </p>
+	</h2></div>
+</td></tr></table>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>双机调试</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1><a href="#string">双机调试</a></h1></p>
+    <p><h1><a href="#windbg">windbg</a></h1></p>
+    <p><h1><a href="#Symbols">设置符号文件位置</a></h1></p>
+   
+    <div class="div_box"><a name="string"></a><h2>
+        <p><font color="#FF0000">双机调试</font><br />
+     	<pre>
+        <font color="#FF0000">主机设置</font>
+        <font color="#FF0000">1</font>  安装ddk windbg 
+        <font color="#FF0000">2</font>  为windbg创建快捷方式 并添加启动参数-b -k com:pipe,port=<font color="#FF0000">\\.\pipe\com_windbg</font>,baud=115200,reconnect -y(红色字体为串口名)
+        <font color="#FF0000">3</font>  以此快捷方式 启动windbg 等待虚拟机连接
+        
+        <font color="#FF0000">虚拟机设置</font>
+        <font color="#FF0000">1</font>  安装ddk windbg
+        <font color="#FF0000">2</font>  为虚拟机添加串口设备 串口名同 主机设置<font color="#FF0000">\\.\pipe\com_windbg</font>
+        <font color="#FF0000">3</font>  以带命令提示符的安全模式启动虚拟机 输入msconfig 打开系统设置
+        <font color="#FF0000">4</font>  引导-&gt;高级选项-&gt;勾选 调试 波特率(数字需同主机设置) 勾选调试端口(com...)
+        <font color="#FF0000">5</font>  重启虚拟机 以设定了高级选项的引导选启动计算机
+        </pre>
+        </p>
+  	</h2></div>
+	 <div class="div_box"><a name="windbg"></a><h2>
+        <p><font color="#FF0000">windbg</font><br />
+        </p>
+        <p><font color="#FF0000">执行相关</font><br />
+        <pre>
+        .attach -b 	//附加进程
+        .detach /n			取消调试当前进程
+        .restart			重启调试
+        ctrl+break			进入输入命令模式
+        
+        F5 或 g			运行
+        F10				步过
+        F11				步入
+        SHIFT+F11 或gu	跳出当前函数
+        </pre>
+        </p>
+         <p><font color="#FF0000">断点</font><br />
+         <pre>
+         bp			下int 3 断点 cc
+         bp 地址 
+         bp 模块名!函数名
+         bp 函数名(不推荐 因为可能多个模块有相同函数名)
+         
+         bu 		对符号下断
+         bu driver!FunctionName
+         bm			对符合下断
+         bm driver!myClass::* //对driver中 myclass 所有成员函数下断
+         
+         ba [e|r|w] size 地址 //对地址下断
+         e执行断点 r读取断点 w写入断点 size监视字节长度
+         
+         bd 断点索引		禁用断点
+         be 断点索引		启用断点
+         bc 断点索引		清除断点
+         bl				列出断点列表
+         </pre>
+         </p>
+         
+         <p><font color="#FF0000">查询相关</font><br />
+         <pre>
+         <font color="#FF0000">u	汇编</font>
+         
+         <font color="#FF0000">da	以ansi字符显示 每行最多显示48个字符</font>
+         <font color="#FF0000">db	以16进制显示</font>
+         <font color="#FF0000">du	以unicode字符显示</font>
+         dD	以Double显示
+         df	以float显示
+         
+         dp
+         dq
+         dw
+         dW
+         dyb	二进制和字节
+         dyd	二进制和四字节
+         
+         k		查看調用堆棧
+         <font color="#FF0000">d poi 地址 //显示此地址所指向内容</font>
+         
+         <font color="#FF0000">lm	列出所有模块</font>
+         lmf	同上不同列出所有模块位置
+         lmvm 模块名		列出模块详细信息
+         
+         <font color="#FF0000">r 寄存器		//查看寄存器值</font>
+         <font color="#FF0000">dps esp	//查看堆栈</font>
+         </pre>
+         </p>
+         
+         <p><font color="#FF0000">操作相关</font><br />
+         <pre>
+         a		进入修改模式 修改汇编代码
+         </pre>
+         </p>
+         
+         <p><font color="#FF0000">修改 e 地址 二進制數據</font><br />
+         <pre>
+e	單字節
+ea	ASCII 字符串(不以NULL结尾)。
+eb	字节值。
+ed	双字值(4字节)。
+eD	双精度浮点数(8字节)。
+ef	单精度浮点数(4字节)。
+ep	指针大小的值。该命令根据目标机的处理器架构是32位还是64位，可能分别等于ed 或eq。
+eq	4字值(8字节)。
+eu	Unicode字符串(非NULL结尾)。
+ew	字值(2字节)。
+eza	NULL结尾的ASCII字符串。
+ezu	
+NULL结尾的Unicode字符串。
+         </pre>
+         </p>
+    </h2></div>
+    
+    <div class="div_box"><a name="Symbols"></a><h2>
+        <p><font color="#FF0000">设置符号文件位置</font><br />
+        G:\driver\Debug;<font color="#FF0000">srv*G:\Symbols\*http://msdl.microsoft.com/download/symbols</font>
+        </p>
+    </h2></div>
+</td></tr></table>
+</body>
+</html>

@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>融合</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="DirectX"><tr><td>
+<p>
+	<font color="#FF0000">融合</font>
+</p>
+
+<p>
+	<a href="#Synthesis">融合</a><br />
+    <a href="#factor">融合因子</a><br />
+    <a href="#alpha">alpha</a><br />
+    <a href="#example">example</a><br />
+    
+</p>
+
+
+<div class="mydiv"><a name="Synthesis"></a>
+	<p><font color="#FF0000">融合</font>
+<pre>D3DX 提供了所謂的 融合技術 既將 已經繪製的像素 和 將要繪製的像素 進行融合計算
+用此 可以實現許多效果 如 全透明 玻璃的半透明
+
+融合計算的方式是 
+繪製像素 = 當前繪製像素*當前合成因子 + 已繪製像素*已繪製合成因子
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">使用融合</font>
+<pre>融合計算 需要很大的開銷 默認關閉
+使用
+HRESULT IDirect3DDevice9::SetRenderState(
+  [in]  D3DRENDERSTATETYPE State,	//D3DRS_ALPHABLENDENABLE
+  [in]  DWORD Value		//TRUE(開啟)
+);
+開啟關閉 融合
+
+一旦開啟融合 在Draw* 等繪製時便會 使用融合計算
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">注意</font>
+<pre>繪製時需要 根據攝像機深度 先繪製 後面的物體
+
+融合時 還要設置好融合因子才能獲取 想要的效果
+
+應該 只在需要時 開啟融合 
+融合繪製完成 應該關閉
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="factor"></a>
+	<p><font color="#FF0000">融合因子</font>
+<pre>融合 覺得了 融合效果
+使用
+HRESULT IDirect3DDevice9::SetRenderState(
+  [in]  D3DRENDERSTATETYPE State,	//D3DRS_SRCBLEND
+  [in]  DWORD Value		
+);
+設置 當前像素 融合因子
+
+使用
+HRESULT IDirect3DDevice9::SetRenderState(
+  [in]  D3DRENDERSTATETYPE State,	//D3DRS_DESTBLEND
+  [in]  DWORD Value		
+);
+設置 已繪製像素 融合因子
+
+value 取值
+enum D3DBLEND
+詳見 SDK文檔
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>	device_ptr_->BeginScene();
+		//啟用合成
+		device_ptr_->SetRenderState(D3DRS_ALPHABLENDENABLE,TRUE);
+		//設置合成因子 此值 根據alpha值 合成
+		device_ptr_->SetRenderState( D3DRS_SRCBLEND, D3DBLEND_SRCALPHA );
+		device_ptr_->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA  );
+
+		//Draw...
+        
+		device_ptr_->SetRenderState(D3DRS_ALPHABLENDENABLE,FALSE);
+	device_ptr_->EndScene();
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="alpha"></a>
+	<p><font color="#FF0000">alpha</font>
+<pre>融合時 alpha 數據從紋理獲取
+若紋理不存在alpha通道 則alpha 取自己的顏色
+
+亦可指定 從其他地方獲取 alpha值
+//從 漫反射 顏色獲取 alpha
+device_ptr_->SetTextureStageState(0,D3DTSS_ALPHAARG1,D3DTA_DIFFUSE);
+device_ptr_->SetTextureStageState(0,D3DTSS_ALPHAOP,D3DTOP_SELECTARG1);
+
+//從 alpha 通道 獲取 alpha
+device_ptr_->SetTextureStageState(0,D3DTSS_ALPHAARG1,D3DTA_DIFFUSE);
+device_ptr_->SetTextureStageState(0,D3DTSS_ALPHAOP,D3DTOP_SELECTARG1);
+
+...
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="example"></a>
+	<p><font color="#FF0000">example</font>
+<pre>.\code\融合 下是完整的 示例
+</pre>
+	</p>
+</div>
+
+</td></tr></table>
+</body>
+</html>

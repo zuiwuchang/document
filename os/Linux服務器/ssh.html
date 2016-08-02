@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>ssh</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#ssh">ssh</a>
+		<a href="#sftp">sftp</a>
+		<a href="#scp">scp</a>
+		<a href="#win32">win32</a>
+		<a href="#sshd">sshd 設置</a>
+		<a href="#nopwd">不用密碼登錄ssh</a>
+		
+	</div>
+
+	<div class="note"><a name="ssh"></a>
+		<p><span class="flag">ssh</span>
+<pre>ssh 是一種使用 rsa 加密的 安全 遠程 連接 程式
+
+client->(使用 server public key 加密)->server->(使用 server private key 解碼)
+server->(使用 client public key 加密)->client->(使用 client private key 解碼)
+</pre>
+		</p>
+		<p><span class="flag">ssh 通信步驟</span>
+<pre>1	server啟動 sshd 服務器 查詢/etc/ssh/ssh_host*文檔 並以此計算 自己的 public private key
+	(rm /etc/ssh/ssh_host* 重啟sshd 即可生成新的 key
+	/etc/init.d/sshd restart)
+
+2	client 連接 server
+
+3	server 接受到連接請求 使用 明文 傳輸 server public key 給 client
+
+4	clien 將server public key 記錄到 ~/.ssh/known_hosts文件
+
+5	client 計算 自己的 key(每次連接 重新計算) 並將 public key 傳輸給 server
+
+6	開始 加密 通信
+</pre>
+		</p>
+
+		<p><span class="flag">命令</span>
+<pre>//連接 遠程 主機
+ssh [-f] [-o 參數項目] [-p 端口] [帳號@]IP [指令]
+
+//不寫 帳號名 使用 當前 用戶名登錄
+ssh 127.0.0.1 -p 22
+
+//關閉遠程主機
+ssh -f illusive_man@127.0.0.1 sudo shutdown -h now
+
+	<span class="care">//-f 需要配合 [指令]  不登錄主機 而是 發送一個 命令 給主機執行
+
+	//-o 參數項目
+		ConnectTimeout=秒數	連接超時
+		StrictHostKeyChecking=[yes/no/ask] 默認ask 若要將 public key 直接加入 known_hosts 跳過詢問 則設置為 no
+	
+	//-p	指定server 端口
+
+	//[指令] 發送一個 命令 給主機執行
+	</span>
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>client 到新 服務器 連接 會將 server public key 記錄到 ~/.ssh/known_hosts
+若有人 想冒充 服務器 或服務器產生了 新 key 將 無法連接 
+此時需要 手動編輯 ~/.ssh/known_hosts 將 其中相應的 key 刪除
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="sftp"></a>
+		<p><span class="flag">sftp</span>
+<pre>ftp 是不安全的 其使用 明文傳輸 
+ssh 模擬了 ftp 其使用 sftp 連接
+(由ssh直接提供此服務 故依然工作在 ssh的22端口上)
+
+Filezilla 則是一個 圖形化的 sftp 客戶端
+<a target="_blank" href="https://filezilla-project.org/">https://filezilla-project.org/</a>
+</pre>
+		</p>
+		<p><span class="flag">命令</span>
+<pre>//連接 到 ssh
+sftp 帳號@Ip
+
+//退出連接
+exit
+
+
+
+<span class="care">連接後的 命令 基本同 ftp</span>
+cd
+ls
+mkdir
+rmdir
+pwd
+
+//修改所有者 群 用戶 權限
+chgrp groupname PATH
+chown username PATH
+chmod 
+
+//建立 連接
+ln oldname newname
+
+rm
+rename
+
+針對本機操作 在命令前加上個l
+lcd
+lls
+...
+
+//上傳
+put [本地文件] [遠程文件]
+put [本地文件]
+
+//下載
+get [遠程文件] [本地文件]
+get [遠程文件]
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="scp"></a>
+		<p><span class="flag">scp</span>
+<pre>scp 使用 ssh 進行安全的文件傳輸(使用ssh端口22) 
+傳輸的兩端都需要安裝ssh軟體 openssh-clients
+sudo yum -y install openssh-clients
+</pre>
+		</p>
+		<p><span class="flag">命令</span>
+<pre>//將本地文件上傳到遠程地址
+scp path user@ip:path
+(scp /home/dark/test dark@127.0.0.1:/home/dark/test1)
+
+//反過來寫就是 將遠程 文件 下載到本地
+scp user@ip:path path
+
+可選參數
+-v	顯示進度
+-P	指定端口
+-4	使用ipv4
+-6	使用ipv6
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="win32"></a>
+		<p><span class="flag">win32</span>
+<pre>win32 要連接 ssh 需要 安裝 軟體
+putty <a target="_blank" href="http://www.chiark.greenend.org.uk/~sgtatham/putty/">http://www.chiark.greenend.org.uk/~sgtatham/putty/</a>
+或
+pietty <a target="_blank" href="http://www.csie.ntu.edu.tw/~piaip/pietty/">http://www.csie.ntu.edu.tw/~piaip/pietty/</a>
+
+putty 提供了 psftp 軟體 提供了 sftp 功能
+直接雙擊 運行 執行 open ip 連接到 sftp
+</pre>
+		</p>
+
+		<p><span class="flag">putty 中文亂碼</span>
+<pre>方法一: 
+
+打开putty主程序，选择window-〉Appearance-〉Font settings-〉Change...,选择Fixedsys字体,字符集选择CHINESE_GB2312。 
+
+在window-〉Appearance -〉Translation中，Received data assumed to be in which character set 中,把Use font encoding改为UTF-8如果经常使用,把这些设置保存在session里面. 
+
+现在打开putty,登录成功后,在shell中输入:export LC_ALL='zh_CN.utf8' 
+
+方法二: 
+编辑/etc/sysconfig/i18n 
+将第1句“LANG="zh_CN.UTF-8"”改为“LANG="zh_CN.GB18030"”，完成后保存重新登录就可以显示正常了
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="sshd"></a>
+		<p><span class="flag">sshd 設置</span>
+<pre>[root@www ~]# vim /etc/ssh/sshd_config
+# 1. 關於 SSH Server 的整體設定，包含使用的 port 啦，以及使用的密碼演算方式
+# Port 22
+# SSH 預設使用 22 這個port，也可以使用多個port，即重複使用 port 這個設定項目！
+# 例如想要開放 sshd 在 22 與 443 ，則多加一行內容為：『 Port 443 』
+# 然後重新啟動 sshd 這樣就好了！不過，不建議修改 port number 啦！
+
+<span class="care">Protocol 2</span>
+# 選擇的 SSH 協定版本，可以是 1 也可以是 2 ，CentOS 5.x 預設是僅支援 V2。
+# 如果想要支援舊版 V1 ，就得要使用『 Protocol 2,1 』才行。
+
+# ListenAddress 0.0.0.0
+# 監聽的主機介面卡！舉個例子來說，如果你有兩個 IP，分別是 192.168.1.100 及 
+# 192.168.100.254，假設你只想要讓 192.168.1.100 可以監聽 sshd ，那就這樣寫：
+# 『 ListenAddress 192.168.1.100 』預設值是監聽所有介面的 SSH 要求
+
+# PidFile /var/run/sshd.pid
+# 可以放置 SSHD 這個 PID 的檔案！上述為預設值
+
+# LoginGraceTime 2m
+# 當使用者連上 SSH server 之後，會出現輸入密碼的畫面，在該畫面中，
+# 在多久時間內沒有成功連上 SSH server 就強迫斷線！若無單位則預設時間為秒！
+
+# Compression delayed
+# 指定何時開始使用壓縮資料模式進行傳輸。有 yes, no 與登入後才將資料壓縮 (delayed)
+
+# 2. 說明主機的 Private Key 放置的檔案，預設使用下面的檔案即可！
+# HostKey /etc/ssh/ssh_host_key        # SSH version 1 使用的私鑰
+# HostKey /etc/ssh/ssh_host_rsa_key    # SSH version 2 使用的 RSA 私鑰
+# HostKey /etc/ssh/ssh_host_dsa_key    # SSH version 2 使用的 DSA 私鑰
+# 還記得我們在主機的 SSH 連線流程裡面談到的，這裡就是 Host Key ～
+
+# 3. 關於登錄檔的訊息資料放置與 daemon 的名稱！
+SyslogFacility AUTHPRIV
+# 當有人使用 SSH 登入系統的時候，SSH 會記錄資訊，這個資訊要記錄在什麼 daemon name
+# 底下？預設是以 AUTH 來設定的，即是 /var/log/secure 裡面！什麼？忘記了！
+# 回到 Linux 基礎去翻一下。其他可用的 daemon name 為：DAEMON,USER,AUTH,
+# LOCAL0,LOCAL1,LOCAL2,LOCAL3,LOCAL4,LOCAL5,
+
+# LogLevel INFO
+# 登錄記錄的等級！嘿嘿！任何訊息！同樣的，忘記了就回去參考！
+
+<span class="care">PermitRootLogin no</span>
+# 4. 安全設定項目！極重要！
+# 4.1 登入設定部分
+# PermitRootLogin yes
+# 是否允許 root 登入！預設是允許的，但是建議設定成 no！
+
+# StrictModes yes
+# 是否讓 sshd 去檢查使用者家目錄或相關檔案的權限資料，
+# 這是為了擔心使用者將某些重要檔案的權限設錯，可能會導致一些問題所致。
+# 例如使用者的 ~.ssh/ 權限設錯時，某些特殊情況下會不許用戶登入
+
+# PubkeyAuthentication yes
+# AuthorizedKeysFile      .ssh/authorized_keys
+# 是否允許用戶自行使用成對的金鑰系統進行登入行為，僅針對 version 2。
+# 至於自製的公鑰資料就放置於使用者家目錄下的 .ssh/authorized_keys 內
+
+PasswordAuthentication yes
+# 密碼驗證當然是需要的！所以這裡寫 yes 囉！
+
+# PermitEmptyPasswords no
+# 若上面那一項如果設定為 yes 的話，這一項就最好設定為 no ，
+# 這個項目在是否允許以空的密碼登入！當然不許！
+
+# 4.2 認證部分
+# RhostsAuthentication no
+# 本機系統不使用 .rhosts，因為僅使用 .rhosts太不安全了，所以這裡一定要設定為 no
+
+# IgnoreRhosts yes
+# 是否取消使用 ~/.ssh/.rhosts 來做為認證！當然是！
+
+# RhostsRSAAuthentication no #
+# 這個選項是專門給 version 1 用的，使用 rhosts 檔案在 /etc/hosts.equiv
+# 配合 RSA 演算方式來進行認證！不要使用啊！
+
+# HostbasedAuthentication no
+# 這個項目與上面的項目類似，不過是給 version 2 使用的！
+
+# IgnoreUserKnownHosts no
+# 是否忽略家目錄內的 ~/.ssh/known_hosts 這個檔案所記錄的主機內容？
+# 當然不要忽略，所以這裡就是 no 啦！
+
+ChallengeResponseAuthentication no
+# 允許任何的密碼認證！所以，任何 login.conf 規定的認證方式，均可適用！
+# 但目前我們比較喜歡使用 PAM 模組幫忙管理認證，因此這個選項可以設定為 no 喔！
+
+UsePAM yes
+# 利用 PAM 管理使用者認證有很多好處，可以記錄與管理。
+# 所以這裡我們建議你使用 UsePAM 且 ChallengeResponseAuthentication 設定為 no 
+　
+# 4.3 與 Kerberos 有關的參數設定！因為我們沒有 Kerberos 主機，所以底下不用設定！
+# KerberosAuthentication no
+# KerberosOrLocalPasswd yes
+# KerberosTicketCleanup yes
+# KerberosTgtPassing no
+　
+# 4.4 底下是有關在 X-Window 底下使用的相關設定！
+X11Forwarding yes
+# X11DisplayOffset 10
+# X11UseLocalhost yes
+# 比較重要的是 X11Forwarding 項目，他可以讓視窗的資料透過 ssh 通道來傳送喔！
+# 在本章後面比較進階的 ssh 使用方法中會談到。
+
+# 4.5 登入後的項目：
+# PrintMotd yes
+# 登入後是否顯示出一些資訊呢？例如上次登入的時間、地點等等，預設是 yes
+# 亦即是列印出 /etc/motd 這個檔案的內容。但是，如果為了安全，可以考慮改為 no ！
+
+# PrintLastLog yes
+# 顯示上次登入的資訊！可以啊！預設也是 yes ！
+
+# TCPKeepAlive yes
+# 當達成連線後，伺服器會一直傳送 TCP 封包給用戶端藉以判斷對方式否一直存在連線。
+# 不過，如果連線時中間的路由器暫時停止服務幾秒鐘，也會讓連線中斷喔！
+# 在這個情況下，任何一端死掉後，SSH可以立刻知道！而不會有僵屍程序的發生！
+# 但如果你的網路或路由器常常不穩定，那麼可以設定為 no 的啦！
+
+UsePrivilegeSeparation yes
+# 是否使用權限較低的程序來提供使用者操作。我們知道 sshd 啟動在 port 22 ，
+# 因此啟動的程序是屬於 root 的身份。那麼當 student 登入後，這個設定值
+# 會讓 sshd 產生一個屬於 sutdent 的 sshd 程序來使用，對系統較安全
+
+MaxStartups 10
+# 同時允許幾個尚未登入的連線畫面？當我們連上 SSH ，但是尚未輸入密碼時，
+# 這個時候就是我們所謂的連線畫面啦！在這個連線畫面中，為了保護主機，
+# 所以需要設定最大值，預設最多十個連線畫面，而已經建立連線的不計算在這十個當中
+
+# 4.6 關於使用者抵擋的設定項目：
+DenyUsers *
+# 設定受抵擋的使用者名稱，如果是全部的使用者，那就是全部擋吧！
+# 若是部分使用者，可以將該帳號填入！例如下列！
+DenyUsers test
+
+DenyGroups test
+# 與 DenyUsers 相同！僅抵擋幾個群組而已！
+
+# 5. 關於 SFTP 服務與其他的設定項目！
+Subsystem       sftp    /usr/lib/ssh/sftp-server
+# UseDNS yes
+# 一般來說，為了要判斷用戶端來源是正常合法的，因此會使用 DNS 去反查用戶端的主機名
+# 不過如果是在內網互連，這項目設定為 no 會讓連線達成速度比較快
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>建議 將 ssh 的版本設置為 使用 V2 而非 V1 版本
+V2更加安全
+<span class="care">Protocol 2</span>
+
+建議 禁止掉 使用 root 登錄 默認 運行
+<span class="care">PermitRootLogin no</span>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="nopwd"></a>
+		<p><span class="flag">不用密碼登錄ssh</span>
+<pre>1	使用 ssh-keygen [-t rsa|dsa]	
+	(ssh-keygen -t rsa )
+	在當前 用戶 ~/.ssh 中 生成 id_rsa(private key file) id_rsa.pub(public key file)
+	(~/.ssh/ 必須是 700 權限 id_rsa必須是-rw 且屬於當前用戶)
+
+2	將 public key 複製到 server 中 要登錄的用戶的 ~/.ssh/authorized_keys 文件中
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>~/.ssh/ 必須是700
+authorized_keys 必須是 644
+其他任何權限 都不行 即使是777也錯
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,599 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>文件拖拽</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+     <p>
+    <h2>
+    <a href="#drag">文件拖拽</a><br />
+    <a href="#select">文件选择</a><br />
+    <a href="#selectdirectory">文件夾选择</a><br />
+    <a href="#link">文件右键关联</a><br />
+    <a href="#regedit">注册表操作</a><br />
+   	<a href="#binary">釋放二進制文件</a><br />
+    <a href="#map">映射文件</a><br />
+    <a href="#hicon">文件图标句柄</a><br />
+     
+    </h2></p>
+    
+    <div class="div_box"><h2><a name="drag"></a>
+	
+        <p><font color="#FF0000">文件拖拽</font><br />
+        当文件被被拖动到窗口并松开鼠标时会接受到WM_DROPFILES消息<br />
+        用DragQueryFile获取被拖入文件名信息
+        </p>
+        <p><font color="#FF0000">example</font><br />
+        <font color="#FF0000">1</font> 设置控件 Accept Files属性为true<br /> 
+        <font color="#FF0000">2</font> 窗口可直接添加WM_DROPFILES消息处理 控件 处理窗口PreTranslateMessage 函数<br />
+        <font color="#FF0000">3</font>
+        <pre>if(pMsg->hwnd==GetDlgItem(IDC_EDIT1)->m_hWnd)
+		{
+			HDROP hDropInfo=(HDROP)(HDROP)pMsg->wParam;
+			unsigned int count;
+			wchar_t filepath[100];
+			count=::DragQueryFile(hDropInfo,0xFFFFFFFF,NULL,NULL);//首先获取文件的个数。 
+			
+			if(count) 
+			{  for(unsigned int i=0;i&lt;count;i++)  
+				{   
+					int pathlen=::DragQueryFile(hDropInfo,i,filepath,sizeof(filepath));//获取文件路径。	
+				} 
+			 } 
+			SetDlgItemText(IDC_EDIT1,filepath);
+			
+		}
+        </pre>
+        </p>
+        
+       
+        
+        
+    </pre></h2></div>
+   
+   <div class="div_box"><h2><a name="select"></a>
+        <p><font color="#FF0000">文件选择</font><br />
+        	<p><font color="#FF0000">win32</font><br />
+        	<pre>wchar_t file_path[MAX_PATH]={0};
+OPENFILENAMEW ofn;
+memset(&ofn,0,sizeof(OPENFILENAMEW));
+ofn.lStructSize=sizeof(OPENFILENAMEW);
+ofn.hwndOwner=NULL;		
+ofn.lpstrFile=file_path;				//指定保存 选择的文件名 的缓冲区
+ofn.nMaxFile=sizeof(file_path);			//缓冲区大小
+ofn.lpstrInitialDir=NULL;				//默认打开目录(如 c:\) NULL 当前
+ofn.Flags=OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+				
+ofn.lpstrTitle=L"通用对话框标题";
+ofn.lpstrFilter=L"可执行文件(*.exe)\0*.exe\0动态链接库(*.dll)\0*.dll\0所有文件(*.*)\0*.*\0"	;					//文件过滤器
+if(GetOpenFileName(&ofn))
+{
+	std::wcout&lt;&lt;file_path&lt;&lt;std::endl;
+}</pre>
+            </p>
+            <p><font color="#FF0000">MFC</font><br />
+<pre>char szFileFilter[]="Mp3 File(*.mp3)|*.mp3|All File(*.*)|*.*||";//文件类型过滤
+CFileDialog dlg(TRUE,NULL,NULL,OFN_HIDEREADONLY,szFileFilter); 
+dlg.m_ofn;
+if(dlg.DoModal()==IDOK)
+{
+	CString PathName=dlg.GetPathName();   //获取选中路径
+}</pre></p>
+			<p><font color="#FF0000">選擇多個文件</font><br />
+<pre>wchar_t filter[]=L"Monkey's Audio(*.ape)|*.ape|Wave Audio(*.wav)|*.wav|All File(*.*)|*.*||";//文件类型过滤
+	CFileDialog dlg(TRUE,NULL,NULL,OFN_HIDEREADONLY,filter); 
+	<font color="#FF0000">//設置OFN_ALLOWMULTISELECT允許選擇多個
+	dlg.m_ofn.Flags |=  OFN_ALLOWMULTISELECT;</font>
+	if(dlg.DoModal()==IDOK)
+	{
+		POSITION pos=dlg.GetStartPosition();
+		CString path;
+		while(pos)
+		{
+			path	=	dlg.GetNextPathName(pos);
+		}
+
+	}</pre>            
+            </p>
+        </p>
+  </h2></div>
+  	<div class="div_box"><h2><a name="selectdirectory"></a>
+    	<p><font color="#FF0000">文件夾选择</font>
+<pre>#include&lt;shlobj.h&gt;
+int _tmain(int argc, _TCHAR* argv[])
+{
+	std::wcout.imbue(std::locale("chs"));
+
+	wchar_t name[MAX_PATH],path[MAX_PATH]={0};
+	
+	//定義顯示結構
+	BROWSEINFO bi; 
+	bi.hwndOwner = NULL; 
+	bi.pidlRoot = NULL; 
+	bi.pszDisplayName = name;				//緩衝區地址用以 保存選擇的 文件夾名(不包含全路徑)
+	bi.lpszTitle =L"文件夹选择";			//左上角標題
+	bi.ulFlags = BIF_RETURNONLYFSDIRS; 
+	bi.lpfn = NULL; 
+	bi.lParam = 0; 
+	bi.iImage = 0; 
+
+	ITEMIDLIST *pidl; 
+	 //显示
+	pidl = SHBrowseForFolder( &bi );
+	
+	if(pidl) 
+	{
+		std::wcout&lt;&lt;L"文件夾:"&lt;&lt;name&lt;&lt;std::endl;
+		//獲取全路徑
+		if (SHGetPathFromIDList(pidl,path ))
+		{	
+			std::wcout&lt;&lt;L"全路徑:"&lt;&lt;path&lt;&lt;std::endl;
+		}
+	}
+
+	system("pause");
+	return 0;
+}</pre>
+    	</p>
+    </h2></div>
+   <div class="div_box"><h2><a name="link"></a>
+        <p><font color="#FF0000">文件右键关联</font><br />
+        windows下 右键文件 会有打开方式的选择 此功能由explorer.exe完成<br />
+        explorer.exe会从 注册表 HKEY_CLASS_ROOT -> .后缀名  默认值读取 文件相关项目名(如 exe 为 exefile)<br />
+        exefile -> DefaultIcon 记录显示的文件图标<br />
+        exefile -> shell -> 项目名(项目名为 右键关联显示的字符串)<br />
+        项目名 -> command 下单默认键值 为打开程序路径 如("H:\program\hack-crack\tools\OllyICE_1.10\OllyICE.exe" "%1")
+        </p>
+        
+         <p><font color="#FF0000">add example</font><br />
+         <pre>HKEY hKey_exe=NULL,hKey_dll=NULL;
+	DWORD dwDisposition;
+
+	if(ERROR_SUCCESS!=RegCreateKeyEx(HKEY_CLASSES_ROOT ,L"exefile\\shell\\Scan with WinPe\\command",0,NULL,REG_OPTION_VOLATILE,KEY_ALL_ACCESS,NULL,&amp;hKey_exe,&amp;dwDisposition)
+		|| ERROR_SUCCESS!=RegCreateKeyEx(HKEY_CLASSES_ROOT ,L"dllfile\\shell\\Scan with WinPe\\command",0,NULL,REG_OPTION_VOLATILE,KEY_ALL_ACCESS,NULL,&amp;hKey_dll,&amp;dwDisposition)
+		)
+	{
+		if(hKey_exe)
+		{
+			RegCloseKey(hKey_exe);
+		}
+		if(hKey_dll)
+		{
+			RegCloseKey(hKey_dll);
+		}
+		MessageBox(L"无法添加关联 创建注册表信息失败");
+		return;
+	}
+	
+	wchar_t file_path[MAX_PATH]={0};
+	GetModuleFileName(NULL,file_path,sizeof(file_path));
+	CString tmp_key_value;
+	tmp_key_value.Format(L"\"%s\" \"%%1\"",file_path);
+	if(ERROR_SUCCESS!=RegSetValueEx(hKey_exe,NULL,0,REG_SZ,(const BYTE*)tmp_key_value.GetBuffer(),sizeof(wchar_t)*(tmp_key_value.GetLength()+1))
+		|| ERROR_SUCCESS!=RegSetValueEx(hKey_dll,NULL,0,REG_SZ,(const BYTE*)tmp_key_value.GetBuffer(),sizeof(wchar_t)*(tmp_key_value.GetLength()+1))
+		)
+	{
+		MessageBox(L"无法添加关联 写入注册表信息失败");
+	}
+
+	
+	RegCloseKey(hKey_exe);
+	RegCloseKey(hKey_dll);</pre>
+         </p>
+         
+         <p><font color="#FF0000">delete example</font><br />
+         <pre>HKEY hKey_exe=NULL,hKey_dll=NULL;
+	DWORD dwDisposition;
+
+	if(ERROR_SUCCESS!=RegCreateKeyEx(HKEY_CLASSES_ROOT ,L"exefile\\shell",0,NULL,REG_OPTION_VOLATILE,KEY_ALL_ACCESS,NULL,&amp;hKey_exe,&amp;dwDisposition)
+		|| ERROR_SUCCESS!=RegCreateKeyEx(HKEY_CLASSES_ROOT ,L"dllfile\\shell",0,NULL,REG_OPTION_VOLATILE,KEY_ALL_ACCESS,NULL,&amp;hKey_dll,&amp;dwDisposition)
+		)
+	{
+		if(hKey_exe)
+		{
+			RegCloseKey(hKey_exe);
+		}
+		if(hKey_dll)
+		{
+			RegCloseKey(hKey_dll);
+		}
+		MessageBox(L"无法添加关联 创建注册表信息失败");
+		return;
+	}
+
+	RegDeleteKey(hKey_exe,L"Scan with WinPe\\command");
+	RegDeleteKey(hKey_exe,L"Scan with WinPe");
+
+	RegDeleteKey(hKey_dll,L"Scan with WinPe\\command");
+	RegDeleteKey(hKey_dll,L"Scan with WinPe");
+	
+	RegCloseKey(hKey_exe);
+	RegCloseKey(hKey_dll);</pre>
+         </p>
+   </h2></div>     
+   	<div class="div_box"><h2><a name="regedit"></a>
+        <p><font color="#FF0000">注册表操作</font><br />
+        <pre>
+ 1. 打开注册表键
+LONG RegOpenKeyEx(
+HKEY hKey,         // handle to open key主键
+LPCTSTR lpSubKey,  // subkey name子键
+DWORD ulOptions,   // reserved。必须是0
+REGSAM samDesired, // security access mask读写标识
+PHKEY phkResult    // handle to open key返回的HKEY类型的指针。以后，读写，关闭用这个指针
+);
+
+ 
+
+如：
+// 打开HKEY_LOCAL_MACHINE主键下的SoftWare\\Cleaner\\Cleaner子键
+HKEY hKEY;
+HKEY  hKeyRoot = HKEY_LOCAL_MACHINE;
+long ret0=(::RegOpenKeyEx(hKeyRoot,"SoftWare\\Cleaner\\Cleaner",0,KEY_READ,&hKEY));
+if(ret0!=ERROR_SUCCESS)// 如果无法打开hKEY,则中止程序的执行
+{
+AfxMessageBox("错误：无法打开有关的hKEY");
+return;
+}
+
+    2. 读取注册表
+LONG RegQueryValueEx(
+HKEY hKey,            // handle to key打开注册表指针
+LPCTSTR lpValueName,  // value name要读取的键名称
+LPDWORD lpReserved,   // reserved  must be NULL. 必须是NULL
+LPDWORD lpType,       // type buffer，键类型。我最常用REG_SZ,REG_DWORD
+LPBYTE lpData,        // data buffer。保存查询结果的缓冲区
+LPDWORD lpcbData      // size of data buffer。缓冲区大小
+);
+如：
+// hKEY是上面打开时得到的指针。
+LPBYTE getValue = new BYTE[80];//得到的键值
+DWORD keyType = REG_SZ;//定义数据类型
+DWORD DataLen = 80;//定义数据长度
+CString strUser = _T("Version");//要查询的键名称
+long ret1=::RegQueryValueEx(hKEY,strUser,NULL,&keyType,getValue,&DataLen);
+if(ret1!=ERROR_SUCCESS)
+{
+AfxMessageBox("错误：无法查询有关的注册表信息");
+return;
+}
+
+ 
+
+    3. 写注册表
+LONG RegSetValueEx(
+HKEY hKey,           // handle to key。打开注册表的指针
+LPCTSTR lpValueName, // value name 要写入的键
+DWORD Reserved,      // reserved  必须是0
+DWORD dwType,        // value type 写入值类型
+CONST BYTE *lpData,  // value data 要写入的数据
+DWORD cbData         // size of value data 。数据SIZE
+);
+如：
+// 写注册表。修改Version为1.0.12
+// 写入CString类型的数据
+CString strVersion = _T("Version");//要写入的键名称
+LPCTSTR strVersionValue = "1.0.12";
+long ret = ::RegSetValueEx(hKEY, strVersion, 0, REG_SZ, (const BYTE *) strVersionValue, strlen(strVersionValue)+1);
+if(ret!=ERROR_SUCCESS)
+{
+AfxMessageBox(" 错误：无法查询有关的注册表信息");
+return;
+}
+[/code]
+
+ 
+
+    4. 创建一个新键
+LONG RegCreateKeyEx(
+HKEY hKey,                                  // handle to open key。打开的注册表指针
+LPCTSTR lpSubKey,                           // subkey name。子键名称
+DWORD Reserved,                             // reserved。必须为0
+LPTSTR lpClass,                             // class string。已经存在时用，一般为NULL
+DWORD dwOptions,                            // special options
+//默认值REG_OPTION_VOLATILE，保存在注册表，下次开机仍然存在
+//REG_OPTION_VOLATILE，保存在内存
+//REG_OPTION_BACKUP_RESTORE
+REGSAM samDesired,                          // desired security access。操作权限。一般KEY_ALL_ACCESS，除非有特殊需要，请查阅MSDN
+LPSECURITY_ATTRIBUTES lpSecurityAttributes, // inheritance。继承性。一般为NULL
+PHKEY phkResult,                            // key handle 。返回该键值镇。
+LPDWORD lpdwDisposition                     // disposition value buffer
+//REG_CREATED_NEW_KEY The key did not exist and was created. 
+//REG_OPENED_EXISTING_KEY The key existed and was simply opened without being changed.
+
+);
+
+ 
+
+    5. 删除一个键
+LONG RegDeleteKey(
+HKEY hKey,         // handle to open key
+LPCTSTR lpSubKey   // subkey name
+);
+
+ 
+
+    6. 删除一个键值
+LONG RegDeleteValue(
+HKEY hKey,            // handle to key
+LPCTSTR lpValueName   // value name。值名称，不是打开的那个指针，是查询到的指针，如果为空RegSetValueEx创建的值将被删除
+);
+
+ 
+
+    7. 刷新注册表
+LONG RegFlushKey(
+HKEY hKey   // handle to key to write。写入所有的值，在给定的指针
+);
+
+//这个函数是将改变数据直接写到硬盘上，不要频繁使用，会影响性能
+
+ 
+
+    8.  导入一个注册表文件到指定的键下
+LONG RegLoadKey(
+HKEY hKey,        // handle to open key
+LPCTSTR lpSubKey, // subkey name
+LPCTSTR lpFile    // registry file name
+);
+
+//没有用
+
+ 
+
+    <font color="#FF0000">9. 关闭打开的注册表</font>
+LONG RegCloseKey(
+HKEY hKey   // handle to key to close
+);
+
+//打开的注册表的指针需要注意关闭释放
+ 
+
+
+
+
+
+修改注册表的函数，详细使用方法查MSDN   
+<font color="#FF0000">RegCloseKey   关闭系统注册表中的一个项（或键）</font>   
+RegConnectRegistry   访问远程系统的部分注册表   
+RegCreateKey   在指定的项下创建或打开一个项   
+<font color="#FF0000">RegCreateKeyEx   在指定项下创建新项的更复杂的方式。在Win32环境中建议使用这个函数   
+RegDeleteKey   删除现有项下方一个指定的子项   
+RegDeleteValue   删除指定项下方的一个值   
+RegEnumKey   枚举指定项的子项。在Win32环境中应使用RegEnumKeyEx   
+RegEnumKeyEx   枚举指定项下方的子项   
+RegEnumValue   枚举指定项的值   </font>
+RegFlushKey   将对项和它的子项作出的改动实际写入磁盘   
+RegGetKeySecurity   获取与一个注册表项有关的安全信息   
+RegLoadKey   从以前用RegSaveKey函数创建的一个文件里装载注册表信息   
+RegNotifyChangeKeyValue   注册表项或它的任何一个子项发生变化时，用这个函数提供一种通知机制   
+RegOpenKey   打开一个现有的注册表项   
+<font color="#FF0000">RegOpenKeyEx   打开一个现有的项。在win32下推荐使用这个函数</font>   
+RegQueryInfoKey   获取与一个项有关的信息   
+<font color="#FF0000">RegQueryValue   取得指定项或子项的默认（未命名）值   
+RegQueryValueEx   获取一个项的设置值   
+RegReplaceKey   用一个磁盘文件保存的信息替换注册表信息；并创建一个备份，在其中包含当前注册表信息   
+RegRestoreKey   从一个磁盘文件恢复注册表信息   </font>
+RegSaveKey   将一个项以及它的所有子项都保存到一个磁盘文件   
+RegSetKeySecurity   设置指定项的安全特性   
+<font color="#FF0000">RegSetValue   设置指定项或子项的默认值   
+RegSetValueEx   设置指定项的值   </font>
+RegUnLoadKey   卸载指定的项以及它的所有子项</pre>
+   		</p>
+   </h2></div>
+    <div class="div_box"><h2><a name="binary"></a>
+        <p><font color="#FF0000">釋放二進制文件</font><br />
+        先將要釋放的文件 作為資源導入
+<pre>	//定位資源
+	HRSRC hRsc=FindResource(NULL			//資源所在模塊句柄 本模塊傳入NULL
+		,MAKEINTRESOURCE(IDR_MYBINARY1)		//資源名 宏MAKEINTRESOURCE將ID轉為對應名稱
+		,L"MyBinary");						//資源類型
+	if(hRsc)
+	{
+		//載入資源到內存
+		HGLOBAL hGlobal=LoadResource(NULL,hRsc);
+		if(hGlobal)
+		{
+			//讀取資源大小
+			DWORD dwSize=SizeofResource(NULL,hRsc);
+			
+			//寫入文件
+			HANDLE hFile=CreateFile(L"a.exe",GENERIC_WRITE,FILE_SHARE_READ,0,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
+			DWORD dwWrite;
+			WriteFile(hFile,hGlobal,dwSize,&dwWrite,NULL);
+			CloseHandle(hFile);
+
+			//卸載資源
+			FreeResource(hGlobal);
+		}
+	}</pre>
+        </p>
+ 	</h2></div>
+    
+    <div class="div_box"><h2><a name="map"></a>
+    	<p><font color="#FF0000">映射文件</font><br />
+        win32 可以將文件 映射到內存 從而像操作內存一樣操作 文件
+        </p>
+		<p><font color="#FF0000">example</font>
+<pre>HANDLE	hFile	=	INVALID_HANDLE_VALUE;
+	HANDLE	hMap	=	INVALID_HANDLE_VALUE;
+	LPVOID	lp		=	NULL;
+	try
+	{
+		//創建文件
+		 hFile	=	CreateFile(L"a.txt"
+			,GENERIC_READ | GENERIC_WRITE
+			,FILE_SHARE_WRITE | FILE_SHARE_READ
+			,NULL
+			,CREATE_ALWAYS
+			,FILE_ATTRIBUTE_NORMAL
+			,NULL
+			);
+		if(INVALID_HANDLE_VALUE == hFile)
+		{
+			throw std::exception("創建文件失敗");
+		}
+	
+		//映射文件
+		hMap	=	CreateFileMapping(hFile		//CreateFile 返回的文件句柄
+			,NULL								//安全描述符
+			,PAGE_READWRITE						//內存保護屬性
+			,0									//文件大小高32位
+			,12									//文件大小低32位
+			,NULL								//全局名稱
+			);
+		if(INVALID_HANDLE_VALUE == hMap)
+		{
+			throw std::exception("映射文件失敗");
+		}
+
+		//獲取指針
+		lp=MapViewOfFile(hMap
+			,FILE_MAP_ALL_ACCESS		//操作權限
+			,0							//文件偏移高32位
+			,0							//文件偏移低32位
+			,0							//映射大小 0 全部
+			);
+		if(!lp)
+		{
+			throw std::exception("獲取映射文件操作指針失敗");
+		}
+
+		//操作映射文件
+		strcpy_s((char*)lp,10,"123456");
+
+	}
+	catch(const std::exception& e)
+	{
+		std::cout&lt;&lt;e.what()&lt;&lt;std::endl;
+	}
+
+	//釋放文件操作指針
+	lp		&amp;&amp;	UnmapViewOfFile(lp);
+	
+	INVALID_HANDLE_VALUE != hMap	&amp;&amp;	CloseHandle(hMap);
+	INVALID_HANDLE_VALUE != hFile	&amp;&amp;	CloseHandle(hFile);</pre>        
+        </p>
+      
+      <p><font color="#FF0000">注意</font>
+      CreateFileMapping 傳入的文件大小 為0(代表整個文件) 如果傳入大小 大於文件大小 文件將被自動填充到指定大小<br />
+      MapViewOfFile 傳入的文件大小用法 同CreateFileMapping <br />
+      MapViewOfFile傳入的文件映射偏移位置 必須是系統內存分配顆粒的整數倍 通過  GetSystemInfo  獲取 0代表從文件頭開始映射
+      </p>   
+  	</h2></div>
+    
+    <div class="div_box"><h2><a name="hicon"></a>
+		<p><font color="#FF0000">文件图标句柄</font>
+<pre>SHGetFileInfo 能够获取文件 相关信息 其中最有用的是获取文件图标 
+既可以根据文件获取 亦可 从一个传入的文件属性获取默认图标
+
+GetFileAttributes 可获取文件属性 
+</pre>        
+        </p>
+        <p><font color="#FF0000">相关API</font>
+<pre>获取文件信息
+DWORD_PTR SHGetFileInfo(          LPCTSTR pszPath,	//文件路径
+    DWORD dwFileAttributes,				//文件属性 当设置 SHGFI_USEFILEATTRIBUTES 标志时有效
+    SHFILEINFO *psfi,					//返回 文件信息
+    UINT cbFileInfo,					//SHFILEINFO 大小
+    UINT uFlags						//标志 指示要获取何种信息
+);
+typedef struct _SHFILEINFO {
+    HICON hIcon;		//文件句柄
+    int iIcon;			//句柄在图标列表中索引
+    DWORD dwAttributes;
+    TCHAR szDisplayName[MAX_PATH];
+    TCHAR szTypeName[80];
+} SHFILEINFO;
+<font color="#FF0000">uFlags 取值</font>
+SHGFI_USEFILEATTRIBUTES		//从 dwFileAttributes 获取 而不用访问文件
+SHGFI_SYSICONINDEX		//获取文件索引 到psf->iIcon 成功SHGetFileInfo 返回 系统图标列表句柄 HIMAGELIST
+SHGFI_SMALLICON			//获取的是小图标
+SHGFI_ICON			//返回图标句柄到 psf->hIcon  不用时 需要DestroyIcon 
+...
+
+//返回一个文件 属性值
+DWORD WINAPI GetFileAttributes(
+  __in          LPCTSTR lpFileName
+);
+</pre>
+		</p>
+        
+        <p><font color="#FF0000">example</font>
+<pre><font color="#FF0000">//.h</font>
+class CMFCTestDlg : public CDialogEx
+{
+...
+	CListCtrl m_listctrl;
+	CImageList images;
+...
+}
+
+<font color="#FF0000">//.cpp</font>
+BOOL CMFCTestDlg::OnInitDialog()
+{
+...
+	SHFILEINFO info;
+	
+	//返回系统图标列表
+	HIMAGELIST hImageList	=	(HIMAGELIST )SHGetFileInfo(L""
+		,0
+		,&amp;info
+		,sizeof(info)
+		,SHGFI_SYSICONINDEX
+		);
+	images.Attach(hImageList);
+	
+	m_listctrl.SetImageList(&amp;images,LVSIL_NORMAL);
+	
+	CString str;
+	for(int i=0;i&lt;images.GetImageCount();++i)
+	{
+		str.Format(L"%d",i);
+		m_listctrl.InsertItem(i,str,i);
+	}
+...
+}    
+
+void CMFCTestDlg::OnBnClickedButton1()
+{
+	CString path	=	L"c:\\a.exe";
+	DWORD dwFileAttributes	=	GetFileAttributes(path);
+	//失败 可能是文件不存在
+	if(INVALID_FILE_ATTRIBUTES	==	dwFileAttributes)
+	{
+		dwFileAttributes	|=	FILE_ATTRIBUTE_NORMAL;
+	}
+
+	SHFILEINFO info;
+	SHGetFileInfo(L""
+		,dwFileAttributes
+		,&amp;info
+		,sizeof(info)
+		,SHGFI_SYSICONINDEX | SHGFI_USEFILEATTRIBUTES
+		);
+	
+	path.Format(L"%d",info.iIcon);
+	m_listctrl.InsertItem(m_listctrl.GetItemCount(),path,info.iIcon);
+}
+</pre>
+		</p>
+        
+        <p><font color="#FF0000">注意</font>
+<pre>SHGetFileInfo 传入 SHGFI_ICON 标志 在不使用图标时 需要 DestroyIcon
+
+SHGetFileInfo 返回的 无论是大小图标 其中内容 排序是同步一致的 只是图标大小不同(意思是 大图标 元素变化 小图标 自动 跟进 反之亦然)
+
+SHGetFileInfo 传入 SHGFI_SYSICONINDEX 若图标不存在于系统图标中 将自动被加入系统图标
+
+SHGetFileInfo 亦可获取ico文件句柄 (图标既是本身)
+</pre>
+		</p>
+    </h2></div>    
+</td></tr></table>
+</body>
+</html>

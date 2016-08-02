@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>事件绑定</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#ready">ready</a>
+		<a href="#type">事件类型</a>
+		<a href="#bind">绑定事件</a>
+		<a href="#hover">hover toggle</a>
+		<a href="#e">事件对象</a>
+	</div>
+
+
+	<div class="note"><a name="ready"></a>
+		<p><span class="flag">ready</span>
+<pre>//jQuery的 代碼一般 從 ready 開始運行(既 html 加載完成)
+$(document).ready(function(){
+	//其他 操作
+});
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="type"></a>
+		<p><span class="flag">事件类型</span>
+<pre>click	//鼠标单击
+dblclick	//鼠标双击
+
+mouseup	//鼠标位于某元素或其后代上时 释放鼠标任意键
+mousedown	//... 按下...
+mouseenter	//鼠标指针进入某个元素
+mouseleave	//鼠标指针离开某个元素
+mouseover	//鼠标指针进入某个元素或其后代元素时
+mouseout	//鼠标指针离开某个元素或其后代元素时
+mousemove	//鼠标指针在某个元素或其后代元素内移动时 
+
+keyup	//键盘上按下任意键	<span class="care">冒泡</span>
+keydown	//键盘上释放任意键 <span class="care">冒泡</span>
+keypress	//输入任意字符(只能响应字符键 其他keyup keydown) <span class="care">冒泡</span>
+
+focus	//得到焦点
+blur	//失去焦点
+focusin	//元素或其后代得到焦点
+focusout	//元素或其后代失去焦点
+
+change	//表达value 或 选中项 变化时 <span class="care">冒泡</span>
+select	//在intput type=text 中进行文本选择时 <span class="care">冒泡</span>
+submit	//提交表单
+load	//某个元素加载完毕 指定有url属性的有效
+unload	//离开当前页面 只对windows对象发送
+resize
+scroll
+err
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="bind"></a>
+		<p><span class="flag">绑定事件</span>
+<pre>可以对同时元素 同意事件绑定多个处理函数 多次绑定便可实现 触发事件时 依次执行
+
+
+
+$("p").click(function);
+$("p").bind("click",function);
+$("p").bind("click dblclick",function);	//一次绑定多个事件
+$("p").bind("click.namespace",function);	//为绑定事件指顶名字空间 
+
+$("p").one("click",function);	//只触发一次 之后自动移除事件
+</pre>
+		</p>
+		<p><span class="flag">移除事件</span>
+<pre>$("p").ubind();	//移除所有事件
+$("p").ubind("click");	//移除指定事件
+$("p").ubind("click.namespace");	//移除指定名字空间下跌指定事件
+$("p").ubind(".namespace");	//移除指定名字空间下所有事件
+</pre>
+		</p>
+		<p><span class="flag">委派事件</span>
+<pre>绑定事件只对存在的元素有效 委派会为存在和以后添加到元素自动绑定事件
+$("p").live("click",function);
+...
+live还会自动为不再匹配的元素移除绑定事件
+</pre>
+		</p>
+		<p><span class="flag">移除委派</span>
+<pre>$("p").die("click");
+</pre>
+		</p>
+		<p><span class="flag">触发事件</span>
+<pre>$("p").click();
+$("p").trigger("click");
+$("p").trigger("click.namespace");	//只触发名字空间下跌处理事件
+$("p").trigger("click!");	//只触发非名字空间下跌处理事件
+<span class="care">$("p").trigger("click",[param1,param2]);//触发时传递参数;
+$("p").bind("自定义事件名(非中文)",function(e,p1,p2){alert("e是事件对象\np1="+p1+"\np2="+p2);});
+$("p").trigger("自定义事件名(非中文)",["参数1","参数2"])</span>
+
+$("a").triggerHandler("click");	//触发事件 并且阻止浏览器默认操作 对于a就是终止跳转<span class="care">(此只触发第一个匹配元素)</span>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="hover"></a>
+		<p><span class="flag">hover toggle</span>
+<pre>//为元素绑定 mouseenter事件f1 mouseleave事件f2
+$("p").hover(f1,f2);
+
+
+
+//为元素绑定事件 第一此单击触发 f1 二次 f2 n次fn n+1次f1 ...
+$("p").toggle(f1,f2,....fn);
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="e"></a>
+		<p><span class="flag">事件对象</span>
+<pre>事件对象保存了事件触发时的各种信息 由函数自动传入
+</pre>
+		</p>
+		<p><span class="flag">参数</span>
+<pre>str = 123;
+$("p").bind("click",{msg:str},function(e){
+	alert(e.data.msg); 
+}));
+str = 456;
+</pre>
+		</p>
+		<p><span class="flag">触发信息</span>
+<pre>e.which 返回触发的按键信息
+1	鼠标左键
+2	鼠标中键
+3	鼠标右键
+13	[enter]
+
+e.pageX	//鼠标相当页面左上角x坐标
+e.pageY	//...y坐标
+</pre>
+		</p>
+		<p><span class="flag">other</span>
+<pre>e.type	//返回事件类型
+e.namespace	//返回事件类型名字空间
+e.currentTarget	//当前dom元素
+e.target	//事件触发dom元素 由于冒泡的存在 当前元素的后代也能触发事件哦
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

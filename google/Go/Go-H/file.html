@@ -1,0 +1,637 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#File">File</a>
+		<a href="#xml">encoding/xml</a>
+		<a href="#json">encoding/json</a>
+		<a href="#zip">archive/zip</a>
+		<a href="#tar">archive/tar</a>
+		
+	</div>
+
+	<div class="note"><a name="File"></a>
+		<p><span class="flag">File</span>
+<pre>os 包中的File型別 包含了對文件的操作
+
+const (
+    O_RDONLY int = syscall.O_RDONLY // open the file read-only.
+    O_WRONLY int = syscall.O_WRONLY // open the file write-only.
+    O_RDWR   int = syscall.O_RDWR   // open the file read-write.
+    O_APPEND int = syscall.O_APPEND // append data to the file when writing.
+    O_CREATE int = syscall.O_CREAT  // create a new file if none exists.
+    O_EXCL   int = syscall.O_EXCL   // used with O_CREATE, file must not exist
+    O_SYNC   int = syscall.O_SYNC   // open for synchronous I/O.
+    O_TRUNC  int = syscall.O_TRUNC  // if possible, truncate file when opened.
+)
+
+//以 0666 umask(linux 權限) O_RDWR 創建文件(已經存在覆蓋之)
+func Create(name string) (file *File, err error)
+
+//以 O_RDONLY 打開文件
+func Open(name string) (file *File, err error)
+
+//以指定flag方式 打開文件
+func OpenFile(name string, flag int, perm FileMode) (file *File, err error)
+
+//創建 管道
+func Pipe() (r *File, w *File, err error)
+</pre>
+		</p>
+
+		<p><span class="flag">常用方法</span>
+<pre>//改變工作目錄
+func (f *File) Chdir() error
+
+//同 linux 命令
+func (f *File) Chmod(mode FileMode) error
+func (f *File) Chown(uid, gid int) error
+func (f *File) Sync() (err error)
+
+const (
+    // The single letters are the abbreviations
+    // used by the String method's formatting.
+    ModeDir        FileMode = 1 << (32 - 1 - iota) // d: is a directory
+    ModeAppend                                     // a: append-only
+    ModeExclusive                                  // l: exclusive use
+    ModeTemporary                                  // T: temporary file (not backed up)
+    ModeSymlink                                    // L: symbolic link
+    ModeDevice                                     // D: device file
+    ModeNamedPipe                                  // p: named pipe (FIFO)
+    ModeSocket                                     // S: Unix domain socket
+    ModeSetuid                                     // u: setuid
+    ModeSetgid                                     // g: setgid
+    ModeCharDevice                                 // c: Unix character device, when ModeDevice is set
+    ModeSticky                                     // t: sticky
+
+    // Mask for the type bits. For regular files, none will be set.
+    ModeType = ModeDir | ModeSymlink | ModeNamedPipe | ModeSocket | ModeDevice
+
+    ModePerm FileMode = 0777 // permission bits
+)
+
+
+
+//關閉文件
+func (f *File) Close() error
+
+
+
+
+//讀/寫byte
+func (f *File) Read(b []byte) (n int, err error)
+func (f *File) ReadAt(b []byte, off int64) (n int, err error)
+
+func (f *File) Write(b []byte) (n int, err error) 写入内容
+func (f *File) WriteAt(b []byte, off int64) (n int, err error) 在offset位置写入内容
+//寫字符串
+func (f *File) WriteString(s string) (ret int, err error)
+
+
+
+//改變讀寫位置
+func (f *File) Seek(offset int64, whence int) (ret int64, err error)
+const (
+    SEEK_SET int = 0 // seek relative to the origin of the file
+    SEEK_CUR int = 1 // seek relative to the current offset
+    SEEK_END int = 2 // seek relative to the end
+)
+
+
+
+//返回文件信息
+func (f *File) Stat() (fi FileInfo, err error)
+
+type FileInfo interface {
+    Name() string       // base name of the file
+    Size() int64        // length in bytes for regular files; system-dependent for others
+    Mode() FileMode     // file mode bits
+    ModTime() time.Time // modification time
+    IsDir() bool        // abbreviation for Mode().IsDir()
+    Sys() interface{}   // underlying data source (can return nil)
+}
+
+//列出文件夾下 的文件  (不會返回. 和 ..)
+//n大於0 一次列出n個 出錯返回err = io.EOF
+//n小於等於0 一次返回所有 文件 
+func (f *File) Readdir(n int) (fi []FileInfo, err error)
+func (f *File) Readdirnames(n int) (names []string, err error)
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>os.File 實現了 io.Writer io.Reader 故 亦可使用 fmt 的 進行讀寫
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="xml"></a>
+		<p><span class="flag">encoding/xml</span>
+<pre>encoding/xml 包 實現了 xml 到 Go struct之間的 轉換 
+轉化關係 由於 struct 屬性(屬性必須倒出) 後的 `` tag指定
+
+//由字節數據 轉換到 Go struct 
+func Unmarshal(data []byte, v interface{}) error
+
+//由Go struct 轉換到 byte字節 默認不會 輸出 header
+func Marshal(v interface{}) ([]byte, error)		//不會換行 縮進
+//同上 不過爲每行加上 prefix前綴 且 使用indent縮進
+func MarshalIndent(v interface{}, prefix, indent string) ([]byte, error)
+</pre>
+		</p>
+		<p><span class="flag">tag規則</span>
+<pre><span class="care">解析xml</span>
+如果struct的一个字段是string或者[]byte类型且它的tag含有",innerxml"，Unmarshal将会将此字段所对应的元素内所有内嵌的原始xml累加到此字段上
+如果struct中有一个叫做XMLName，且类型为xml.Name字段，那么在解析的时候就会保存这个element的名字到该字段
+如果某个struct字段的tag定义中含有XML结构中element的名称，那么解析的时候就会把相应的element值赋值给该字段
+如果某个struct字段的tag定义了中含有",attr"，那么解析的时候就会将该结构所对应的element的与字段同名的属性的值赋值给该字段，如上version定义。
+如果某个struct字段的tag定义 型如"a>b>c",则解析的时候，会将xml结构a下面的b下面的c元素的值赋值给该字段。
+如果某个struct字段的tag定义了"-",那么不会为该字段解析匹配任何xml数据。
+如果struct字段后面的tag定义了",any"，如果他的子元素在不满足其他的规则的时候就会匹配到这个字段。
+如果某个XML元素包含一条或者多条注释，那么这些注释将被累加到第一个tag含有",comments"的字段上，这个字段的类型可能是[]byte或string,如果没有这样的字段存在，那么注释将会被抛弃。
+
+<span class="care">生成xml</span>
+如果v是 array或者slice，那么输出每一个元素，类似value
+如果v是指针，那么会Marshal指针指向的内容，如果指针为空，什么都不输出
+如果v是interface，那么就处理interface所包含的数据
+如果v是其他数据类型，就会输出这个数据类型所拥有的字段信息
+
+元素名按照如下优先级从struct中获取：
+如果v是struct，XMLName的tag中定义的名称
+类型为xml.Name的名叫XMLName的字段的值
+通过struct中字段的tag来获取
+通过struct的字段名用来获取
+marshall的类型名称
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre><span class="care">xml</span>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;root version='1'&gt;
+	&lt;item&gt;
+		&lt;url&gt;https://www.google.com&lt;/url&gt;
+		&lt;note>google search&lt;/note&gt;
+	&lt;/item&gt;
+	&lt;item&gt;
+		&lt;url&gt;https://mail.google.com/&lt;/url&gt;
+		&lt;note&gt;google email&lt;/note&gt;
+	&lt;/item&gt;
+
+&lt;/root&gt;
+
+<span class="care">package main</span>
+
+import (
+	"encoding/xml"
+	"fmt"
+	"io/ioutil"
+	"os"
+)
+
+type XML struct {
+	XMLName xml.Name `xml:"root"`
+	Version string   `xml:"version,attr"`
+	Note    []Note   `xml:"item"`
+}
+type Note struct {
+	Note string `xml:"note"`
+	Url  string `xml:"url"`
+}
+
+func main() {
+	//讀
+	file, err := os.Open("my.xml")
+	if err != nil {
+		fmt.Printf("error: %v", err)
+		return
+	}
+	defer file.Close()
+	data, err := ioutil.ReadAll(file)
+	if err != nil {
+		fmt.Printf("error: %v", err)
+		return
+	}
+	v := XML{}
+	err = xml.Unmarshal(data, &v)
+	if err != nil {
+		fmt.Printf("error: %v", err)
+		return
+	}
+	fmt.Println(v)
+
+	//寫
+	b, e := xml.Marshal(v)
+	if e != nil {
+		fmt.Println(e)
+		return
+	}
+	os.Stdout.Write([]byte(xml.Header))
+	os.Stdout.Write(b)
+	os.Stdout.Write([]byte("\n\n"))
+
+	b, e = xml.MarshalIndent(v, "", "	")
+	if e != nil {
+		fmt.Println(e)
+		return
+	}
+	os.Stdout.Write([]byte(xml.Header))
+	os.Stdout.Write(b)
+}
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="json"></a>
+		<p><span class="flag">encoding/json</span>
+<pre>encoding/json 包提供了對 json解析 的功能 用法 同 encoding/xml
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><span class="care">json</span>
+{
+	"root":[{"url":"https://www.google.com",
+		"note":"google search"},
+		{"url":"https://mail.google.com/",
+		"note":"google email"}
+	]	
+}
+
+<span class="care">package main</span>
+
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"os"
+)
+
+type JSON struct {
+	Data []NOTE `json:"root"`
+}
+type NOTE struct {
+	Url  string
+	Note string
+}
+
+func main() {
+	//讀
+	file, err := os.Open("my.json")
+	if err != nil {
+		fmt.Printf("error: %v", err)
+		return
+	}
+	defer file.Close()
+	data, err := ioutil.ReadAll(file)
+	if err != nil {
+		fmt.Printf("error: %v", err)
+		return
+	}
+	j := JSON{}
+	err = json.Unmarshal(data, &j)
+	if err != nil {
+		fmt.Printf("error: %v", err)
+		return
+	}
+	fmt.Println(j)
+
+	//寫
+	b, e := json.Marshal(j)
+	if e != nil {
+		fmt.Println(e)
+		return
+	}
+	os.Stdout.Write(b)
+	os.Stdout.Write([]byte("\n\n"))
+
+	b, e = json.MarshalIndent(j, "", "	")
+	if e != nil {
+		fmt.Println(e)
+		return
+	}
+	os.Stdout.Write(b)
+}
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="zip"></a>
+		<p><span class="flag">archive/zip</span>
+<pre>archive/zip 包提供了對zip操作的功能
+</pre>
+		</p>
+	<p><span class="flag">創建zip包</span>
+<pre>要創建zip包 分爲3部 
+1	創建一個io.Writer接口(一般是使用 os 包創建新文件)
+2	調用 zip.NewWriter 返回*Writer
+3	向 Writer 寫入文件頭信息 文件 數據
+
+//由 io.Writer 返回 打包的*Writer 輸入流
+func NewWriter(w io.Writer) *Writer
+//副岸邊輸入流
+func (w *Writer) Close() error
+
+//由文件頭信息 返回zip頭信息 
+func FileInfoHeader(fi os.FileInfo) (*FileHeader, error)
+//創建zip文件頭 返回io.Writer 以供i寫入數據
+func (w *Writer) CreateHeader(fh *FileHeader) (io.Writer, error)
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"archive/zip"
+	"fmt"
+	"io"
+	"os"
+)
+
+func main() {
+	//創建zip包
+	f, e := os.Create("test.zip")
+	if e != nil {
+		fmt.Println(e)
+		return
+	}
+	defer f.Close()
+
+	//返回 *Writer
+	w := zip.NewWriter(f)
+	defer w.Close()
+
+	//打包文件
+	AddFile(w, "1")
+	AddFile(w, "2")
+	AddFile(w, "3")
+}
+func AddFile(zipw *zip.Writer, filename string) {
+	//打開要打包的文件
+	f, e := os.Open(filename)
+	if e != nil {
+		fmt.Println(e)
+		return
+	}
+	defer f.Close()
+
+	//返回文件信息
+	info, e := f.Stat()
+	if e != nil {
+		fmt.Println(e)
+		return
+	}
+
+	//返回zip文件頭
+	header, e := zip.FileInfoHeader(info)
+	if e != nil {
+		fmt.Println(e)
+		return
+	}
+	//創建zip文件頭
+	w, e := zipw.CreateHeader(header)
+	if e != nil {
+		fmt.Println(e)
+		return
+	}
+
+	//寫入數據
+	_, e = io.Copy(w, f)
+	if e != nil {
+		fmt.Println(e)
+		return
+	}
+}
+</pre>
+		</p>
+		<p><span class="flag">解開zip包</span>
+<pre>//打開i一個自拍包
+func OpenReader(name string) (*ReadCloser, error)
+//保存了所有 打包文件 包括子目錄[]zip.File
+[]ReadCloser.Reader.File
+
+//打開zip中一個 對應文件
+func (f *File) Open() (rc io.ReadCloser, err error)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"archive/zip"
+	"fmt"
+	"io"
+	"os"
+)
+
+func main() {
+	//打開zip
+	reader, e := zip.OpenReader("test.zip")
+	if e != nil {
+		fmt.Println(e)
+	}
+	defer reader.Close()
+
+	//遍歷文件
+	for _, zipFile := range reader.Reader.File {
+		name := zipFile.Name
+		mode := zipFile.Mode()
+		//如果是文件夾
+		if mode.IsDir() {
+			if e = os.MkdirAll(name, 0755); e != nil {
+				return
+			}
+		} else {
+			//文件
+			if e = unzip(name, zipFile); e != nil {
+				return
+			}
+
+		}
+	}
+}
+func unzip(name string, zipFile *zip.File) error {
+	//創建解壓文件
+	w, e := os.Create(name)
+	if e != nil {
+		return e
+	}
+	defer w.Close()
+
+	//獲取壓縮數據
+	reader, e := zipFile.Open()
+	if e != nil {
+		return e
+	}
+	defer reader.Close()
+
+	//解壓
+	if _, e = io.Copy(w, reader); e != nil {
+		return e
+	}
+	fmt.Println(name)
+	return nil
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="tar"></a>
+		<p><span class="flag">archive/tar</span>
+<pre>archive/tar 包提供了 讀寫 tar.gz 以及 讀 tar.bz2 的功能
+</pre>
+		</p>
+		<p><span class="flag">創建 tar.gz</span>
+<pre>操作基本同 zip 只是 創建tar時 必須寫入完整的 header 信息 
+且數據都寫入了同一個 Writer
+</pre>
+		</p>
+
+		<p><span class="flag">打包 example</span>
+<pre>package main
+
+import (
+	"archive/tar"
+	"compress/gzip"
+	"fmt"
+	"io"
+	"os"
+)
+
+func main() {
+	//創建 tar包
+	f, e := os.Create("test.tar.gz")
+	if e != nil {
+		fmt.Println(e)
+		return
+	}
+	defer f.Close()
+
+	//使用 gzip壓縮
+	gf := gzip.NewWriter(f)
+	defer gf.Close()
+
+	//返回 *Writer
+	w := tar.NewWriter(gf)
+	defer w.Close()
+
+	names := []string{"1", "2", "3"}
+	for _, name := range names {
+		if e = AddFile(w, name); e != nil {
+			fmt.Println(e)
+			return
+		}
+	}
+
+}
+func AddFile(w *tar.Writer, name string) (e error) {
+	f, e := os.Open(name)
+	if e != nil {
+		return
+	}
+	defer f.Close()
+
+	info, e := f.Stat()
+	if e != nil {
+		return
+	}
+
+	header := &tar.Header{
+		Name:    info.Name(),
+		Mode:    int64(info.Mode()),
+		Uid:     os.Getuid(),
+		Gid:     os.Getgid(),
+		Size:    info.Size(),
+		ModTime: info.ModTime(),
+	}
+	if e = w.WriteHeader(header); e != nil {
+		return
+	}
+
+	_, e = io.Copy(w, f)
+
+	return
+}
+</pre>
+		</p>
+
+		<p><span class="flag">解包 example</span>
+<pre>package main
+
+import (
+	"archive/tar"
+	"compress/gzip"
+	"fmt"
+	"io"
+	"os"
+)
+
+func main() {
+	//打開tar
+	f, e := os.Open("test.tar.gz")
+	if e != nil {
+		fmt.Println(e)
+		return
+	}
+	defer f.Close()
+
+	//gzip/bz2解壓
+	gf, e := gzip.NewReader(f)
+	if e != nil {
+		fmt.Println(e)
+		return
+	}
+	defer gf.Close()
+
+	r := tar.NewReader(gf)
+	untar(r)
+}
+func untar(r *tar.Reader) (e error) {
+	for {
+		var header *tar.Header
+		header, e = r.Next()
+		if e != nil {
+			if e == io.EOF {
+				e = nil
+			}
+			return
+		}
+
+		switch header.Typeflag {
+		case tar.TypeDir:
+			if e = os.MkdirAll(header.Name, 0755); e != nil {
+				return
+			}
+		case tar.TypeReg:
+			if e = untarFile(header.Name, r); e != nil {
+				return
+			}
+		}
+	}
+	return
+}
+func untarFile(name string, r *tar.Reader) (e error) {
+	w, e := os.Create(name)
+	if e != nil {
+		return
+	}
+	defer w.Close()
+
+	if _, e = io.Copy(w, r); e != nil {
+		return
+	}
+	fmt.Println(name)
+	return
+}
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+

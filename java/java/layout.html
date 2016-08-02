@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>layout</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#layout">layout</a>
+		<a href="#FlowLayout">FlowLayout</a>
+		<a href="#BorderLayout">BorderLayout</a>
+		<a href="#border">佈局嵌套 邊框</a>
+		<a href="#JTabbedPane">JTabbedPane</a>
+		<a href="#BoxLayout">BoxLayout</a>
+		<a href="#GridLayout">GridLayout</a>
+		<a href="#GridBagLayout">GridBagLayout</a>
+	</div>
+
+	<div class="note"><a name="layout"></a>
+		<p><span class="flag">layout</span>
+<pre>java 提供了多種佈局工具
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="FlowLayout"></a>
+		<p><span class="flag">FlowLayout</span>
+<pre>import java.awt.FlowLayout;
+
+FlowLayout 提供了 LEFT CENTER(默認) RIGHT 三種佈局方式 UI隨窗口大小改變而變化
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>class MyPanel extends JPanel
+{
+    public MyPanel(){
+       
+        FlowLayout layout   =   new FlowLayout(FlowLayout.RIGHT);
+        
+        setLayout(layout);
+        
+        for(int i=0;i&lt;3;++i)
+        {
+            add(new JButton(Integer.toString(i)));
+        }
+        
+    }
+
+}
+<img src="image/layout/FlowLayout.PNG" />
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>FlowLayout 始終 從左到右 排列UI 
+LEFT... 是指定的 全部UI看著整體 排列到窗口的方式
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="BorderLayout"></a>
+		<p><span class="flag">BorderLayout</span>
+<pre>import java.awt.BorderLayout;
+
+BorderLayout 提供了 NORTH(上) NORTH(下) WEST(左) CENTER(中) EAST(右) 五種佈局方式 UI隨窗口大小改變而變化
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>class MyPanel extends JPanel
+{
+    public MyPanel(){
+       
+        //BorderLayout layout   =   new BorderLayout();
+        BorderLayout layout   =   new BorderLayout(25 //左右間隔
+                ,5);    //上下間隔
+        
+        setLayout(layout);
+        
+        add(new JButton("NORTH"),BorderLayout.NORTH);
+        add(new JButton("SOUTH"),BorderLayout.SOUTH);
+        add(new JButton("WEST"),BorderLayout.WEST);
+        add(new JButton("EAST"),BorderLayout.EAST);
+        add(new JButton("CENTER"),BorderLayout.CENTER);
+       
+    }
+
+}
+<img src="image/layout/BorderLayout.PNG" />
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="border"></a>
+		<p><span class="flag">佈局嵌套 邊框</span>
+<pre>java 嵌套多個佈局 只需要 將要嵌套的佈局 設置到 一個 JPanel
+之後將 JPanel 作為UI add 到需要被嵌套的 JPanel中即可
+
+java 中可以給UI 面板 增加一個邊框 只需要創建 一個邊框 之後使用 組件的setBorder 即可
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>class MyPanel extends JPanel
+{
+    public MyPanel(){
+        //被嵌套佈局
+        JPanel panel    =   new JPanel();
+        FlowLayout layout1   =   new FlowLayout(FlowLayout.RIGHT);
+        panel.setLayout(layout1);
+        panel.add(new JButton("bottom_left"));
+        panel.add(new JButton("bottom_right"));
+        //為panel增加一個邊框
+        TitledBorder createTitledBorder = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+        createTitledBorder = BorderFactory.createTitledBorder(createTitledBorder,"border");
+        panel.setBorder(createTitledBorder);
+        
+        //當前佈局
+        BorderLayout layout   =   new BorderLayout(25 //左右間隔
+                ,5);    //上下間隔
+        setLayout(layout);
+        add(new JButton("NORTH"),BorderLayout.NORTH);
+        add(panel,BorderLayout.SOUTH);
+        
+    }
+
+}
+
+<img src="image/layout/border.PNG" />
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="JTabbedPane"></a>
+		<p><span class="flag">JTabbedPane</span>
+<pre>JTabbedPane 同 JPanel 一樣是個控制板 不過 其提供了一個 tab選項頁功能
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>class MyPanel extends JPanel
+{
+    public MyPanel(){
+        JPanel panel1    =   new JPanel();
+        panel1.add(new JButton("tab1_left"));
+        panel1.add(new JButton("tab1_right"));
+        
+        JPanel panel2    =   new JPanel();
+        panel2.add(new JButton("tab2_left"));
+        panel2.add(new JButton("tab2_right"));
+        
+        JTabbedPane jTabbedPane = new JTabbedPane();
+        add(jTabbedPane);
+        jTabbedPane.add("tab1",panel1);
+        jTabbedPane.add("tab2",panel2);
+    }
+
+}
+
+<img src="image/layout/JTabbedPane.PNG" />
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="BoxLayout"></a>
+		<p><span class="flag">BoxLayout</span>
+<pre>BoxLayout 將UI 以一個 UI 一列/行 的形式排列
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>class MyPanel extends JPanel
+{
+    public MyPanel(){
+        BoxLayout layout = new BoxLayout(this
+                ,BoxLayout.X_AXIS); //X_AXIS(列) Y_AXIS(行)
+        
+        setLayout(layout);
+        add(new JButton("0"));
+        add(new JButton("1"));
+        add(new JButton("2"));
+    }
+}
+
+<img src="image/layout/BoxLayout.PNG" />
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="GridLayout"></a>
+		<p><span class="flag">GridLayout</span>
+<pre>GridLayout 將窗口分成 n*m 個格子(n行 m列) 每個UI 佔用一個格子
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>class MyPanel extends JPanel
+{
+    public MyPanel(){
+        GridLayout layout = new GridLayout(3 //行
+                ,3); //列
+        
+        setLayout(layout);
+        
+        for(int i=0;i<9;++i)
+        {
+           add(new JButton(Integer.toString(i)));
+        }
+    }
+}
+
+<img src="image/layout/GridLayout.PNG" />
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>play</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#log">log</a>
+		<a href="#use">use</a>
+		<a href="#Creating">Creating loggers</a>
+		<a href="#cnf">cnf</a>
+		 
+		
+	</div>
+
+	<div class="note"><a name="log"></a>
+		<p><span class="flag">log</span>
+<pre>play 提供了完整的 日誌 組件Logger
+
+Logger可以定義 多個自定義的 日誌系統
+(每個都被 定義在一個字符串 名字空間中 默認application
+以.代表繼承關係 如 application.admins 是application的子系統
+將繼承 application的配置)
+
+Logger可是設置 附加的輸出槽
+(文件 數據庫 輸出流 ...)
+
+
+
+日誌等級
+off
+error
+warn
+info
+debug
+trace
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="use"></a>
+		<p><span class="flag">use</span>
+<pre>import play.Logger;
+
+// Log some debug info
+Logger.debug("Attempting risky calculation.");
+  
+try {
+  final int result = riskyCalculation();
+    
+  // Log result if successful
+  Logger.debug("Result=" + result);
+} catch (Throwable t) {
+  // Log error with message and Throwable.
+  Logger.error("Exception with riskyCalculation", t);
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Creating"></a>
+		<p><span class="flag">Creating loggers</span>
+<pre>亦可創建 自己的 日誌空間 而非使用默認的 application
+(使用 Logger.of(name) 創建)
+
+final Logger.ALogger accessLogger = Logger.of("access");
+final Logger.ALogger logger = Logger.of(this.getClass());
+accessLogger.info("accessLogger");
+logger.info("this");
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="cnf"></a>
+		<p><span class="flag">cnf</span>
+<pre>play 使用 Logback 作為日誌引擎 
+詳細配置見 Logback 官網 <a target="_blank" href="http://logback.qos.ch/manual/configuration.html">http://logback.qos.ch/manual/configuration.html</a>
+</pre>
+		</p>
+
+		<p><span class="flag">默認 Logback 配置</span>
+<pre>&lt;configuration&gt;
+    
+  &lt;conversionRule conversionWord="coloredLevel" converterClass="play.api.Logger$ColoredLevel" /&gt;
+  
+  &lt;appender name="FILE" class="ch.qos.logback.core.FileAppender"&gt;
+     &lt;file&gt;${application.home}/logs/application.log&lt;/file&gt;
+     &lt;encoder&gt;
+       &lt;pattern&gt;%date - [%level] - from %logger in %thread %n%message%n%xException%n&lt;/pattern&gt;
+     &lt;/encoder&gt;
+   &lt;/appender&gt;
+
+  &lt;appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender"&gt;
+    &lt;encoder&gt;
+      &lt;pattern&gt;%coloredLevel %logger{15} - %message%n%xException{5}&lt;/pattern&gt;
+    &lt;/encoder&gt;
+  &lt;/appender&gt;
+  
+  &lt;logger name="play" level="INFO" /&gt;
+  &lt;logger name="application" level="DEBUG" /&gt;
+  
+  &lt;!-- Off these ones as they are annoying, and anyway we manage configuration ourself --&gt;
+  &lt;logger name="com.avaje.ebean.config.PropertyMapLoader" level="OFF" /&gt;
+  &lt;logger name="com.avaje.ebeaninternal.server.core.XmlConfigLoader" level="OFF" /&gt;
+  &lt;logger name="com.avaje.ebeaninternal.server.lib.BackgroundThread" level="OFF" /&gt;
+  &lt;logger name="com.gargoylesoftware.htmlunit.javascript" level="OFF" /&gt;
+
+  &lt;root level="ERROR">
+    &lt;appender-ref ref="STDOUT" /&gt;
+    &lt;appender-ref ref="FILE" /&gt;
+  &lt;/root&gt;
+  
+&lt;/configuration&gt;
+
+
+
+This specifies a file appender writing to logs/application.log, a console appender, and log levels for the root/play/application loggers.
+</pre>
+		</p>
+		
+		<p><span class="flag">在 application.conf 中配置 日誌記錄 等級</span>
+<pre>You can override log levels in application.conf as follows:
+
+# Root logger:
+logger.root=ERROR
+
+# Logger used by the framework:
+logger.play=INFO
+
+# Logger provided to your application:
+logger.application=DEBUG
+
+# Logger for a third party library
+logger.org.springframework=INFO
+</pre>
+		</p>
+
+		<p><span class="flag">修改 Logback 配置</span>
+<pre>application.conf 中只能定義 記錄等級 其它需要自定義 
+Logback 配置文件
+
+創建 conf/application-logger.xml 或者 conf/logger.xml 
+在其中書寫 Logback 的配置
+
+
+
+Using -Dlogger.resource
+Specify a configuration file to be loaded from the classpath:
+
+$ start -Dlogger.resource=prod-logger.xml
+Using -Dlogger.file
+Specify a configuration file to be loaded from the file system:
+
+$ start -Dlogger.file=/opt/prod/logger.xml
+Using -Dlogger.url
+Specify a configuration file to be loaded from an URL:
+
+$ start -Dlogger.url=http://conf.mycompany.com/logger.xml
+</pre>
+		</p>
+		<p><span class="flag">一個工作環境的 Logback 配置</span>
+<pre>&lt;configuration&gt;
+
+    &lt;appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender"&gt;
+        &lt;file&gt;${user.dir}/web/logs/application.log&lt;/file&gt;
+        &lt;rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy"&gt;
+            <span class="care">&lt;!-- Daily rollover with compression --&gt;</span>
+            &lt;fileNamePattern&gt;application-log-%d{yyyy-MM-dd}.gz&lt;/fileNamePattern&gt;
+            <span class="care">&lt;!-- keep 30 days worth of history --&gt;</span>
+            &lt;maxHistory&gt;30&lt;/maxHistory&gt;
+        &lt;/rollingPolicy&gt;
+        &lt;encoder&gt;
+            &lt;pattern&gt;%date{yyyy-MM-dd HH:mm:ss ZZZZ} - [%level] - from %logger in %thread %n%message%n%xException%n&lt;/pattern&gt;
+        &lt;/encoder&gt;
+    &lt;/appender&gt;
+    
+    &lt;appender name="ACCESS_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender"&gt;
+        &lt;file&gt;${user.dir}/web/logs/access.log&lt;/file&gt;
+        &lt;rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy"&gt;
+            <span class="care">&lt;!-- daily rollover with compression --&gt;</span>
+            &lt;fileNamePattern&gt;access-log-%d{yyyy-MM-dd}.gz&lt;/fileNamePattern&gt;
+            <span class="care">&lt;!-- keep 1 week worth of history --&gt;</span>
+            &lt;maxHistory&gt;7&lt;/maxHistory&gt;
+        &lt;/rollingPolicy&gt;
+        &lt;encoder&gt;
+            &lt;pattern&gt;%date{yyyy-MM-dd HH:mm:ss ZZZZ} %message%n&lt;/pattern&gt;
+            <span class="care">&lt;!-- this quadruples logging throughput --&gt;</span>
+            &lt;immediateFlush&gt;false&lt;/immediateFlush&gt;
+        &lt;/encoder&gt;
+    &lt;/appender&gt;
+
+    <span class="care">&lt;!-- additivity=false ensures access log data only goes to the access log --&gt;</span>
+    &lt;logger name="access" level="INFO" additivity="false"&gt;
+        &lt;appender-ref ref="ACCESS_FILE" /&gt;
+    &lt;/logger&gt;
+    
+    &lt;root level="INFO"&gt;
+        &lt;appender-ref ref="FILE"/&gt;
+    &lt;/root&gt;
+
+&lt;/configuration&gt;
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+

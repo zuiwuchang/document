@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>ulimit</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#ulimit">ulimit</a>
+		
+	</div>
+	
+	<div class="note"><a name="ulimit"></a>
+		<p><span class="flag">ulimit</span>
+<pre>//查看 當前 所有 限制
+ulimit -a
+
+//修改 最大 打開 文件 數
+ulimit -n 4096
+
+<img style="width:100%" src="image/ulimit.PNG">
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>ulimit 只針對 當前 shell 若要在 登入時 修改 可以 將其寫入 ~/.bashrc
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

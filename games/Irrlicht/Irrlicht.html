@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Irrlicht</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">Irrlicht</font>
+</p>
+
+<p>
+	<a href="#Irrlicht">Irrlicht</a><br />
+    <a href="#win32">環境配置 win32</a><br />
+    <a href="#namespqce">namespqce</a><br />
+   
+</p>
+
+
+<div class="mydiv"><a name="Irrlicht"></a>
+	<p><font color="#FF0000">Irrlicht</font>
+<pre>Irrlicht	一個開源 跨平台 高效 免費 的3D遊戲引擎
+官網 <a href="http://irrlicht.sourceforge.net//">http://irrlicht.sourceforge.net/</a>
+</pre>
+	</p>
+</div>     
+ 
+<div class="mydiv"><a name="win32"></a>
+	<p><font color="#FF0000">環境配置 win32</font>
+<pre>1	下載最新Irrlicht 得到 irrlicht-*.zip
+2	解壓 將include 加入 編譯器include目錄 將Irrlicht.dll (bin\...)增加到環境變量執行路徑 將Irrlicht.lib (lib\...)設置到鏈接目錄 
+
+3	#pragma comment(lib,"Irrlicht.lib")
+	#include &lt;irrlicht.h&gt;
+</pre>
+	</p>
+</div>        
+
+<div class="mydiv"><a name="namespqce"></a>
+	<p><font color="#FF0000">namespqce</font>
+<pre>irr			Everything in the Irrlicht Engine can be found in this namespace
+irr::core		Basic classes such as vectors, planes, arrays, lists, and so on can be found in this namespace
+irr::gui		The gui namespace contains useful classes for easy creation of a graphical user interface
+irr::io			This namespace provides interfaces for input/output: Reading and writing files, accessing zip archives, xml files, ..
+irr::scene		All scene management can be found in this namespace: Mesh loading, special scene nodes like octrees and billboards, ..
+irr::scene::quake3	
+irr::video		The video namespace contains classes for accessing the video driver. All 2d and 3d rendering is done here
+</pre>
+	</p>
+</div>  
+
+</td></tr></table>
+</body>
+</html>

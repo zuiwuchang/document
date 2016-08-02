@@ -1,0 +1,484 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#func">內置函數</a>
+		<a href="#type">類型斷言</a>
+		<a href="#if">分支語句</a>
+		<a href="#goroutine">goroutine</a>
+		<a href="#channel">channel</a>
+		<a href="#select">select</a>
+		<a href="#defer">defer</a>
+		<a href="#panic">異常</a>
+		<a href="#args">可變參數</a>
+		<a href="#main">main init</a>
+		<a href="#Closures">閉包</a>
+		
+	</div>
+
+	<div class="note"><a name="func"></a>
+		<p><span class="flag">內置函數</span>
+			<table>
+			<tr><td>語法</td><td>含義</td></tr>
+			<tr><td>append(s,...)</td><td>向切片追加內容</td></tr>
+			<tr><td>cap(x)</td><td>返回 切片容量/通道緩存容量/數組長度</td></tr>
+			<tr><td>close(ch)</td><td>關閉通道</td></tr>
+			<tr><td>complex(r,i)</td><td>一個complex128 複數 r爲實部 i爲虛部 float64</td></tr>
+			<tr><td>copy(dst,src)</td><td>複製切片</td></tr>
+			<tr><td>copy(b,s)</td><td>將字符串 的字節複製到 []byte</td></tr>
+			<tr><td>delete(m,k)</td><td>刪除m中的k鍵</td></tr>
+			<tr><td>imag(cx)</td><td>float64型的complex128複數的虛部</td></tr>
+			<tr><td>real(cx)</td><td>...實部</td></tr>
+			<tr><td>len(x)</td><td>返回切片長度/通道緩衝區自己哦那個排隊的項數量<br />/數組長度/字符串字節數/map鍵數</td></tr>
+			<tr><td>make(T)</td><td>創建 切片/映射/通道</td></tr>
+			<tr><td>make(T,n)</td><td>... n 指定長度/緩衝區大小</td></tr>
+			<tr><td>make(T,n,m)</td><td>... m指定容量</td></tr>
+			<tr><td>new(T)</td><td>創建一個實例返回指針</td></tr>
+			<tr><td>panic(x)</td><td>拋出一個異常</td></tr>
+			<tr><td>recover()</td><td>捕獲異常</td></tr>
+			</table>
+		</p>
+	</div>
+	<div class="note"><a name="type"></a>
+		<p><span class="flag">類型斷言</span>
+<pre>interface{} 是一個空接口 故 可以容納 任何 型別
+
+使用 如下語法 對類型斷言
+val,boolean := expression.(T)	//如果表達式爲 T 型別 返回 值和 true 否則 返回 false
+val := expression.(T)	//... 返回 值 否則 使用panic() 拋出異常
+</pre>		
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	var i interface{} = 99
+	var str interface{} = "123"
+	if i, ok := i.(int); ok {
+		fmt.Println(i)
+	}
+	if str, ok := str.(string); ok {
+		fmt.Println(str)
+	}
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>示例中 在if時 爲i str 創建了一個 局部變量 覆蓋外部的 i str
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="if"></a>
+		<p><span class="flag">分支語句</span>
+		</p>
+		<p><span class="flag">if</span>
+<pre>if [expression;] booleanExpression1{
+
+}else if ...{
+	
+}else{
+	
+}
+
+	
+</pre>		
+		</p>
+
+		<p><span class="flag">switch</span>
+<pre>go有 兩種 switch 且對switch型別 沒有 要求
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	i := 11
+	//經典 switch
+	switch i++; i {
+	case 12:
+		fallthrough //Go自動break 若需要不這麼做 fallthrough之
+	case 13:
+		fallthrough
+	case 14:
+		fallthrough
+	case 15:
+		fallthrough
+	case 16:
+		fallthrough
+	case 17:
+		fallthrough
+	case 18:
+		fmt.Println("max")
+	default:
+		fmt.Println("min")
+	}
+
+	//go 新 switch ([i++;]是可選的)
+	switch i++; {
+	case i > 11 && i < 19:
+		fmt.Println("max")
+	default:
+		fmt.Println("min")
+
+	}
+}  
+</pre>
+		</p>
+
+		<p><span class="flag">switch 可以用來 判別 型別</span>
+<pre>package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	var i interface{} = 123
+	switch /*ex;*/ i.(type) {
+	case int:
+		fmt.Println("int")
+	case bool:
+		fmt.Println("bool")
+	}
+}
+</pre>
+		</p>
+
+		<p><span class="flag">for</span>
+<pre>//無線循環
+for{
+	
+}
+
+//while
+for booleanExpression{
+	
+}
+
+//同c/c++
+for ; ; {
+	
+}
+
+//go for
+for i := range col{
+	
+}
+for i,v := range col{
+	
+}
+for item := range channel{
+	
+}
+</pre>
+		</p>
+
+	</div>
+	<div class="note"><a name="goroutine"></a>
+		<p><span class="flag">goroutine</span>
+<pre>goroutine 是一個輕量級的線程 使用
+go function(args)
+或者
+go func(args){}(args)
+創建一個 goroutine
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func work_thread(name string) {
+	for {
+		time.Sleep(time.Millisecond * 100)
+		fmt.Println(name)
+	}
+}
+func main() {
+	go work_thread("work1")
+	for {
+		time.Sleep(time.Millisecond * 100)
+		fmt.Println("main")
+	}
+
+}
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="channel"></a>
+		<p><span class="flag">channel</span>
+<pre>go提供了 channel 以便於在多個 goroutine之間 通信
+(channel 是一個 線程安全的 通道)
+使用
+make(chan Type)
+make(chan Type,capacity)	//capacity指定緩衝區 一旦指定 緩衝區 通道將 異步寫 同步讀
+創建通道
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func work_thread(count int, ch chan int) {
+	for i := 1; i < count+1; i++ {
+		time.Sleep(time.Millisecond * 100)
+		//寫入通道
+		ch <- i
+	}
+	close(ch)
+}
+func main() {
+	//創建一個 通道
+	ch := make(chan int)
+
+	//創建一個生產者
+	go work_thread(5, ch)
+
+	//讀取通道 直到close
+	for i := range ch {
+		fmt.Println(i)
+	}
+	//或者 i,ok=<-ch 判斷 是否 close
+	/*for{
+		i, ok := <-ch
+		if !ok {
+			break
+		}
+		fmt.Println(i, ok)
+	}*/
+}
+</pre>
+		</p>
+	</div>	
+
+	<div class="note"><a name="select"></a>
+		<p><span class="flag">select</span>
+<pre>select 用於在多個通道 間 等待
+select{
+	case <-ch[0]:
+	...
+	case v<-ch[1]:
+	...
+	case v,ok<-ch[2]:
+	...
+	default:
+	...
+}
+	
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="defer"></a>
+		<p><span class="flag">defer</span>
+<pre>defer 用於延遲執行一個函數
+defer 後的語句將在 函數返回值 計算結束 但爲返回時 執行(故可以修改 返回結果)
+
+多個 defer 安裝 先進後出的順序執行
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+)
+
+func defer_test() (rs int) {
+
+	defer fmt.Println("defer 0")
+	defer fmt.Println("defer 1")
+	defer func() {
+		fmt.Println("匿名函數 修改返回值")
+		rs++
+	}()
+	fmt.Println("defer_test")
+
+	rs = 0
+	//return 0
+	return
+}
+func main() {
+	fmt.Println("rs = ", defer_test())
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="panic"></a>
+		<p><span class="flag">異常</span>
+<pre>Go 提供 panic recover 支持異常 但不建議使用
+Go 推薦使用 返回值 error 表示錯誤
+
+Go中 只有那些 不可發生的事情發生了 才考慮使用 異常 從而 優雅的結束程序運行
+
+//接受一個 任意型別 拋出一個異常
+panic()
+//獲取異常 並返回異常值 如果沒有異常 返回 nil
+recover()
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+)
+
+func div(left, right int) (i int, err error) {
+	defer func() {
+		//捕獲異常
+		if e := recover(); e != nil {
+			//將異常包裝爲error
+			err = fmt.Errorf("%v", e)
+		}
+	}()
+
+	if right == 0 {
+		//拋出異常
+		panic("right can't set 0")
+	}
+	i = left / right
+	return i, nil
+}
+func main() {
+	fmt.Println(div(8, 4))
+	fmt.Println(div(8, 0))
+}
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>異常展開 同c++ 
+引發異常時 defer 將 被執行後 才向外展開
+
+可以在自己包內 使用 異常 但應該將異常限制在包內
+可以使用 example的方法 將 異常 轉化爲 error 返回給 調用者
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="args"></a>
+		<p><span class="flag">可變參數</span>
+<pre>Go 要使用 可變參數 只需要 在最後一個參數後使用 ... 即可(參數 會被包裝爲slice傳入) 
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+)
+
+func calculate(how string, numbers ...int) (rs int, e error) {
+	if how == "add" {
+		for _, v := range numbers {
+			rs += v
+		}
+	} else if how == "mul" {
+		rs = 1
+		for _, v := range numbers {
+			rs *= v
+		}
+	} else {
+		e = fmt.Errorf("undefined action")
+	}
+	return rs, e
+}
+func main() {
+	fmt.Println(calculate("add", 1, 2, 3, 4))
+	fmt.Println(calculate("mul", 1, 2, 3, 4))
+	fmt.Println(calculate("div", 1, 2, 3, 4))
+
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="main"></a>
+		<p><span class="flag">main init</span>
+<pre>init 是包的可選 實現 main是Go程序的入口點
+
+1	main import 包
+2	被import的包 import 依賴的包
+3	被import的包 創建常量 變量
+4	被import的包 如果存在init函數 調用之
+5	main包 創建常量 變量
+6	main包 如果存在init函數 調用之
+7	執行main函數
+<span class="care">如果包被多次 import 只有第一次被 導入 其後自動 忽略</span>
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+)
+
+func init() {
+	fmt.Println("i'm init func0")
+}
+func init() {
+	fmt.Println("i'm init func1")
+}
+func main() {
+
+	fmt.Println("i'm main func")
+}
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>一個包中 可以有[0,+∞)個 init函數 將會被依次執行
+不過 非必要 不將於寫 多個init
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Closures"></a>
+		<p><span class="flag">閉包</span>
+<pre>閉包 函數 可以捕獲同一作用域 內的變量
+只要閉包被調用 變量 就不會被釋放
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	str := "this is closures test"
+	func() {
+		fmt.Println(str)
+	}()
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

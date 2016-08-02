@@ -1,0 +1,251 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#Direct3D">初始化Direct3D</a>
+	</div>
+
+	<div class="note"><a name="Direct3D"></a>
+		<p><span class="flag">初始化Direct3D</span>
+<pre>1	獲取IDirect3D9接口指針
+2	檢查 硬件特性
+3	根據硬件特性 創建 IDirect3DDevice9 設備 釋放IDirect3D9
+4	使用 IDirect3DDevice9 繪製
+5	程序結束 釋放 IDirect3DDevice9
+
+Direct3D 是一套底層圖形API
+應用程序 將操作交給 Direct3D
+Direct3D 交給 HAL
+HAL 交給圖形設備完成 操作
+
+HAL 是硬件廠商 對硬件功能的 實現
+
+REF 是Direct3D 使用軟件模擬的 硬件功能 以滿足 HAL未提供某些特性時 依然可以使用 Direct3D
+在創建 Direct3D設備時需要 指定 D3DDEVTYPE_HAL D3DDEVTYPE_REF 以確定Direct3D使用 HAL 或 REF
+</pre>
+		</p>
+		<p><span class="flag">多重採樣</span>
+<pre>多重採樣 是一種 增加圖像平滑的 技術
+
+//枚舉D3DMULTISAMPLE_TYPE 指定了 採樣等級
+typedef enum D3DMULTISAMPLE_TYPE {
+  D3DMULTISAMPLE_NONE           = 0,	//禁用
+  D3DMULTISAMPLE_NONMASKABLE    = 1,	//1
+  D3DMULTISAMPLE_2_SAMPLES      = 2,	//2
+  D3DMULTISAMPLE_3_SAMPLES      = 3,	//...
+  D3DMULTISAMPLE_4_SAMPLES      = 4,
+  D3DMULTISAMPLE_5_SAMPLES      = 5,
+  D3DMULTISAMPLE_6_SAMPLES      = 6,
+  D3DMULTISAMPLE_7_SAMPLES      = 7,
+  D3DMULTISAMPLE_8_SAMPLES      = 8,
+  D3DMULTISAMPLE_9_SAMPLES      = 9,
+  D3DMULTISAMPLE_10_SAMPLES     = 10,
+  D3DMULTISAMPLE_11_SAMPLES     = 11,
+  D3DMULTISAMPLE_12_SAMPLES     = 12,
+  D3DMULTISAMPLE_13_SAMPLES     = 13,
+  D3DMULTISAMPLE_14_SAMPLES     = 14,
+  D3DMULTISAMPLE_15_SAMPLES     = 15,
+  D3DMULTISAMPLE_16_SAMPLES     = 16,
+  D3DMULTISAMPLE_FORCE_DWORD    = 0xffffffff 
+} D3DMULTISAMPLE_TYPE, *LPD3DMULTISAMPLE_TYPE;
+
+同時多重採樣使用 DWORD 指定採樣質量
+
+若要使用多層採樣 應該先用 IDirect3D9::CheckDeviceMultiSampleType 檢測 設備是否支持
+</pre>
+		</p>
+
+		<p><span class="flag">Direct3D</span>
+<pre>Direct3D使用 深度緩存 表示圖像的前後位置關係 緩存越大越精確
+D3DFMT_D32	//32位深度
+D3DFMT_D24S8	//24位深度 其中8位保留供模板緩存使用
+D3DFMT_D24X8	//24位深度
+D3DFMT_D16	//16位深度
+...
+
+頂點運算 是3D集合學到基本元素 
+創建 IDirect3DDevice9 設備前 需要確認 硬件是否支持
+使用IDirect3D9::GetDeviceCaps 可獲取硬件支持的特性
+</pre>
+		</p>
+
+		<p><span class="flag">step 1</span>
+<pre>獲取 IDirect3D9 接口指針
+//設備返回NULL
+IDirect3D9 * Direct3DCreate9(
+    UINT SDKVersion
+);
+
+	IDirect3D9* pD3d	=	Direct3DCreate9(D3D_SDK_VERSION);	
+	if(!pD3d)
+	{
+		return;
+	}	
+</pre>
+		</p>
+		<p><span class="flag">step 2</span>
+<pre>獲取硬件特性 主要查看是否支持 頂點運算
+
+//獲取特性 返回到 D3DCAPS9
+HRESULT GetDeviceCaps(
+  [in]   UINT Adapter,			//D3DADAPTER_DEFAULT
+  [in]   D3DDEVTYPE DeviceType,	//D3DDEVTYPE_HAL（硬件特性） 或 D3DDEVTYPE_REF(軟件模擬) 
+  [out]  D3DCAPS9 *pCaps
+);
+
+	D3DCAPS9 caps;
+	pD3d->GetDeviceCaps(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, &amp;caps);
+
+	int vp = 0;
+	if(caps.DevCaps &amp; D3DDEVCAPS_HWTRANSFORMANDLIGHT)	//是否支持 頂點運算
+	{
+		vp	=	D3DCREATE_HARDWARE_VERTEXPROCESSING;
+	}
+	else
+	{
+		vp	=	D3DCREATE_SOFTWARE_VERTEXPROCESSING;
+	}
+</pre>
+		</p>
+		<p><span class="flag">step 3</span>
+<pre>填充D3DPRESENT_PARAMETERS 結構
+
+	D3DPRESENT_PARAMETERS d3dpp;
+	d3dpp.BackBufferWidth            = nWidth;				//後台緩存寬
+	d3dpp.BackBufferHeight           = nHeight;				//...高
+	d3dpp.BackBufferFormat           = D3DFMT_A8R8G8B8;			//...像素顏色格式
+	d3dpp.BackBufferCount            = 1;					//後台緩存數 一般為1
+	d3dpp.MultiSampleType            = D3DMULTISAMPLE_NONE;			//多層採樣
+	d3dpp.MultiSampleQuality         = 0;					//採樣質量
+	d3dpp.SwapEffect                 = D3DSWAPEFFECT_DISCARD; 		//交換後台緩存 方式
+	d3dpp.hDeviceWindow              = hwnd;				//設備管理窗口 通常是要繪製的窗口
+	d3dpp.Windowed                   = TRUE;				//是否窗口化 或者全屏
+	d3dpp.EnableAutoDepthStencil     = TRUE; 				//TRUE 自動創建 維護 深度緩存 或 模板緩存
+	d3dpp.AutoDepthStencilFormat     = D3DFMT_D24S8;			//深度緩存 或 模板緩存 使用像素格式
+	d3dpp.Flags                      = 0;					//附加特性
+	d3dpp.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;		//指定下一個後台緩存提交時 哪個深度緩存 或 模板緩存 將被丟棄
+	d3dpp.PresentationInterval       = D3DPRESENT_INTERVAL_IMMEDIATE;	//刷新頻率
+</pre>
+		</p>
+		<p><span class="flag">step 4</span>
+<pre>創建IDirect3DDevice9設備
+HRESULT CreateDevice(
+  [in]           UINT Adapter,
+  [in]           D3DDEVTYPE DeviceType,
+  [in]           HWND hFocusWindow,
+  [in]           DWORD BehaviorFlags,
+  [in, out]      D3DPRESENT_PARAMETERS *pPresentationParameters,
+  [out, retval]  IDirect3DDevice9 **ppReturnedDeviceInterface
+);
+
+	IDirect3DDevice9* pDevice; 
+	HRESULT hr	=	pD3d->CreateDevice(D3DADAPTER_DEFAULT
+		,D3DDEVTYPE_HAL
+		,hwnd
+		,D3DCREATE_HARDWARE_VERTEXPROCESSING
+		,&amp;d3dpp
+		,&amp;pDevice
+		);
+	if(FAILED(hr))
+	{
+		pD3d->Release();
+		return false;
+	}
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>//自實現輔助函數 d3dx.h d3dx.cpp 中
+bool Create_d3dx_window(IDirect3DDevice9** ppDevice
+		,HINSTANCE hApplication
+		,WNDPROC wProc
+		,int nWidth = 800
+		,int nHeight = 640
+		,bool bWindow = true
+		,D3DDEVTYPE devType= D3DDEVTYPE_HAL
+		);
+實現了 創建一個窗口並且 初始化 IDirect3DDevice9 的功能
+
+#include"d3dx.h"
+LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
+
+int APIENTRY _tWinMain(HINSTANCE hInstance,
+                     HINSTANCE hPrevInstance,
+                     LPTSTR    lpCmdLine,
+                     int       nCmdShow)
+{	
+	//創建窗口 初始化設備
+	IDirect3DDevice9* pDevice; 
+	if(!d3dx::Create_d3dx_window(&amp;pDevice
+		,hInstance
+		,WndProc
+		,640,480
+		,true
+		,D3DDEVTYPE_HAL
+		)
+		)
+	{
+		return FALSE;
+	}
+
+	//其他初始化操作
+
+	//進入消息循環
+	MSG msg;
+	memset(&amp;msg,0,sizeof(MSG));
+	while(msg.message != WM_QUIT)
+	{
+		if(::PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
+		{
+			::TranslateMessage(&msg);
+			::DispatchMessage(&msg);
+		}
+		else
+		{
+			//Idle time 繪製場景
+			pDevice->Clear(0,0,D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,0,10.f,0);
+
+			//將內存 緩衝區 交換到屏幕
+			pDevice->Present(0,0,0,0);
+		}
+	}
+
+	//釋放設備
+	pDevice->Release();
+
+	return TRUE;
+}
+</pre>
+		</p>
+
+		<p><span class="flag">其他函數</span>
+<pre>//Clear
+HRESULT IDirect3DDevice9::Clear(	
+  [in]  DWORD Count,	//pRects中矩形數量
+  [in]  const D3DRECT *pRects,	//所要執行清除的屏幕矩形數組
+  [in]  DWORD Flags,	//要清楚的表面 可 | D3DCLEAR_TARGET(繪製目標 通常是後台緩存) D3DCLEAR_ZBUFFER(深度緩存) D3DCLEAR_STENCIL(模板緩存)
+  [in]  D3DCOLOR Color,	//要設置的顏色
+  [in]  float Z,		//深度緩存要設置的值
+  [in]  DWORD Stencil	//模板緩存要設置的值
+);
+
+//對表面執行完清除操作後 調用Present函數 提交後台緩存
+HRESULT IDirect3DDevice9::Present(
+  [in]  const RECT *pSourceRect,
+  [in]  const RECT *pDestRect,
+  [in]  HWND hDestWindowOverride,
+  [in]  const RGNDATA *pDirtyRegion
+);
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

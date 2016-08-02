@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>数据型別</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#string">字符串</a>
+		<a href="#double">数值</a>
+		<a href="#boolean">boolean</a>
+		<a href="#object">对象</a>
+		<a href="#date">Date</a>
+		<a href="#Global">全局函數 字符串轉數值</a>
+		<a href="#Math">数学对象</a>
+		<a href="#array">数组</a>
+	</div>
+
+	<div class="note"><a name="string"></a>
+		<p><span class="flag">字符串</span>
+<pre>javascript中的 字符 和 字符串 是同一物
+(可将字符串当字符数组处理) 
+
+字符串被表示于引号中(单引号 或 双引号 均可)
+</pre>
+		</p>
+
+		<p><span class="flag">转义字符</span>
+			<table>
+				<tr><td>转义字符</td><td>含义</td></tr>
+				<tr><td>\n</td><td>回车换行</td></tr>
+				<tr><td>\t</td><td>tab</td></tr>
+				<tr><td>\r</td><td>换行</td></tr>
+				<tr><td>\'</td><td>单引号</td></tr>
+				<tr><td>\"</td><td>双引号</td></tr>
+				<tr><td>\\</td><td>斜杠</td></tr>
+				<tr><td>...</td><td>...</td></tr>
+			</table>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>	var str="this is a string";
+	var s='other string';
+	alter(s[0]+str[1]);
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="double"></a>
+		<p><span class="flag">数值</span>
+<pre>javascript中不区分integer or float 全部用double表示
+
+
+
+对于10进制可以用普通计数法或科学计数法
+10 10.1 0.1 3e7 0.3e7
+
+对于16进制以 0x or 0X 开头 后接0~F or 0~f
+0xF 0XfF
+
+对于8进制以 0 开头 后接 0~7
+010
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="boolean"></a>
+		<p><span class="flag">boolean</span>
+<pre>只有true和false的逻辑判断表达 此外非0便是true 0就是false
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="object"></a>
+		<p><span class="flag">对象</span>
+<pre>var obj = {}
+</pre>
+		</p>
+		<p><span class="flag">常用对象</span>
+			<table>
+				<tr><td>对象</td><td>描述</td></tr>
+				<tr><td>Object</td><td>基础类</td></tr>
+				<tr><td>Array</td><td>数组</td></tr>
+				<tr><td>ActiveXObject</td><td>活动控件</td></tr>
+				<tr><td>arguments</td><td>正在调用函数的参数</td></tr>
+				<tr><td>Boolean</td><td>提供boolean同等功能</td></tr>
+				<tr><td>Date</td><td>时间日期</td></tr>
+				<tr><td>Error</td><td>保存错误信息</td></tr>
+				<tr><td>Function</td><td>函数对象</td></tr>
+				<tr><td>Global</td><td>全局对象</td></tr>
+				<tr><td>Math</td><td>数学对象</td></tr>
+				<tr><td>Number</td><td>数字</td></tr>
+				<tr><td>RegExp</td><td>正则表达式</td></tr>
+				<tr><td>String</td><td>字符串</td></tr>
+				<tr><td>...</td><td>...</td></tr>
+			</table>
+		</p>
+	</div>
+
+	<div class="note"><a name="date"></a>
+		<p><span class="flag">Date</span>
+<pre>Date 是JavaScript中对时间日期的包装
+
+
+
+//以当前时间日期 构造Date
+date=new Date();
+
+//以相对1970-01-01 0:0:0的相对毫秒数 构造Date
+date=new Date(val);
+
+//以指定时间日期构造
+date=new Date(year,month,date[,hour[,min[,sec[,ms]]]]);
+</pre>
+		</p>
+		<p><span class="flag">成員函數</span>
+		<table>
+			<tr><td>function</td><td>描述</td></tr>
+			<tr><td>getYear()</td><td>返回年</td></tr>
+			<tr><td>getMonth()</td><td>返回月</td></tr>
+			<tr><td>getDate()</td><td>返回日</td></tr>
+			<tr><td>getDay()</td><td>返回周几</td></tr>
+			<tr><td>getHours()</td><td>返回小时</td></tr>
+			<tr><td>getMinutes()</td><td>返回分钟</td></tr>
+			<tr><td>getSeconds()</td><td>返回秒</td></tr>
+			<tr><td>getMilliseconds()</td><td>返回微妙</td></tr>
+			<tr><td>set...</td><td>同get</td></tr>
+			<tr><td>...</td><td></td></tr>
+		</table>
+		</p>
+	</div>
+
+	<div class="note"><a name="Global"></a>
+		<p><span class="flag">全局函数 字符串轉數值</span>
+<pre>管理全局函数 不能new 直接调用之
+</pre>
+		</p>
+		<p><span class="flag">全局对象</span>
+			<table>
+				<tr><td>functions</td><td>描述</td></tr>
+				<tr><td>isNaN(value)</td><td>判断value是否是NaN,返回boolean</td></tr>
+				<tr><td>parseFloat(string)</td><td>string to double</td></tr>
+				<tr><td>parseInt(string)</td><td>string to integer</td></tr>
+			</table>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>	var str="123.45";
+	i=parseInt(str);
+	f=parseFloat(str);
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Math"></a>
+		<p><span class="flag">数学对象</span>
+<pre>封装了和数学相关的一些特性
+</pre>
+		</p>
+
+		<p><span class="flag">成員</span>
+			<table>
+				<tr><td>名称</td><td>描述</td></tr>
+				<tr><td><span class="care">属性</span></td><td></td></tr>
+				<tr><td>PI</td><td>返回圆周率</td></tr>
+				<tr><td>SQRT2</td><td>返回2的平方根</td></tr>
+				<tr><td><span class="care">函数</span></td><td></td></tr>
+				<tr><td>sin</td><td></td></tr>
+				<tr><td>cos</td><td></td></tr>
+				<tr><td>tan</td><td></td></tr>
+				<tr><td>max</td><td></td></tr>
+				<tr><td>min</td><td></td></tr>
+				<tr><td>abs</td><td></td></tr>
+				<tr><td>sqrt</td><td></td></tr>
+				<tr><td>round</td><td>返回与给定值最接近的整数</td></tr>
+				<tr><td>log</td><td>返回给定值的自然对数</td></tr>
+				<tr><td>pow</td><td>返回给定值的指定此幂</td></tr>
+			</table>
+		</p>
+	</div>
+
+	<div class="note"><a name="array"></a>
+		<p><span class="flag">数组</span>
+<pre>javascript中数组可以存储多种数据类型 数组是复合数据非基本型别 其他详细见另外章节
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>	var a=new Array();
+	var a=new Array(1,2,3,'array',4.1);
+	var a=[1,2,3,"array",4]; 
+	var a=new Array(3);
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

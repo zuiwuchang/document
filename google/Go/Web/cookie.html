@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#cookie">cookie</a>
+		<a href="#session">session</a>
+		<a href="#framework">framework1.1.0</a>
+		
+		
+	</div>
+
+	<div class="note"><a name="cookie"></a>
+		<p><span class="flag">cookie</span>
+<pre>//設置 cookie (不指定時間 則爲瀏覽器進程週期)
+func SetCookie(w ResponseWriter, cookie *Cookie)
+	<span class="care">type Cookie struct {
+	Name       string		//名
+	Value      string			//值
+	Path       string
+	Domain     string
+	Expires    time.Time
+	RawExpires string
+
+	// MaxAge=0 means no 'Max-Age' attribute specified.
+	// MaxAge&lt;0 means delete cookie now, equivalently 'Max-Age: 0'
+	// MaxAge&gt;0 means Max-Age attribute present and given in seconds
+	MaxAge   int			//生命期
+	Secure   bool
+	HttpOnly bool
+	Raw      string
+	Unparsed []string // Raw text of unparsed attribute-value pairs
+	}</span>
+
+
+
+
+//返回指定名字的 cookie
+func (r *Request) Cookie(name string) (*Cookie, error)
+
+//返回所有cookie
+func (r *Request) Cookies() []*Cookie
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>expiration := time.Now()
+expiration = expiration.AddDate(1, 0, 0)
+cookie := http.Cookie{Name: "username", Value: "astaxie", Expires: expiration}
+http.SetCookie(w, &cookie)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="session"></a>
+		<p><span class="flag">session</span>
+<pre>session 不過是以cookie標識的 服務器數據
+Go未提供直接的 session操作 故需要自行實現
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="framework"></a>
+		<p><span class="flag">framework1.1.0</span>
+<pre>framework1.1.0 是在framework的基礎之上 修改 增加了 session功能
+session的實現 在 dark/session 中
+
+其次 控制器的 接口 改爲了
+type Handler interface {
+	ServeHTTP(http.ResponseWriter, *http.Request, *session.Session)
+}
+以傳入session
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+

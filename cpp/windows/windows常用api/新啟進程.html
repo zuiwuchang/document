@@ -1,0 +1,146 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>新啟進程</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+    <p><h1><font color="#FF0000">新啟進程</font></h1></p>
+    
+    <h2>
+    <a href="#CreateProcess">CreateProcess</a><br />
+    <a href="#ShellExecute">ShellExecute</a><br />
+    <a href="#CreateToolhelp32Snapshot">CreateToolhelp32Snapshot 進程快照</a><br />
+   
+    </h2>
+    <div class="div_box"><a name="CreateProcess"></a><p><h3>
+    	<p><h2><font color="#FF0000">CreateProcess</font></h2><br />
+        CreateProcess用來打開一個可執行文件
+        </p>
+        <p><h2><font color="#FF0000">聲明</font></h2><br />
+<pre>BOOL WINAPI CreateProcess(
+  __in_opt     LPCTSTR lpApplicationName,		//可執行文件名 一般為NULL
+  __inout_opt  LPTSTR lpCommandLine,			//可執行文件名 可 參數
+  __in_opt     LPSECURITY_ATTRIBUTES lpProcessAttributes,	//進程句柄 安全描述符
+  __in_opt     LPSECURITY_ATTRIBUTES lpThreadAttributes,	//線程句柄 安全描述符
+  __in         BOOL bInheritHandles,		//子進程是否可繼承句柄
+  __in         DWORD dwCreationFlags,		//0
+  __in_opt     LPVOID lpEnvironment,		//0
+  __in_opt     LPCTSTR lpCurrentDirectory,	//新進程工作路徑
+  __in         LPSTARTUPINFO lpStartupInfo,  //STARTUPINFO結構指示新進程 如何啟動
+  __out        LPPROCESS_INFORMATION lpProcessInformation
+);
+</pre>
+        </p>
+         <p><h2><font color="#FF0000">eaxmple</font></h2><br />
+<pre>STARTUPINFOW startupinfo;
+	memset(&startupinfo,0,sizeof(STARTUPINFOW));
+	startupinfo.cb=sizeof(STARTUPINFOW);
+	PROCESS_INFORMATION process_information;
+	//打开子进程
+	if(!CreateProcessW(NULL,lp->exe_path,0,0,TRUE,0,0,lp->current_directory,&startupinfo,&process_information))
+	{
+		return 1;
+	}</pre>         
+         </p>
+    </h3></p></div>
+    
+    <div class="div_box"><a name="ShellExecute"></a><p><h3>
+        <p><h2><font color="#FF0000">ShellExecute</font></h2><br />
+        #include&lt;shellapi.h&gt;<br />
+        ShellExecute用以將文件以其默認關聯的方式打開<br />
+        可以打開一個文件夾<br />
+        打開一個進程<br />
+        使用默認瀏覽器打開網頁
+        </p>
+        <p><h2><font color="#FF0000">聲明</font></h2><br />
+    <pre>HINSTANCE ShellExecute(          HWND hwnd,	//一般為NULL	指定父窗口
+        LPCTSTR lpOperation,		//指定如何操作 "open"(打開) "print"(打印) "explore"(瀏覽) NULL(為默認""open)
+        LPCTSTR lpFile,			//指示要操作的對象
+        LPCTSTR lpParameters,	//當打開可執行文件時 可指定其參數
+        LPCTSTR lpDirectory,	//指定工作路徑
+        INT nShowCmd			//指定其顯示方式	SW_SHOW	...
+    );</pre>
+        </p>
+        
+        <p><h2><font color="#FF0000">example</font></h2><br />
+    <pre>//打開可執行文件
+        ShellExecute(NULL,NULL,L"inject.exe",NULL,NULL,SW_SHOW);
+    
+        //打開記事本
+        ShellExecute(NULL,NULL,L"conf\\123.txt",NULL,NULL,SW_SHOW);
+    
+        //打開網頁
+        ShellExecute(NULL,NULL,L"http://www.google.com",NULL,NULL,SW_SHOW);
+    
+        //打開文件夾	<font color="#FF0000">需要絕對路徑</font>
+        ShellExecute(NULL,L"explore",L"c:\\",NULL,NULL,SW_SHOW);
+        //打開文件夾 並選中文件
+        ShellExecute(NULL,NULL,L"Explorer.exe",L"/select,c:\\dell",NULL,SW_SHOW);</pre>
+        </p>
+    </h3></p></div>
+  	
+<div class="div_box"><a name="CreateToolhelp32Snapshot"></a><p>
+	<p><font color="#FF0000">CreateToolhelp32Snapshot 進程快照</font>
+<pre>#include&lt;Tlhelp32.h&gt;
+
+//創建快照 失敗返回INVALID_HANDLE_VALUE
+HANDLE WINAPI CreateToolhelp32Snapshot(
+  __in          DWORD dwFlags,			//何種快照 TH32CS_SNAPPROCESS(進程快照)
+  __in          DWORD th32ProcessID		//為線程快照等指定進程id(進程快照不使用此參數)	(進程id 0為當前進程)
+);
+
+//遍歷 進程快照 信息
+BOOL WINAPI Process32First(
+  __in          HANDLE hSnapshot,
+  __in_out      LPPROCESSENTRY32 lppe
+);
+BOOL WINAPI Process32Next(
+  __in          HANDLE hSnapshot,
+  __out         LPPROCESSENTRY32 lppe
+);
+
+typedef struct tagPROCESSENTRY32 {
+	DWORD dwSize;			//sizeof(PROCESSENTRY32)
+	DWORD cntUsage;			//進程引用計數
+	DWORD th32ProcessID;		//進程id
+	ULONG_PTR th32DefaultHeapID;	//默認堆id
+	DWORD th32ModuleID;		//模塊id
+	DWORD cntThreads;  		//線程數
+	DWORD th32ParentProcessID;	//父進程id  
+	LONG pcPriClassBase;		//線程優先級  
+	DWORD dwFlags;			//為使用 保留  
+	TCHAR szExeFile[MAX_PATH];	//進程文件路徑
+} PROCESSENTRY32,  *PPROCESSENTRY32;
+</pre>
+	</p>  
+    <p><font color="#FF0000">example</font>
+<pre>	CString tmp;
+	HANDLE	hProcessSnap	=	CreateToolhelp32Snapshot( TH32CS_SNAPPROCESS, 0 );
+	if( hProcessSnap == INVALID_HANDLE_VALUE )
+	{
+		MessageBox(L"創建快照失敗");
+		return;
+	}
+	PROCESSENTRY32 pe32;
+	pe32.dwSize	=	sizeof(PROCESSENTRY32);
+	if( !Process32First( hProcessSnap, &pe32 ) ) 
+	{
+		CloseHandle( hProcessSnap ); 
+		return;  
+	}
+
+	do
+	{
+		tmp	+=	pe32.szExeFile;
+		tmp	+=	L"\r\n";
+	}
+	while( Process32Next( hProcessSnap, &pe32 ) );
+</pre>
+	</p>  
+</p>          
+</td></tr></table>
+</body>
+</html>

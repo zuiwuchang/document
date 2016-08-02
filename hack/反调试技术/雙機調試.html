@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>雙機調試</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1>
+    	<a href="#KdDisableDebugger">KdDisableDebugger</a><br />
+        <a href="#tp">tp</a>
+    </h1></p>
+    
+    <div class="div_box"><a name="KdDisableDebugger"></a><h2>
+        <p><font color="#FF0000">KdDisableDebugger</font> <br />
+<pre>//禁用內核調試器
+NTSTATUS
+  KdDisableDebugger(
+    VOID
+    ); 
+
+//啟用內核調試器
+NTSTATUS
+  KdEnableDebugger(
+    VOID
+    ); </pre>
+        </p>
+        
+	</h2></div>
+    <div class="div_box"><a name="tp"></a><h2>
+        <p><font color="#FF0000">tp</font> <br />
+        kdcom 中的 KdSendPacket KdReceivePacket 用於串口通信 (tp idt hook此函數 使之無效)<br />
+        tp的驅動TesSafe.sys 中有三處 調用KdDisableDebugger 禁用內核調試
+        </p>
+        <p><font color="#FF0000">kdcom</font> <br />
+        在被替換的KdSendPacket KdReceivePacket 函數尾 jump到原函數地址
+        </p>
+        <p><font color="#FF0000">KdDisableDebugger 1</font> <br />
+        一個循環 不斷調用 KdDisableDebugger
+<pre>a6a3ffe3 803d6dc2a4a600  cmp     byte ptr [TesSafe+0x1326d (a6a4c26d)],0							a6a3ffe3
+a6a3ffea 7516            jne     TesSafe+0x7002 (a6a40002)																jne a6a40002
+a6a3ffec 688a4d6e43      push    436E4D8Ah
+a6a3fff1 6876426e57      push    576E4276h
+a6a3fff6 e873caffff      call    TesSafe+0x3a6e (a6a3ca6e)
+a6a3fffb c6056dc2a4a601  mov     byte ptr [TesSafe+0x1326d (a6a4c26d)],1
+a6a40002 85ff            test    edi,edi																				a6a40002
+a6a40004 7404            je      TesSafe+0x700a (a6a4000a)					no je 
+a6a40006 ffd7            call    edi		//KdDisableDebugger
+
+a6a40008 eb24            jmp     TesSafe+0x702e (a6a4002e)							jmp a6a4002e
+a6a4000a 803d6ec2a4a600  cmp     byte ptr [TesSafe+0x1326e (a6a4c26e)],0	a6a4000a
+a6a40011 751b            jne     TesSafe+0x702e (a6a4002e)
+a6a40013 6812010000      push    112h
+a6a40018 68e64d6e43      push    436E4DE6h
+a6a4001d 6873426e57      push    576E4273h
+a6a40022 e865caffff      call    TesSafe+0x3a8c (a6a3ca8c)
+a6a40027 c6056ec2a4a601  mov     byte ptr [TesSafe+0x1326e (a6a4c26e)],1
+a6a4002e 803e00          cmp     byte ptr [esi],0									a6a4002e
+<font color="#FF0000">a6a40031 75b0       此處nop掉     jne     TesSafe+0x6fe3 (a6a3ffe3)											jne a6a3ffe3</font>
+a6a40033 5f              pop     edi
+a6a40034 5e              pop     esi</pre>
+        </p>
+        
+        <p><font color="#FF0000">KdDisableDebugger 2</font><br />
+        在調用KdDisableDebugger後 <br />
+        有句代碼  mov     ecx,dword ptr [TesSafe+0x13264 (b095a264)] 使windbg無法調試 <br />
+        nop掉
+        </p>
+        <p><font color="#FF0000">KdDisableDebugger 3</font><br />
+        在一個定時器中不斷調用 KdDisableDebugger <br />
+        直接hook KdDisableDebugger
+        </p>
+	</h2></div>
+</td></tr></table>
+</body>
+</html>

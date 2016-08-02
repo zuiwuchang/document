@@ -1,0 +1,165 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#http">net/http</a>
+		<a href="#Handler">自定義Handler</a>
+		<a href="#framework">framework</a>
+		
+		
+	</div>
+
+	<div class="note"><a name="http"></a>
+		<p><span class="flag">net/http</span>
+<pre>net/http 包 提供了實現 web服務器 客戶端的 功能
+
+
+//在指定地址 端口 開啓web服務 handler是一個 自定義的 路由器nil(使用 默認的 DefaultServeMux 處理)
+ func ListenAndServe(addr string, handler Handler) error
+	<span class="care">http.ListenAndServe(":9090", nil)</span>
+
+//增加路由 到指定處理函數
+func HandleFunc(pattern string, handler func(ResponseWriter, *Request))
+
+//同上 不過 此處是路由到一個 一個 實現了 Handler的struct
+func Handle(pattern string, handler Handler)
+	<span class="care">type Handler interface {
+	ServeHTTP(ResponseWriter, *Request)
+	}</span>
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+	// "html/template"
+	"net/http"
+)
+
+func rootHander(w http.ResponseWriter, r *http.Request) {
+	//解析瀏覽器傳染參數
+	r.ParseForm()
+	fmt.Println("method	", r.Method)
+	fmt.Println("param	", r.Form) //參數保存在 map 中
+	fmt.Println("path	", r.URL.Path)
+	fmt.Println("scheme	", r.URL.Scheme)
+
+	//寫入數據到客戶端
+	html := "&lt;html&gt;" +
+		"&lt;head&gt;" +
+		"&lt;title&gt;Go web&lt;/title&gt;" +
+		"&lt;/head&gt;" +
+		"&lt;body&gt;" +
+		"hellow word" +
+		"&lt;img src='static/a.jpg'&gt;" +
+		"&lt;/body&gt;" +
+		"&lt;/html&gt;"
+	fmt.Fprintf(w, html)
+
+	//使用模板返回數據
+	// s1, _ := template.ParseFiles("index.html")
+	// s1.ExecuteTemplate(w, "header", nil)
+	// s1.Execute(w, nil)
+}
+
+func main() {
+	//增加靜態路由
+	http.HandleFunc("/static/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, r.URL.Path[1:])
+	})
+	//設置訪問路由
+	http.HandleFunc("/", rootHander)
+	//设置监听的端口
+	if e := http.ListenAndServe(":9090", nil); e != nil {
+		fmt.Println(e)
+	}
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Handler"></a>
+		<p><span class="flag">自定義Handler</span>
+<pre>ListenAndServe 第2個參數 傳入 nil 將使用 默認的 路由DefaultServeMux處理請求
+然 亦可 自定義Handler 只需要 實現 
+	type Handler interface {
+	ServeHTTP(ResponseWriter, *Request)
+	}
+即可
+當 有任何請求 到達時 ServeHTTP 將被自動調用 
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+	"net/http"
+)
+
+func main() {
+	h := MyHander{}
+	http.ListenAndServe(":9090", h)
+
+}
+
+type MyHander struct {
+}
+
+func (h MyHander) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	fmt.Println(r.URL.Path)
+	switch r.URL.Path {
+	case "/t":
+		h.Test(w, r)
+	case "/h":
+		h.Hellow(w, r)
+	}
+}
+func (m *MyHander) Hellow(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "hello word")
+}
+func (m *MyHander) Test(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "this is a test")
+}
+</pre>
+		</p>
+	</div>
+	
+	<div class="note"><a name="framework"></a>
+		<p><span class="flag">framework</span>
+<pre>code/framework 是一個 封裝的 Go web框架
+dark/web 是一個 單件自定義Handler 的封裝(不應該改動)
+mygo 是程序入口點 
+example 是一個示例 展示如何 將自定義的 Handler 加入到 web中
+
+mygo/cnf.xml 是項目配置文件
+</pre>
+		</p>
+
+		<p><span class="flag">增加Handler</span>
+<pre>1仿照 example
+	定義一個 struct 實現 ServeHTTP接口
+	定義 Initialization 函數 在裏面 註冊 Handler
+
+2修改 cnf.xml
+	增加controller 子項 設置 url 以及對應Handler的名字
+
+3修改mygo.go
+在mygo.go 的init中 調用 Initialization 初始化 Handler
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+

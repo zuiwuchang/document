@@ -1,0 +1,14 @@
+@charset "utf-8";
+.div_box{
+	border:#0F0 solid 2px;
+	margin-top:30px;
+	}
+	
+.div_boxex{
+	border:#0F3 solid 2px;
+	padding:30px;
+	}
+.my_titlle{
+	color:#F00;
+	font-size:24px;
+	}

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>android</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#SharedPreferences">SharedPreferences</a>
+		<a href="#Internal">Internal Storage</a>
+		<a href="#External">External Storage</a>
+		<a href="#SQLITE">SQLITE</a>
+		<a href="#SQLDroid">SQLDroid</a>
+		
+	</div>
+
+	<div class="note"><a name="SharedPreferences"></a>
+		<p><span class="flag">SharedPreferences</span>
+<pre>SharedPreferences 將 數據(基本型別) 
+以key value 序列化到 xml 
+存儲在 /data/data/軟體包名/shared_prefs/名稱.xml<span class="care">(需要root權限查看)</span> 中
+
+//返回一個 指定名稱/匿名 的SharedPreferences
+SharedPreferences getPreferences(int mode)
+SharedPreferences getSharedPreferences(String name,int mode)
+	<span class="care">mode 取值
+	MODE_PRIVATE			//私有
+	MODE_WORLD_READABLE		//其他軟體 可讀
+	MODE_WORLD_WRITEABLE	//... 可寫
+	</span>
+
+SharedPreferences提供了 多個 getXXX(key,default) 方法 返回 存儲的 數據
+SharedPreferences::edit() 返回 一個 Editor 用於 寫入數據
+Editor 提供了 多個 putXXX(key,value) 用於寫入數據
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>public void onButtonWrite(View v){
+		SharedPreferences sp = this.getSharedPreferences("darktest", MODE_PRIVATE);
+
+		Editor edit = sp.edit();
+		edit.putString("name", "illusive man");
+		edit.putBoolean("king",true);
+		
+		edit.commit();	//提交數據 寫入到 xml
+		Log.i("dark", "write success");
+	}
+	public void onButtonRead(View v){
+		SharedPreferences sp = this.getSharedPreferences("darktest", MODE_PRIVATE);
+		String name = sp.getString("name","");
+		boolean king = sp.getBoolean("king", false);
+		Log.i("dark", "name = " + name);
+		Log.i("dark", "king = " + king);
+	}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>Editor putXXX 結束 好後 需要調用 commit 提交數據 
+數據 才會 被寫入 物理設備
+
+
+
+app被刪除時 SharedPreferences 保存的數據會被一起被刪除
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Internal"></a>
+		<p><span class="flag">Internal Storage</span>
+<pre>Internal Storage 將 數據 以文件形式
+存儲在 /data/data/軟體包名/files/名稱(需要root權限查看) 中 
+
+//返回 文件 輸出/輸入 流
+FileOutputStream openFileOutput(String name,int mode)
+FileInputStream openFileInput(String name)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>public void onButtonWrite(View v){
+		FileOutputStream out  = null;
+		try {
+			 out = openFileOutput("test",MODE_PRIVATE);
+			 String name = "illuesive man";
+			 out.write(name.getBytes());
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			if(out != null){
+				try {
+					out.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	public void onButtonRead(View v){
+		FileInputStream in = null;
+		String name ="";
+		try {
+			in = openFileInput("test");
+			byte[] buffer = new byte[100];
+			in.read(buffer);
+			name = new String(buffer);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			if(in != null){
+				try {
+					in.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		Toast.makeText(MainActivity.this,"name = " + name,Toast.LENGTH_SHORT).show();
+	}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>app被刪除時 保存的數據會被一起被刪除
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="External"></a>
+		<p><span class="flag">External Storage</span>
+<pre>android 可以直接使用 java 文件 api 操作 外部存儲器
+
+唯一需要注意到是 android 提供了 Environment 
+用來返回一些 外部存儲器 相關信息
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>	//返回 外部存儲器狀態
+	String statue = Environment.getExternalStorageState();
+	if(statue.equals(Environment.MEDIA_MOUNTED)){
+		Log.i("statue","可用 可寫");
+	}else if(statue.equals(Environment.MEDIA_MOUNTED_READ_ONLY)){
+		Log.i("statue","可用 不可寫");
+	}else{
+		Log.i("statue","不可用 不可寫");
+	}
+
+	//返回sd卡根路徑
+	File sd = Environment.getExternalStorageDirectory();
+	Log.i("SD 卡根路徑",sd.getPath());
+
+	//其他見 java 文件 api
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="SQLITE"></a>
+		<p><span class="flag">SQLITE</span>
+<pre>android 提供了原生的sqlite 支持
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="SQLDroid"></a>
+		<p><span class="flag">SQLDroid</span>
+<pre>SQLDroid 是一個 開源的(MIT) android sqlite 驅動
+
+官網 <a href="https://github.com/SQLDroid/SQLDroid" target="_blank">https://github.com/SQLDroid/SQLDroid</a>
+
+對於習慣了 jdbc 的人 似乎沒必要 再去學這些原生的 sqlite api(只要有jdbc驅動就行)
+
+而且 jdbc 還可以 連接 其他任意 提供了jdbc驅動的 數據庫
+</pre>
+		</p>
+		<p><span class="flag">配置</span>
+<pre>1 下載SQLDroid源碼
+2 將 src/main/java 下的 org文件夾 複製到項目
+ (或者自己將其打包成jar 並加入項目依賴
+ cd src/main/java
+ javac org/sqldroid/*.java
+ jar cvf SQLDroid.jar *
+ )
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>//在 Internal Storage 文件夾中 創建 db文件夾 用於 存放數據庫
+String path = Environment.getDataDirectory() + "/data/" + getApplication().getPackageName() +"/db";
+File file = new File(path);
+if(!file.exists() || !file.isDirectory()){
+	file.mkdir();
+}
+path += "/test.db";
+String con_str = "jdbc:sqlite:" + path;
+
+//參見 jdbc
+Class.forName("org.sqldroid.SQLDroidDriver");
+
+Connection connection = null;
+try
+{
+  // create a database connection
+  connection = DriverManager.getConnection(con_str);
+  Statement statement = connection.createStatement();
+  statement.setQueryTimeout(30);  // set timeout to 30 sec.
+
+  statement.executeUpdate("drop table if exists person");
+  statement.executeUpdate("create table person (id integer, name string)");
+  statement.executeUpdate("insert into person values(1, 'leo')");
+  statement.executeUpdate("insert into person values(2, 'yui')");
+  ResultSet rs = statement.executeQuery("select * from person");
+  while(rs.next())
+  {
+    // read the result set
+	  Log.i("jdbc", "name = " + rs.getString("name"));
+	  Log.i("jdbc", "id = " + rs.getInt("id"));
+  }
+}
+catch(SQLException e)
+{
+  e.printStackTrace();
+}
+finally
+{
+  try
+  {
+    if(connection != null)
+      connection.close();
+  }
+  catch(SQLException e)
+  {
+	  e.printStackTrace();
+  }
+}
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

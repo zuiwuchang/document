@@ -1,0 +1,161 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>繪製文本</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="DirectX"><tr><td>
+<p>
+	<font color="#FF0000">繪製文本</font>
+</p>
+
+<p>
+	<a href="#ID3DXFont">ID3DXFont</a><br />
+    <a href="#D3DXCreateText">D3DXCreateText</a><br />
+   
+   
+</p>
+
+
+<div class="mydiv"><a name="ID3DXFont"></a>
+	<p><font color="#FF0000">ID3DXFont</font>
+<pre>D3DX中 使用ID3DXFont 接口 通過GDI 進行2D文本繪製
+
+使用
+HRESULT  D3DXCreateFontIndirect(
+  __in   LPDIRECT3DDEVICE9 pDevice,		//設備接口
+  __in   const D3DXFONT_DESC *pDesc,	//D3DXFONT_DESC 指針 對文本描述
+  __out  LPD3DXFONT *ppFont				//返回接口
+);
+獲取 ID3DXFont 接口
+
+typedef struct D3DXFONT_DESC {
+  INT   Height;
+  UINT  Width;
+  UINT  Weight;
+  UINT  MipLevels;
+  BOOL  Italic;
+  BYTE  CharSet;
+  BYTE  OutputPrecision;
+  BYTE  Quality;
+  BYTE  PitchAndFamily;
+  TCHAR FaceName;
+} D3DXFONT_DESC, *LPD3DXFONT_DESC;
+
+使用（DrawTextA DrawTextW）
+INT DrawText(
+  [in]  LPD3DXSPRITE pSprite,	//指向字符串所屬ID3DXSprite對象接口 NULL(在當前窗口中繪製)
+  [in]  LPCTSTR pString,		//字符串指針
+  [in]  INT Count,				//字符數 若為-1 自動計算以NULL結尾的字符串長度
+  [in]  LPRECT pRect,			//繪製區域
+  [in]  UINT Format,			//對齊方式
+  [in]  D3DXCOLOR Color			//文本顏色
+);
+//繪製文本
+
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>//繪製fps
+		D3DXFONT_DESC font_desc;
+		memset(&font_desc,0,sizeof(font_desc));
+		font_desc.Height	=	25;
+		font_desc.Weight	=	12;
+		font_desc.Weight	=	500;	//[0,1000]
+		font_desc.MipLevels	=	D3DX_DEFAULT;
+		font_desc.Italic	=	FALSE;
+		font_desc.CharSet	=	DEFAULT_CHARSET;
+		font_desc.OutputPrecision	=	0;
+		font_desc.Quality			=	0;
+		font_desc.PitchAndFamily	=	0;
+		wcscpy_s(font_desc.FaceName,L"宋体");
+
+		LPD3DXFONT font_ptr	=	NULL;
+		D3DXCreateFontIndirect(device_ptr_,&font_desc,&font_ptr);
+		
+		if(font_ptr)
+		{
+			RECT rect;
+			rect.left	=	10;
+			rect.right	=	110;
+			rect.top	=	10;
+			rect.bottom	=	50;
+			font_ptr->DrawTextA(NULL
+				,fps.data()
+				,fps.size()
+				,&amp;rect
+				,DT_TOP | DT_LEFT
+				,D3DCOLOR_XRGB(255,0,0)
+				);
+			font_ptr->Release();
+		}
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="D3DXCreateText"></a>
+	<p><font color="#FF0000">D3DXCreateText</font>
+<pre>使用 
+ HRESULT  D3DXCreateText(
+  __in   LPDIRECT3DDEVICE9 pDevice,
+  __in   HDC hDC,
+  __in   LPCTSTR pText,
+  __in   FLOAT Deviation,
+  __in   FLOAT Extrusion,
+  __out  LPD3DXMESH *ppMesh,
+  __out  LPD3DXBUFFER *ppAdjacency,
+  __out  LPGLYPHMETRICSFLOAT pGlyphMetrics
+);
+創建一個 3D 文字的 網格 接口 ID3DXMesh 
+</pre>
+	</p>
+    
+	<p><font color="#FF0000">example</font>
+<pre>LPD3DXMESH mesh_ptr;
+
+		HDC hdc	=	CreateCompatibleDC(0);
+		HFONT font;
+		HFONT font_old;
+
+		LOGFONT lf;
+		memset(&lf,0,sizeof(lf));
+		lf.lfHeight	=	25;
+		lf.lfWeight	=	12;
+		lf.lfEscapement	=	0;
+		lf.lfOrientation	=	0;
+		lf.lfWeight	=	500;
+		lf.lfItalic	=	FALSE;
+		lf.lfUnderline	=	FALSE;
+		lf.lfStrikeOut	=	FALSE;
+		lf.lfCharSet	=	DEFAULT_CHARSET;
+		lf.lfOutPrecision	=	0;
+		lf.lfClipPrecision	=	0;
+		lf.lfQuality	=	0;
+		lf.lfPitchAndFamily	=	0;
+		wcscpy_s(lf.lfFaceName,L"宋体");
+
+		font	=	CreateFontIndirect(&lf);
+		font_old	=	(HFONT)SelectObject(hdc,font);
+
+		D3DXCreateText(device_ptr_,hdc,L"D3DXCreateText"
+			,0.001f,0.4f
+			,&mesh_ptr
+			,0,0);
+
+		SelectObject(hdc,font_old);
+		DeleteObject(font);
+		DeleteDC(hdc);
+
+		mesh_ptr->DrawSubset(0);
+		mesh_ptr->Release();
+</pre>    
+</p>
+
+</div>
+    
+</td></tr></table>
+</body>
+</html>

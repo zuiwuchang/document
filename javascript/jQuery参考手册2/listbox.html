@@ -1,0 +1,125 @@
+<!DOCTYPE html >
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>jQuery参考手册2</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#llistbox">jQuery-Multi-Select-List-Box-Plugin-listbox-js</a>
+		<a href="#dark_listbox_wrap">dark_listbox_wrap</a>
+	</div>
+
+
+	<div class="note"><a name="llistbox"></a>
+		<p><span class="flag">jQuery-Multi-Select-List-Box-Plugin-listbox-js</span>
+<pre>jQuery-Multi-Select-List-Box-Plugin-listbox-js 是一個 listbox 插件 
+實現了 基本的 listbox(支持多選 單選) 功能 並可以添加一個 搜索框 搜索列表項
+
+官網 <a target="_blank" href="http://www.jqueryscript.net/form/jQuery-Multi-Select-List-Box-Plugin-listbox-js.html">http://www.jqueryscript.net/form/jQuery-Multi-Select-List-Box-Plugin-listbox-js.html</a>
+
+</pre>
+		</p>
+
+		<p><span class="flag">獲取支持</span>
+<pre>1	從官網下載最新版本 jQuery-Multi-Select-List-Box-Plugin-listbox-js.zip 並解壓
+2	將src\listbox.css listbox.js 引入項目
+3	在html中編寫 select 標籤
+4	$('select').listbox()	將select替換為listbox
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>
+...
+&lt;script language="javascript" src="scripts/jquery-1.8.3.min.js"&gt;&lt;/script&gt;
+&lt;script language="javascript" src="scripts/Multi-Select listbox/listbox.js"&gt;&lt;/script&gt;
+&lt;link href="scripts/Multi-Select listbox/listbox.css" rel="stylesheet" type="text/css" /&gt;
+&lt;script language="javascript" src="scripts/main.js"&gt;&lt;/script&gt;
+...
+
+	&ltinput type="text" id="cmd" /&gt;
+	&ltselect id="listbox" multiple="multiple"&lt;!--是否可多選--&gt;&gt;
+		&ltoption&gt;0&lt /option&gt;
+		&ltoption&gt;1&lt /option&gt;
+		&ltoption&gt;2&lt /option&gt;
+		&ltoption&gt;3&lt /option&gt;
+		&ltoption&gt;4&lt /option&gt;
+		&ltoption&gt;5&lt /option&gt;
+		&ltoption&gt;6&lt /option&gt;
+		&ltoption&gt;7&lt /option&gt;
+	&lt/select&gt;
+...    
+
+
+
+<span class="care">scripts</span>
+$(document).ready(function(){
+	
+	$('#listbox').listbox(
+		//下面參數皆為可選參數
+		{'searchbar': true,			//是否添加搜索框
+		'class': "dark_listbox"		//附加的class屬性
+		}	
+	);
+	
+	$("#cmd").keydown(function(e) {
+        if(e.keyCode == 13){
+			var cmd	=	$(this).val();
+			cmd	=	$.trim(cmd);
+			if(cmd != ""){
+				command(cmd)
+			}
+		}
+    });
+	
+	//當選項發生改變
+	$('#listbox').change(function(e) {
+        alert($(this).val());
+    });
+	
+	
+});
+function command(cmd){
+	if(cmd	==	"show"){
+		alert($("#listbox").val());		//返回選中項
+	}
+	else if(cmd == "select"){
+		var element	=	$('#listbox').next(".lbjs:first");
+		//清除 外在 效果
+		element.find(".lbjs-item[selected='selected']").removeAttr("selected");
+		//清除 選項值
+		$('#listbox').val(null);		
+	}	
+}
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>listbox() 方法並為替換原select 而只是將其隱藏 
+然後在 select 之後 添加一個 div 並在此div中 顯示listbox
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="dark_listbox_wrap"></a>
+		<p><span class="flag">dark_listbox_wrap</span>
+<pre>jQuery-Multi-Select-List-Box-Plugin-listbox-js 未提供完備的 js操作列表項 的能力 
+dark_listbox_wrap 對齊進行了包裹 以提供這些能力
+
+1	引入 jQuery-Multi-Select-List-Box-Plugin-listbox-js 需要環境
+2	引入 dark_listbox_wrap.js
+3	使用 jQuery-Multi-Select-List-Box-Plugin-listbox-js 構建listbox
+4	調用 dark_listbox_wrap.create($("select"))	//傳入 被 jQuery-Multi-Select-List-Box-Plugin-listbox-js 替換的 listbox jQuery元素 (記錄其引用)
+5	調用 包裹方法
+</pre>
+		</p>
+	</div>
+
+
+</div>
+</body>
+</html>

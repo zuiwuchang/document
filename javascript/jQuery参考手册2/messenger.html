@@ -1,0 +1,323 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>CryptoJS</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#messenger">messenger</a>
+		<a href="#example">example</a>
+	</div>
+	
+
+	<div class="note"><a name="messenger"></a>
+		<p><span class="flag">messenger</span>
+<pre>messenger 一個超讚的 彈出消息框 (jquery插件)
+
+官網 <a target="_blank" href="https://github.com/HubSpot/messenger">https://github.com/HubSpot/messenger</a>
+example <a target="_blank" href="http://github.hubspot.com/messenger/docs/welcome/">http://github.hubspot.com/messenger/docs/welcome/</a>
+</pre>
+		</p>
+		<p><span class="flag">依賴</span>
+<pre>將build 文件夾複製到項目
+
+JS
+	jquery-*.min.js
+	/build/js/messenger.min.js
+	/build/js/messenger-theme-future.js
+
+CSS
+	/build/css/messenger.css
+	/build/css/messenger-theme-future.css
+</pre>
+		</p>
+		<p><span class="flag">doc</span>
+<div class="hs-doc-content"><p><script type="text/javascript" src="build/js/messenger.js"></script></p>
+<p><script type="text/javascript" src="build/js/messenger-theme-future.js"></script></p>
+<p><link rel="stylesheet" type="text/css" media="screen" href="build/css/messenger.css"></p>
+<link rel="stylesheet" type="text/css" media="screen" href="build/css/messenger-theme-future.css">
+
+<h1 id="messenger">Messenger</h1>
+<h4 id="-demo-and-usage-http-hubspot-github-com-messenger-docs-welcome-"><a href="http://hubspot.github.com/messenger/docs/welcome">Demo and Usage</a></h4>
+<ul>
+<li>Show messages in your app.</li>
+<li>Wrap AJAX requests with progress, success and error messages, and add retry to your failed requests.</li>
+<li>Add actions (undo, cancel, etc.) to your messages.</li>
+</ul>
+<p>Messenger is different from other solutions for a few reasons:</p>
+<ul>
+<li>Each message can be updated after being posted without losing it's place</li>
+<li>Actions and events can be bound to messages</li>
+<li>It's completely themeable with CSS</li>
+<li>A 'tray' element exists to allow you to style the box around the messages, and limit the number
+of messages on the screen</li>
+</ul>
+<h3 id="messenger-object">Messenger Object</h3>
+<p>Messenger is accessed through a global <code>Messenger</code> object.  The object is called at each usage to give
+it a chance to instantiate if necessary.</p>
+<p>The most basic usage is to post a message:</p>
+<pre><code class="lang-javascript">Messenger().post({ options })</code></pre>
+<p>Options can be a string representing the body of the message:</p>
+<pre><code class="lang-javascript">Messenger().post(<span class="string">"Welcome to the darkside (tm)"</span>)</code></pre>
+<p>It can also be an object:</p>
+<pre><code class="lang-javascript">Messenger().post({
+  message: <span class="string">"How's it going?"</span>,
+  type: <span class="string">"error"</span>
+})</code></pre>
+<p>The full list of options:</p>
+<ul>
+<li><code>message</code>: The text of the message</li>
+<li><code>type</code>: <code>info</code>, <code>error</code> or <code>success</code> are understood by the provided themes. You can also pass your
+own string, and that class will be added.</li>
+<li><code>theme</code>: What theme class should be applied to the message? Defaults to the theme set for Messenger in
+general.</li>
+<li><code>id</code>: A unique id.  If supplied, only one message with that ID will be shown at a time.</li>
+<li><code>singleton</code>: Hide the newer message if there is an <code>id</code> collision, as opposed to the older message.</li>
+<li><code>actions</code>: Action links to put in the message, see the 'Actions' section on this page.</li>
+<li><code>hideAfter</code>: Hide the message after the provided number of seconds</li>
+<li><code>hideOnNavigate</code>: Hide the message if Backbone client-side navigation occurs</li>
+<li><code>showCloseButton</code>: Should a close button be added to the message?</li>
+<li><code>closeButtonText</code>: Specify the text the close button should use (default ×)</li>
+</ul>
+<p>Messenger also includes aliases which set the <code>type</code> for you: <code>Messenger().error()</code>, <code>Messenger().success()</code>, and <code>messenger().info()</code>.</p>
+<h3 id="updating-messages">Updating Messages</h3>
+<p>Rather than posting a new message when progress occurs, it can be nice to update an existing message.</p>
+<p><code>.post</code>, along with the other message posting methods, provide a <code>Message</code> instance which has the
+following methods:</p>
+<ul>
+<li><code>show()</code>: Show the message, if it's hidden</li>
+<li><code>hide()</code>: Hide the message, if it's shown</li>
+<li><code>cancel()</code>: If the message is associated with an ajax request or is counting down to retry, cancel it</li>
+<li><code>update({ options })</code>: Update the message with the provided options</li>
+</ul>
+<p>Any option, such as <code>type</code> or <code>message</code> can be changed with <code>update</code>:</p>
+<pre><code class="lang-javascript">message = Messenger().post(<span class="string">"Calculating position"</span>)
+message.update({
+  type: <span class="string">"error"</span>,
+  message: <span class="string">"Error calculating position"</span>
+})</code></pre>
+<h3 id="messenger-object">Messenger Object</h3>
+<p>When <code>Messenger</code> is called, it creates, if necessary, a container for future messages to be placed into.
+<code>Messenger</code> can be passed options to configure the container when it's first called, future calls will
+alter the existing container.</p>
+<p><code>Messenger</code> options:</p>
+<ul>
+<li><code>extraClasses</code>: Extra classes to be appended to the container.  These can be used to configure the active theme.
+If you'd like the messenger box to be overlayed on the screen, you should provide the <code>messenger-fixed</code> class along with any of
+the following positioning classes: <code>messenger-on-bottom</code>, <code>messenger-on-top</code>, <code>messenger-on-left</code>, <code>messenger-on-right</code>.
+Adding the <code>top</code> or <code>bottom</code> class along with a <code>left</code> or <code>right</code> will move the messenger dialog into the specified corner.</li>
+<li><code>maxMessages</code>: The maximum number of messages to show at once</li>
+<li><code>parentLocations</code>: Which locations should be tried when inserting the message container into the page.  The default is <code>['body']</code>.
+It accepts a list to allow you to try a variety of places when deciding what the optimal location is on any given page.  This should
+generally not need to be changed unless you are inserting the messages into the flow of the document, rather than using <code>messenger-fixed</code>.</li>
+<li><code>theme</code>: What theme are you using? Some themes have associated javascript, specifing this allows that js to run.</li>
+<li><code>messageDefaults</code>: Default options for created messages</li>
+</ul>
+<pre><code class="lang-javascript">Messenger({
+  parentLocations: [<span class="string">'.page'</span>], <span class="comment">// Let's insert it into the page</span>
+  extraClasses: <span class="string">''</span>            <span class="comment">// And not add the fixed classes</span>
+})
+
+<span class="comment">// Future calls just need to refer to Messenger(), they'll get the same instance</span></code></pre>
+<pre><code class="lang-javascript">Messenger({
+  <span class="comment">// Let's put the messenger in the top left corner</span>
+  extraClasses: <span class="string">'messenger-fixed messenger-on-left messenger-on-top'</span>
+});</code></pre>
+<p>The object provided by <code>Messenger()</code> also has a couple of additional methods:</p>
+<ul>
+<li><code>hideAll</code>: Hide all messages</li>
+<li><code>run</code>: See 'Running Things' below</li>
+<li><code>ajax</code>: See 'Running Things' below</li>
+<li><code>expectPromise</code>: See 'Running Things' below</li>
+<li><code>hookBackboneAjax</code>: See Backbone below</li>
+</ul>
+<h3 id="running-things">Running Things</h3>
+<p>One of the most common use cases for messenger is to show the progress and success or error of an asynchronous action, like an ajax request.
+Messenger includes a method to help with that, <code>run</code>.</p>
+<p><code>run({ messageOptions }, { actionOptions })</code></p>
+<p>messageOptions:</p>
+<ul>
+<li><code>action</code>: The function which should be passed <code>actionOptions</code>.  <code>success</code> and <code>error</code> callbacks will be added to <code>actionOptions</code>
+and used to show the appropriate messages.</li>
+<li><code>successMessage</code>: What message should be shown if the action is a success?  Can be a string, or false if no message should be shown.  Can also
+be a function returning a string, message options object, or false.</li>
+<li><code>errorMessage</code>: Same as success message, but shown after the <code>error</code> callback is called.</li>
+<li><code>progressMessage</code>: A message to be shown while the action is underway, or false.</li>
+<li><code>showSuccessWithoutError</code>: Set to false if you only want the success message to be shown if the success comes after a failure</li>
+<li><code>ignoredErrorCodes</code>: By default the error handler looks for <code>xhr.status</code>, assuming the action is $.ajax.  If it is, this can be set to an
+array of HTTP status codes which should <em>not</em> be considered an error.</li>
+<li><code>returnsPromise</code>: If true, instead of wrapping the <code>success</code> and <code>error</code> callbacks passed to <code>action</code>, we expect <code>action</code> to return to
+us a promise, and use that to show the appropriate messages.</li>
+<li><code>retry</code>: Set to false to not have the action retried if it fails.  Or set it to an object with the following options:<ul>
+<li><code>allow</code>: Should we show a manual 'Retry' button?</li>
+<li><code>auto</code>: Should we automatically start the retry timer after a failure?</li>
+</ul>
+</li>
+<li>Any other message options</li>
+</ul>
+<p>Your success and error handlers can return false if they don't wish the message to be shown.  They can also return a string to change the
+message, or an object to change more message options.</p>
+<pre><code class="lang-javascript">Messenger().run({
+  action: $.ajax,
+
+  successMessage: <span class="string">'Contact saved'</span>,
+  errorMessage: <span class="string">'Error saving contact'</span>,
+  progressMessage: <span class="string">'Saving contact...'</span>
+}, {
+  <span class="comment">/* These options are provided to $.ajax, with success and error wrapped */</span>
+  url: <span class="string">'/contact'</span>,
+  data: contact,
+
+  error: <span class="keyword">function</span>(resp){
+    <span class="keyword">if</span> (resp.status === <span class="number">409</span>)
+      <span class="keyword">return</span> <span class="string">"A contact with that email already exists"</span>;
+  }
+});</code></pre>
+<p>We also provide a couple of aliases:</p>
+<ul>
+<li><code>Messenger().ajax({ messageOptions }, { actionOptions })</code>:  Call <code>run</code> with <code>$.ajax</code> as the action (which is already the default).</li>
+<li><code>Messenger().expectPromise(action, { messageOptions })</code>: Call <code>run</code> with a function which returns a promise, so actionOptions aren't necessary.</li>
+</ul>
+<pre><code class="lang-javascript">Messenger().expectPromise(<span class="keyword">function</span>(){
+  <span class="keyword">return</span> $.ajax({
+    url: <span class="string">'/aliens/44'</span>,
+    type: <span class="string">'DELETE'</span>
+  });
+}, {
+  successMessage: <span class="string">'Alien Destroyed!'</span>,
+  progressMessage: <span class="literal">false</span>
+});</code></pre>
+<p>All three methods return a <code>Message</code> instance.  You can call <code>message.cancel()</code> to stop the retrying, if necessary.</p>
+<h3 id="actions">Actions</h3>
+<p>You can pass messages a hash of actions the user can execute on the message.  For example, <code>run</code> will add 'Retry' and 'Cancel'
+buttons to error messages which have retry enabled.</p>
+<p>Actions are provided as the <code>actions</code> hash to <code>post</code> or <code>run</code>:</p>
+<pre><code class="lang-javascript">msg = Messenger().post({
+  message: <span class="string">"Are you sure you'd like to delete this contact?"</span>,
+
+  actions: {
+    <span class="keyword">delete</span>: {
+      label: <span class="string">"Delete"</span>,
+      action: <span class="keyword">function</span>(){
+        <span class="keyword">delete</span>()
+        msg.hide()
+      }
+    },
+
+    cancel: {
+      action: <span class="keyword">function</span>(){
+        msg.hide()
+      }
+    }
+  }
+})</code></pre>
+<h3 id="events">Events</h3>
+<p>You can add DOM event handlers to the message itself, or any element within it.  For example, you might wish to do
+something when the user clicks on the message.</p>
+<p>The format of the event key is: "<code>[type] event [selector]</code>"</p>
+<p>Type is a message type, like <code>success</code>, <code>error</code>, or <code>info</code>, or skip to ignore the type.  It's useful with <code>run</code> where
+the same options are getting applied to the <code>success</code> and <code>error</code> messages.
+Event is the DOM event to bind to.
+Selector is any jQuery selector, or skip to bind to the message element itsef.</p>
+<pre><code class="lang-javascript">Messenger().post({
+  message: <span class="string">"Click me to explode!"</span>,
+
+  events: {
+    <span class="string">"click"</span>: <span class="keyword">function</span>(e){
+      explode();
+    },
+    <span class="string">"hover a.button"</span>: <span class="keyword">function</span>(e){
+      e.stopPropagation();
+    }
+  }
+});</code></pre>
+<h3 id="backbone-js">Backbone.js</h3>
+<p>Messenger includes a function to hook into Backbone.js' sync method.  To enable it, call <code>Messenger().hookBackboneAjax({ defaultOptions })</code>
+before making any Backbone requests (but after bringing in the Backbone.js js file).</p>
+<p>You can pass it any default message options you would like to apply to your requests.  You can also set those options as <code>messenger</code> in
+your save and fetch calls.</p>
+<pre><code class="lang-javascript">Messenger().hookBackboneAjax({
+  errorMessage: <span class="string">'Error syncing with the server'</span>,
+  retry: <span class="literal">false</span>
+});
+
+<span class="comment">// Later on:</span>
+myModel.save({
+  errorMessage: <span class="string">'Error saving contact'</span>
+});</code></pre>
+<h3 id="classes">Classes</h3>
+<p>Each message can have the following classes:</p>
+<ul>
+<li><code>messenger-hidden</code> (message): Applied when a message is hidden</li>
+<li><code>messenger-will-hide-after</code> (message): Applied if the <code>hideAfter</code> option is not false</li>
+<li><code>messenger-will-hide-on-navigate</code> (message): Applied if the <code>hideOnNavigate</code> option is not false</li>
+<li><code>messenger-clickable</code> (message): Applied if a 'click' event is included in the events hash</li>
+<li><code>messenger-message</code> (message): Applied to all messages</li>
+<li><code>messenger-{type}</code> (message): Applied based on the message's <code>type</code> (usually 'success', 'error', or 'info')</li>
+<li><code>message</code>, <code>alert</code>, <code>alert-{type}</code> (message): Added for compatiblity with external CSS</li>
+<li><code>messenger-retry-soon</code> (message): Added when the next retry will occur in less than or equal to 10s</li>
+<li><code>messenger-retry-later</code> (message): Added when the next retry will occur in greater than 10s (usually 5min)</li>
+</ul>
+<p>Every message lives in a slot, which is a li in the list of all the messages which have been created:</p>
+<ul>
+<li><code>messenger-first</code> (slot): Added when this slot is the first shown slot in the list</li>
+<li><code>messenger-last</code> (slot): Added when this slot is the last shown slot in the list</li>
+<li><code>messenger-shown</code> (slot): Added when this slot is visible</li>
+</ul>
+<p>All the slots are in a tray element:</p>
+<ul>
+<li><code>messenger-empty</code> (tray): Added when there are no visible messages</li>
+<li><code>messenger-theme-{theme}</code> (tray): Added based on the passed in <code>theme</code> option</li>
+</ul>
+<h3 id="multiple-messenger-trays">Multiple Messenger Trays</h3>
+<p>You can have multiple messenger trays on the page at the same time.  Manually create them using the
+jQuery method:</p>
+<pre><code class="lang-javascript">instance = $(<span class="string">'.myContainer'</span>).messenger();</code></pre>
+<p>You can then pass your instance into the messenger methods:</p>
+<pre><code class="lang-javascript">Messenger({instance: instance}).post(<span class="string">"My awesome message"</span>)</code></pre>
+<h3 id="contributing">Contributing</h3>
+<p>The build process requires nodejs and grunt-cli.
+You can build the output files by running <code>grunt</code>.
+The automated tests can be run by opening SpecRunner.html in a browser.</p>
+</div>
+		</p>
+	</div>
+
+	<div class="note"><a name="example"></a>
+		<p><span class="flag">example</span>
+<pre>//實現設置 彈出框位置 使用的 皮膚
+//Messenger 可以顯示在6個不同位置 
+<span class="care">//messenger-on-top messenger-on-left
+//messenger-on-top
+//messenger-on-top messenger-on-right
+//messenger-on-bottom messenger-on-left
+//messenger-on-bottom
+//messenger-on-bottom messenger-on-right</span>
+//Messenger 支持五種皮膚 <span class="care">flat future block air ice</span>
+
+Messenger.options = {
+    extraClasses: 'messenger-fixed <span class="care">messenger-on-bottom messenger-on-right</span>',
+    theme: <span class="care">'flat'</span>
+}
+
+調用 Messenger().post 顯示 彈出框
+Messenger().post("Your request has succeded!");
+
+Messenger().post({
+  message: 'There was an explosion while processing your request.',
+  type: 'error',
+  showCloseButton: true
+});
+
+...
+其他詳見官方文檔
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

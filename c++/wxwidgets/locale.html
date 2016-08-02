@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>locale</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#wxLocale">wxLocale</a>
+        <a href="#Poedit">Poedit</a>
+		
+	</div>
+
+	<div class="note"><a name="wxLocale"></a>
+		<p><span class="flag">wxLocale</span>
+<pre>wxWidgets 使用 wxLocale 提供對於 國際化的 支持
+其支持 gettext 翻譯文件
+_() 和 宏 中的內容 將會被 gettext 翻譯
+
+一般在*app中定義一個 成員變量wxLocale
+在 *app::OnInit 中 初始化 wxLocale
+
+.mo文件 必須 放置在 相應文件夾下 如
+正體中文 必須 放置在 zh_TW
+</pre>
+		</p>
+        <p><span class="flag">example</span>
+<pre><span class="care">./locale/zh_TW/zh_TW.mo</span>
+bool *App::OnInit()
+{
+    if(locale_.Init(wxLANGUAGE_CHINESE_TAIWAN,wxLOCALE_DONT_LOAD_DEFAULT))
+    {
+        locale_.AddCatalogLookupPathPrefix(_T("."));
+        if(locale_.AddCatalog("zh_TW"))
+        {
+            wxMessageBox(_("success"));
+        }
+        else
+        {
+            wxMessageBox(_("Couldn't find/load the catalog for locale."));
+        }
+    }
+    else
+    {
+        wxMessageBox(_("This language is not supported by the system."));
+    }
+    ...
+}
+</pre>
+        </p>
+	</div>
+
+    <div class="note"><a name="Poedit"></a>
+        <p><span class="flag">Poedit</span>
+<pre>Poedit 是一個 可視化的 gettext 編輯工具
+
+官網 <a href="http://poedit.net/" target="_blank">http://poedit.net/</a>
+</pre>
+        </p>
+    </div>
+	
+</div>
+</body>
+</html>

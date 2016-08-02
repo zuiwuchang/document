@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#session">事務</a>
+
+	</div>
+
+	<div class="note"><a name="session"></a>
+		<p><span class="flag">事務</span>
+<pre>創建一個 事務 對象
+func (engine *Engine) NewSession() *Session
+	//defer Session.close()
+
+
+
+//開始/回滾/提交 事務
+func (session *Session) Begin() error
+func (session *Session) Rollback() error
+func (session *Session) Commit() error
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-xorm/core"
+	"github.com/go-xorm/xorm"
+	"time"
+)
+
+type User struct {
+	Id   int64
+	Name string `xorm:"varchar(25) notnull unique 'uname'"`
+	//將 Name 映射到表達 uname 字段
+	Age int64
+
+	CreatedAt time.Time `xorm:"created updated"` //自動 insert 時間
+}
+
+func main() {
+	engine, err := xorm.NewEngine("mysql", "dark:jayjolin@/dark?charset=utf8")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	//設置表名 前綴 後綴
+	var mapper core.IMapper
+	mapper = core.NewPrefixMapper(core.SnakeMapper{}, "dark_")
+	mapper = core.NewSuffixMapper(mapper, "_test")
+	engine.SetTableMapper(mapper)
+
+	session := engine.NewSession()
+	defer session.Close()
+	_, err = session.Insert(&User{Name: "test"})
+	if err != nil {
+		session.Rollback()
+	} else {
+		session.Commit()
+	}
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

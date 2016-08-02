@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>通用工具</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#pair">pair</a>
+		<a href="#auto_ptr">auto_ptr</a>
+		<a href="#number">数值极限</a>
+		<a href="#help">辅助函数</a>
+		<a href="#operator">辅助性比较操作符</a>
+		<a href="#other">其他</a>
+		
+	</div>
+
+	<div class="note"><a name="pair"></a>
+		<p><span class="flag">pair</span>
+<pre>对组将两个值视为一个单元 定义于&lt;utility&gt;中 为struct
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>pair存储到两个数据型别可不同(如std::pair&lt;intint,float&gt;)
+当多个pair比较大小 第一个数据有较高优先级
+std::make_pair返回一个pair 可省略型别(如 std::make_pair(1,1.1) 或std::make_pair&lt;int,float&gt;(1,1.1) 
+第一个pair的second是double 第二个是float)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="auto_ptr"></a>
+		<p><span class="flag">auto_ptr</span>
+<pre>用以处理局部资源动态申请而无法删除 例如在函数f中先new 而忘记delete 或由于异常而跳过delete函数
+以auto_ptr为class成员替代指针从而使其在class生存期结束时自动释放资源 而无需在析构中delete
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>std::auto_ptr&lt;int&gt;lp=(new int(3));
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>auto_ptr只能以动态指针为构造 一旦构造将获取指针的所有权 当一个auto_ptr有用指针所有权时析构时会调用delete 故不需delete指针
+不应该引用auto_ptr这会导致指针所有权不清
+copy构造函数 和 assignment会导致指针所有权 转移
+auto_ptr的get函数返回动态指针地址 若auto_ptr失去指针所有权 get返回null 
+在构造函数中new 但在构造中错误由于没有构造完成所有不会析构 于是内存遗失 但若以auto_ptr为成员 可完美解决(成员auto_ptr失去生存期 auto_ptr的析构当然或被调用)
+</pre>
+		</p>
+		<p><span class="flag">易错</span>
+<pre>auto_ptr之间不能共享所有权 所有权只能同时被一个auto_ptr拥有
+auto_ptr不支持数组
+auto_ptr不满足STL容器对其元素的要求
+</pre>
+		</p>
+		<p><span class="flag">常用函数</span>
+			<table>
+				<tr><td>声明</td><td>描述</td></tr>
+				<tr>
+				<td>default构造</td>
+				<td><p>生成一个不拥有任何对象的auto_ptr</p>
+				<p>将auto_ptr的值初始化为0</p></td></tr>
+				<tr>
+				<td>auto_ptr::auto_ptr(T* ptr) throw()</td>
+				<td>生成auto_ptr 且拥有指针ptr</td></tr>
+				<tr>
+				<td>copy构造</td>
+				<td>生成auto_ptr 且拥传入auto_ptr拥有的指针</td></tr>
+				<tr>
+				<td>=</td>
+				<td>同copy构造</td></tr>
+				<tr>
+				<td>析构</td>
+				<td>若拥有指针 delete</td></tr>
+				<tr>
+				<td>T* auto_ptr::get() const throw()</td>
+				<td><p>返回auto_ptr所有对象地址(指针地址)</p>
+				<p>未拥有任何对象 返回null</p>
+				<p>不会改变所有权</p></td></tr>
+				<tr>
+				<td>T&amp; auto_ptr::operator*()const() throw()</td>
+				<td>若未拥有任何对象 引发未定义行为</td></tr>
+				<tr>
+				<td>T&amp; auto_ptr::operator-&gt;()const() throw()</td>
+				<td>若未拥有任何对象 引发未定义行为</td></tr>
+				<tr>
+				<td>T* auto_ptr::release() throw()</td>
+				<td><p>放弃所有权</p>
+				<p>返回所有指针地址(若未拥有任何对象返回null)</p></td></tr>
+				<tr>
+				<td>void auto_ptr::reset(T* ptr=0) throw()</td>
+				<td><p>以ptr重新初始化auto_ptr当然且拥有之</p>
+				<p>若auto_ptr原本拥有对象，则先delete</p></td></tr>
+
+			</table>
+		</p>
+	</div>
+
+	<div class="note"><a name="number"></a>
+		<p><span class="flag">数值极限</span>
+<pre>通过template numeric_limits提供极值替代c的预处理常数
+整数常数定义于&lt;climits&gt;浮点&lt;cfloat&gt;
+</pre>
+		</p>
+		<p><span class="flag">内建型别最小长度</span>
+			<img src="image/通用工具/number.PNG" />
+		</p>
+		<p><span class="flag">特化</span>
+			<img src="image/通用工具/特化.PNG" />
+		</p>
+		<p><span class="flag">example</span>
+			std::cout&lt;&lt;std::numeric_limits&lt;int&gt;::max()&lt;&lt;std::endl;
+		</p>
+		<p><span class="flag">numeric_limits成员函数</span>
+			<table>
+				<tr><td>函数</td><td>描述</td></tr>
+				<tr>
+				<td>is_specialized</td>
+				<td>型别是否有极值</td></tr>
+				<tr>
+				<td>is_signed</td>
+				<td>型别带有正负号</td></tr>
+				<tr>
+				<td>is_integer</td>
+				<td>整数型别</td></tr>
+				<tr>
+				<td>is_exact</td>
+				<td>计算结果不产生舍入误差(对所有整数型别均为true)</td></tr>
+				<tr>
+				<td>is_bounded</td>
+				<td>数值集的个数有限(所有内建型别均为true)</td></tr>
+				<tr>
+				<td>is_modulo</td>
+				<td>两正数相加结果可能因溢出而回绕为较小值</td></tr>
+				<tr>
+				<td>is_iec559</td>
+				<td>遵从IEC559 和 IEEE754 标准</td></tr>
+				<tr>
+				<td>min()</td>
+				<td>最小值</td></tr>
+				<tr>
+				<td>max()</td>
+				<td>最大值</td></tr>
+				<tr>
+				<td>digits</td>
+				<td><p>字符和整数:不带正负号之位个数</p>
+				<p>浮点:位数中之radix位个数</p></td></tr>
+				<tr>
+				<td>digits10</td>
+				<td>十进制数的个数</td></tr>
+				<tr>
+				<td>radix</td>
+				<td><p>整数:表示式的底数，几乎总是2</p>
+				<p>浮点数：指数式的底数</p></td></tr>
+				<tr>
+				<td>min_exponent</td>
+				<td>底数radix的最小负整数指数</td></tr>
+				<tr>
+				<td>max_exponent</td>
+				<td>底数radix的最大正整数指数</td></tr>
+				<tr>
+				<td>min_exponent10</td>
+				<td>底数10的最小负整数指数</td></tr>
+				<tr>
+				<td>max_exponent10</td><td>底数10的最大正整数指数</td></tr>
+				<tr>
+				<td>epsilon</td>
+				<td>1和最接近1的值之间的差距</td></tr>
+				<tr>
+				<td>round_style</td>
+				<td>舍入风格</td></tr>
+				<tr>
+				<td>函数round_error()</td>
+				<td>最大舍入误差量测</td></tr>
+				<tr>
+				<td>has_infinity</td>
+				<td>有“正无穷大”表示式</td></tr>
+				<tr>
+				<td>infinity</td>
+				<td>正无穷大</td></tr>
+				<tr>
+				<td>has_quiet_NaN</td>
+				<td>本型别有不发信号的“非数值”表示式</td></tr>
+				<tr>
+				<td>quiet_NaN</td>
+				<td>如果可以，安静的表述出“这不是个数值”</td></tr>
+				<tr>
+				<td>has_signaling_NaN</td>
+				<td>本型别有会发出信号的“非数值”表示式</td></tr>
+				<tr>
+				<td>signaling_NaN</td>
+				<td>如果可以，发出信号表述出“这不是个数值”</td></tr>
+				<tr>
+				<td>has_denorm</td>
+				<td>本型别是否允许非标准化数值</td></tr>
+				<tr>
+				<td>has_denorm_loss</td>
+				<td>准确度的遗失是以一个非标准化值而不是一个精密的结果被侦测出来</td></tr>
+				<tr>
+				<td>denorm_min</td>
+				<td>最小的非标准化正值</td></tr>
+				<tr>
+				<td>traps</td>
+				<td>已实作出Trapping</td></tr>
+				<tr><td>tinyness_before</td>
+				<td>在舍入前可侦测出tinyness</td></tr>
+
+			</table>
+		</p>
+
+		<p><span class="flag">舍入风格</span>
+			<img src="image/通用工具/舍入.PNG" />
+		</p>
+		<p><span class="flag">demonmalization style</span>
+			<img src="image/通用工具/demonmalization.PNG" />
+		</p>
+	</div>
+
+	<div class="note"><a name="help"></a>
+		<p><span class="flag">辅助函数</span>
+<pre>算法程序库(定义于&lt;algorithm&gt;)内含三个辅助函数，用来挑选两值中较大 较小 或交换
+</pre>
+		</p>
+		<p><span class="flag">min max声明</span>
+<pre>namespace std{
+template&lt;class T&gt;
+	inline const T&amp; min (const T&amp; a,const T &amp;b)
+	{
+		return b&lt;a?b:a;
+	}
+} 
+max 同min
+如果两值相等通常返回第一值(所谓通常也可不如此 故程序不应依赖此)
+</pre>
+		</p>
+		<p><span class="flag">提供额外比较参数的声明</span>
+<pre>namespace std{
+template&lt;class T,class Compare&gt;
+	inline const T&amp; min (const T&amp; a,const T&amp; Comare comp)
+	{
+		return omp(b,a)?b:a;
+	}
+}
+Comare需要是函数或者仿函数
+</pre>
+		</p>
+		<p><span class="flag">swap声明</span>
+<pre>namespace std{
+	template&lt;class T&gt;
+	inline void swap(T&amp; a,T&amp; b)
+	{
+		T temp(a);
+		a=b; 
+		b=temp; 
+	} 
+}
+
+由声明可知 调用swap 需要copy构造函数和 assignment存在方可调用
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="operator"></a>
+		<p><span class="flag">辅助性比较操作符</span>
+<pre>有四个template functions 分别定义了!=,>,<=,>=他们依据==和<完成 被定义于&lt;utility&gt;中 std::rel_ops名字空间内
+故对于自定义型别自需要提供==和&lt;的全局比较特化函数 并使用 std::rel_ops名字空间便自动获得此四种操作符
+</pre>
+		</p>
+		<p><span class="flag">examplate</span>
+<pre>#include &lt;iostream>&gt;
+#include &lt;utility&gt;
+
+using namespace std::rel_ops;
+
+class test
+{
+	public:
+	int a;
+	int b;
+
+	test(int a,int b)
+	{
+		this-&gt;a=a;
+		this-&gt;b=b;
+	}
+};
+
+bool operator==(const test& x, const test& y)
+{ 
+	return (x.a+x.b)==(y.a+y.b);
+}
+bool operator<(const test& x, const test& y)
+{ 
+	return (x.a+x.b)&lt;(y.a+y.b);
+}
+int _tmain(int argc, _TCHAR* argv[])
+{
+	test a(1,2),b(3,4);
+	std::cout&lt;&lt;(a&gt;b)&lt;&lt;std::endl;
+	system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>比较的两个型别可以不同只需可以比较(== <)就行 因为实作版本中 对于操作符 用了两个不同的型别 template&lt;class a,class b&gt;
+但此非c++标准程序库所支持的做法，所以若用两个型别 可能会无法移植
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="other"></a>
+		<p><span class="flag">其他</span>
+		</p>
+
+		<p><span class="flag">&lt;cstddef&gt;</span>
+			<table>
+				<tr><td>标识符</td><td>描述</td></tr>
+				<tr><td>NULL</td><td>指针值，表示“未定义”或“无值”</td></tr>
+				<tr><td>size_t</td><td>一种无正负号的型别，表示大小</td></tr>
+				<tr><td>ptrdiff_t</td><td>一种有正负号的型别，表示指针间的距离</td></tr>
+				<tr><td>offsetof</td><td>表示一个成员在struct或union中的偏移量</td></tr>
+			</table>	
+		</p>
+		<p><span class="flag">&lt;cstdlib&gt;</span>
+			<table>
+				<tr><td>定义</td><td>描述</td></tr>
+				<tr><td>exit(int status)</td><td>退出程序并且清理static对象和，清空缓冲区，关闭io句柄</td></tr>
+				<tr><td>EXIT_SUCCESS</td><td>程序正常结束</td></tr>
+				<tr><td>EXIT_FAILURE</td><td>程序不正常结束</td></tr>
+				<tr><td>abort()</td><td>退出程序 不做任何清理</td></tr>
+				<tr><td>atexit(void(*function)())</td><td>exit退出时先调用的函数</td></tr>
+				</table>	
+			abort和exit都不会清理局部对象 因为堆栈展开动作不会被执行 故不该使用此二函数 应该借助exception 或return
+		</p>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,199 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>lua</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#CAPI">CAPI</a>	
+		<a href="#zhan">棧</a>
+		<a href="#error">錯誤</a>
+	</div>
+
+	<div class="note"><a name="CAPI"></a>
+		<p><span class="flag">CAPI</span>
+<pre>lua 提供了一組 c api 用於在 c環境中 使用lua
+
+//對於c++只需要 即可
+#include&lt;lua.hpp&gt;
+#pragma comment(lib,"lua5.1.lib")
+
+1	所有api 都需要一個 lua_State結構 指針 
+	(使用luaL_newstate 創建)
+
+2	新的lua環境中 沒有任何實現 包括 標準庫 
+	（使用luaL_openlibs 可打開標準庫）
+
+3	使用 luaL_loadfile 或 luaL_loadbuffer
+	（加載lua腳本）
+
+4	使用 lua_pcall 在保護模式下執行 lua腳本
+
+5	使用lua_close釋放lua
+</pre>
+		</p>
+		<p><span class="flag">相關API</span>
+<pre>//創建一個 新的 lua 環境
+lua_State* luaL_newstate()
+//釋放lua
+void lua_close(lua_State *L)
+
+//打開lua 標準庫
+void luaL_openlibs(lua_State *L); 
+
+//加載lua腳本 失敗返回 非0
+int luaL_loadfile(lua_State *L, const char *filename)
+int luaL_loadstring(lua_State *L, const char *s);
+
+//執行lua腳本 失敗返回 非0
+int lua_pcall(lua_State *L, int nargs, int nresults, int errfunc);
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include&lt;lua.hpp&gt;
+#pragma comment(lib,"lua5.1.lib")
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	/*打開lua*/
+	lua_State* L	=	luaL_newstate();
+	//打開標準庫
+	luaL_openlibs(L);
+
+	if(!luaL_loadfile(L,"test.lua"))	//載入lua
+	{
+		if(lua_pcall(L,0,0,0))
+		{
+			puts(lua_tostring(L,-1));	//輸出 lua棧中消息
+			lua_pop(L,1);			//彈出 lua棧中 消息
+		}
+	}
+	else
+	{
+		puts(lua_tostring(L,-1));
+		lua_pop(L,1);
+	}
+
+	lua_close(L);	//釋放環境
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>lua.h 中定義了lua基礎函數  lua_*
+lauxlib.h 為輔助庫函數 luaL_*
+
+load... 函數 將編譯lua腳本 若沒有錯誤 就壓入 lua棧中 並返回0
+lua_pcall 將程序塊從lua棧中彈出 並在保護模式下 運行 若出現錯誤 返回非0 並想lua棧中 壓入一條錯誤信息
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="zhan"></a>
+		<p><span class="flag">棧</span>
+<pre>lua模擬量一個虛擬的 棧 用於 實現 c程序 和 lua 之間的 交換
+棧中 每個元素 可以表示 任意lua 型別
+
+當調用lua時 其只會改變 棧頂 c程序 可以 任意操作棧
+
+//棧大小
+#define LUA_MINSTACK	20
+</pre>
+		</p>
+		<p><span class="flag">壓入元素</span>
+<pre>void lua_pushnil(lua_State *L)						//壓入nil
+void lua_pushboolean(lua_State *L,int)					//壓入bool
+void lua_pushnumber(lua_State *L,lua_Number)				//壓入double
+void lua_pushinteger(lua_State *L,lua_Integer)				//...int
+void lua_pushlstring(lua_State *L,const char*,size_t len)		//...指定長度字符串
+void lua_pushstring(lua_State *L,const char*)				//...0結尾的字符串
+...
+
+所有壓入的字符串 lua都會 拷貝一個 副本 故 壓入後可 立即釋放這些 字符串
+
+lua啟動時 一般會有 20個 空閒的 棧空間
+//檢查棧空間是否 &gt;= sz 是返回1 否則0
+int lua_checkstack(lua_State *L, int sz)
+</pre>
+		</p>
+		<p><span class="flag">訪問元素</span>
+<pre>使用 索引訪問 棧中 元素 棧底編號 1 亦可使用負數表示棧頂用-1表示
+
+//lua_is* 返回 棧中 數據 是否可以 轉化為指定型別
+//是否可轉為數值
+int lua_isnumber(lua_State *L
+, int idx	//棧中位置 索引
+)
+...
+
+//返回棧中 數據型別
+int lua_type(lua_State *L, int idx)
+#define LUA_TNONE		(-1)
+
+#define LUA_TNIL		0
+#define LUA_TBOOLEAN		1
+#define LUA_TLIGHTUSERDATA	2
+#define LUA_TNUMBER		3
+#define LUA_TSTRING		4
+#define LUA_TTABLE		5
+#define LUA_TFUNCTION		6
+#define LUA_TUSERDATA		7
+#define LUA_TTHREAD		8
+
+
+//lua_to* 返回 棧中 元素值
+#define lua_tostring(L,i)	lua_tolstring(L, (i), NULL)
+const char* lua_tolstring (lua_State *L, int idx, size_t *len);	//len返回字符串長
+int         lua_toboolean (lua_State *L, int idx);
+(若lua_to* 不能轉化 返回 0)
+</pre>
+		</p>
+		<p><span class="flag">其他棧操作</span>
+<pre>//返回棧中元素 個數
+int lua_gettop(lua_State *L)
+
+//設置棧頂位置 新元素值為nil 多餘舊元素刪除
+void lua_settop(lua_State *L,int)
+//出棧 n 個元素
+#define lua_pop(L,n)		lua_settop(L, -(n)-1)
+
+//將指定索引位置 值的副本 入棧
+void lua_pushvalue(lua_State *L,int)
+
+//將指定棧位置 元素 刪除 位置之上的元素 下移補齊
+void lua_remove(lua_State *L,int)
+
+//在指定棧位置之上元素上移 將棧頂移動到此 (棧大小不變) 
+void lua_insert(lua_State *L,int)
+
+//用棧頂元素 替換 此位置 元素(棧大小-1)
+void lua_replace(lua_State *L,int)
+</pre>
+		</p>
+    	<p><span class="flag">注意</span>
+<pre>lua_tolstring 返回的字符串 lua只保證 其還在棧中 將一直有效
+故 要在 後續 訪問 應該拷貝其副本
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="error"></a>
+		<p><span class="flag">錯誤</span>
+<pre>lua 腳本出現錯誤 如內存不足 其會調用一個 緊急函數 (使用 lua_atpanic設置)
+
+或者 (推薦)使用 lua_pcall 在保護模式下執行lua腳本 出現此類 錯誤 
+lua_pcall返回非0  並將一條錯誤信息 留在 棧頂
+</pre>
+		</p>
+	</div>
+	
+</div>
+</body>
+</html>
+

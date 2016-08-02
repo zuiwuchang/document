@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>数据类型</title>
+</head>
+<body>
+<table align="center"><tr><td>
+	<P>
+    <h2>
+    <a href="#int">整型</a><br />
+    <a href="#float">浮点</a><br />
+    <a href="#date">时间日期</a><br />
+    <a href="#string">字符串</a><br />
+    <a href="#binary">二进制</a><br />
+    </h2>
+    </P>
+
+	<p>
+	<h3>
+    <a name="int">
+    <font color="#FF0000">整型</font>
+    <table border="2">
+    <tr><td>数据类型</td><td>字节数</td><td>无符号取值</td><td>有符号取值</td></tr>
+    <tr><td>tinyint</td><td>1</td><td>0~255</td><td>-128～127</td></tr>
+    <tr><td>smallint</td><td>2</td><td>0~65535</td><td>-32768~32767</td></tr>
+    <tr><td>mediumint</td><td>3</td><td>0~16777215</td><td>-8388608~8388607</td></tr>
+    <tr><td>int</td><td>4</td><td>0~4294967295</td><td>-2147483648~2147483647</td></tr>
+    <tr><td>integer</td><td>4</td><td>0~4294967295</td><td>-2147483648~2147483647</td></tr>
+    <tr><td>bigint</td><td>8</td><td>0~18446744073709551615</td><td>-9223372036854775808~9223372036854775807</td></tr>
+    </table>
+    </a>
+    </h3>
+	</p>
+    
+    <p>
+    <h3>
+    <a name="float">
+    <font color="#FF0000">浮点</font>
+    <table border="2">
+   	<tr><td>数据类型</td><td>字节数</td><td>负数取值</td><td>非负数取值</td></tr>
+    <tr><td>float</td><td>4</td><td>-3.402823466E+38~<br />-1.175494351E-38</td><td>0和1.175494351E+38~<br />3.402823466E+38</td></tr>
+    <tr><td>double</td><td>8</td><td>-1.7976931348623157E+308~<br />-2.2250738585072014E-308</td><td>0和2.2250738585072014E-308<br />1.7976931348623157E+308</td></tr>
+    <tr><td>decimal(m,d)或<br />dec(m,d)<br />[m为数据长度d为小数点数.号不占位<br />{decimal(6,2) 可取值1234.56}]</td><td>m+2</td>
+    <td>decimal同double</td><td>同double</td></tr>
+    </table>
+    float(6,2) double(6,2) float double
+    mysql中decimal以字符串方式存储
+    </a>
+    </h3>
+    </p>
+    
+    <p>
+    <h3>
+    <a name="date">
+    <font color="#FF0000">时间日期</font>
+    <table border="2">
+    <tr><td>数据类型</td><td>字节数</td><td>取值</td><td>零值</td></tr>
+    <tr><td>year</td><td>1</td><td>1901~2155</td><td>0000</td></tr>
+    <tr><td>date</td><td>4</td><td>1000-01-01~9999-12-31</td><td>0000:00:00</td></tr>
+    <tr><td>time</td><td>3</td><td>-838:59:59~838:59:59</td><td>00:00:00</td></tr>
+    <tr><td>datetime</td><td>8</td><td>1000-01-01 00:00:00~9999-12-31 23:59:59</td><td>0000-00-00 00:00:00</td></tr>
+    <tr><td>timestamp</td><td>4</td><td>19700101080001~20380119111407</td><td>00000000000000</td></tr>
+    </table>
+    插入数据时需要加入引号 如'2012-12-12'
+    </a>
+    </h3>
+    </p>
+    
+    <p>
+    <h3>
+    <a name="string">
+    <font color="#FF0000">字符串</font>
+    <table border="2">
+    <tr><td>数据类型</td><td>字节数</td><td>取值</td></tr>
+    <tr><td>char(n)</td><td>n+1</td><td>0~n个字符</td></tr>
+    <tr><td>varchar(n)</td><td>实际保存字节数+1</td><td>0~n个字符</td></tr>
+    <tr><td>tinytext</td><td>实际保存字节数+2</td><td>0~255个字符</td></tr>
+    <tr><td>text</td><td>实际保存字节数+2</td><td>0~65535个字符</td></tr>
+    <tr><td>mediumtext</td><td>实际保存字节数+3</td><td>0~167772150个字符</td></tr>
+    <tr><td>longtext</td><td>实际保存字节数+4</td><td>0～4294967295个字符</td></tr>
+    </table>
+    </a>
+    </h3>
+    </p>
+    
+    <p>
+    <h3>
+    <a name="binary">
+    <font color="#FF0000">二进制</font>
+    <table border="2">
+    <tr><td>数据类型</td><td>取值</td></tr>
+    <tr><td>binary(m)</td><td>字节数为m，数据长度为0~m</td></tr>
+    <tr><td>varbinary(m)</td><td>字节数为保存数据长度+1,字节长度为0~m</td></tr>
+    <tr><td>bit(m)</td><td>m位数据，没最大为64</td></tr>
+    <tr><td>tinyblob</td><td>可变长数据,最多255字节</td></tr>
+    <tr><td>blob</td><td>可变长数据,最多pow(2,16)-1字节</td></tr>
+    <tr><td>mediumblob</td><td>可变长数据,最多pow(2,24)-1字节</td></tr>
+    <tr><td>longblob</td><td>可变长数据,最多pow(2,32)-1字节</td></tr>
+    </table>
+    </a>
+    </h3>
+    </p>
+</td></tr></table>
+</body>
+</html>

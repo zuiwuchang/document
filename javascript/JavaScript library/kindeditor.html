@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>kindeditor</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#kindeditor">kindeditor</a>
+	</div>
+	
+
+	<div class="note"><a name="kindeditor"></a>
+		<p><span class="flag">kindeditor</span>
+<pre>kindeditor 是一個 開源(GPL) 的 富文本框
+
+官網<a target="_blank" href="http://kindeditor.net/demo.php">http://kindeditor.net/demo.php</a>
+
+<img style="width:100%;" src="images/kindeditor/k.PNG">
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>//鏈接 庫文件
+&lt;link rel="stylesheet" href="../themes/default/default.css" /&gt;
+&lt;script charset="utf-8" src="../kindeditor-min.js"&gt;&lt;/script&gt;
+&lt;script charset="utf-8" src="../lang/zh_CN.js"&gt;&lt;/script&gt;
+
+//初始化 文本框
+&lt;script&gt;
+	var editor;
+	<span class="care">// 必須在 KindEditor.ready 中初始化</span>
+	KindEditor.ready(function(K) {
+		editor = K.create('textarea[name="content"]', {
+			allowFileManager : true
+		});
+	});
+&lt;/script&&gt;
+
+&lt;textarea name="content" style="width:100%;height:400px;visibility:hidden;"&gt;KindEditor&lt;/textarea&gt;
+
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

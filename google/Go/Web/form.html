@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#form">form</a>
+		<a href="#check">驗證表單數據</a>
+		<a href="#XSS">預防跨站腳本</a>
+		<a href="#submit">防止多次递交表单</a>
+		<a href="#upload">文件上传</a>
+	</div>
+
+	<div class="note"><a name="form"></a>
+		<p><span class="flag">form</span>
+<pre>login.gtpl
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;form action="/login" method="post"&gt;
+    用户名:&lt;input type="text" name="username"&gt;
+    密码:&lt;input type="password" name="password"&gt;
+    &lt;input type="submit" value="登陆"&gt;
+&lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+
+
+
+package main
+
+import (
+	"fmt"
+	"html/template"
+	"log"
+	"net/http"
+	"strings"
+)
+
+func sayhelloName(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm() //解析url传递的参数，对于POST则解析响应包的主体（request body）
+	//注意:如果没有调用ParseForm方法，下面无法获取表单的数据
+	fmt.Println(r.Form) //这些信息是输出到服务器端的打印信息
+	fmt.Println("path", r.URL.Path)
+	fmt.Println("scheme", r.URL.Scheme)
+	fmt.Println(r.Form["url_long"])
+	for k, v := range r.Form {
+		fmt.Println("key:", k)
+		fmt.Println("val:", strings.Join(v, ""))
+	}
+	fmt.Fprintf(w, "Hello astaxie!") //这个写入到w的是输出到客户端的
+}
+
+func login(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("method:", r.Method) //获取请求的方法
+	if r.Method == "GET" {
+		t, _ := template.ParseFiles("login.gtpl")
+		t.Execute(w, nil)
+	} else {
+		//请求的是登陆数据，那么执行登陆的逻辑判断
+		fmt.Println("username:", r.Form["username"])
+		fmt.Println("password:", r.Form["password"])
+	}
+}
+
+func main() {
+	http.HandleFunc("/", sayhelloName)       //设置访问的路由
+	http.HandleFunc("/login.html", login)   //设置访问的路由
+	err := http.ListenAndServe(":80", nil) //设置监听的端口
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
+}
+</pre>
+		</p>
+		<p><span class="flag">request.Form</span>
+<pre>request.Form是url.Values型別，里面存储的是对应的类似key=value的信息，下面展示了可以对form数据进行的一些操作:
+
+v := url.Values{}
+v.Set("name", "Ava")
+v.Add("friend", "Jess")
+v.Add("friend", "Sarah")
+v.Add("friend", "Zoe")
+// v.Encode() == "name=Ava&friend=Jess&friend=Sarah&friend=Zoe"
+fmt.Println(v.Get("name"))
+fmt.Println(v.Get("friend"))
+fmt.Println(v["friend"])
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="check"></a>
+		<p><span class="flag">驗證表單數據</span>
+<pre>socket開發 的一個原則是 不信任客戶端任何信息 故需要對用戶輸入數據進行驗證
+</pre>
+		</p>
+		<p><span class="flag">驗證必填數據</span>
+<pre>//返回表單值 不存在為 ""
+r.Form.Get("username")
+
+//若是map slice 只能 r.Form["username"]
+</pre>
+		</p>
+		<p><span class="flag">驗證數字</span>
+<pre>getint,err:=strconv.Atoi(r.Form.Get("age"))
+if err!=nil{
+    //数字转化出错了，那么可能就不是数字
+}
+//接下来就可以判断这个数字的大小范围了
+if getint >100 {
+    //太大了
+}
+
+//或者使用正則表達式
+if m, _ := regexp.MatchString("^[0-9]+$", r.Form.Get("age")); !m {
+    return false
+}
+</pre>
+		</p>
+		<p><span class="flag">中文</span>
+<pre>if m, _ := regexp.MatchString("^[\\x{4e00}-\\x{9fa5}]+$", r.Form.Get("realname")); !m {
+    return false
+}
+</pre>
+		</p>
+		<p><span class="flag">英文</span>
+<pre>if m, _ := regexp.MatchString("^[a-zA-Z]+$", r.Form.Get("engname")); !m {
+    return false
+}
+</pre>
+		</p>
+		<p><span class="flag">电子邮件地址</span>
+<pre>if m, _ := regexp.MatchString(`^([\w\.\_]{2,10})@(\w{1,}).([a-z]{2,4})$`, r.Form.Get("email")); !m {
+    fmt.Println("no")
+}else{
+    fmt.Println("yes")
+}
+</pre>
+		</p>
+		<p><span class="flag">手机号码</span>
+<pre>if m, _ := regexp.MatchString(`^(1[3|4|5|8][0-9]\d{4,8})$`, r.Form.Get("mobile")); !m {
+    return false
+}
+</pre>
+		</p>
+		<p><span class="flag">身份证号码</span>
+<pre>//验证15位身份证，15位的是全部数字
+if m, _ := regexp.MatchString(`^(\d{15})$`, r.Form.Get("usercard")); !m {
+    return false
+}
+
+//验证18位身份证，18位前17位为数字，最后一位是校验位，可能为数字或字符X。
+if m, _ := regexp.MatchString(`^(\d{17})([0-9]|X)$`, r.Form.Get("usercard")); !m {
+    return false
+}
+</pre>
+		</p>
+		<p><span class="flag">日期和时间</span>
+<pre>t := time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC)
+fmt.Printf("Go launched at %s\n", t.Local())
+</pre>
+		</p>
+
+		<p><span class="flag">下拉菜单</span>
+<pre>&lt;select name="fruit"&gt;
+&lt;option value="apple"&gt;apple&lt;/option&gt;
+&lt;option value="pear"&gt;pear&lt;/option&gt;
+&lt;option value="banane"&gt;banane&lt;/option&gt;
+&lt;/select&gt;
+
+slice:=[]string{"apple","pear","banane"}
+
+for _, v := range slice {
+    if v == r.Form.Get("fruit") {
+        return true
+    }
+}
+return false
+</pre>
+		</p>
+		<p><span class="flag">单选按钮</span>
+<pre>&lt;input type="radio" name="gender" value="1"&gt;男
+&lt;input type="radio" name="gender" value="2"&gt;女
+
+slice:=[]int{1,2}
+for _, v := range slice {
+    if v == r.Form.Get("gender") {
+        return true
+    }
+}
+return false
+</pre>
+		</p>
+		<p><span class="flag">复选框</span>
+<pre>&lt;input type="checkbox" name="interest" value="football"&gt;足球
+&lt;input type="checkbox" name="interest" value="basketball"&gt;篮球
+&lt;input type="checkbox" name="interest" value="tennis"&gt;网球
+
+slice:=[]string{"football","basketball","tennis"}
+a:=Slice_diff(r.Form["interest"],slice)
+if a == nil{
+    return true
+}
+return false
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>Go實現的是 RE2 正則表達式 所有字符使用 UTF-8
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="XSS"></a>
+		<p><span class="flag">預防跨站腳本</span>
+<pre>跨站腳本(Cross Site Scripting [XSS]) 既用戶在一些 由其定義的輸出內容 嵌入 JavaScript VBScript ActiveX Flash 等
+(從而到達 盜取用戶信息 修改用戶設置 盜取/污染cookie 植入廣告等)
+
+針對XSS
+1	驗證用戶輸入
+2	對輸出適當處理
+</pre>
+		</p>
+		<p><span class="flag">轉義</span>
+<pre>html/template 提供可如下 幾個 函數 用於轉義
+
+func HTMLEscape(w io.Writer, b []byte) //把b进行转义之后写到w
+func HTMLEscapeString(s string) string //转义s之后返回结果字符串
+func HTMLEscaper(args ...interface{}) string //支持多个参数一起转义，返回结果字符串
+
+fmt.Println("username:", template.HTMLEscapeString(r.Form.Get("username"))) //输出到服务器端
+fmt.Println("password:", template.HTMLEscapeString(r.Form.Get("password")))
+template.HTMLEscape(w, []byte(r.Form.Get("username"))) //输出到客户端
+</pre>
+		</p>
+		<p><span class="flag">轉義</span>
+<pre>
+    Go的html/template包默认帮你过滤了html标签，但是有时候你只想要输出这个&lt;script&gt;alert()&lt;/script&gt;看起来正常的信息，该怎么处理？请使用text/template。请看下面的例子：
+
+import "text/template"
+...
+t, err := template.New("foo").Parse(`{{define "T"}}Hello, {{.}}!{{end}}`)
+err = t.ExecuteTemplate(out, "T", "&lt;script&gt;alert('you have been pwned')&lt;/script&gt;")
+输出
+
+Hello, &lt;script&gt;alert('you have been pwned')&lt;/script&gt;!
+或者使用template.HTML类型
+
+import "html/template"
+...
+t, err := template.New("foo").Parse(`{{define "T"}}Hello, {{.}}!{{end}}`)
+err = t.ExecuteTemplate(out, "T", template.HTML("&lt;script&gt;alert('you have been pwned')&lt;/script&gt;"))
+输出
+
+Hello, &lt;script&gt;alert('you have been pwned')&lt;/script&gt;!
+转换成template.HTML后，变量的内容也不会被转义
+
+转义的例子：
+
+import "html/template"
+...
+t, err := template.New("foo").Parse(`{{define "T"}}Hello, {{.}}!{{end}}`)
+err = t.ExecuteTemplate(out, "T", "&lt;script&gt;alert('you have been pwned')&lt;/script&gt;")
+转义之后的输出：
+
+Hello, &lt;script&gt;alert(&#39;you have been pwned&#39;)&lt;/script&gt;!
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="submit"></a>
+		<p><span class="flag">防止多次提交表单</span>
+<pre>為表單 添加 一個 hide 元素 其中 記錄請求時間 同時服務器 在session 記錄此值
+若收到客戶端 請求 驗證此值
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="upload"></a>
+		<p><span class="flag">文件上传</span>
+<pre>要使表单能够上传文件，首先第一步就是要添加form的enctype属性，enctype属性有如下三种情况:
+
+application/x-www-form-urlencoded   表示在发送前编码所有字符（默认）
+multipart/form-data   不对字符编码。在使用包含文件上传控件的表单时，必须使用该值。
+text/plain    空格转换为 "+" 加号，但不对特殊字符编码。
+所以，表单的html代码应该类似于:
+
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;上传文件&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;form enctype="multipart/form-data" action="http://127.0.0.1:9090/upload" method="post"&gt;
+  &lt;input type="file" name="uploadfile" /&gt;
+  &lt;input type="hidden" name="token" value="{{.}}"/&gt;
+  &lt;input type="submit" value="upload" /&gt;
+&lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+在服务器端，我们增加一个handlerFunc:
+
+http.HandleFunc("/upload", upload)
+
+// 处理/upload 逻辑
+func upload(w http.ResponseWriter, r *http.Request) {
+    fmt.Println("method:", r.Method) //获取请求的方法
+    if r.Method == "GET" {
+        crutime := time.Now().Unix()
+        h := md5.New()
+        io.WriteString(h, strconv.FormatInt(crutime, 10))
+        token := fmt.Sprintf("%x", h.Sum(nil))
+
+        t, _ := template.ParseFiles("upload.gtpl")
+        t.Execute(w, token)
+    } else {
+        r.ParseMultipartForm(32 &lt;&lt; 20)
+        file, handler, err := r.FormFile("uploadfile")
+        if err != nil {
+            fmt.Println(err)
+            return
+        }
+        defer file.Close()
+        fmt.Fprintf(w, "%v", handler.Header)
+        f, err := os.OpenFile("./test/"+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
+        if err != nil {
+            fmt.Println(err)
+            return
+        }
+        defer f.Close()
+        io.Copy(f, file)
+    }
+}
+通过上面的代码可以看到，处理文件上传我们需要调用r.ParseMultipartForm，里面的参数表示maxMemory，调用ParseMultipartForm之后，上传的文件存储在maxMemory大小的内存里面，如果文件大小超过了maxMemory，那么剩下的部分将存储在系统的临时文件中。我们可以通过r.FormFile获取上面的文件句柄，然后实例中使用了io.Copy来存储文件。
+
+获取其他非文件字段信息的时候就不需要调用r.ParseForm，因为在需要的时候Go自动会去调用。而且ParseMultipartForm调用一次之后，后面再次调用不会再有效果。
+通过上面的实例我们可以看到我们上传文件主要三步处理：
+
+表单中增加enctype="multipart/form-data"
+服务端调用r.ParseMultipartForm,把上传的文件存储在内存和临时文件中
+使用r.FormFile获取文件句柄，然后对文件进行存储等处理。
+文件handler是multipart.FileHeader,里面存储了如下结构信息
+
+type FileHeader struct {
+    Filename string
+    Header   textproto.MIMEHeader
+    // contains filtered or unexported fields
+}
+我们通过上面的实例代码打印出来上传文件的信息如下
+
+
+
+
+
+客户端上传文件
+Go支持模拟客户端表单功能支持文件上传，详细用法请看如下示例：
+
+package main
+
+import (
+    "bytes"
+    "fmt"
+    "io"
+    "io/ioutil"
+    "mime/multipart"
+    "net/http"
+    "os"
+)
+
+func postFile(filename string, targetUrl string) error {
+    bodyBuf := &bytes.Buffer{}
+    bodyWriter := multipart.NewWriter(bodyBuf)
+
+    //关键的一步操作
+    fileWriter, err := bodyWriter.CreateFormFile("uploadfile", filename)
+    if err != nil {
+        fmt.Println("error writing to buffer")
+        return err
+    }
+
+    //打开文件句柄操作
+    fh, err := os.Open(filename)
+    if err != nil {
+        fmt.Println("error opening file")
+        return err
+    }
+    defer fh.Close()
+
+    //iocopy
+    _, err = io.Copy(fileWriter, fh)
+    if err != nil {
+        return err
+    }
+
+    contentType := bodyWriter.FormDataContentType()
+    bodyWriter.Close()
+
+    resp, err := http.Post(targetUrl, contentType, bodyBuf)
+    if err != nil {
+        return err
+    }
+    defer resp.Body.Close()
+    resp_body, err := ioutil.ReadAll(resp.Body)
+    if err != nil {
+        return err
+    }
+    fmt.Println(resp.Status)
+    fmt.Println(string(resp_body))
+    return nil
+}
+
+// sample usage
+func main() {
+    target_url := "http://localhost:9090/upload"
+    filename := "./astaxie.pdf"
+    postFile(filename, target_url)
+}
+上面的例子详细展示了客户端如何向服务器上传一个文件的例子，客户端通过multipart.Write把文件的文本流写入一个缓存中，然后调用http的Post方法把缓存传到服务器。
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

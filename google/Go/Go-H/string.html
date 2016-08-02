@@ -1,0 +1,1013 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#string">字符串</a>
+		<a href="#operator">字符串操作符</a>
+		<a href="#char">字符串 字符</a>
+		<a href="#rune">字符串 與切片</a>
+		<a href="#fmt">fmt 包</a>
+		<a href="#strings">strings 包</a>
+		<a href="#strconv">strconv 包</a>
+		<a href="#utf8">unicode/utf8 包</a>
+		<a href="#unicode">unicode 包</a>
+		<a href="#regexp">regexp 包</a>
+		<a href="#template">html/template</a>
+	</div>
+
+	<div class="note">
+		<p><a name="string"></a><span class="flag">字符串</span>
+<pre>GO使用的字符集編碼為UTF-8(Go中所有都是標準UTF-8 包括源碼文件 完全國際化還是Google做到了)
+<span class="care">故不能直接使用索引操作單個字符</span>(可以先將其轉為UNICODE字符切片再使用索引操作)
+
+UNICODE 的碼點值[0x0,0x10FFFF] Go常量為 [0x0,unicode.MaxRune) Go使用rune(type rune int32)型別表示一個碼點
+</pre>
+		</p>
+
+		<p><span class="flag">字符串定義</span>
+<pre><span class="care">"</span>用來創建可解析的字符串常量
+<span class="care">'</span>創建不可轉義的原生字符串常量<span class="care">(不可包含')</span>
+<table>
+<tr><td>轉義字符</td><td>含義</td></tr>
+<tr><td>\\</td><td>\</td></tr>
+<tr><td>\ooo</td><td>3個8位數給定的八進制代碼的unicode字符</td></tr>
+<tr><td>\'</td><td>'</td></tr>
+<tr><td>\"</td><td>"</td></tr>
+<tr><td>\a</td><td>響鈴</td></tr>
+<tr><td>\b</td><td>退格</td></tr>
+<tr><td>\f</td><td>換頁</td></tr>
+<tr><td>\n</td><td>換行</td></tr>
+<tr><td>\r</td><td>回車</td></tr>
+<tr><td>\t</td><td>tab製表符</td></tr>
+<tr><td>\uhhh</td><td>4個16位數字給定的十六進制unicode字符</td></tr>
+<tr><td>\Uhhhhhhhh</td><td>8個32位數值給定的十六進制unicode字符</td></tr>
+<tr><td>\v</td><td>垂直製表符</td></tr>
+<tr><td>\xhh</td><td>2個8位數字給定的十六進制unicode字符</td></tr>
+</table>
+</pre>
+		</p>  
+
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	str := "多行書寫 只能使用 + 連接\n" +
+		<span class="care">"注意 + 只能跟在上面一行"</span>
+	fmt.Println(str)
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note">
+		<p><a name="operator"></a><span class="flag">字符串操作符</span>
+<pre><table>
+<tr><td>語法</td><td>含義</td></tr>
+<tr><td>s += t</td><td>將t追加到s尾</td></tr>
+<tr><td>s + t</td><td>將s t 級聯</td></tr>
+<tr><td>s[n]</td><td>返回第n個字符(uint8)的原始字節</td></tr>
+<tr><td>s[n:m]</td><td>取s中位置 [n,m) 處的字符串</td></tr>
+<tr><td>s[n:]</td><td>... [n,+∞) ...</td></tr>
+<tr><td>s[:m]</td><td>... [0,m) ...</td></tr>
+<tr><td>len(s)</td><td>返回字節數</td></tr>
+<tr><td>len([]rune(s))</td><td>返回字符數<span>utf8.RuneCountInString() 效率更加</span></td></tr>
+<tr><td>[]rune(s)</td><td>返回字符串的 unicode 字符切片</td></tr>
+<tr><td>string(chars)</td><td>將 unicode 字符切片 轉換為 字符串</td></tr>
+<tr><td>[]byte(s)</td><td>無副本的將字符串s轉化為原始字節切片數組</td></tr>
+<tr><td>string(bytes)</td><td>無副本的將 []byte []uint8 的字節切片轉化為字符串</td></tr>
+<tr><td>string(i)</td><td>將字符編碼轉為字符串</td></tr>
+<tr><td>strconv.Itoa(i)</td><td></td></tr>
+<tr><td>fmt.Sprint(x)</td><td></td></tr>
+</table>
+
+&lt;
+&lt;=
+==
+!=
+&gt;
+&gt;=
+</pre>
+		</p>
+	</div>
+
+	<div class="note">
+		<p><a name="char"></a><span class="flag">字符串 字符</span>
+<pre>使用 []rune(s) 可以將字符串 轉化為 字符 string(rune) 將字符切片 或字符 轉為字符串
+</pre>
+		</p>
+		<p><a name="operator"></a><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	str := "1234567890"
+	for i, char := range []rune(str) {
+		//%U 打印其UNICODE編碼
+		fmt.Printf("%-2d	%U	'%c'	%X\n",
+			i, char, char, []byte(string(char)))
+
+	}
+
+}
+</pre>
+		</p>
+		<p><a name="operator"></a><span class="flag">example2</span>
+<pre>package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	str := "1234567890"
+	new_str := ""
+	for _, char := range []rune(str) {
+
+		new_str += string(char)
+	}
+	fmt.Println(new_str)
+}
+</pre>
+		</p>
+
+		<p><a name="operator"></a><span class="flag">注意</span>
+<pre>上面example2示例使用 += 連接字符 這通常是低效的 
+通常的做法是將字符保存到切片中 在一次轉化為字符串 如
+package main
+
+import (
+	"fmt"
+	"unicode/utf8"
+)
+
+func main() {
+	str := "1234567890"
+	new_str := make([]rune, utf8.RuneCountInString(str))
+
+	for i, char := range []rune(str) {
+
+		new_str[i] = char
+	}
+	fmt.Println(string(new_str))
+}
+
+
+
+Go 有更方便的方式 bytes.Buffer 完成了類似上面的功能
+
+</pre>
+		</p>
+	</div>
+
+	<div class="note">
+		<p><a name="rune"></a><span class="flag">字符串 與切片</span>
+<pre>Go字符串 內部由utf8編碼的 字符切片構成 使用 []byte(s)
+strings 包的IndexXXX LastIndexXXX 可以計算 字符在切片中的位置(逆向位置)
+</pre>
+		</p>
+
+		<p><a name="rune"></a><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+	"strings"
+)
+
+func main() {
+	str := "草234567890"
+	bytes := []byte(str)
+	i := strings.Index(str, "2")
+	fmt.Println(i) //3
+
+	bytes[i] = 'a'
+	fmt.Println(str)           //"草234567890"
+	fmt.Println(string(bytes)) //草a34567890
+
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note">
+		<p><a name="fmt"></a><span class="flag">fmt 包</span>
+<pre>標準庫 fmt 包 提供了 打印函數 將數據以字符串形式 輸出到 控制台 文件 其他滿足io.Writer接口的值以及其他字符串中
+
+<table>
+<tr><td>語法</td><td>含義</td></tr>
+<tr><td>fmt.Errorf(format,args...)</td><td>返回一個包含給定格式化字符串的error</td></tr>
+<tr><td>fmt.Fprint(writer,args...)</td><td>按照%v 和空格 分隔 格式將args寫入到writer中<br />返回 寫入字數 和 nil(錯誤返回 error)</td></tr>
+<tr><td>fmt.Fprintf(writer,format,args...)</td><td>同上不過格式 由format指定</td></tr>
+<tr><td>fmt.Fprintln(writer,args...)</td><td>同Fprint 不過 結尾自動加個換行</td></tr>
+<tr><td>fmt.Print(args...)</td><td>同Fprint 不過此時writer為os.Stdout</td></tr>
+<tr><td>fmt.Printf(format,args...)</td><td>...</td></tr>
+<tr><td>fmt.Println(args...)</td><td>...</td></tr>
+<tr><td>fmt.Sprint(args...)</td><td>同Fprint 不過此時不輸出 而是合成一個字符串<br />並返回此字符串</td></tr>
+<tr><td>fmt.Sprintf(format,args...)</td><td>...</td></tr>
+<tr><td>fmt.Sprint(args...)</td><td>...</td></tr>
+</table>
+</pre>
+		</p>
+
+		<p><span class="flag">fmt 格式化指令</span>
+<pre><table>
+<tr><td>指令</td><td>含義</td></tr>
+<tr><td>%%</td><td>%</td></tr>
+<tr><td>%b</td><td>二進制數</td></tr>
+<tr><td>%c</td><td>unicode字符</td></tr>
+<tr><td>%d</td><td>十進制數</td></tr>
+<tr><td>%e</td><td>科學計算e表示 或複數</td></tr>
+<tr><td>%E</td><td>...E... ...</td></tr>
+<tr><td>%f</td><td>浮點 或 複數</td></tr>
+<tr><td>%g</td><td>以%e 或 %f 表示(以哪個更緊湊為輸出)</td></tr>
+<tr><td>%G</td><td>...%E 或 %F ...</td></tr>
+<tr><td>%p</td><td>16進制(小寫a-f) 前綴為 0x </td></tr>
+<tr><td>%q</td><td>以Go語法格式化</td></tr>
+<tr><td>%s</td><td>字符串</td></tr>
+<tr><td>%t</td><td>true 或 false</td></tr>
+<tr><td>%T</td><td>輸出Go中 被格式參數 型別</td></tr>
+<tr><td>%U</td><td>unicode字符碼點</td></tr>
+<tr><td>%v</td><td>使用默認格式 會型別自定義的String()輸出值</td></tr>
+<tr><td>%x</td><td>十六進制(a-f)</td></tr>
+<tr><td>%X</td><td>十六進制(A-F)</td></tr>
+</table>
+
+可以在%和指令間加上修飾符
+<table>
+<tr><td>修飾符</td><td>含義</td></tr>
+<tr><td>空格</td><td>若數字為正 在前面加 空格<br />...負...-</td></tr>
+<tr><td>#</td><td>以另外一種形式輸出<br />%#o 以0開始的八進制<br />%#p不含0x%#q盡可能使用原始形式<br />%#v使用Go語法輸出<br />%#x以0x開頭<br />%#X以0X開頭</td></tr>
+<tr><td>+</td><td>在數組前輸出+-號</td></tr>
+<tr><td>-</td><td>左對齊</td></tr>
+<tr><td>0</td><td>以數字0而非 空格填充</td></tr>
+<tr><td>n.m</td><td>數字 會 複數 精度</td></tr>
+<tr><td>n</td><td>...</td></tr>
+<tr><td>.m</td><td>...</td></tr>
+</table>
+</pre>
+		</p>
+	</div>
+
+	<div class="note">
+		<p><a name="strings"></a><span class="flag">strings 包</span>
+<pre>strings包提供了常用的字符串處理函數
+</pre>
+		</p>
+		<p></a><span class="strings">常用函數</span>
+<pre>//將字符串 s以字符分隔符 sep 分隔
+func Split(s, sep string) []string
+//同上 不過 n 指定了 分隔次數
+func SplitN(s, sep string, n int) []string
+
+//同上 不過 分隔字符串 將包含分隔符
+func SplitAfter(s, sep string, n int) []string
+func SplitAfterN(s, sep string) []string
+
+//同上 不過分隔符 為傳入的 判別式函數(返回true 分隔)
+func FieldsFunc(s string, f func(rune) bool) []string
+//使用 空白字符 分隔字符串
+func Fields(s string) []string
+
+
+//返回是否存在子串
+func Contains(s, substr string) bool
+//返回子串出現次數
+func Count(s, sep string) int
+//返回字符串是否相等
+func EqualFold(s, t string) bool
+
+//返回字符串是否相等
+func EqualFold(s, t string) bool
+
+
+
+//返回s是否以指定字符串開頭
+func HasPrefix(s, prefix string) bool
+//...結尾
+func HasSuffix(s, suffix string) bool
+//返回指定 * 第一次出現的位置
+func Index(s, sep string) int
+func IndexAny(s, chars string) int
+func IndexByte(s string, c byte) int
+func IndexFunc(s string, f func(rune) bool) int
+func IndexRune(s string, r rune) int
+
+//將字符串 以sep分隔符 合併
+func Join(a []string, sep string) string
+
+//返回 * 最後一次出現位置
+func LastIndex(s, sep string) int
+func LastIndexAny(s, chars string) int
+func LastIndexFunc(s string, f func(rune) bool) int
+
+
+
+//根據 mapping 規則 替換 是中所有字符
+func Map(mapping func(rune) rune, s string) string
+
+//創建一個字符串s的對象 使其子串 Read() ReadByte() ReadRune()
+func NewReader(s string) *Reader
+
+//創建一個替換器 以處理字符串替換
+func NewReplacer(oldnew ...string) *Replacer
+	<span class="care">r := strings.NewReplacer("&lt;", "&amp;lt;", "&gt;", "&amp;gt;")
+	fmt.Println(r.Replace("This is &lt;b&gt;HTML&lt;/b&gt;!"))
+	//This is &amp;lt;b&amp;gt;HTML&amp;lt;/b&amp;gt;!</span>
+
+//重複s count次
+func Repeat(s string, count int) string
+
+//將s中的old替換為new n是替換次數
+func Replace(s, old, new string, n int) string
+
+//對s中每個單詞 首字母大寫
+func Title(s string) string
+
+
+
+//轉小寫
+func ToLower(s string) string
+
+//oLowerSpecial returns a copy of the string s with all Unicode letters mapped to their lower case, giving priority to the special casing rules.
+func ToLowerSpecial(_case unicode.SpecialCase, s string) string
+
+//ToTitle returns a copy of the string s with all Unicode letters mapped to their title case.
+func ToTitle(s string) string
+
+//ToTitleSpecial returns a copy of the string s with all Unicode letters mapped to their title case, giving priority to the special casing rules.
+func ToTitleSpecial(_case unicode.SpecialCase, s string) string
+
+//轉大寫
+func ToUpper(s string) string
+
+//ToUpperSpecial returns a copy of the string s with all Unicode letters mapped to their upper case, giving priority to the special casing rules.
+func ToUpperSpecial(_case unicode.SpecialCase, s string) string
+
+
+
+//去掉兩端的cutset
+func Trim(s string, cutset string) string
+
+//從兩端開始過濾指定非字符
+func TrimFunc(s string, f func(rune) bool) string
+
+//同上 不過只過了 左/右
+func TrimLeft(s string, cutset string) string
+func TrimLeftFunc(s string, f func(rune) bool) string
+func TrimRight(s string, cutset string) string
+func TrimRightFunc(s string, f func(rune) bool) string
+
+//去掉指定前綴
+func TrimPrefix(s, prefix string) string
+
+//去掉空格
+func TrimSpace(s string) string
+</pre>
+		</p>
+	</div>
+
+	<div class="note">
+		<p><a name="strconv"></a><span class="flag">strconv 包</span>
+<pre>strconv 包 提供了字符串 與 其他型別間的 轉換函數
+
+//在其後追加 true 或 false 字符
+func AppendBool(dst []byte, b bool) []byte
+
+//...float
+func AppendFloat(dst []byte, f float64, fmt byte, prec int, bitSize int) []byte
+	<span class="care">fmt 為b e f E g G 等 使用%*(參見fmt包)格式化 f
+	prec 指定小數點 精度 -1 表示只是忽略小數點末尾的0
+	bitSize 32/64 指示f是float32/float64</span>
+
+//...int
+func AppendInt(dst []byte, i int64, base int) []byte	
+	<span class="care">base 指示格式字符串使用的進制</span>
+//... uint
+func AppendUint(dst []byte, i uint64, base int) []byte
+
+//..."字符串"
+func AppendQuote(dst []byte, s string) []byte
+
+//...'字符'
+func AppendQuoteRune(dst []byte, r rune) []byte
+
+//不知道和AppendQuoteRune有何區別
+func AppendQuoteRuneToASCII(dst []byte, r rune) []byte
+
+//不知道和 AppendQuote有何區別
+func AppendQuoteToASCII(dst []byte, s string) []byte
+
+
+
+//字符串 轉數字
+func Atoi(s string) (i int, err error)
+
+//型別 轉字符串
+func FormatBool(b bool) string
+func FormatFloat(f float64, fmt byte, prec, bitSize int) string
+func FormatInt(i int64, base int) string
+func FormatUint(i uint64, base int) string
+func Itoa(i int) string
+
+//字符串 轉 型別
+func ParseBool(str string) (value bool, err error)
+func ParseFloat(s string, bitSize int) (f float64, err error)
+func ParseInt(s string, base int, bitSize int) (i int64, err error)
+func ParseUint(s string, base int, bitSize int) (n uint64, err error)
+
+
+//檢查字符串 是否是一個 Go語法字符常量
+func CanBackquote(s string) bool
+
+//檢查字符是否可打印
+func IsPrint(r rune) bool
+
+...
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+	"strconv"
+)
+
+func main() {
+	str := "old_"
+	bytes := []byte(str)
+	bytes = strconv.AppendBool(bytes, true)
+	str = string(bytes)
+	fmt.Println(str) //old_true
+
+	str += "_"
+	bytes = []byte(str)
+	bytes = strconv.AppendFloat(bytes, 3.14159270, 'f', 2, 64)
+	str = string(bytes)
+	fmt.Println(str) //old_true_3.14
+
+	str += "_"
+	bytes = []byte(str)
+	bytes = strconv.AppendInt(bytes, 1102, 10)
+	str = string(bytes)
+	fmt.Println(str) //old_true_3.14_1102
+
+	str += "_"
+	bytes = []byte(str)
+	bytes = strconv.AppendQuote(bytes, "str")
+	str = string(bytes)
+	fmt.Println(str) //old_true_3.14_1102_"str"
+
+	str += "_"
+	bytes = []byte(str)
+	bytes = strconv.AppendQuoteRune(bytes, 'c')
+	str = string(bytes)
+	fmt.Println(str) //old_true_3.14_1102_"str"_'c'
+
+}
+
+</pre>
+		</p>
+	</div>
+
+	<div class="note">
+		<p><a name="utf8"></a><span class="flag">unicode/utf8 包</span>
+<pre>utf8包 主要用來操作utf8編碼的字符串 或 字節切片
+
+//返回p中最後一個 字符 和字符 佔用字節數
+func DecodeLastRune(p []byte) (r rune, size int)
+func DecodeLastRuneInString(s string) (r rune, size int)
+	<span class="care">若size返回0 則最後一個字符是非法utf8編碼</span>
+
+//... 第一個 ...
+func DecodeRune(p []byte) (r rune, size int)
+func DecodeRuneInString(s string) (r rune, size int)
+
+
+//將 字符 編碼為utf8 寫入 p開頭 返回編碼後字節
+func EncodeRune(p []byte, r rune) int
+	<span class="care">必須保證p有足夠空間 對於utf8字符編碼 p有4字節足矣</span>
+
+//如果第一個字符 是utf8編碼 返回true
+func FullRune(p []byte) bool
+func FullRuneInString(s string) bool
+
+//返回字符數
+func RuneCount(p []byte) int
+func RuneCountInString(s string) (n int)
+
+//返回對r編碼 需要的字節數
+func RuneLen(r rune) int
+
+//如果b可以作為utf8編碼的第一個字節 返回 true
+func RuneStart(b byte) bool
+
+//如果 是正確utf8編碼 返回 true
+func Valid(p []byte) bool
+func ValidRune(r rune) bool
+func ValidString(s string) bool
+
+</pre>
+		</p>
+	</div>
+
+	<div class="note">
+		<p><a name="unicode"></a><span class="flag">unicode 包</span>
+<pre>unicode 包 主要提供了對 unicode字符的 檢查函數
+
+//如果r在rangeTab中 返回true
+func Is(rangeTab *RangeTable, r rune) bool
+//...是一個控制符..
+func IsControl(r rune) bool
+//...10進制數...
+func IsDigit(r rune) bool
+//...圖形字符...
+func IsGraphic(r rune) bool
+//...字母...
+func IsLetter(r rune) bool
+//...小寫字母...
+func IsLower(r rune) bool
+//...標記...
+func IsMark(r rune) bool
+//...在ranges的任意一個tab中...
+func IsOneOf(ranges []*RangeTable, r rune) bool
+//...可打印...
+func IsPrint(r rune) bool
+//...標點符號...
+func IsPunct(r rune) bool
+//...空白字符...
+func IsSpace(r rune) bool
+//...符號...
+func IsSymbol(r rune) bool
+//...標題大寫字符...
+func IsTitle(r rune) bool
+//...大寫字母...
+func IsUpper(r rune) bool
+
+//轉 大/小/寫 標題字符
+func ToUpper(r rune) rune
+func ToLower(r rune) rune
+func ToTitle(r rune) rune
+
+...
+</pre>
+	</p>
+	</div>
+
+	<div class="note"><a name="regexp"></a>
+		<p><span class="flag">regexp 包</span>
+<pre>regexp 包 是一個 實現了 Russ Cox的RE2 正則表達式
+詳細語法見 <a target="_black" href="https://code.google.com/p/re2/wiki/Syntax">https://code.google.com/p/re2/wiki/Syntax</a>
+</pre>
+		</p>
+		<p><span class="flag">簡單匹配</span>
+<pre>//使用 pattern 模式進行 匹配 匹配成功返回true
+func Match(pattern string, b []byte) (matched bool, err error)
+func MatchReader(pattern string, r io.RuneReader) (matched bool, err error)
+func MatchString(pattern string, s string) (matched bool, err error)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+	"regexp"
+	"strings"
+)
+
+func main() {
+
+	//匹配輸入是否是 ip 地址
+	pattern := "^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$"
+	str := "127.0.0.1"
+	fmt.Println(regexp.MatchString(pattern, "不匹配的輸入"))
+	fmt.Println(regexp.MatchString(pattern, str))
+
+	fmt.Println(regexp.Match(pattern, []byte(str)))
+	fmt.Println(regexp.MatchReader(pattern, strings.NewReader(str)))
+}
+</pre>
+		</p>
+
+		<p><span class="flag">Compile 模式</span>
+<pre>使用 Compile 模式 不但可以 匹配 還可以 對數據 進行 修剪
+首先 使用如下 函數 編譯正則表達式
+
+//編譯一個 正則表達式 返回模式(使用 最左方式 搜索)
+func Compile(expr string) (*Regexp, error)
+//同上 不過 其使用 POSIX 語法(使用 最左最長方式 搜索)
+func CompilePOSIX(expr string) (*Regexp, error)
+
+//同上 不過 若出錯 直接 而非返回 error
+func MustCompile(str string) *Regexp
+func MustCompilePOSIX(str string) *Regexp
+
+
+
+//使用 模板展開
+func (re *Regexp) Expand(dst []byte, template []byte, src []byte, match []int) []byte
+func (re *Regexp) ExpandString(dst []byte, template string, src string, match []int) []byte
+	<span>package main
+
+	import (
+		"fmt"
+		"regexp"
+	)
+
+	func main() {
+
+		src := []byte(`
+			call hello alice
+			hello bob
+			call hello eve
+			`)
+		pat := regexp.MustCompile(`(?m)(call)\s+(?P<cmd>\w+)\s+(?P<arg>.+)\s*$`)
+		res := []byte{}
+		for _, s := range pat.FindAllSubmatchIndex(src, -1) {
+			res = pat.Expand(res, []byte("$cmd('$arg')\n"), src, s)
+		}
+		fmt.Println(string(res))
+	}
+</span>
+
+
+
+//查找匹配的第一個
+func (re *Regexp) Find(b []byte) []byte
+func (re *Regexp) FindString(s string) string
+
+//n小於0 返回所有匹配項目 否則最多返回n個匹配項
+func (re *Regexp) FindAll(b []byte, n int) [][]byte
+func (re *Regexp) FindAllString(s string, n int) []string
+
+//返回 第一個符合匹配的 首尾位置[n,m) 不存在返回 nil
+func (re *Regexp) FindIndex(b []byte) (loc []int)
+func (re *Regexp) FindStringIndex(s string) (loc []int)
+func (re *Regexp) FindReaderIndex(r io.RuneReader) (loc []int)
+
+//同上FindIndex n 參見FindAll
+func (re *Regexp) FindAllIndex(b []byte, n int) [][]int
+func (re *Regexp) FindAllStringIndex(s string, n int) [][]int
+
+//當模式中存在 <span class="care">()</span> 時返回匹配數組 a[0]爲 全匹配
+//a[1] 爲匹配第一個<span class="care">()</span>
+//a[2]...二個
+//...
+func (re *Regexp) FindSubmatch(b []byte) [][]byte
+func (re *Regexp) FindStringSubmatch(s string) []string
+
+//...
+func (re *Regexp) FindAllSubmatch(b []byte, n int) [][][]byte
+func (re *Regexp) FindAllStringSubmatch(s string, n int) [][]string
+
+//...
+func (re *Regexp) FindSubmatchIndex(b []byte) []int
+func (re *Regexp) FindReaderSubmatchIndex(r io.RuneReader) []int
+func (re *Regexp) FindStringSubmatchIndex(s string) []int
+
+//...
+func (re *Regexp) FindAllStringSubmatchIndex(s string, n int) [][]int
+func (re *Regexp) FindAllSubmatchIndex(b []byte, n int) [][]int
+
+
+
+//匹配 模式
+func (re *Regexp) Match(b []byte) bool
+func (re *Regexp) MatchReader(r io.RuneReader) bool
+func (re *Regexp) MatchString(s string) bool
+
+
+
+func (re *Regexp) LiteralPrefix() (prefix string, complete bool)
+func (re *Regexp) Longest()
+func (re *Regexp) NumSubexp() int
+
+
+
+//使用指定函數替換
+func (re *Regexp) ReplaceAllFunc(src []byte, repl func([]byte) []byte) []byte
+func (re *Regexp) ReplaceAllStringFunc(src string, repl func(string) string) string
+
+//替換爲指定內容
+func (re *Regexp) ReplaceAllLiteral(src, repl []byte) []byte
+func (re *Regexp) ReplaceAllLiteralString(src, repl string) string
+
+//同ReplaceAllLiteral 不過可以 使用 $ 表示地n個被匹配submatch
+func (re *Regexp) ReplaceAll(src, repl []byte) []byte
+func (re *Regexp) ReplaceAllString(src, repl string) string
+	<span class="care">re := regexp.MustCompile("a(x*)b")
+	fmt.Println(re.ReplaceAllString("-ab-axxb-", "T"))
+	fmt.Println(re.ReplaceAllString("-ab-axxb-", "$1"))
+	fmt.Println(re.ReplaceAllString("-ab-axxb-", "$1W"))
+	fmt.Println(re.ReplaceAllString("-ab-axxb-", "${1}W"))
+	Output:
+
+	-T-T-
+	--xx-
+	---
+	-W-xxW-</span>
+
+
+func (re *Regexp) Split(s string, n int) []string
+func (re *Regexp) String() string
+func (re *Regexp) SubexpNames() []string
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="template"></a>
+		<p><span class="flag">html/template</span>
+<pre>html/template 包提供了 一種類似php等語言的 html生成 功能
+
+//創建一個模板
+func New(name string) *Template
+
+//從 字符串/文件 解析模板
+func (t *Template) Parse(src string) (*Template, error)
+func (t *Template) ParseFiles(filenames ...string) (*Template, error)
+
+//渲染模板
+func (t *Template) Execute(wr io.Writer, data interface{}) error
+func (t *Template) ExecuteTemplate(wr io.Writer, name string, data interface{}) error
+</pre>
+		</p>
+
+		<p><span class="flag">字段操作</span>
+<pre>Go 使用 <span class="care">{{}}</span> 表示要替換的 字段
+<span class="care">{{.}}</span> 表示當前對象
+<span class="care">{{.Name}}</span>訪問對象 倒出 屬性
+
+	package main
+
+	import (
+		"html/template"
+		"os"
+	)
+
+	type Person struct {
+		UserName string
+	}
+
+	func main() {
+		t := template.New("fieldname example")
+		t, _ = t.Parse("hello {{.UserName}}!")
+		p := Person{UserName: "Astaxie"}
+		t.Execute(os.Stdout, p)
+	}
+</pre>
+		</p>
+
+		<p><span class="flag">數組 struct</span>
+<pre>對於數組 可以使用 {{range}} {{end}}操作
+對於對象 可以使用 {{with}} {{end}}操作
+	package main
+
+	import (
+		"html/template"
+		"os"
+	)
+
+	type Friend struct {
+		Fname string
+	}
+
+	type Person struct {
+		UserName string
+		Emails   []string
+		Friends  []*Friend
+	}
+
+	func main() {
+		f1 := Friend{Fname: "minux.ma"}
+		f2 := Friend{Fname: "xushiwei"}
+		t := template.New("fieldname example")
+		t, _ = t.Parse(`hello {{.UserName}}!
+		{{range .Emails}}
+		an email {{.}}
+		{{end}}
+		{{with .Friends}}
+			{{range .}}
+			my friend name is {{.Fname}}
+			{{end}}
+		{{end}}
+		`)
+		p := Person{UserName: "Astaxie",
+			Emails:  []string{"astaxie@beego.me", "astaxie@gmail.com"},
+			Friends: []*Friend{&f1, &f2}}
+		t.Execute(os.Stdout, p)
+	}
+
+</pre>
+		</p>
+
+		<p><span class="flag">if 條件判斷</span>
+<pre>使用 {{if}}{{else}}{{end}} 進行 條件判斷
+
+package main
+
+import (
+	"os"
+	"text/template"
+)
+
+func main() {
+	tEmpty := template.New("template test")
+	tEmpty = template.Must(tEmpty.Parse("空 pipeline if demo: {{if ``}} 不会输出. {{end}}\n"))
+	tEmpty.Execute(os.Stdout, nil)
+
+	tWithValue := template.New("template test")
+	tWithValue = template.Must(tWithValue.Parse("不为空的 pipeline if demo: {{if `anything`}} 我有内容，我会输出. {{end}}\n"))
+	tWithValue.Execute(os.Stdout, nil)
+
+	tIfElse := template.New("template test")
+	tIfElse = template.Must(tIfElse.Parse("if-else demo: {{if `anything`}} if部分 {{else}} else部分.{{end}}\n"))
+	tIfElse.Execute(os.Stdout, nil)
+}
+</pre>
+		</p>
+
+		<p><span class="flag">pipelines</span>
+<pre>{{}} 中 可以使用 類似 linux 中 | 管道數據 流通 
+	package main
+
+	import (
+		"os"
+		"text/template"
+	)
+
+	func main() {
+		t := template.New("pipelines")
+		t = template.Must(t.Parse("{{. |  html}}"))
+		t.Execute(os.Stdout, "&le;script&gt;&lt;/script&gt;")
+	}
+</pre>
+		</p>
+
+		<p><span class="flag">模板變量</span>
+<pre>可以 在 {{width}} {{if}} 中 定義局部變量
+	{{with $x := "output" | printf "%q"}}{{$x}}{{end}}
+	{{with $x := "output"}}{{printf "%q" $x}}{{end}}
+	{{with $x := "output"}}{{$x | printf "%q"}}{{end}}
+</pre>
+		</p>
+
+		<p><span class="flag">模板函數</span>
+<pre>pipelines 可以過來數據 這些過濾函數 是template 定義的 一顆自行定義
+之後 type FuncMap map[string]interface{} 註冊即可
+
+package main
+
+import (
+	"fmt"
+	"os"
+	"strings"
+	"text/template"
+)
+
+func emailDealWiath(args ...interface{}) string {
+	ok := false
+	var s string
+	if len(args) == 1 {
+		s, ok = args[0].(string)
+	}
+	if !ok {
+		s = fmt.Sprint(args...)
+	}
+	// find the @ symbol
+	substrs := strings.Split(s, "@")
+	if len(substrs) != 2 {
+		return s
+	}
+	// replace the @ by " at "
+	return (substrs[0] + " at " + substrs[1])
+}
+func main() {
+	t := template.New("pipelines")
+	t = t.Funcs(template.FuncMap{"emailDeal": emailDealWiath})
+	t = template.Must(t.Parse("{{ . | emailDeal}}"))
+	t.Execute(os.Stdout, "zuiwuchang@gmail.com")
+
+}
+
+var builtins = FuncMap{
+    "and":      and,
+    "call":     call,
+    "html":     HTMLEscaper,
+    "index":    index,
+    "js":       JSEscaper,
+    "len":      length,
+    "not":      not,
+    "or":       or,
+    "print":    fmt.Sprint,
+    "printf":   fmt.Sprintf,
+    "println":  fmt.Sprintln,
+    "urlquery": URLQueryEscaper,
+}
+</pre>
+		</p>
+
+		<p><span class="flag">Must</span>
+<pre>Must 用來 檢查 模板是否正確
+package main
+
+import (
+	"fmt"
+	"text/template"
+)
+
+func main() {
+	tOk := template.New("first")
+	template.Must(tOk.Parse(" some static text /* and a comment */"))
+	fmt.Println("The first one parsed OK.")
+
+	template.Must(template.New("second").Parse("some static text {{ .Name }}"))
+	fmt.Println("The second one parsed OK.")
+
+	fmt.Println("The next one ought to fail.")
+	tErr := template.New("check parse error with Must")
+	template.Must(tErr.Parse(" some static text {{ .Name }"))
+}
+The first one parsed OK.
+The second one parsed OK.
+The next one ought to fail.
+panic: template: check parse error with Must:1: unexpected "}" in command
+</pre>
+		</p>
+
+		<p><span class="flag">模板 亦可 嵌套</span>
+<pre>//聲明 子模板
+{{define "子模板名称"}}内容{{end}}
+
+//調用子模板
+{{template "子模板名称"}}
+
+
+
+//header.tmpl
+{{define "header"}}
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;演示信息&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+{{end}}
+
+//content.tmpl
+{{define "content"}}
+{{template "header"}}
+&lt;h1&gt;演示嵌套&lt;/h1&gt;
+&lt;ul&gt;
+    &lt;li&gt;嵌套使用define定义子模板&lt;/li&gt;
+    &lt;li&gt;调用使用template&lt;/li&gt;
+&lt;/ul&gt;
+{{template "footer"}}
+{{end}}
+
+//footer.tmpl
+{{define "footer"}}
+&lt;/body&gt;
+&lt;/html&gt;
+{{end}}
+
+
+
+package main
+
+import (
+    "fmt"
+    "os"
+    "text/template"
+)
+
+func main() {
+    s1, _ := template.ParseFiles("header.tmpl", "content.tmpl", "footer.tmpl")
+    s1.ExecuteTemplate(os.Stdout, "header", nil)
+    fmt.Println()
+    s1.ExecuteTemplate(os.Stdout, "content", nil)
+    fmt.Println()
+    s1.ExecuteTemplate(os.Stdout, "footer", nil)
+    fmt.Println()
+    s1.Execute(os.Stdout, nil)
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

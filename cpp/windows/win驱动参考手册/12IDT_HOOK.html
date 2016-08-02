@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>IDT_HOOK</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1><a href="#IDT_HOOK">IDT_HOOK</a></h1></p>
+    
+    <div class="div_box"><a name="IDT_HOOK"></a><h2>
+    	<p><font color="#FF0000">IDT_HOOK</font><br />
+        系统中断描述表 共0xFF个中断<br />
+      	原理同 SSDT HOOK<br />     
+   		</p>
+        
+        <p><font color="#FF0000">IDT结构定义</font><br />
+        <pre>//IDT 表结构定义
+#pragma pack(push)
+#pragma pack(1) //
+typedef struct _IDT //IDT基址
+{
+	USHORT limit; //范围 占8位
+	ULONG base; //基地址 占32位 _IDT_ENTRY类型指针
+}IDT,*PIDT;
+
+typedef struct _IDT_ENTRY
+{
+	USHORT offset_low; //中断处理函数地址低16位
+	USHORT selector;
+	UCHAR  reserved;
+	UCHAR  type:4; 
+    UCHAR  always0:1;
+	UCHAR  dpl:2;
+	UCHAR  present:1;
+	USHORT offset_high;//中断处理函数地址低16位
+}IDT_ENTRY,*PIDT_ENTRY;
+#pragma pack(pop)</pre>
+        </p>
+        <p><font color="#FF0000">读取IDT函数地址</font><br />
+      <pre>//获取idt基地址
+	IDT idt;
+	__asm sidt idt;
+	PIDT_ENTRY idt_base=(PIDT_ENTRY)idt.base; 
+	ULONG idt_function_address;
+	//获取所有中断函数地址
+	for (int i=0;i&lt;0x100;i++)
+	{
+		idt_function_address=idt_base[i].offset_high;
+		idt_function_address&lt;&lt;=16;
+		idt_function_address|=idt_base[i].offset_low;
+		KdPrint(("index=%3X hight=%4X low=%4X address=%8X\n",i,idt_base[i].offset_high,idt_base[i].offset_low,idt_function_address));
+	}	
+      </pre>
+        </p>
+    </h2></div>
+    
+    
+   
+    
+</td></tr></table>
+</body>
+</html>

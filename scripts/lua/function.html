@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>lua</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#function">函數</a>
+		<a href="#more">深入函數</a>
+		
+		
+	</div>
+
+	<div class="note"><a name="function"></a>
+		<p><span class="flag">函數</span>
+<pre>lua 函數調用寫法 同c
+然 若函數 只有一個字符串參數 可 省略 ()
+print [[
+不需要 ()]]
+
+在調用函數值 傳入參數 可不同於 定義 對於參數被忽略 少的使用 nil
+function test(n)
+n	=	n or 1		--參數設置默認值方式
+...
+end
+
+//多重返回值
+lua的function中 可以返回多個值 此時需要使用 多重賦值獲取返回值
+function test()
+	return 1,2
+end
+a,b	=	test()
+
+//如果 返回值 不是 一系列表達式 最後一個 則 值返回 一個值
+(若 f2() 返回2個值)
+x,y,z	=	f2(),20		--f2()返回一個值
+x,y,z	=	20,f2()		--f2()返回兩個值
+x={1,f2(),3}	--f2()返回一個值
+x={1,f2()}		--f2()返回兩個值
+x=(f2())		--f2()返回一個值  () 強制將返回值只取一個
+
+
+//unpack 接受一個 數組 從下標1開始 返回 所有元素
+a	=	unpack{1,2,3,4}
+
+
+//不定長 參數以 ... 表示
+function add(...)
+	local s=0
+	for i,v in ipairs{...} do    
+		s = s + v
+	end
+	return s
+end
+//另外一個 訪問參數 方式
+function add(...)
+	local s=0
+	for i=1,select('#',...) do
+		s = s + select(i,...)
+	end
+	return s
+end
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>lua中 函數只是一個 值罷了
+
+如function foo(x) return 2*x end
+只是 foo = function(x) return 2*x end
+的簡寫罷了
+</pre>
+		</p>
+	</div>
+	
+	<div class="note"><a name="more"></a>
+		<p><span class="flag">深入函數</span>
+<pre>//閉包 closure
+在lua中 可以將一個 函數 嵌入到 其他函數中
+內部的 函數 可以訪問 外部函數中的 變量
+
+函數 都是匿名的 訪問函數時  實際上訪問一個 存儲了函數應用的 變量
+print = function print() ... end
+完全可以 使此變量 持有 其他之
+print = math.sin
+
+lua 支持 Lambda表達式
+
+實際上 lua將 函數 存儲在 table中 若將 函數創建時 賦給一個 局部變量 
+其為一個局部函數 只能在 本程序塊內訪問
+f	=	{}
+f.foo	=	function(x,y) return x+y end
+function f.foo(x,y) return x+y end
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+

@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>内存映射文件</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+    <p><h1><font color="#FF0000">内存映射文件</font></h1></p>
+    
+    <h2>
+    <a href="#share">共享段</a><br />
+    <a href="#map">内存映射文件</a><br />
+    
+    
+    </h2>
+    
+    
+    <div class="div_box"><a name="share"></a><p><h3>
+    	<p><h2><font color="#FF0000">共享段</font></h2>
+        在同一exe 或 dll 多个实例中共享数据
+<pre>//自定义一个区段
+#pragma data_seg("share_test")
+bool one=false;
+#pragma data_seg()
+
+//告诉编译器 此区段的数据共享
+#pragma comment(linker,"/SECTION:share_test,RWS")</pre>        
+	</p>
+    
+    <p><h2><font color="#FF0000">注意</font></h2>
+    不建议如此 因为这意味着 一个实例的错误 可能会影响到其他实例
+    </p>
+ 	</h3></p></div>
+    
+    <div class="div_box"><a name="map"></a><p><h3>
+    	<p><h2><font color="#FF0000">内存映射文件</font></h2>
+    	创建或打开一个文件
+        创建文件映射对象  指定文件大小和 如何访问
+        映射
+        
+        取消映射
+        关闭映射对象
+        关闭文件
+                
+		</p>
+    
+    </h3></p></div>
+    
+</td></tr></table>
+</body>
+</html>

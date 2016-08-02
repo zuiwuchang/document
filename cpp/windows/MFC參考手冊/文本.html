@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>文本</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">文本</font>
+</p>
+
+<p>
+	<a href="#Caret">插入符 繪製文本</a><br />
+    <a href="#path">定義路徑</a><br />
+    <a href="#CFont">CFont</a><br />
+</p>
+
+
+<div class="mydiv"><a name="Caret"></a>
+	<p><font color="#FF0000">插入符 繪製文本</font><br />
+<pre>//創建插入符(處於隱藏狀態)  一旦調用 CreateSolidCaret 將銷毀上個插入符 
+BOOL CWindow::CreateSolidCaret(	
+   int nWidth,		//寬度 0 系統定義的窗口邊界高度
+   int nHeight 		//高度 0 ...寬度
+) throw();
+
+//顯示插入符
+void CWindow::ShowCaret();
+
+//隱藏插入符
+void HideCaret( );
+
+//設置插入符顯示位置
+void CWindow::SetCaretPos( POINT point );
+
+//創建一個圖形 插入符
+void CWnd：：CreateCaret( CBitmap* pBitmap );
+
+</pre>
+    </p>
+    
+    <p><font color="#FF0000">獲取當前</font><br />
+<pre>BOOL GetTextMetrics(  HDC hdc,            // handle to DC
+  LPTEXTMETRIC lptm   // text metrics);
+  
+  
+typedef struct tagTEXTMETRIC { 
+  LONG tmHeight; 
+ <font color="#FF0000"> LONG tmAscent; 
+  LONG tmDescent; </font>
+  LONG tmInternalLeading; 
+  LONG tmExternalLeading; 
+  <font color="#FF0000">LONG tmAveCharWidth;		//字體平均寬度</font> 
+  LONG tmMaxCharWidth; 
+  LONG tmWeight; 
+  LONG tmOverhang; 
+  LONG tmDigitizedAspectX; 
+  LONG tmDigitizedAspectY; 
+  TCHAR tmFirstChar; 
+  TCHAR tmLastChar; 
+  TCHAR tmDefaultChar; 
+  TCHAR tmBreakChar; 
+  BYTE tmItalic; 
+  BYTE tmUnderlined; 
+  BYTE tmStruckOut; 
+  BYTE tmPitchAndFamily; 
+  BYTE tmCharSet; 
+} TEXTMETRIC, *PTEXTMETRIC;   
+<font color="#FF0000">tmAscent+tmDescent 為字體高度</font>
+<img src="image/文本/font.PNG" />  
+  </pre>  
+    </p>
+    
+    <p><font color="#FF0000">繪製文本</font><br />
+<pre>//繪製文本
+BOOL CDC::TextOut(int x ,int y ,const CString&amp; str);
+
+//在一個矩形區域繪製(超出部分 會被截斷)
+int CDC::DrawText(const CString&amp; str, LPRECT lpRect, UNIT nFormat);
+<font color="#FF0000">nFormat取值</font>
+DT_LEFT 文本左对齐。  
+DT_RIGHT 文本右对齐。  
+DT_SINGLELING 指定单行，回车与换行不会中断该行。  
+DT_NOCLIP 绘制但不剪切， DrawText在使用DT_NOCLIP后总能运行得快一些。
+...  </pre>
+    </p>
+</div>
+<div class="mydiv"><a name="path"></a>
+	<p><font color="#FF0000">定義路徑</font><br />
+<pre>//打開 設備路徑 開始定義 PATH(之後 可以調用 繪圖函數 繪製路徑)
+BOOL CDC::BeginPath();
+
+//關閉路徑
+BOOL CDC::EndPath();
+
+//將當前路徑 和 當前剪切區域(繪製區域) 安指定模式操作 得到新的剪切區域
+<font color="#FF0000">BOOL CDC::SelectClipPath(int nMode);</font>
+nMode取值
+RGN_AND 新的剪切区，包括当前剪切区与当前路径的覆盖部分。  
+RGN_COPY 新的剪切区即为当前路径。  
+RGN_DIFF 新的剪切区即为当前路径，但不包括当前路径部分。  
+RGN_OR 新的剪切区，包括当前剪切区的组合区域与当前路径。  
+RGN_XOR 新的剪切区，包括当前剪切区的组合区域与当前路径，但不包括覆盖部分 
+
+
+//返回 文本繪製 寬 高
+CSize CDC::GetTextExtent(const CString& str) const
+</pre> 
+    </p>
+</div>
+<div class="mydiv"><a name="CFont"></a>
+	<p><font color="#FF0000">CFont</font><br />
+    CFont 必須先通過 create...初始化
+    </p>
+    <p><font color="#FF0000">相關API</font><br />
+<pre>//創建字體
+BOOL CreatePointFont(int nPointSize, 	//所需字体高度（用0.1点表示，例如，传递120表示12点字体）
+	LPCTSTR lpszFaceName, 			//字體名
+	CDC* pDC = NULL);				//指向CDC对象，将nPointSize中的高度转化为逻辑单位。如果为NULL，则屏幕设备上下文用于转换。
+
+//通過LOGFONT* 創建字體    
+BOOL CreateFontIndirect(const LOGFONT* lpLogFont);
+    
+<font color="#FF0000">//枚舉可用字體</font>
+int EnumFontFamiliesEx(  HDC hdc,                          // handle to DC
+  LPLOGFONT lpLogfont,              // font information		要枚舉的字體
+  FONTENUMPROC lpEnumFontFamExProc, // callback function
+  LPARAM lParam,                    // additional data
+  DWORD dwFlags                     // not used; must be 0);
+
+<font color="#FF0000">lpLogfont取值</font>
+DEFAULT_CHARSET		枚舉所有字體的字符集
+NULL				枚舉每個可用字體名的字體 (若指向字體名字符串 枚舉具有指定名稱的字體)
+
+<font color="#FF0000">回調函數 返回FALSE 停止枚舉</font>
+int CALLBACK EnumFontFamExProc(  ENUMLOGFONTEX *lpelfe,    // logical-font data
+  NEWTEXTMETRICEX *lpntme,  // physical-font data		//字體詳細信息
+  DWORD FontType,           // type of font
+  LPARAM lParam             // application-defined data
+);
+<font color="#FF0000">ENUMLOGFONTEX</font>
+typedef struct tagENUMLOGFONTEX {
+  LOGFONT  elfLogFont;						//指向LOGFONT 包含字體詳細信息
+  TCHAR  elfFullName[LF_FULLFACESIZE];		//字體名
+  TCHAR  elfStyle[LF_FACESIZE];
+  TCHAR  elfScript[LF_FACESIZE];
+} ENUMLOGFONTEX, *LPENUMLOGFONTEX;
+</pre>
+    </p>
+</div>    
+</td></tr></table>
+</body>
+</html>

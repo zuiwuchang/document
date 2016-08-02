@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>mysql</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">mysql</font>
+</p>
+
+<p>
+	<a href="#mysql">mysql</a><br />
+    <a href="#char">中文亂碼</a><br />
+    <a href="#Linux">Linux 存儲位置</a><br />
+   
+</p>
+
+
+<div class="mydiv"><a name="mysql"></a>
+	<p><font color="#FF0000">mysql</font>
+<pre>//導出 數據庫/表
+mysqldump -u root -p --default-character-set=utf8 數據庫名 &gt; 備份文件名
+mysqldump -u root -p --default-character-set=utf8 數據庫名 表名 &gt; 備份文件
+
+//導入
+source 備份文件名
+mysql -u username -p -D dbname < filename.sql
+mysqldump -u username -p dbname < filename.sql
+
+//連接
+mysql -h localhost -P 3306 -u uname -p --default-character-set=utf8 "--defaults-file=C:\ProgramData\MySQL\MySQL Server 5.6\my.ini"
+
+//允許 某個用戶 遠程登錄
+GRANT ALL PRIVILEGES ON *.* TO 'name'@'%' IDENTIFIED BY 'password' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+</pre>
+	</p>
+</div>
+    
+<div class="mydiv"><a name="char"></a>
+	<p><font color="#FF0000">中文亂碼</font>
+<pre>//設置 mysql 使用utf8 字符集
+[client]
+default-character-set=utf8
+[mysqld]
+character_set_server   = utf8
+init_connect='SET NAMES utf8'		//(可選)
+
+//查看使用 字符集
+show variables like 'character%';
+
+若在win32下 使用 字符終端 或linux ring3 下 字符終端
+是不支持utf8顯示的
+</pre>
+</p>
+</div>
+
+<div class="mydiv"><a name="Linux"></a>
+	<p><font color="#FF0000">Linux 存儲位置</font>
+<pre>//配置文件
+/etc/my.cnf
+
+//my-small.cnf ...
+/usr/share/mysql/
+
+//命令程序
+/usr/bin
+
+//查詢 database 存儲目錄
+mysqladmin variables | egrep datadir
+</pre>
+	</p>
+</div>
+
+</td></tr></table>
+</body>
+</html>

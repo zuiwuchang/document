@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>数组</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#create">创建数组</a>
+		<a href="#length">获取数组长度</a>
+		<a href="#tostring">数组转换为字符串</a>
+		<a href="#push">添加元素</a>
+		<a href="#pop">删除元素</a>
+		<a href="#cat">多个数组连接</a>
+		<a href="#splice">删除 替换 插入数</a>
+		<a href="#get">获取数组元素</a>
+		<a href="#re">数组元素颠倒</a>
+		<a href="#sort">数组排序</a>
+	</div>
+
+	<div class="note"><a name="create"></a>
+		<p><span class="flag">创建数组</span>
+<pre>//创建空数组
+var array=new Array();
+var array = [];
+
+//创建长度为3的数组
+var array=new Array(3);
+
+//用指定值创建数组
+var array = new Array(1,2,3);
+var array = [1,2,3];
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="length"></a>
+		<p><span class="flag">获取数组长度</span>
+<pre>	var array=new Array(3);
+	//返回長度
+	array.length();
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="tostring"></a>
+		<p><span class="flag">数组转换为字符串</span>
+<pre>	var array=new Array(1,2,3);
+
+	//1,2,3 用,隔开元素
+	array.toString();
+	//1-2-3 用指定字符串隔开元素
+	arrat.join('-');
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="push"></a>
+		<p><span class="flag">添加元素</span>
+<pre>	var array=new Array(1,2,3);
+	//在数组开头添加元素
+	array.unshift(-1,0,...);
+	//在元素尾添加元素
+	array.push(4,5,...);
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="pop"></a>
+		<p><span class="flag">删除元素</span>
+<pre>	var array=new Array(1,2,3);
+
+	//删除尾部队一个元素
+	array.pop();
+	//删除顶端的一个元素
+	array.shift();
+
+	//删除数组中指定元素(但此举不会改变数组的length属性)
+	delete array[1];
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="cat"></a>
+		<p><span class="flag">多个数组连接</span>
+<pre>	var array=new Array(1,2);
+	var array1=new Array(3,4);
+	var array2=new Array(5,6);
+
+	array=array.concat(array1,array2,...);//1,2,3,4,5,6
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="splice"></a>
+		<p><span class="flag">删除 替换 插入数组</span>
+<pre>splice删除1个或多个元素 
+同时可在删除處插入指定元素 返回删除的元素(array形式返回)
+
+	delete_array = old_array.splice(start,count,[insert1,insert2,...]);
+
+	var a = new Array(1,2,3,4);
+	//na為2,3  a为1,0,4
+	na = a.splice(1,2,0);
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="get"></a>
+		<p><span class="flag">获取数组元素</span>
+<pre>	var array=new Array(1,2,3);
+	array[0];//1
+	//1,2 数组名.slice(start,count)获取多个值到新数组
+	a = array.slice(0,2);
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="re"></a>
+		<p><span class="flag">数组元素颠倒</span>
+<pre>var array=new Array(1,2,3);
+array.reverse();	//3,2,1
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="sort"></a>
+		<p><span class="flag">数组排序 .sort()</span>
+<pre>var a=new Array(1,3,2);
+function sortFunction(a,b){
+	if(a==b){
+		return 0;
+	}else if(a>b){
+		//升序
+    	return 1;
+	}else{
+    	return -1;
+    }
+}
+
+a.sort(sortFunction);
+//a.sort();对于基本型别默认升序
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

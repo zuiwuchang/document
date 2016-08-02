@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>class</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#class">class</a>
+		<a href="#Constructors">構造方法</a>
+		<a href="#object.create">object.create</a>
+		<a href="#minimalist">minimalist approach</a>
+	</div>
+	<div class="note"><a name="class"></a>
+		<p><span class="flag">class</span>
+<pre>javascript 中沒有 類 故只能使用 對象進行模擬 一般有3中方法
+
+1	構造方法
+2	object.create
+3	minimalist approach <span class="care">推薦</span>
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="Constructors"></a>
+		<p><span class="flag">class</span>
+<pre>function animation(){
+	//在構造函數內 使用 this 定義 屬性 方法
+	this.name	=	"animation";	
+	this.setName	=	function(_name){
+		name	=	_name;
+	}
+}
+//在構造函數外 使用 prototype 屬性定義 屬性 方法
+animation.prototype.action	=	function(){
+	alert("i'm" + name + "\nanimation action");
+}
+
+//使用 new 實例化 對象
+a	=	new animation();
+a.setName(" kk");
+a.action();
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="object.create"></a>
+		<p><span class="flag">object.create</span>
+<pre>Object.create() 是Javascript 國際編組ECMAScript 第5版 提出的 一個 簡化 構造方法 模擬類的 方案
+其對於 老瀏覽器 可能不支持 且其沒有 minimalist approach 有趣(個人意見)
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="minimalist"></a>
+		<p><span class="flag">minimalist approach</span>
+<pre>minimalist approach 由荷蘭 程序員 Gabor de Mooij 提出
+
+其通過為對象 定義一個 工廠方法 返回一個類的示例
+使用工廠方法 創建示例 模擬類
+var animation	=	{
+	create:function(){
+		var instance	=	{};
+		
+		instance.name	=	"animation";
+		instance.action	=	function(){
+				alert("i'm " + this.name + "\naction");
+			};
+		
+		return instance;
+	}
+};
+
+
+
+若要派生 只需要 在派生類 的工廠函數中 調用 父類工廠即可
+//派生子類
+var cat	=	{
+	create:function(){
+		var instance	=	animation.create();
+		
+		//覆蓋父類方法 相當於 c++ virtual function
+		instance.action	=	function(){
+				alert("i'm " + instance.name + "\ncat action");
+			};
+		
+		return instance;
+	}
+};
+
+//定義private 方法屬性 只要定義在 工廠函數類 而非 instance 外部自然就無法訪問
+
+//static 方法
+只要 同 方案1一樣 定義到 對象中 而非 instance 上 自然 所有實例都訪問同一數據
+(注意 這樣定義的 static 方法 子類無法 繼承)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>//基類定義
+var animation	=	{
+	create:function(){
+		var instance	=	{};
+		
+		instance.name	=	"animation";
+		instance.action	=	function(){
+				alert("i'm " + instance.name + "\naction");
+			};
+		
+		return instance;
+	}
+};
+
+//派生子類
+var cat	=	{
+	//static
+	total:0
+	,total_instance:function(){
+		alert(this.total + " instance");
+	}
+	,create:function(){
+		//從父類 派生
+		var instance	=	animation.create();
+		
+		//定義 private 屬性 方法
+		var sum	=	0;
+	
+		//覆蓋父類方法 相當於 c++ virtual function
+		instance.action	=	function(){
+				
+				alert("i'm " + instance.name + "\ncat action"
+				+ "\ni total action " + ++sum
+				);
+			};
+		
+		++this.total;
+		return instance;
+	}
+	
+};
+
+
+$(document).ready(function(){
+	var arr	=	new Array();
+	arr[0]	=	animation.create();
+	arr[1]	=	cat.create();
+	arr[2]	=	cat.create();
+	
+	$.each(arr,function(index,object){
+			object.action();
+		});
+	
+	for(i=0;i&lt;5;++i){
+		arr[1].action();
+	}
+
+	cat.total_instance();
+});
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

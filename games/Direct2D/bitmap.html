@@ -1,0 +1,489 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Direct2D</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="Direct2D"><tr><td>
+<p>
+	<font color="#FF0000">more</font>
+</p>
+
+<p>
+	<a href="#bitmap">位圖</a><br />
+    <a href="#WIC">WIC</a><br />
+    <a href="#draw">繪製位圖</a><br />
+    <a href="#mylib">mylib</a><br />
+    
+    
+</p>
+
+
+<div class="mydiv"><a name="bitmap"></a>
+	<p><font color="#FF0000">畫刷</font>
+<pre>Direct2D中 沒有位圖操作接口 而是使用 WIC(windows image component) 來完成
+
+1	從文件創建WIC位圖
+2	由WIC位圖創建D2D位圖
+3	使用D2D繪製位圖
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="WIC"></a>
+	<p><font color="#FF0000">WIC</font>
+<pre>#include&lt;wincodec.h&gt;
+#pragma comment(lib,"Windowscodecs.lib")
+
+WIC 是一套基於 COM接口的 數字圖像處理API 
+<img src="image/bitmap/wic.PNG" />
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">相關API</font>
+<pre>
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="draw"></a>
+	<p><font color="#FF0000">繪製位圖</font>
+<pre>//將WIC位圖 專為D2D位圖
+CreateFormatConverter
+</pre>
+    </p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>	case WM_PAINT:
+		{			
+			RECT rect;
+			GetClientRect(hWnd,&rect);
+			
+			UINT width	=	rect.right - rect.left;
+			UINT height	=	rect.bottom - rect.top;
+			
+			IWICImagingFactory *pIWICFactory = NULL;
+			IWICBitmapDecoder *pIWICDecoder = NULL; 
+			IWICBitmapFrameDecode* pIWICBitmap	=	NULL;
+			//創建WIC工廠
+			HRESULT hr = CoCreateInstance(
+				CLSID_WICImagingFactory,
+				NULL,
+				CLSCTX_INPROC_SERVER,
+				IID_IWICImagingFactory,
+				(LPVOID*)&pIWICFactory
+				);
+
+			//創建編碼解析器
+			assert(S_OK ==  pIWICFactory->CreateDecoderFromFilename(L"test.jpg"
+									,NULL
+									,GENERIC_READ
+									,WICDecodeMetadataCacheOnDemand
+									,&pIWICDecoder
+									)
+									);
+			
+			UINT uiFrameCount = 0;
+			assert(S_OK	==	pIWICDecoder->GetFrameCount(&uiFrameCount)); 
+			//讀取圖像第1真
+			assert(S_OK	==pIWICDecoder->GetFrame(0,&pIWICBitmap));
+			
+
+			//縮放位圖
+			IWICBitmapScaler* pIWICBitmapScale	=	NULL;
+			assert(S_OK	==	pIWICFactory->CreateBitmapScaler(&pIWICBitmapScale));
+			pIWICBitmapScale->Initialize(pIWICBitmap
+				,width
+				,height
+				,WICBitmapInterpolationModeCubic		//使用的插值算法
+				);
+
+			//轉換為D2D支持的格式 
+			IWICFormatConverter* pIWICConverter	=	NULL;
+			assert(S_OK == pIWICFactory->CreateFormatConverter(&pIWICConverter));
+			pIWICConverter->Initialize(pIWICBitmapScale
+				,GUID_WICPixelFormat32bppPBGRA
+				,WICBitmapDitherTypeNone      		
+				,NULL         
+				,0.f
+				,WICBitmapPaletteTypeMedianCut
+            );
+			
+
+			ID2D1Bitmap* d2d_bitmap_ptr	=	NULL;
+
+			//由WCI位圖轉D2D位圖
+			assert(S_OK == d2d_target_ptr->CreateBitmapFromWicBitmap(pIWICConverter,NULL,&d2d_bitmap_ptr));
+
+
+			if(pIWICBitmapScale)
+			{
+				pIWICBitmapScale->Release();
+			}
+			if(pIWICConverter)
+			{
+				pIWICConverter->Release();
+			}
+			if(pIWICBitmap)
+			{
+				pIWICBitmap->Release();
+			}
+			if (pIWICFactory)
+			{
+				pIWICFactory->Release();
+			}
+
+			if (pIWICDecoder)
+			{
+				pIWICDecoder->Release();
+			}
+			
+			//改變繪製目標區域大小
+			d2d_target_ptr->Resize(D2D1::SizeU(width,height));
+			
+			d2d_target_ptr->BeginDraw();
+			d2d_target_ptr->Clear(D2D1::ColorF(D2D1::ColorF::DarkBlue));	//以指定顏色 清除背景
+	
+				d2d_target_ptr->DrawBitmap(d2d_bitmap_ptr);
+				
+			
+			d2d_target_ptr->EndDraw();	//成功繪製返回 S_OK	
+			
+			if(d2d_bitmap_ptr)
+			{
+				d2d_bitmap_ptr->Release();
+			}
+		}
+		break;
+</pre>
+	</p>
+     <p><font color="#FF0000">注意</font>
+<pre>如果窗口大小改變了 需要改變繪製目標大小
+</pre>
+	</p>
+</div>    
+
+<div class="mydiv"><a name="mylib"></a>
+	<p><font color="#FF0000">mylib</font>
+<pre>將操作 封裝到了 com.hpp wic.hpp direct2d.hpp中
+</pre>
+	</p>
+    <p><font color="#FF0000">main</font>
+<pre>...
+#include "direct2d.hpp"
+dark::direct::direct2d direct2d;
+...
+int APIENTRY _tWinMain(HINSTANCE hInstance,
+                     HINSTANCE hPrevInstance,
+                     LPTSTR    lpCmdLine,
+                     int       nCmdShow)
+{
+	dark::console::get_mutable_instance().alloc();
+
+	if(S_OK	!=	CoInitialize(NULL))
+	{
+		return 0;
+	}
+    
+    ...
+
+	direct2d.release();
+	CoUninitialize();
+	return (int) msg.wParam;  
+}
+
+BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
+{
+   ...
+   RECT rect;
+   GetWindowRect(hWnd,&amp;rect);
+   if(direct2d.initialize(hWnd,rect.right-rect.left,rect.bottom-rect.top)	!=	S_OK)
+   {
+	   return FALSE;
+   }
+   ...
+}
+
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	switch (message)
+	{
+	case WM_PAINT:	
+		direct2d.Draw();		
+		break;
+	...
+	}
+	return 0;
+}
+</pre>
+	</p>
+    <p><font color="#FF0000">com.hpp</font>
+<pre>#ifndef _DARK_COM_
+#define _DARK_COM_
+
+#ifndef DARK_SAFE_RELEASE_COM
+#define DARK_SAFE_RELEASE_COM(com)	if(com)	{	\
+		com-&gt;Release();	\
+		com	=	NULL;}
+#endif
+
+namespace dark
+{
+	class com_tools
+	{
+	private:
+		com_tools(){};
+	public:
+		template&lt;typename T&gt;
+		static void delete_com(T* ptr)
+		{
+			ptr->Release();
+		}
+	};
+};
+#endif	//_DARK_COM_
+</pre>
+	</p>
+    <p><font color="#FF0000">wic.hpp</font>
+<pre>#ifndef _DARK_DIRECT_WIC_
+#define _DARK_DIRECT_WIC_
+
+#include&lt;boost\smart_ptr.hpp&gt;
+#include "com.hpp"
+
+//#include&lt;wincodec.h&gt;
+//#pragma comment(lib,"Windowscodecs.lib")
+
+namespace dark
+{
+	namespace direct
+	{
+		typedef boost::shared_ptr&lt;IWICFormatConverter&gt; wic_converter_bitmap_ptr_t;
+		class wic_factory
+		{
+		private:
+			IWICImagingFactory *wic_factory_ptr_;
+		public:
+			wic_factory()
+			{
+				wic_factory_ptr_	=	NULL;
+			}
+			virtual inline HRESULT initialize()
+			{
+				return CoCreateInstance(
+					CLSID_WICImagingFactory,
+					NULL,
+					CLSCTX_INPROC_SERVER,
+					IID_IWICImagingFactory,
+					(LPVOID*)&amp;wic_factory_ptr_
+					);
+			}
+			virtual void release()
+			{
+				DARK_SAFE_RELEASE_COM(wic_factory_ptr_);
+			}
+
+			wic_converter_bitmap_ptr_t load_bitmap(const std::wstring&amp; path)
+			{
+				wic_converter_bitmap_ptr_t rs;
+				//加載圖片
+				IWICBitmapDecoder *wic_decoder_ptr = NULL;
+				if(S_OK	!=	wic_factory_ptr_-&gt;CreateDecoderFromFilename(path.c_str()
+									,NULL
+									,GENERIC_READ
+									,WICDecodeMetadataCacheOnDemand
+									,&amp;wic_decoder_ptr
+									)
+									)
+				{
+					return rs;
+				}
+				boost::shared_ptr&lt;IWICBitmapDecoder&gt; wic_decoder_shared_ptr(wic_decoder_ptr, dark::com_tools::delete_com&lt;IWICBitmapDecoder&gt;);
+
+				//獲取幀數
+				UINT frame_count = 0;
+				if(S_OK	!=	wic_decoder_ptr->GetFrameCount(&amp;frame_count)
+					|| !frame_count
+					)
+				{
+					return rs;
+				}
+
+				//讀取圖像第1幀
+				IWICBitmapFrameDecode* wic_frame_ptr	=	NULL;
+				if(S_OK	!=	wic_decoder_ptr-&gt;GetFrame(0,&amp;wic_frame_ptr))
+				{
+					return rs;
+				}
+				boost::shared_ptr&lt;IWICBitmapFrameDecode&gt; wic_frame_shared_ptr(wic_frame_ptr,dark::com_tools::delete_com&lt;IWICBitmapFrameDecode&gt;);
+
+				//轉換為D2D支持的格式 
+				IWICFormatConverter* wic_converter_ptr	=	NULL;
+				if(S_OK != wic_factory_ptr_->CreateFormatConverter(&amp;wic_converter_ptr))
+				{
+					return rs;
+				}
+				wic_converter_bitmap_ptr_t wic_converter_shared_ptr(wic_converter_ptr,dark::com_tools::delete_com&lt;IWICFormatConverter&gt;);
+				if(S_OK	==	wic_converter_shared_ptr-&gt;Initialize(wic_frame_ptr
+							,GUID_WICPixelFormat32bppPBGRA
+							,WICBitmapDitherTypeNone      		
+							,NULL         
+							,0.f
+							,WICBitmapPaletteTypeMedianCut
+						)
+						)
+				{
+					rs	=	wic_converter_shared_ptr;
+				}
+				return rs;
+			}
+
+		};
+	};
+};
+#endif	//_DARK_DIRECT_WIC_
+</pre>
+	</p>
+    <p><font color="#FF0000">direct2d.hpp</font>
+<pre>#ifndef _DARK_DIRECT_2D_
+#define _DARK_DIRECT_2D_
+//#include&lt;d2d1.h&gt;
+//#pragma comment(lib,"D2d1.lib")
+
+#include "wic.hpp"
+
+namespace dark
+{
+	namespace direct
+	{
+		typedef boost::shared_ptr&lt;ID2D1Bitmap&gt; d2d1_bitmap_ptr_t;
+		class direct2d
+		{
+		protected:
+			ID2D1Factory* d2d_factory_ptr_;
+			ID2D1HwndRenderTarget* d2d_target_ptr_;
+
+			wic_factory wic_factory_;
+			HWND hWnd_;
+			D2D1_RECT_F rect_;
+		public:
+			direct2d()
+			{
+				d2d_factory_ptr_	=	NULL;
+				d2d_target_ptr_		=	NULL;
+
+				hWnd_	=	NULL;
+			}
+			virtual HRESULT initialize(HWND hWnd,UINT32 width,UINT32 height)
+			{
+				//創建wic設置
+				HRESULT	error	=	wic_factory_.initialize();
+				if(S_OK	!=	error)
+				{
+					release();
+					return error;  
+				}
+
+				//創建d2d工廠
+				error = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED,&amp;d2d_factory_ptr_);
+				if(error	!=	S_OK)
+				{
+					release();
+					return error;   
+				}
+
+				//創建繪製目標 
+				error	=	d2d_factory_ptr_-&gt;CreateHwndRenderTarget(D2D1::RenderTargetProperties()
+					,D2D1::HwndRenderTargetProperties(hWnd					
+						,D2D1::SizeU(width,height)
+						) 
+					,&amp;d2d_target_ptr_
+		 
+					);
+				if(error	!=	S_OK)
+				{
+					release();
+					return error;   
+				}
+
+				rect_.left		=	0;
+				rect_.right		=	(FLOAT)width;
+				rect_.top		=	0;
+				rect_.bottom	=	(FLOAT)height;
+				hWnd_	=	hWnd;
+
+				//test
+				init();
+				return S_OK;
+			}
+			virtual void release()
+			{
+				//test
+				free();
+
+				wic_factory_.release();
+
+				DARK_SAFE_RELEASE_COM(d2d_target_ptr_);
+				DARK_SAFE_RELEASE_COM(d2d_factory_ptr_);
+				hWnd_	=	NULL;
+			}
+
+
+			d2d1_bitmap_ptr_t load_bitmap(const std::wstring&amp; path)
+			{
+				d2d1_bitmap_ptr_t rs;
+				//使用wic設備加載位圖
+				wic_converter_bitmap_ptr_t wic_converter_bitmap_ptr	=	wic_factory_.load_bitmap(path);
+				if(wic_converter_bitmap_ptr)
+				{
+					ID2D1Bitmap* d2d_bitmap_ptr	=	NULL;
+					//由WCI位圖轉D2D位圖
+					if(S_OK == d2d_target_ptr_-&gt;CreateBitmapFromWicBitmap(wic_converter_bitmap_ptr.get()
+						,NULL
+						,&amp;d2d_bitmap_ptr
+						)
+						)
+					{
+						rs	=	d2d1_bitmap_ptr_t(d2d_bitmap_ptr,dark::com_tools::delete_com&lt;ID2D1Bitmap&gt;);
+					}
+				}
+				return rs;
+			}
+
+			virtual void Draw()
+			{
+				d2d_target_ptr_-&gt;BeginDraw();
+				d2d_target_ptr_-&gt;Clear(D2D1::ColorF(D2D1::ColorF::White));	//以指定顏色 清除背景
+				{
+					d2d_target_ptr_-&gt;DrawBitmap(bitmap_ptr_.get()
+						,rect_
+						);
+				}			
+				d2d_target_ptr_-&gt;EndDraw();	//成功繪製返回 S_OK	
+			}
+
+			//test
+		protected:
+			d2d1_bitmap_ptr_t bitmap_ptr_;
+			void init()
+			{
+				bitmap_ptr_	=	load_bitmap(L"test.jpg");
+			}
+			void free()
+			{
+				bitmap_ptr_	=	NULL;
+			}
+		};
+	};
+};
+
+#endif	//_DARK_DIRECT_2D_
+</pre>
+	</p>
+</div>
+
+</td></tr></table>
+</body>
+</html>

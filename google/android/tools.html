@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>android</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#android">android 模擬器</a>
+		<a href="#sdk">sdk 命令</a>
+	</div>
+
+	<div class="note"><a name="android"></a>
+		<p><span class="flag">android 模擬器</span>
+<pre>sdk中提供了 android 模擬器(AVD) 可以模擬 各種 硬件設備
+不過效率極低 建議使用 真機 調試
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="sdk"></a>
+		<p><span class="flag">sdk 命令</span>
+<pre>//顯示 虛擬/真實 設備 的 設備名 與adb連接狀態
+adb devices
+<img src="images/tools/devices.PNG">
+	<span class="care">device 已經連接到 adb服務器
+	offline 未連接到 adb服務器</span>
+
+//當存在多個設備時 使用指定設備 執行 adb命令
+adb -s &lt;設備名&gt; &lt;命令&gt;
+
+//安裝應用
+adb install &lt;apk_path&gt;
+	<span class="care">adb -s 07d6683e00ca03bb install DarkTest.apk</span>
+
+//複製文件
+adb push &lt;local&gt; &lt;remote&gt;
+adb pull &lt;remote&gt; &lt;local&gt;
+
+
+
+//進入shell
+adb shell
+</pre>
+		</p>
+	</div>
+
+
+</div>
+</body>
+</html>

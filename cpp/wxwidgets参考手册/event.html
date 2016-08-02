@@ -1,0 +1,321 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>event</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">event</font>
+</p>
+
+<p>
+	<a href="#event">event</a><br />
+	<a href="#use">可用事件</a><br />
+	<a href="#static">创建静态事件表</a><br />
+	<a href="#skin">过滤事件</a><br />
+	<a href="#connect">动态创建事件</a><br />
+	<a href="#PushEventHandler">挂载事件表</a></a><br />
+	
+	<a href="#windowid">窗口id</a></a></a><br />
+</p>
+
+
+<div class="mydiv"><a name="event"></a>
+	<p><font color="#FF0000">event</font>
+<pre>wxwidgets是以事件驱动的
+其通过 事件表 实现
+
+每个wxEvtHandler的派生类 都记录了一个 事件表 用以告诉 wxwidgets处理事件的函数
+所有窗口类 和 应用程序类 都是wxEvtHandler的子类
+</pre>
+    </p>
+</div>    
+
+<div class="mydiv"><a name="use"></a>
+	<p><font color="#FF0000">可用事件</font>
+<pre>打开 官方文档 Topic overviews -> Event handling overview -> Event macros summary
+记录了 常用 event
+ 
+每个 控件类 如 wxButton 
+打开 官方文档 Alphabetical class reference -> wxButton -> Event handling 记录了 控件 event
+ 
+官方文档 Topic overviews -> Event handling overview  是 wx 各种 event 的说明 
+</pre>
+	</p>
+	<p><font color="#FF0000">事件处理函数</font>
+<pre>每个 事件处理函数 都是类似的 标签
+void fun_name(WX_EVENT_TYPE &)
+
+WX_EVENT_TYPE 根据不同 event 而 不同 详见 官方文档
+</pre>	
+	</p>
+	
+</div>
+	
+<div class="mydiv"><a name="static"></a>
+	<p><font color="#FF0000">创建静态事件表</font>
+<pre>1	类声明中 使用  DECLARE_EVENT_TABLE() 创建事件表 
+2	定义一个处理函数
+3	在.cpp的 BEGIN_EVENT_TABLE END_EVENT_TABLE 之间绑定 事件 函数</pre>	
+	</p>
+	
+	<p><font color="#FF0000">example</font>
+<pre>//.h
+class wxTestFrame: public wxFrame
+{
+        ...
+        //创建事件表
+        DECLARE_EVENT_TABLE()
+
+        //定义事件处理函数
+        void OnButtonOK(wxCommandEvent& event);
+        ...
+};
+
+//.cpp
+BEGIN_EVENT_TABLE(wxTestFrame, wxFrame)
+    ...
+    //绑定 事件  函数
+    EVT_BUTTON(id_buton_ok, wxTestFrame::OnButtonOK)
+    ...
+END_EVENT_TABLE()
+
+wxTestFrame::wxTestFrame(wxFrame *frame, const wxString& title)
+    : wxFrame(frame, -1, title)
+{
+    ...
+    //创建一个按钮
+    wxButton* button = new wxButton(this,id_buton_ok,_("ok"));
+    ...
+}
+
+void wxTestFrame::OnButtonOK(wxCommandEvent& event)
+{
+    wxMessageBox(_("ok"));
+}
+
+...
+</pre>	
+	</p>
+	
+	<p><font color="#FF0000">注意</font>
+<pre>当事件发生时 会首先 在 当前类中 查找处理函数 若没有 则查找其父类 或 父窗口 中的处理函数
+
+派生自wxCommandEvent的事件 才会在父窗口中搜索 处理函数
+如下事件都<font color="#FF0000">不会</font> 被分配到 父窗口中 处理
+wxActivate	wxCloseEvent	wxEraseEvent	wxFocusEvent	wxKeyEvent	
+wxIdleEvent	wxInitDialogEvent	wxJoystickEvent	wxMenuEvent
+wxMouseEvent	wxMoveEvent	wxPaintEvent	wxQueryLayoutInfoEvent	
+wxSizeEvent	wxScrollWinEvent	wxSysColourChangedEvent
+
+详见 官方文档 Topic overviews -> Event handling overview -> How events are processed
+</pre>	</p>
+</div>	
+<div class="mydiv"><a name="skin"></a>
+	<p><font color="#FF0000">过滤事件</font>
+<pre>wxwidgets可以 过滤掉一些事件  如 实现 只接受 字母的 文本输入框
+要实现这一功能步骤如下
+	1 从基类派生wxTextCtrl派生
+	2 使用 EVT_KEY_DOWN 设置 键盘 按下 处理函数
+	3 在处理函数中 判断 如果是 字母 调用 event.skin() 方法 调用基类 默认处理函数
+	
+</pre>
+	</p>
+	<p><font color="#FF0000">example</font>
+<pre>//.h
+class wxMyTextCtrl : public wxTextCtrl
+{
+    public:
+        wxMyTextCtrl(wxWindow* parent, wxWindowID id);
+        virtual ~wxMyTextCtrl();
+    protected:
+    private:
+        void OnKeyDown(wxKeyEvent& event);
+
+        DECLARE_EVENT_TABLE()
+};
+
+//.cpp
+BEGIN_EVENT_TABLE(wxMyTextCtrl, wxTextCtrl)
+    EVT_KEY_DOWN(wxMyTextCtrl::OnKeyDown)
+END_EVENT_TABLE()
+
+wxMyTextCtrl::wxMyTextCtrl(wxWindow* parent, wxWindowID id)
+    : wxTextCtrl(parent,id)
+{
+
+    //ctor
+}
+
+wxMyTextCtrl::~wxMyTextCtrl()
+{
+    //dtor
+}
+void wxMyTextCtrl::OnKeyDown(wxKeyEvent& event)
+{
+   long l   = event.KeyCode();
+   if(l<='Z'
+      && l>= 'A'
+      )
+   {
+       event.Skip();
+   }
+   else
+   {
+       wxBell();
+   }
+}
+</pre>
+	</p>
+</div>
+	
+<div class="mydiv"><a name="connect"></a>
+	<p><font color="#FF0000">动态创建事件</font>
+<pre>动态 创建时间表 可以获得 极大的 灵活 且可以 在必要时 删除 不需要的 事件处理函数
+
+Connect 将一个事件 加入到 事件处理表中
+Disconnect 将一个 Connect 的事件 从 事件处理表中 删除 
+
+Connect Disconnect 都需要传入 2个或3个 一样的参数
+id				//对于 静态创建事件 宏不需要传入id 的事件 相应的 动态创建 也不需要id
+事件 类型
+事件处理 函数
+可以参考 各静态事件 宏 定义
+</pre>
+	</p>
+	<p><font color="#FF0000">example</font>
+<pre>//增加 事件处理
+    new wxButton(this,id_buton_center,_("center"));
+    Connect(id_buton_center
+                ,wxEVT_COMMAND_BUTTON_CLICKED
+                ,wxCommandEventHandler(wxTestFrame::OnButtonOK)
+             );
+
+    Connect(wxEVT_MOVE
+            ,wxMoveEventHandler(wxTestFrame::OnMoveEvent)
+            );
+            
+            
+//删除 事件处理
+    Disconnect(id_buton_center
+                ,wxEVT_COMMAND_BUTTON_CLICKED
+                ,wxCommandEventHandler(wxTestFrame::OnButtonOK)
+             );
+             
+    Disconnect(wxEVT_MOVE
+               ,wxMoveEventHandler(wxTestFrame::OnMoveEvent)
+               );             
+</pre>
+	</p>
+	<p><font color="#FF0000">注意</font>
+<pre>Disconnect 只能删除 由Connect 创建的 事件处理函数
+而不能 删除 静态创建的 事件处理函数 
+</pre>
+	</p>
+</div>		
+<div class="mydiv"><a name="PushEventHandler"></a>
+	<p><font color="#FF0000">挂载事件表</font>
+<pre>说 wxEvtHandler  有一个 事件记录表 的 说法应该是 错误的
+大多数情况是如此
+
+但实际上 wxEvtHandler 使用 链表 以 栈的 数据结构 记录了 多个 事件表
+使用 PushEventHandler 压入一个 表
+使用 PopEventHandler 弹出一个
+
+wxEvtHandler 首先在 最后压入 即栈顶 查找处理函数 如不存在 则 向下搜索
+在事件处理函数中 调用 event.skin() 将 继续向下个事件表 搜索 如没有处理函数 在必要时 查找 基类 表
+(这也是 在 过滤事件 时 应该 调用 event.skin() 而非 直接调用基类 函数的 原因)
+
+
+
+使用挂在事件表 能够 让 多个 不同类 
+共享对 某些事件 的 处理 方法 一般步骤如下
+	1	从 wxEvtHandler 派生
+	2	在 派生类 中 定义 要处理 的 事件
+	3	在 需要的 地方 调用 	PushEventHandler 压入 派生类 以获取 默认的 事件处理函数
+
+</pre>
+	</p>
+	<p><font color="#FF0000">常用方法</font>
+<pre>//压入一个表
+void PushEventHandler( wxEvtHandler *handler );
+//弹出一个表
+void PopEventHandler( wxEvtHandler *handler );
+
+//返回下一个 表
+wxEvtHandler* GetNextHandler()
+//返回上一个表
+wxEvtHandler* GetPreviousHandler()
+</pre>
+	</p>
+	
+	<p><font color="#FF0000">example</font>
+<pre><font color="#FF0000">//child .h</font>
+class wxMyEvtHandler : public wxEvtHandler
+{
+    public:
+        wxMyEvtHandler();
+        virtual ~wxMyEvtHandler();
+    protected:
+    private:
+        DECLARE_EVENT_TABLE()
+        void OnMoveEvent(wxMoveEvent& event);
+};
+
+<font color="#FF0000">//child .cpp</font>
+BEGIN_EVENT_TABLE(wxMyEvtHandler, wxEvtHandler)
+    EVT_MOVE(wxMyEvtHandler::OnMoveEvent)
+END_EVENT_TABLE()
+
+wxMyEvtHandler::wxMyEvtHandler()
+{
+    //ctor
+}
+
+wxMyEvtHandler::~wxMyEvtHandler()
+{
+    //dtor
+}
+void wxMyEvtHandler::OnMoveEvent(wxMoveEvent& event)
+{
+    std::cout&lt;&lt;event.GetPosition().x&lt;&lt;" "&lt;&lt;event.GetPosition().y;
+}
+
+<font color="#FF0000">//fram .cpp</font>
+    wxMyEvtHandler* lp  =   new wxMyEvtHandler();
+    PushEventHandler(lp);
+    //PopEventHandler(lp);
+    
+</pre>
+	</p>
+	
+	<p><font color="#FF0000">注意</font>
+<pre>传递给 PushEventHandler 的 应该是 一个 new 的 表 
+wxEvtHandler 在析构时 会 自动 delete
+</pre>
+	</p>
+</div>	
+<div class="mydiv"><a name="windowid"></a>
+	<p><font color="#FF0000">窗口id</font>
+<pre>窗口id 用来 唯一标识 一个 窗口
+id不一定 要在 整个 程序 都 唯一 只要再固定上下文 内唯一就行
+
+wxwidgets 预定义了一些id 
+应该尽量使用 这些id
+wxwidgets 为这些id 设置了 默认处理 函数 或代表 特定 函数
+
+#define wxID_ANY                -1
+一般为 一个 不需要 处理事件的 窗口 使用 wxID_ANY 
+当然对于多个 窗口 想共享同一 事件处理函数 亦可 设置 相同id 比如都甚至为 wxID_ANY(不推荐 最好使用 自定义值)
+
+详见 官方文档 -> Topic overviews -> Event handling overview -> Window identifiers
+
+</pre></pre>	
+	</p>
+</div>		
+</td></tr></table>
+</body>
+</html>

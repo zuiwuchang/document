@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>流程控制</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#for">for</a>
+		<a href="#if">if</a>
+		<a href="#switch">switch</a>
+	</div>
+
+	<div class="note"><a name="for"></a>
+		<p><span class="flag">for</span>
+<pre>Go 只是一种循环 for
+	for i := 0; i < 10; i++ {
+		fmt.Println(i)
+	}
+</pre>
+		</p>
+		<p><span class="flag">while</span>
+<pre>while 在 Go 中 也叫 for
+	sum := 1
+	for sum < 10 {
+		sum += sum
+		fmt.Println(sum)
+	}
+</pre>
+		</p>
+		<p><span class="flag">死循环</span>
+<pre>for {
+	}
+</pre>
+		</p>
+		<p><span class="flag">break continue</span>
+<pre>同 c
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="if"></a>
+		<p><span class="flag">if</span>
+<pre>//if用法 同c 不过 可以在if前 加一个 便捷语句 其作用域在if内
+	i := 0
+	if v := 100; i == 0 {
+		fmt.Println("0", v)
+	} else if i < 0 {
+		fmt.Println("min", v)
+	} else {
+		fmt.Println("max", v)
+	}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>else 必须跟在 }之后 若换行 一些编译器可能无法正确识别
+(这点学习 python 我很不喜欢)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="switch"></a>
+		<p><span class="flag">switch</span>
+<pre>//swith 基本同 c 不过和if一样 可以多个 便捷语句
+import (
+	"fmt"
+	"runtime"
+)
+
+func main() {
+	fmt.Print("Go runs on ")
+	switch os := runtime.GOOS; os {
+	case "darwin":
+		fmt.Println("OS X.")
+	case "linux":
+		fmt.Println("Linux.")
+	default:
+		// freebsd, openbsd,
+		// plan9, windows...
+		fmt.Printf("%s.", os)
+	}
+}
+</pre>
+		</p>
+		<p><span class="flag">switch</span>
+<pre>//switch 从上到下开始匹配 一旦成功 不再继续匹配后续 case default
+	i := 0
+	switch 1 {
+	case i + 1:
+		fmt.Println("1")
+	case i + 1:
+		fmt.Println("123")
+
+	}
+</pre>
+		</p>
+		<p><span class="flag">switch</span>
+<pre>//switch 不传条件 相当于 switch true (可以使用更清晰的方式 替换掉 if-else 链)
+    import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	t := time.Now()
+	switch {
+	case t.Hour() < 12:
+		fmt.Println("Good morning!")
+	case t.Hour() < 17:
+		fmt.Println("Good afternoon.")
+	default:
+		fmt.Println("Good evening.")
+	}
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>Go的case 之后将自动 break 而不需要向c一样 显示break
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

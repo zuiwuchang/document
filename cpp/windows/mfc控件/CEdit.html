@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>CEdit</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+    <p><h1><font color="#FF0000">CEdit</font></h1></p>
+    
+    <h2>
+    <a href="#CEdit">CEdit</a><br />
+    <a href="#Create">Create</a><br />
+    <a href="#other">操作相</a><br />
+    <a href="#map">消息映射</a><br />
+    </h2>
+    
+    <div class="div_box"><a name="CEdit"></a><p><h3>
+    	<p><h2><font color="#FF0000">CEdit</font></h2>
+       	CEdit	提供了一個編輯框 允許用戶輸入文本<br />
+        在構造函數後 需要調用 Create 將其和Windows編輯控件連接<br /><br />
+        
+        m_hWnd 在Create 前為 NULL
+    	</p>
+    </h3></p></div>
+    
+    
+    <div class="div_box"><a name="Create"></a><p><h3>    
+        <p><h2><font color="#FF0000">Create</font></h2>
+<pre><font color="#FF0000">//創建</font>
+BOOL Create(DWORD dwStyle,	//風格
+	const RECT& rect, 	//控件區域
+	CWnd* pParentWnd,	//父窗口指針 不能為NULL
+	UNIT nID		//id
+	);
+<font color="#FF0000">dwStyle取值</font>    
+参见 CWnd 的dwStyle取值
+
+ES_MULTILINE	指定為多行編輯框
+ES_WANTRETURN	將ENTER輸入 轉義為文本
+ES_READONLY 	只讀
+ES_NUMBER	只接受數字輸入
+
+ES_LOWERCASE	所有字符轉 小寫
+ES_UPPERCASE	所有字符轉 大寫
+
+ES_CENTER	文本居中對齊
+ES_LEFT		...左...
+ES_RIGHT  	...右...
+
+ES_PASSWORD	隱藏文本為<font color="#FF0000">*</font>
+
+ES_AUTOHSCROLL	自动滚动(水平)
+ES_AUTOVSCROLL	自动翻页
+ES_NOHIDESEL
+ES_OEMCONVERT	
+    
+</pre>       	        
+        </p>
+	</h3></p></div>        
+        
+        
+        <div class="div_box"><a name="other"></a><p><h3>    
+        
+        <p><h2><font color="#FF0000">操作相</font></h2>
+<pre>//撤銷編輯框操作
+BOOL Undo();
+//返回是否可撤銷
+BOOL CanUndo() const;
+//清除撤銷標記 使不可用Undo撤銷到上一步操作
+void EmptyUndoBuffer();
+
+
+//刪除選中文本
+void Clear();
+//以CF_TEXT格式 拷貝選中文本到剪貼板
+void Copy();
+//以CF_TEXT格式 剪切選中文本到剪貼板
+void Cut();
+//將剪貼板中 CF_TEXT格式 的字符串粘貼到CEdit中年
+void Paste();
+
+
+//選中文本
+void SetSel(DWORD dwSelection,	低字節起始 高字節結束 <font color="#FF0000">MAKELPARAM(0,-1)[全選] MAKELPARAM(-1,-1)[去掉選中狀態] </font>
+	BOOL bNoScroll = FALSE);	//指示是否显示脱字符是滚动可见的。如果值为FALSE，则显示，TRUE不显示
+void SetSel(int nStartChar, int nEndChar, BOOL bNoScroll = False);
+
+//替換 選中文本
+void ReplaceSel(LPCTSTR lpszNewText,
+	BOOL bCanUndo=False);	//是否可通過Undo撤銷
+
+
+//獲取字符左上角坐標
+CPoint PosFromChar(UINT nChar)const;	//傳入字符索引
+//返回最接近指定坐標的 字符 索引(低16位 LOWORD(x)) 行索引(高16位 HIWORD(x))
+int CharFromPos(CPoint pt) const;	
+
+//返回第一個可視的行號
+int GetFirstVisibleLine()const;
+//返回指定索引字符的行索引 -1(返回選中的第一個字符 行索引 )
+int LineFromChar(int nIndex=-1)const;
+//返回指定行 第一個字符的索引	失敗返回-1
+int LineIndex(int nLine = -1)const;
+//返回指定行長度 1(第一行) -1(當前行 插入符所在行)	
+int LineLength(int nLine = -1)const;
+
+
+
+//返回 最大容納字符限制
+UINT GetLimitText() const;
+
+//返回編輯框內 行數
+int GetLineCount()const;
+//返回指定行文本 不包含 不包含 \0
+int GetLine(int nIndex, LPCTSTR lpszBuffer) const;
+int GetLine(int nIndex, LPCTSTR lpszBuffer, int nMaxLength) const;
+
+//設置是否只讀 風格
+BOOL SetReadOnly(BOOL bReadOnly = TRUE);
+
+//返回ES_PASSWORD 風格顯示的 字符
+void GetPasswordChar(TCHAR ch);
+<font color="#FF0000">//設置ES_PASSWORD 風格 並設置顯示的 字符 如設置 0 將顯示原字符</font>
+void SetPasswordChar(TCHAR ch);
+
+</pre>        
+        </p>
+        
+         <p><h2><font color="#FF0000">注意</font></h2>
+         對於多行 文本 需要調用 SetPasswordChar 設置ES_PASSWORD風格
+         </p>
+   	</h3></p></div>
+    
+   
+    <div class="div_box"><a name="map"></a><p><h3>
+    	<p><h2><font color="#FF0000">消息映射</font></h2>
+        afx_msg void memberFxn( ); <br />
+        ON_Notification( id, memberFxn ) 
+        </p>
+  	</h3></p></div>      
+  	
+</td></tr></table>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>重疊io</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1>
+    	<a href="#overlapped">重疊 overlapped io</a><br /> 
+    	<a href="#completion">io completion ports</a><br /> 
+        
+    </h1></p>
+    
+    <div class="div_box"><a name="overlapped"></a><h2>
+    	<p><font color="#FF0000">重疊 overlapped io</font><br />
+		overlapped 使的系統為自己傳輸數據 並且在傳輸完成時 得到通知(打開的設備句柄將被激發 OVERLAPPED結構中的event將被激發)<br />
+        overlapped id 可以用在 named pipes mailslosts serial <font color="#FF0000">socket</font> file
+        
+        
+        </p>
+  		<p><font color="#FF0000">以文件為例相關 API</font><br />
+<pre>//打開文件
+HANDLE WINAPI CreateFile(
+  __in      LPCTSTR lpFileName,
+  __in      DWORD dwDesiredAccess,
+  __in      DWORD dwShareMode,
+  __in_opt  LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+  __in      DWORD dwCreationDisposition,
+  __in      DWORD dwFlagsAndAttributes,			//關鍵在於在此處傳入<font color="#FF0000"> FILE_FLAG_OVERLAPPED </font>以啟用重疊操作
+  __in_opt  HANDLE hTemplateFile
+);
+
+//讀文件
+BOOL WINAPI ReadFile(
+  __in         HANDLE hFile,
+  __out        LPVOID lpBuffer,
+  __in         DWORD nNumberOfBytesToRead,
+  __out_opt    LPDWORD lpNumberOfBytesRead,
+  __inout_opt  LPOVERLAPPED lpOverlapped		//<font color="#FF0000">使用overlapped時 需要傳入一個 OVERLAPPED 結構指針</font>
+);
+
+//寫文件
+BOOL WINAPI WriteFile(
+  __in         HANDLE hFile,
+  __in         LPCVOID lpBuffer,
+  __in         DWORD nNumberOfBytesToWrite,
+  __out_opt    LPDWORD lpNumberOfBytesWritten,
+  __inout_opt  LPOVERLAPPED lpOverlapped
+);
+
+//<font color="#FF0000">OVERLAPPED結構</font>
+typedef struct _OVERLAPPED {  
+	ULONG_PTR Internal; 			//通常被保留 然而當GetOverlappedResult 返回FALSE 且GetLastError 返回<font color="#FF0000">非</font>ERROR_IO_PENDING時 此欄包含一個視系統而定的狀態
+	ULONG_PTR InternalHigh;  		//通常被保留 然而當GetOverlappedResult 返回TRUE 此欄被設置為 傳輸數據長度
+	union {    
+		struct {      
+			WORD Offset;     	//文件操作偏移低32位  對於非文件忽略此值
+ 			DWORD OffsetHigh;    	//文件操作偏移高32位	對於非文件忽略此值
+ 			};    
+ 		PVOID Pointer;  
+ 	};  
+	HANDLE hEvent;				//一個 <font color="#FF0000">必須是人工重置 的event (如果是自動重置 可能造成event狀態遺失)</font>當io完成時 event被激發
+} OVERLAPPED,  *LPOVERLAPPED;
+
+<font color="#FF0000">//獲取重疊操作結果</font>
+//成功返回TRUE
+//如 bWait 為FALSE GetLastError()返回 ERROR_IO_INCOMPLETE 表示 overlapped操作未完成
+BOOL WINAPI GetOverlappedResult(
+  __in   HANDLE hFile,
+  __in   LPOVERLAPPED lpOverlapped,
+  __out  LPDWORD lpNumberOfBytesTransferred,	//返回傳輸字節數
+  __in   BOOL bWait				//(<font color="#FF0000">通常FALSE 因為 通常是在得到overlapped操作 已經完成的通知後才調用此函數</font>) 表示是否等待操作完成 TRUE等待
+);
+
+</pre>
+        </p>
+        
+        <p><font color="#FF0000">注意</font><br />
+        如果發送多個 overlapped 其完成順序是不確定的<br /><br />
+        
+        系統在內部是將 OVERLAPPED 的地址發送給驅動處理 故 OVERLAPPED 的生命週期應該 在io操作完成之後<br />
+        當得到一個  overlapped 完成通知時 應該調用 GetOverlappedResult 獲取操作結果 以判斷 是否發生錯誤<br /><br />
+        
+        <font color="#FF0000">對overlapped的讀寫 也可能立刻完成 如果系統認為其可以快速讀取數據 那麼操作會立刻完成 此時可以將其操作視為 overlapped<br />
+        否則 系統將投遞一個 overlapped 到操作請求隊列 而讀寫函數將返回 錯誤 此時調用 GetLastError() 返回 ERROR_IO_PENDING 代表 overlapped請求成功(否則錯誤)</font><br /><br />
+        
+        <font color="#FF0000">在對文件操作時 對於小文件的讀取 如讀取量小於 32kb的請求 overlapped可能會很低效</font>
+        <font color="#FF0000">在對文件操作時 如果寫入文件而造成文件擴展 或對寫壓縮文件 overlapped將始終以同步方式工作</font>
+        </p>
+   	</h2></div>
+    
+   <div class="div_box"><a name="completion"></a><h2>
+    	<p><font color="#FF0000">io completion ports</font><br />
+        io completion ports為目標尋找任何一個能夠為 completed overlapped io request 服務端線程<br />
+        為了使用io completion ports只需在線程上 等待io completion ports<br /><br />
+        
+        每次有新的overlapped開啟 就可以讓 handle和 io completion ports產生關聯 <br />
+        之後任何 io 操作完成 便會導致 io completion packet被送到 io completion ports<br />
+        為了回應io completion packet ,io completion ports釋放一個等待的線程
+        </p>
+        
+        <p><font color="#FF0000">操作摘要</font><br />
+<pre>1	產生一個 io completion port
+2	讓一個設備HANDLE(如文件句柄 socket...)和它關聯
+3	產生一堆線程
+4	讓每個線程都在io completion port上等待
+5	對HANDLE發出 overlapped io 請求</pre>        
+        </p>
+        
+        <p><font color="#FF0000">相關API</font><br />
+<pre>//創建 io completion port 失敗返回NULL
+HANDLE	CreateIoCompletionPort(INVALID_HANDLE_VALUE,NULL,0	//對於創建 前三個參數固定
+	,0	//0系統默認(顯一個cpu一線程)	指定並發執行的線程數 
+)
+
+//關聯 io completion port 和 一個以FILE_FLAG_OVERLAPPED 打開的設備 (失敗返回NULL,否則返回ExistingCompletionPort)
+HANDLE WINAPI CreateIoCompletionPort(
+  __in      HANDLE FileHandle,				//要關聯的設備句柄(FILE_FLAG_OVERLAPPED)
+  __in_opt  HANDLE ExistingCompletionPort,	// 一個已經存在的io completion por 句柄
+  __in      ULONG_PTR CompletionKey,		//用戶自定義的一個 32位值 <font color="#FF0000">通常是一個 用戶自定義數據的指針</font>
+  __in      DWORD NumberOfConcurrentThreads //0
+);
+
+//等待 io completion port  失敗返回NULL
+BOOL WINAPI GetQueuedCompletionStatus(
+  __in   HANDLE CompletionPort,				// io completion port 句柄
+  __out  LPDWORD lpNumberOfBytes,			//被傳輸字節數
+  __out  PULONG_PTR lpCompletionKey,		//CreateIoCompletionPort中傳入的 用戶自定義32位值
+  __out  LPOVERLAPPED* lpOverlapped,		//一個LPOVERLAPPED 指針 返回完成的overlapped結構地址
+  __in   DWORD dwMilliseconds				//等待超時 INFINITE 一直等待
+);
+
+
+//模擬io完成 向 io completion port 發送一個 模擬的 io completion pack
+BOOL WINAPI PostQueuedCompletionStatus(
+  __in      HANDLE CompletionPort,				// io completion handle
+  __in      DWORD dwNumberOfBytesTransferred,	//對於GetQueuedCompletionStatus的傳出參數
+  __in      ULONG_PTR dwCompletionKey,			//...
+  __in_opt  LPOVERLAPPED lpOverlapped			//...
+);
+
+</pre>        
+        </p>
+         <p><font color="#FF0000">判斷GetQueuedCompletionStatus返回原因</font><br />
+<pre>OVERLAPPED* pOverlapped;
+	BOOL bOk	=	GetQueuedCompletionStatus(...,&amp;pOverlapped...);
+	
+	DWORD dwError=GetLastError();
+	if(bOk)
+	{
+		//io 請求 完成
+	}
+	else if (pOverlapped != NULL)
+	{
+		//io 請求 出錯
+	}
+	else if(dwError == WAIT_TIMEOUT)
+	{
+		//超時
+	}
+	else
+	{
+		//其他錯誤
+	}</pre>         
+         </p>
+        
+        <p><font color="#FF0000">進行io 不引發io completion pack</font><br />
+        在OVERLAPPED.hEvent 設置event後 和i 安位與<br />
+        OVERLAPPED.hEvent=CreateEvent(NULL,TRUE,FALSE,NULL);<br />
+        OVERLAPPED.hEvent=(HANDLE)((DWORD)OVERLAPPED.hEvent | 0x1);
+        </p>
+  </h2></div>
+</td></tr></table>
+</body>
+</html>

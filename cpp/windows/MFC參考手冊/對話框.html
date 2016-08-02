@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>對話框</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">對話框</font>
+</p>
+
+<p>
+	<a href="#CDialog">CDialog</a><br />
+    <a href="#Z">窗口 z軸次序</a><br />
+    <a href="#CPropertySheet">屬性頁</a><br />
+</p>
+
+
+<div class="mydiv"><a name="CDialog"></a>
+	<p><font color="#FF0000">CDialog</font><br />
+    CDialog 封裝了對 對話框的操作
+	</p>
+    
+    <p><font color="#FF0000">相關API</font><br />
+<pre>//創建 模態 對話框
+virtual int DoModal();	//返回EndDialog的設置值
+
+//關閉 模態對話框
+void EndDialog(int nResult);
+
+//創建非模態對話框
+BOOL Create(UNIT nIDTemplate, 	//模板ID號
+	CWnd* pParentWnd = NULL);	//父窗口 NULL 應用程序窗口為父窗口
+//銷毀非模態對話框
+virtual BOOL DestroyWindow( );
+
+//更新數據
+BOOL UpdateData( BOOL bSaveAndValidate = TRUE );	//TRUE(控件->變量)	FALSE(變量->控件)
+</pre>    
+	</p>
+</div>
+
+<div class="mydiv"><a name="Z"></a>
+	<p><font color="#FF0000">窗口 z軸次序</font><br />
+<pre>Windows維護着3個 Z次序
+	頂層窗口
+	兄弟窗口		共享同一個父窗口的多個子窗口
+	最頂層窗口	最頂層窗口覆蓋其他所有非頂層窗口(不過是否活動等)	設置<font color="#FF0000">WS_EX_TOPMOST</font>風格 創建最頂層窗口
+
+一般情況下 windows把活動窗口 放在z次序最頂部
+//設置窗口到 z次序 頂部
+BOOL BringWindowToTop(          HWND hWnd);
+
+//設置窗口 在次序
+BOOL SetWindowPos(          HWND hWnd,
+    HWND hWndInsertAfter,
+    int X,
+    int Y,
+    int cx,
+    int cy,
+    UINT uFlags
+);
+
+//設置一個窗口為 活動窗口
+HWND SetActiveWindow(          HWND hWnd);
+
+//設置前台窗口
+BOOL SetForegroundWindow(          HWND hWnd);
+
+<font color="#FF0000">//改變窗口屬性 成功返回原值 否則返回0</font>
+LONG SetWindowLong(          HWND hWnd,
+    int nIndex,				//要設置什麼屬性值
+    LONG dwNewLong			//要設置的值
+);
+
+<font color="#FF0000">//獲取窗口屬性</font>
+LONG GetWindowLong(          HWND hWnd,
+    int nIndex
+);
+
+<font color="#FF0000">nIndex取值</font>
+GWL_EXSTYLE		//擴展風格
+GWL_STYLE		//風格
+GWL_WNDPROC		//窗口函數
+...
+
+//移動窗口
+void MoveWindow( LPCRECT lpRect, BOOL bRepaint = TRUE );
+
+//修改窗口風格
+BOOL ModifyStyle( DWORD dwRemove, DWORD dwAdd, UINT nFlags = 0 );
+//修改窗口擴展風格
+BOOL ModifyStyleEx( DWORD dwRemove, DWORD dwAdd, UINT nFlags = 0 );
+
+//獲取當前具有焦點的窗口
+HWND GetFocus(VOID);
+
+//獲取窗口句柄
+HWND GetNextWindow(          HWND hWnd,
+    UINT wCmd		//GW_HWNDNEXT(獲取 hWnd的下一個窗口句柄) GW_HWNDPREV(...上一個)
+);
+
+//獲取窗口句柄
+HWND GetWindow(          HWND hWnd,
+    UINT uCmd		//要查找 hWnd 相關的什麼窗口 
+);
+<font color="#FF0000">uCmd 取值</font>
+GW_CHILD			//子窗口
+GW_ENABLEDPOPUP		//具有GW_HWNDNEXT風格的窗口
+GW_HWNDFIRST		//z次序	第一個窗口
+GW_HWNDLAST			//z次序	最後一個窗口
+GW_HWNDNEXT			//z次序	下一個窗口
+GW_HWNDPREV			//z次序	上一個窗口
+GW_OWNER			//窗口的所有者窗口
+
+//搜索具有WS_TABSTOP風格的子控件
+CWnd* CWnd::GetNextDlgTabItem( CWnd* pWndCtl,	//當前控件指針 
+	BOOL bPrevious = FALSE 			//FALSE(下一個) TRUE(上一個)
+) const;
+</pre>
+	</p>
+</div>
+<div class="mydiv"><a name="CPropertySheet"></a>
+	<p><font color="#FF0000">屬性頁</font><br />
+    CPropertyPage 代表了每個 屬性頁<br />
+    CPropertySheet 代表了整個屬性表單
+	</p>
+    
+    <p><font color="#FF0000">CPropertySheet相關API</font><br />
+<pre>//構造
+CPropertySheet();
+CPropertySheet( UINT nIDCaption, //屬性表單 標題ID
+	CWnd* pParentWnd = NULL, UINT iSelectPage = 0 );
+CPropertySheet( LPCTSTR pszCaption	//屬性表單 標題
+, CWnd* pParentWnd = NULL		//父窗口
+, UINT iSelectPage = 0 );		//第一個屬性頁的 索引
+
+
+//添加一個屬性頁 到屬性表單
+void Addpage( CPropertyPage *pPage );
+
+//將屬性表單 設置為嚮導模式
+void SetWizardMode();
+
+//設置嚮導擁有的 按鈕
+void SetWizardButtons( DWORD dwFlags );
+PSWIZB_BACK Back按钮。  
+PSWIZB_NEXT Next按钮。  
+PSWIZB_FINISH Finish按钮。  
+PSWIZB_DISABLEDFINISH Disabled Finish按钮。  
+
+//獲取屬性頁
+CPropertyPage* GetPage( int nPage ) const
+
+//獲取屬性頁數目
+int GetPageCount();
+
+//返回屬性頁的索引
+int GetPageIndex( CPropertyPage* pPage ) const;
+
+//設置如下屬性(|=) 增加幫助按鍵 (&amp= ~) 
+CPropertySheet.m_psh	//PS<font color="#FF0000">H</font>_HASHELP
+CPropertyPage.m_psp	//PS<font color="#FF0000">P</font>_HASHELP
+</pre>    
+	</p>
+     <p><font color="#FF0000">注意</font><br />
+<pre>應該 重載 <font color="#FF0000">CPropertyPage</font> 的 OnSetActive 設置屬性表單擁有的按鍵(每當 該頁成為活動頁 此virtual被調用)
+
+當點擊 屬性表單 的 back next finish 會分別調用 <font color="#FF0000">CPropertyPage</font>的的 virtual
+OnWizardBack
+OnWizardNext
+OnWizardFinish
+如果 virtual 返回 0(自動跳轉到下一個頁面) -1(防止用戶進入下一個頁面)
+</pre>     
+     </p>
+</div>    
+</td></tr></table>
+</body>
+</html>

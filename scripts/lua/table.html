@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>lua</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#table">數據結構</a>
+		<a href="#array">數組</a>
+		<a href="#list">鍊錶</a>
+		<a href="#queue">隊列</a>
+		<a href="#table">集合</a>
+		<a href="#buffer">字符串緩存</a>
+		<a href="#map">圖</a>
+		
+		
+	</div>
+
+	<div class="note"><a name="table"></a>
+		<p><span class="flag">數據結構</span>
+<pre>lua 中只有一個數據結構 table
+其它結構 lua都是用 table 進行模擬
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="array"></a>
+		<p><span class="flag">數組</span>
+<pre>--長度為10的數組 
+(其更像std::vector&lt;boost::any&gt; 可以改變大小 存儲任意值)
+array	=	{}
+for i=1,10 do		--lua 中 盡量以1為 索引開始
+	array[i]	=	0
+end
+
+
+--二維數組 [i][j]
+i=10
+j=10
+array	=	{}
+for i1=0,i do
+	array[i]	=	{}
+	for	j1=0,j	do
+		array[i][j]	=	0
+	end
+end
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>lua 數組 從 1開始
+
+#數組 可以返回 數組長度(但#是按照 從1開始計數 且 數組中間不能有 間隙)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="list"></a>
+		<p><span class="flag">鍊錶</span>
+<pre>直接將 table 作為鍊錶節點 其中每個table 記錄下個 節點的 table 引用即可
+
+--創建鍊錶
+list	=	{}
+insert	=	list;
+for i = 0,10 do
+	note	=	{}
+	note.value	=	i
+	insert.next	=	note
+	insert	=	note
+end
+list	=	list.next
+
+--訪問鍊錶
+iterator	=	list
+while(iterator.next ~= nil) do
+	print(iterator.value)
+	iterator	=	iterator.next
+end
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="queue"></a>
+		<p><span class="flag">隊列</span>
+<pre>隊列只不過是 只從鍊錶 兩端存取的 一個特殊鍊錶而已
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="table"></a>
+		<p><span class="flag">集合</span>
+<pre>table 本身就是一個 集合 
+其類似與 boost::unordered_map&lt;boost::any&gt;</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="buffer"></a>
+		<p><span class="flag">字符串緩存</span>
+<pre>lua 每次連接字符串 等都將創建一個 新字符串 
+如從一個文件中讀取字符串 每次讀1行 已經讀了 1w行 
+再每次讀取 都將 重新創建一個 1w+n行當新字符串 且copy
+
+可以將 table作為 字符串 緩存 以線性數組存儲 
+最後調用 table.concast 將字符串 組成一個連續完整的字符串 並返回
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>--創建緩存
+buffer	=	{}
+for i = 1 , 10 do
+	buffer[#buffer + 1]	=	"this is line at " .. i
+end
+
+--連接緩存中的 字符串
+str	=	table.concat(buffer,"\n")	--第二個參數可選 為字符串間的 分隔符
+
+print(str)
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+

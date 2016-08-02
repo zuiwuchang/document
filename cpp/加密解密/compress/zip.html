@@ -1,0 +1,279 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>compress</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">zip</font>
+</p>
+
+<p>
+	<a href="#zip">zip</a><br />
+    <a href="#win32">環境配置win32</a><br />
+    <a href="#function">基本函数</a><br />
+    <a href="#gzip">gzip</a><br />
+   
+</p>
+
+
+<div class="mydiv"><a name="zip"></a>
+	<p><font color="#FF0000">zip</font>
+<pre>zip一種流行的數據壓縮和文檔存儲格式 原名deflate 由Phil Kata發明
+
+官網<a href="http://www.zlib.net/">http://www.zlib.net/</a>
+</pre>
+	</p>   
+</div>
+
+<div class="mydiv"><a name="win32"></a>
+	<p><font color="#FF0000">環境配置win32</font>
+<pre>1	從官網 下載 最新源碼 zlib-*.tar.gz
+
+2	打开vs cmd环境 cd到 zlib源码目录
+
+3	执行 nmake -f win32/Makefile.msc LOC="-DASMV -DASMINF" OBJA="match686.obj inffas32.obj" 编译库 得到 (静态库)zlib.lib  (动态库)zdll.lib  zlib1.dll
+
+4	将源码中石油 *.h 加入 include 目录
+</pre>
+	</p>
+</div>    
+
+<div class="mydiv"><a name="function"></a>
+	<p><font color="#FF0000">基本函数</font>
+<pre>//压缩数据 成功返回 Z_OK
+int compress(
+	Byte *dest,			//输出缓冲区
+	uLong *destLen,		//输出缓冲区大小 同时返回实际使用了多少字节输出缓冲区
+	const Byte *source,	//输入缓冲区
+	uLong sourceLen			//输入缓冲区大小
+    );
+
+//解压数据 成功返回 Z_OK 数据不完整返回Z_DATA_ERROR
+int uncompress(
+	Byte *dest,
+	uLong *destLen,
+	const Byte *source, 
+	uLong sourceLen
+	);
+
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>#include&lt;string&gt;
+#include&lt;iostream&gt;
+#include&lt;vector&gt;
+
+#include&lt;zip1.2.8\zlib.h&gt;
+#pragma comment(lib,"zlib.lib")
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//原文
+	std::string str	=	"this is 草泥馬的 zip 測試";
+	//密文
+	std::vector&lt;Byte&gt; ens(200,0);		//足夠長的緩衝區 若原文比較短 比如現在的測試 壓縮數據可能大於原文
+	//解壓緩衝區
+	std::vector&lt;Byte&gt; des(200,0);		//...
+	
+	uLong size	=	ens.size();
+	//加密 緩衝區不夠 返回 Z_BUF_ERROR
+	if(Z_OK	!=	compress(ens.data()	//輸出緩衝區
+		,&amp;size						//inout 傳入緩衝區長度 返回實際使用的 緩衝區大小
+		,(Byte*)str.data()			//原文
+		,str.size()					//原文長度
+		)
+		)
+	{
+		return 0;
+	}
+	//調整緩衝區大小
+	ens.resize(size);
+
+	
+	size	=	des.size();
+	//解壓
+	if(Z_OK	!=	uncompress(des.data()	
+		,&amp;size
+		,ens.data()
+		,ens.size()
+		)
+		)
+	{
+		//Z_DATA_ERROR(數據不完整) Z_MEM_ERROR(內存不夠)  Z_BUF_ERROR(輸出緩衝區 size 太小)
+		return 0;
+	}
+	des.reserve(size);
+	
+	std::cout&lt;&lt;str&lt;&lt;"\n"
+		&lt;&lt;(char*)des.data()
+		&lt;&lt;std::endl;
+	
+	std::system("pause");
+	return 0;
+}
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">注意</font>
+<pre>在vs debug 下 zlib 餘默認庫衝突 在編譯選項->鏈接器->命令行 加入  /NODEFAULTLIB:MSVCRT  
+</pre>
+	</p>
+</div>    
+
+<div class="mydiv"><a name="gzip"></a>
+	<p><font color="#FF0000">gzip</font>
+<pre>zlib 默認不使用 gzip 算法 下面是使用 gzip 的封裝函數
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">example</font>
+<pre>#include&lt;zip1.2.8\zlib.h&gt;
+#pragma comment(lib,"zlib.lib")
+
+
+//gzip
+int gzcompress(Byte *dest,uLong *destLen,Byte *source,uLong sourceLen)
+{
+	z_stream c_stream;
+	int error	=	0;
+	if(source
+		&amp;&amp; sourceLen >0
+		)
+	{
+		c_stream.zalloc	=	NULL;
+		c_stream.zfree	=	NULL;
+		c_stream.opaque	=	NULL;
+		if(Z_OK	!=	deflateInit2(&amp;c_stream,Z_DEFAULT_COMPRESSION,Z_DEFLATED,MAX_WBITS + 16,8,Z_DEFAULT_STRATEGY))
+		{
+			return -1;
+		}
+		 c_stream.next_in	=	source;
+		 c_stream.avail_in	=	sourceLen;
+		 c_stream.next_out	=	dest;
+		 c_stream.avail_out	=	*destLen;
+		 while(c_stream.avail_in != 0 &amp;&amp; c_stream.total_out < *destLen)
+		 {
+            if(deflate(&amp;c_stream, Z_NO_FLUSH) != Z_OK) 
+			{
+				return -1;
+			}
+		 }
+
+		 if(c_stream.avail_in != 0)
+		 {
+			 return c_stream.avail_in;
+		 }
+
+        while(true)
+		{
+
+            if((error = deflate(&amp;c_stream, Z_FINISH)) == Z_STREAM_END) break;
+
+            if(error != Z_OK) return -1;
+
+        }
+
+        if(deflateEnd(&amp;c_stream) != Z_OK)
+		{
+			return -1;
+		}
+        *destLen = c_stream.total_out;
+		return Z_OK;
+	}
+	return -1;
+}
+
+int gzuncompress(Byte *dest,uLong *destLen,Byte *source,uLong sourceLen)
+{
+	int error	=	0;
+	z_stream	d_stream	=	{0};
+	static char dummy_head[2]	=	{0x8 + 0x7 * 0x10
+		,(((0x8 + 0x7 * 0x10) * 0x100 + 30) / 31 * 31) &amp; 0xFF
+	};
+
+	d_stream.zalloc		=	NULL;
+	d_stream.zfree		=	NULL;
+	d_stream.opaque		=	NULL;
+	d_stream.next_in	=	source;
+	d_stream.avail_in	=	0;
+	d_stream.next_out	=	dest;
+
+	if(Z_OK	!=	inflateInit2(&amp;d_stream, MAX_WBITS + 16))
+	{
+		return -1;
+	}
+	while(d_stream.total_out < *destLen &amp;&amp; d_stream.total_in < sourceLen)
+	{
+		d_stream.avail_in = d_stream.avail_out = 1;
+		if((error = inflate(&amp;d_stream, Z_NO_FLUSH)) == Z_STREAM_END) 
+		{
+			break;
+		}
+		
+		if(error != Z_OK) 
+		{
+			if(error == Z_DATA_ERROR) 
+			{
+				 d_stream.next_in = (Bytef*) dummy_head;
+				 d_stream.avail_in = sizeof(dummy_head);
+				 if((error = inflate(&amp;d_stream, Z_NO_FLUSH)) != Z_OK)
+				 {
+					 return -1;
+				 }
+			}
+			else
+			{
+				return -1;
+			}
+		}
+	}
+
+	if(Z_OK	!=	inflateEnd(&amp;d_stream))
+	{
+		return -1;
+	}
+	*destLen	=	d_stream.total_out;
+	return Z_OK;
+}
+
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	std::string str	=	"草泥馬 funcking 的 test";
+	std::vector&lt;char&gt; en(200,0);
+	std::vector&lt;char&gt; de(200,0);
+
+	//壓縮
+	uLong	size	=	en.size();
+	if(Z_OK	!=	gzcompress((Byte*)en.data(),&amp;size,(Byte*)str.c_str(),str.size() + 1))
+	{
+		puts("gzcompress error");
+		return 0;
+	}
+	en.resize(size);
+
+	//解壓
+	size	=	de.size();
+	if(Z_OK	!=	gzuncompress((Byte*)de.data(),&amp;size,(Byte*)en.data(),en.size()))
+	{
+		puts("gzuncompress error");
+		return 0;
+	}
+	de.resize(size);
+
+	std::cout&lt;&lt;str&lt;&lt;"\n"&lt;&lt;de.data()&lt;&lt;std::endl;
+	std::system("pause");
+	return 0;
+}    
+</pre>
+	</p>
+</div>
+
+</td></tr></table>
+</body>
+</html>

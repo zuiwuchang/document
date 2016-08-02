@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>NT驱动加载卸载</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+	
+    <p><h1><a href="#load">加载</a></h1></p>
+    <p><h1><a href="#unload">卸载</a></h1></p>
+    
+    
+    
+    <div class="div_box"><a name="load"></a><h2>
+        <p><font color="#FF0000">加载</font><br />
+        以scm服务管理器加载 卸载 操作类似于 服务
+        </p>
+         <p><font color="#FF0000">example</font><br />
+        <pre>EXCEPTIOIN loadDriver(const std::wstring& driver_name,const std::wstring& driver_path) 
+{
+	SC_HANDLE  sc_handle_scm=NULL,sc_handle_service=NULL;
+	//打开服务管理器  
+	try
+		{
+		sc_handle_scm=OpenSCManager(NULL,//主机名 NULL 代表本机
+			NULL,	//scm数据库名 NULL使用默认
+			SC_MANAGER_ALL_ACCESS);//权限 此为全部 至少要SC_MANAGER_CREATE_SERVICE （既创建服务的权限）
+		if(!sc_handle_scm)
+		{
+			std::exception e("打开scm服务管理器失败",GetLastError());
+			throw e;
+		}
+
+		//创建服务
+		sc_handle_service=CreateService(sc_handle_scm,//scm管理器句柄
+			driver_name.c_str(),	//驱动程序在注册表中的名字 既服务名
+			driver_name.c_str(),	//注册表驱动程序的 DisplayName （驱动路径）
+			SC_MANAGER_ALL_ACCESS,	//权限 此为全部权限
+			SERVICE_KERNEL_DRIVER,  //服务类型 此为驱动
+			SERVICE_DEMAND_START,	//注册表的start值
+			SERVICE_ERROR_IGNORE,	//注册表的ErrorControl值
+			driver_path.c_str(),	//注册表的ImagePath值 既然驱动的路径
+			NULL,	//需要开启服务的用户组
+			NULL,	//输出验证标签
+			NULL,	//所依赖服务的名称
+			NULL,	//用户帐户名
+			NULL	//用户口令
+			);
+
+		if(!sc_handle_service)
+		{
+			DWORD error_code=GetLastError();
+			if(ERROR_DUPLICATE_SERVICE_NAME==error_code)
+			{
+				//打开服务句柄
+				sc_handle_service=OpenService(sc_handle_scm,driver_name.c_str(),SC_MANAGER_ALL_ACCESS );
+				if(!sc_handle_service)
+				{
+					dark::debug::wexception e(L"打开服务句柄失败",GetLastError());
+					throw e;
+				}
+			}
+			else
+			{
+				dark::debug::wexception e(L"创建服务失败",GetLastError());
+				throw e;
+			}
+		}
+
+		//运行服务
+		if(!StartService(sc_handle_service,NULL,NULL))
+		{
+			dark::debug::wexception e(L"打开服务失败",GetLastError());
+			throw e;
+		}
+
+		dark::debug::wexception e(false);
+		throw e;
+	}
+	catch(const dark::debug::wexception& e)
+	{
+		if(sc_handle_scm)
+		{
+			CloseServiceHandle(sc_handle_scm);
+		}
+		if(sc_handle_service)
+		{
+			CloseServiceHandle(sc_handle_service);
+		}
+	
+		if(e.isException())
+		{
+			throw e;
+		}
+	}
+
+}</pre>
+        </p>
+        
+    </h2></div>
+    
+	
+	 <div class="div_box"><a name="unload"></a><h2>
+        <p><font color="#FF0000">卸载</font><br />
+        
+        </p>
+        
+        <p><font color="#FF0000">example</font><br />
+       <pre>EXCEPTIOIN unloadDriver(const std::wstring& driver_name)
+{
+	SC_HANDLE  sc_handle_scm=NULL,sc_handle_service=NULL;
+	try
+	{
+		//打开服务管理器
+		sc_handle_scm=OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
+		if(!sc_handle_scm)
+		{
+			std::exception e("打开scm服务管理器失败",GetLastError());
+			throw e;
+		}
+
+		//打开服务句柄
+		sc_handle_service=OpenService(sc_handle_scm,driver_name.c_str(),SC_MANAGER_ALL_ACCESS );
+		if(!sc_handle_service)
+		{
+			dark::debug::wexception e(L"打开服务句柄失败",GetLastError());
+			throw e;
+		}
+	
+		SERVICE_STATUS service_status;
+		if(!ControlService(sc_handle_service,SERVICE_CONTROL_STOP//更改服务状态 此为停止服务
+			,&service_status))
+		{
+			dark::debug::wexception e(L"停止服务失败",GetLastError());
+			throw e;
+		}
+		if(!DeleteService(sc_handle_service))
+		{
+			dark::debug::wexception e(L"卸载服务失败",GetLastError());
+			throw e;
+		}
+
+		dark::debug::wexception e(false);
+		throw e;
+	}
+	catch(const dark::debug::wexception& e)
+	{
+		if(sc_handle_scm)
+		{
+			CloseServiceHandle(sc_handle_scm);
+		}
+		if(sc_handle_service)
+		{
+			CloseServiceHandle(sc_handle_service);
+		}
+	
+		if(e.isException())
+		{
+			throw e;
+		}
+	}
+
+}</pre>
+        </p>
+    </h2></div>
+   
+
+	
+
+</td></tr></table>
+</body>
+</html>

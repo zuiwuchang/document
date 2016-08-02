@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>other</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#wxTaskBarIcon">托盤</a>
+		<a href="#wxBORDER_NONE">移動 wxBORDER_NONE 窗口</a>
+	</div>
+
+	<div class="note"><a name="wxTaskBarIcon"></a>
+		<p><span class="flag">托盤</span>
+<pre>wxTaskBarIcon 用於實現 托盤
+</pre>
+		</p>
+		<p><span class="flag">事件</span>
+<pre>EVT_TASKBAR_MOVE(func):
+	Process a wxEVT_TASKBAR_MOVE event.
+
+EVT_TASKBAR_LEFT_DOWN(func):
+	Process a wxEVT_TASKBAR_LEFT_DOWN event.
+
+EVT_TASKBAR_LEFT_UP(func):
+	Process a wxEVT_TASKBAR_LEFT_UP event.
+
+EVT_TASKBAR_RIGHT_DOWN(func):
+	Process a wxEVT_TASKBAR_RIGHT_DOWN event.
+
+EVT_TASKBAR_RIGHT_UP(func):
+	Process a wxEVT_TASKBAR_RIGHT_UP event.
+
+EVT_TASKBAR_LEFT_DCLICK(func):
+	Process a wxEVT_TASKBAR_LEFT_DCLICK event.
+
+EVT_TASKBAR_RIGHT_DCLICK(func):
+	Process a wxEVT_TASKBAR_RIGHT_DCLICK event.
+
+EVT_TASKBAR_CLICK(func):
+	This is a synonym for either EVT_TASKBAR_RIGHT_DOWN or UP depending on the platform, use this event macro to catch the event which should result in the menu being displayed on the current platform.
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>class aideFrame: public wxFrame
+{
+	...
+	wxTaskBarIcon task_bar_ico;
+	...
+}	
+aideFrame::aideFrame()
+{
+	//設置托盤 圖標 鼠標懸浮文本
+	task_bar_ico.SetIcon(wxICON(aaaa),_("aide"));
+
+	//綁定托盤事件
+	task_bar_ico.Connect(wxEVT_TASKBAR_LEFT_DOWN,wxTaskBarIconEventHandler(aideFrame::OnTaskBarIconLButtonDown));
+	task_bar_ico.Connect(wxEVT_TASKBAR_RIGHT_DOWN,wxTaskBarIconEventHandler(aideFrame::OnTaskBarIconRButtonDown));
+}
+
+void aideFrame::OnTaskBarIconLButtonDown(wxTaskBarIconEvent& event)
+{
+	wxString msg = wxbuildinfo(long_f);
+	wxMessageBox(msg, _("Left"));
+}
+void aideFrame::OnTaskBarIconRButtonDown(wxTaskBarIconEvent& event)
+{
+	wxString msg = wxbuildinfo(long_f);
+	wxMessageBox(msg, _("Right"));
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>wxTaskBarIcon 不能為 static  全局變量
+如果是 new的 必須 在不需要的時候 delete 
+不能指望 os 在程序結束時 為之 釋放資源
+wxTaskBarIcon 會導致 程序不能不正常 退出 而os自然也就 不是釋放 此程序的資源
+
+其實只要作為 類的 成員變量 即可 解決上述問題
+(類 析構後 會自動釋放 所有成員 變量)
+
+
+要使用 右鍵菜單 直接 派生wxTaskBarIcon 且重載 virtual wxMenu* CreatePopupMenu(); 即可
+(其中返回的wxMenu 必須每次都重新 new 菜單消失後 會被自動delete)
+
+如果要使用 其他方式 彈出菜單 派生子類 且調用PopupMenu彈出菜單 
+
+<span class="care">wxTaskBarIcon 是一個 單獨的 隱藏的窗口
+和 主窗口 沒有任何關係 這點是不同與 win32的</span>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="wxBORDER_NONE"></a>
+		<p><span class="flag">移動 wxBORDER_NONE 窗口</span>
+<pre>wxBORDER_NONE 是一個 沒有 邊框 標題欄 的窗口
+
+要移動 此窗口 只需要 捕獲 鼠標 按下
+之後 在 鼠標 移動 中 調整 窗口 位置 即可
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><span class="care">*.h</span>
+#ifndef SYSTEMINFODIALOG_H
+#define SYSTEMINFODIALOG_H
+#include <wx/dialog.h>
+
+class SystemInfoDialog : public wxDialog
+{
+    public:
+        SystemInfoDialog();
+        SystemInfoDialog (wxWindow *parent,
+                          wxWindowID id,
+                          const wxString &title,
+                          const wxPoint &pos=wxDefaultPosition,
+                          const wxSize &size=wxDefaultSize,
+                          long style=wxBORDER_NONE,//wxDEFAULT_DIALOG_STYLE,
+                          const wxString &name=wxDialogNameStr);
+        virtual ~SystemInfoDialog();
+    protected:
+    private:
+
+        void OnMouseMove(wxMouseEvent& event);
+        void OnMouseLeftDown(wxMouseEvent& event);
+        void OnMouseLeftUp(wxMouseEvent& event);
+        wxPoint delta_;
+
+
+        DECLARE_EVENT_TABLE()
+};
+
+#endif // SYSTEMINFODIALOG_H
+
+
+
+<span class="care">*.cpp</span>
+#include "SystemInfoDialog.h"
+
+BEGIN_EVENT_TABLE(SystemInfoDialog, wxDialog)
+    EVT_MOTION(SystemInfoDialog::OnMouseMove)
+    EVT_LEFT_DOWN(SystemInfoDialog::OnMouseLeftDown)
+    EVT_LEFT_UP(SystemInfoDialog::OnMouseLeftUp)
+END_EVENT_TABLE()
+
+SystemInfoDialog::SystemInfoDialog()
+{
+    //ctor
+}
+
+SystemInfoDialog::~SystemInfoDialog()
+{
+    //dtor
+}
+
+SystemInfoDialog::SystemInfoDialog (wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &pos, const wxSize &size, long style, const wxString &name)
+    :wxDialog(parent,id,title,pos,size,style,name)
+{
+
+}
+
+void SystemInfoDialog::OnMouseMove(wxMouseEvent& event)
+{
+    if (event.Dragging() && event.LeftIsDown())
+    {
+        //計算 窗口新 坐標
+        wxPoint left = ClientToScreen(event.GetPosition());
+        int x = left.x - delta_.x;
+        int y = left.y - delta_.y;
+
+        //移動窗口
+        Move(x, y);
+    }
+}
+
+void SystemInfoDialog::OnMouseLeftDown(wxMouseEvent& event)
+{
+    //捕獲鼠標
+    CaptureMouse();
+
+    //計算相對窗口坐標
+    wxPoint left = ClientToScreen(event.GetPosition());
+    wxPoint right = GetPosition();
+    delta_ = left - right;
+}
+
+void SystemInfoDialog::OnMouseLeftUp(wxMouseEvent& event)
+{
+     if (HasCapture())
+    {
+        ReleaseMouse();
+    }
+}
+
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

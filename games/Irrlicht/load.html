@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Irrlicht</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">加載場景</font>
+</p>
+
+<p>
+	<a href="#load">加載場景</a><br />
+    <a href="#example">example 靜態場景</a><br />
+    <a href="#IAnimatedMeshSceneNode">IAnimatedMeshSceneNode</a><br />
+    
+</p>
+
+
+<div class="mydiv"><a name="load"></a>
+	<p><font color="#FF0000">加載場景</font>
+<pre>Irrlicht 能夠加載多種 3D場景
+所有3D場景 都已 幀 表示
+
+如 
+Quake3Map
+或3DMAX 的 靜態場景(obj) 動畫(ms3d)
+
+要加載一個 場景只需要 先使用 IFileSystem::addFileArchive(path) 設置文件位置(可選)
+之後使用 場景管理器 ISceneManager::getMesh(path) 即可 完成模型加載(返回 IAnimatedMesh 接口)
+
+之後使用 場景管理器的 ISceneManager::addOctreeSceneNode/ISceneManager::addAnimatedMeshSceneNode 加載場景即可
+
+//使用 八叉樹 加載一個 靜態場景
+virtual IMeshSceneNode* irr::scene::ISceneManager::addOctreeSceneNode	(	
+IAnimatedMesh * 	mesh,				//要渲染的幀(動畫 取最前的 幀)
+ISceneNode * 	parent = 0,				//八叉樹父節點
+s32 	id = -1,					//自定義 一個 id (可用於識別節點)
+s32 	minimalPolysPerNode = 512,			//指定最小 多邊形 節點
+bool 	alsoAddIfMeshPointerZero = false 		//false(新增的場景節點)
+)	
+virtual IMeshSceneNode* irr::scene::ISceneManager::addOctreeSceneNode	(	
+IMesh * 	mesh,					//要渲染的幀
+ISceneNode * 	parent = 0,
+s32 	id = -1,
+s32 	minimalPolysPerNode = 256,
+bool 	alsoAddIfMeshPointerZero = false 
+)
+
+
+//加載一個 動畫 場景
+virtual IAnimatedMeshSceneNode* irr::scene::ISceneManager::addAnimatedMeshSceneNode	(	
+IAnimatedMesh * 	mesh,		//要渲染的幀
+ISceneNode * 	parent = 0,		//父場景節點
+s32 	id = -1,
+const core::vector3df &amp; 	position = core::vector3df(0, 0, 0),	//相對 父節點空間位置
+const core::vector3df &amp; 	rotation = core::vector3df(0, 0, 0),	//旋轉
+const core::vector3df &amp; 	scale = core::vector3df(1.0f, 1.0f, 1.0f),	//縮放
+bool 	alsoAddIfMeshPointerZero = false 
+)		
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">IFileSystem</font>
+<pre>irr::io::IFileSystem	封裝了對文件的管理 操作
+
+在獲取到場景 管理器 ISceneManager 後 調用getFileSystem() 接口 可以返回 對應的 IFileSystem
+IFileSystem::addFileArchive 可以把 文件路徑 加入到 搜索路徑(可以把 zip quake3map 等 虛擬為 真實文件路徑)
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">注意</font>
+<pre>亦可 不使用 八叉樹 加載 場景 然這樣 不會優化 揀選 而是一次性繪製 所有場景
+</pre>
+	</p>
+</div>
+
+<div class="mydiv"><a name="example"></a>
+	<p><font color="#FF0000">example 靜態場景</font>
+<pre>int main()
+{
+   irr::IrrlichtDevice *device=irr::createDevice(irr::video::EDT_DIRECT3D9);
+	if (!device)
+		return 0;
+
+	video::IVideoDriver* driver	=	device-&gt;getVideoDriver();
+	scene::ISceneManager* smgr	=	device-&gt;getSceneManager();
+
+	//加载3D模型
+	device-&gt;getFileSystem()-&gt;addFileArchive("media/map-20kdm2.pk3");
+	scene::IAnimatedMesh* mesh = smgr-&gt;getMesh("20kdm2.bsp");
+	
+	//將模型 加載為 場景
+	scene::ISceneNode* node = 0;
+	if (mesh)
+	{
+		//八叉树
+		node	=	smgr-&gt;addOctreeSceneNode(mesh);
+		//不使用 八叉樹
+		//node	=	smgr-&gt;addAnimatedMeshSceneNode(mesh);
+	}
+
+	if (node)
+	{
+		node-&gt;setPosition(core::vector3df(-1300,-144,-1249));
+	}
+	smgr-&gt;addCameraSceneNodeFPS();
+
+	device-&gt;getCursorControl()-&gt;setVisible(false);
+
+	while(device-&gt;run())
+	{
+		if (device-&gt;isWindowActive())
+		{
+			driver-&gt;beginScene(true, true, video::SColor(255,200,200,200));
+			smgr-&gt;drawAll();
+			driver-&gt;endScene();
+		}
+		else
+			device-&gt;yield();
+	}
+	device-&gt;drop();
+	
+	return 0;
+}
+</pre>
+	</p>
+</div>   
+
+<div class="mydiv"><a name="IAnimatedMeshSceneNode"></a>
+	<p><font color="#FF0000">IAnimatedMeshSceneNode 動畫幀</font>
+<pre>在加載模型時 使用addAnimatedMeshSceneNode 將 返回一個IAnimatedMeshSceneNode
+IAnimatedMeshSceneNode 是一個包含了 多幀的動畫
+
+IAnimatedMeshSceneNode::setLoopMode(false);
+</pre>
+	</p>
+    
+    <p><font color="#FF0000">相關接口</font>
+<pre>//返回最後一幀
+s32 getEndFrame () const =0
+
+//設置 播放幀 範圍 [beg,end]
+bool setFrameLoop (s32 begin, s32 end)
+
+//設置/返回 當前幀
+void setCurrentFrame (f32 frame)
+f32 getFrameNr () 
+ 
+//設置/返回 是否循環播放 (默認 true)
+void setLoopMode (bool playAnimationLooped)
+bool getLoopMode () const
+
+//設置/獲取 播放速度
+void setAnimationSpeed (f32 framesPerSecond)
+f32 getAnimationSpeed ()
+</pre>
+	</p>
+    
+     <p><font color="#FF0000">example</font>
+<pre>如果 一個動畫 在 3DMAX中 每秒 播放 30幀
+如下 代碼 播放 [30,90] 幀
+
+#define TIME_SCALE 158.2872f
+
+node_ptr-&gt;setAnimationSpeed(TIME_SCALE * 30);
+node_ptr-&gt;setCurrentFrame(TIME_SCALE * 50);
+node_ptr-&gt;setFrameLoop(TIME_SCALE * 50, TIME_SCALE * 90);
+</pre>
+	</p>
+</div>
+
+ 
+</td></tr></table>
+</body>
+</html>

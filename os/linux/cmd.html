@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#terminal">tty1~tty6</a>
+		<a href="#base">基礎命令</a>
+		<a href="#bc">計算器</a>
+		<a href="#help">--help</a>
+		<a href="#man">man</a>
+		<a href="#info">info</a>
+		<a href="#doc">doc</a>
+		<a href="#nano">nano</a>
+		<a href="#shutdown">關機</a>
+		<a href="#pwd">忘记root密码</a>
+	
+	</div>
+
+	<div class="note"><a name="terminal"></a>
+		<p><span class="flag">terminal</span>
+<pre>linux 一般提供了 6個操作終端 供用戶 操作 
+tty1 為 x window (如果沒安裝x window 一般tty1 也是字符終端)
+tty2~tty6	為字符終端
+使用 [CTRL] + [ALT] + [F1~F6] 可在終端間切換
+
+在字符終端 輸入 startx 一般可以在此終端ttyn下啟動 w window
+(如果有安裝的話 且沒有其他 w window已經被啟動)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="base"></a>
+		<p><span class="flag">基礎命令</span>
+<pre>//查看 目錄
+ls	-al ~
+	<span class="care">a	顯示隱藏文件
+	l	顯示文件詳細信息</span>
+
+//顯示日期時間
+date
+	date +%Y/%m/%d	//	2016/03/28
+	date +%H:%M	//	13:23
+	
+
+//顯示月曆
+cal
+	cal 2016	//显示2016年整个月历
+	cal 1 2016	//显示2016年 1月 月历
+
+
+//顯示支持的 語系
+locale
+
+//自動補齊
+[Tab]
+
+//中斷當前 程式
+[CTRL] + C
+
+//結束 文字 輸入
+[CTRL] + D
+
+//翻頁
+[SHIFT] + [PageUp]/[PageDown]
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="bc"></a>
+		<p><span class="flag">計算器</span>
+<pre>bc 是linux提供的一個 計算器軟體 絕大部分發行版都有自帶
++
+-
+*
+/
+^	指数
+%
+
+
+//查看小数位数
+scale
+
+//设置小数位数 不会四舍五入 直接舍去
+scale=number
+
+//退出 bc
+quit
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="help"></a>
+		<p><span class="flag">--help</span>
+<pre>linux 絕大部分 命令 都有一個 --help 參數 可以顯示 此命令的 詳細用戶
+
+[dark@localhost ~]$ cal --help
+
+Usage:
+ cal [options] [[[day] month] year]
+
+選項：
+ -1, --one        show only current month (default)
+ -3, --three      show previous, current and next month
+ -s, --sunday     Sunday as first day of week
+ -m, --monday     Monday as first day of week
+ -j, --julian     output Julian dates
+ -y, --year       show whole current year
+ -V, --version    display version information and exit
+ -h, --help       display this help text and exit
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="man"></a>
+		<p><span class="flag">man</span>
+<pre>man 既 manual(操作說明) 的簡寫
+輸入 man 命令名 即可查詢 指定 命令的 操作說明
+
+linux 的 /user/share/man 目錄下 存放了 程式os命令的操作說明文件
+執行 man 命令名 或自動查找 說明文件 並顯示
+修改 /etc/man_db.conf (亦可能是 man.conf/manpath.conf/man.config) 可以修改 man 的查找目錄
+
+<img src="img/cmd/man.png">
+LS(1)	其中1 是 類型代號
+
+1	用户在shel中可操作的命令或可执行文件
+2	系统内核调用的函数与工具等
+3	常用的函数 函数库 (大部分为c函数库)
+4	设备文件说明
+5	配置文件 或某些格式文件
+6	游戏
+7	惯例与协议等
+8	系统管理员可用的命令
+9	跟kernel有关
+
+
+之後 會以多個 段的 形式 顯示 命令 相關說明
+NAME		//简短命令 数据名称说明
+SYNOPSIS	//简短的命令执行语法简介
+DESCRIPTION	//完整说明
+OPTIONS		//针对SYNOPSIS列举所有可用选项说明
+COMMANDS	//当此软件在执行时 可在此软件中执行的命令
+FILES		//此程序或数据所使用或参考或连接到的某些文件
+SEE ALSO	//相关的其他说明
+EXAMPLE		//范例
+BUGS		//是否有相关错误
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="info"></a>
+		<p><span class="flag">info</span>
+<pre>info 是一個類似 man的 命令 
+只不過 其 在 /usr/share/info 下 查找操作說明
+且顯示風格 有些不同於 man
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="doc"></a>
+		<p><span class="flag">doc</span>
+<pre>/usr/share/doc 目錄被用以 存放 詳細 說明文件
+linux下的軟體 安裝時 一般會將 自己的 各種 FAQ README EXAMPLE 之類的東西 
+放到此目錄下的 軟體名-xxx目錄下 供 用戶 查看
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="nano"></a>
+		<p><span class="flag">nano</span>
+<pre>nano 一個簡單的 文本編輯器
+
+//查看 說明
+[CTRL] + G
+
+//退出 nano
+[CTRL] + X
+
+//存儲 檔案
+[CTRL] + O
+
+//從其它 檔案 對其數據
+[CTRL] + R
+
+//搜索字符串
+[CTRL] + W
+
+//說明 目前 游標 所在行數 列數
+[CTRL] + C
+
+//輸入 行號
+[CTRL] + _
+
+//打開/關閉 語法校正
+[ALT] + Y
+
+//使用鼠標 滑動 來移動游標
+[ALT] + M
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="shutdown"></a>
+		<p><span class="flag">關機</span>
+<pre>//同步寫入磁盤
+sync
+	<span class="care">linux 許多數據都 直接保存在 內存中 以提高訪問速度
+	sync 將這些 數據 寫入到磁盤 以避免 關機導致數據丟失</span>
+
+//重啟
+reboot
+
+//硬件關機 不建議
+halt
+
+//硬件關機 不建議
+poweroff
+
+//關機/重啟
+shutdown 時間 警告信息
+	<span class="care">時間	//關機時間
+		now		[现在] 
+		20：30	[二十点 三十分] 
+		10		[10分钟后]
+
+	-H	//硬件關機
+	-t sec	//過多少秒後關機
+	-k	//不關機 只是發出警告信息
+	-r	//重啟
+	-h	//關機
+	-c	//取消shutdown操作</span>
+	
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="pwd"></a>
+		<p><span class="flag">忘记root密码</span>
+<pre>启动系统读秒时按下任意键 进入启动引导程序选择
+点e 进入编辑模式
+选择 kernel /vm... 此行 点e 编辑此行
+在 kernel /vm... 最后添加single 之后 [enter](单用户模式)
+点 b 此此选项进入 单用户模式
+passwd 修改root 密码
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

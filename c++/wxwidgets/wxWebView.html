@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>wxHtmlWindow</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#wxWebView">wxWebView</a>
+		
+	</div>
+	<div class="note"><a name="wxWebView"></a>
+		<p><span class="flag">wxWebView</span>
+<pre>#include &lt;wx/webview.h&gt;
+Library:  wxWebView
+
+wxWebView 是一個完整的 html 容器 以實現web瀏覽器
+
+在不同os下 使用相應 web內核 渲染 
+wxWEBVIEW_BACKEND_IE (MSW)
+wxWEBVIEW_WEBKIT (GTK)
+wxWEBVIEW_WEBKIT (OSX)
+</pre>
+		</p>
+	
+		<p><span class="flag">function</span>
+<pre>//實例化 wxWebView
+static wxWebView * 	New (const wxString &backend=wxWebViewBackendDefault)
+ 	Factory function to create a new wxWebView with two-step creation, wxWebView::Create should be called on the returned object. 
+ 
+static wxWebView * 	New (wxWindow *parent, wxWindowID id, const wxString &url=wxWebViewDefaultURLStr, const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize, const wxString &backend=wxWebViewBackendDefault, long style=0, const wxString &name=wxWebViewNameStr)
+ 	Factory function to create a new wxWebView using a wxWebViewFactory.
+
+
+//載入 新url
+virtual void 	LoadURL (const wxString &url)=0
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>wxWebView 的依賴順序必須在 core 之前
+</pre>
+		</p>
+	</div>
+
+
+	
+
+</div>
+</body>
+</html>

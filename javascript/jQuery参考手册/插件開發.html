@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>插件開發</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#plugs">插件開發</a>
+		<a href="#1">擴展 jQuery基本 方法</a>
+		<a href="#2">擴展 jQuery對象 方法</a>
+		<a href="#private">隱藏 private 屬性 方法</a>
+	</div>
+
+
+	<div class="note"><a name="plugs"></a>
+		<p><span class="flag">插件開發</span>
+<pre>插件開發 有兩種方式 
+一種 用於擴展 jQuery基本 方法
+另一種用於 擴展 jQuery對象 的方法
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="1"></a>
+		<p><span class="flag">擴展 jQuery基本 方法</span>
+<pre>$.funName = function(arguments){
+	...
+}
+
+//或者
+$.extend({
+	"funName":function(){
+		...
+	}
+	,"funName1":function(){
+		...
+	}
+	...
+});
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>//JavaScript Document
+$(document).ready(function(e) {
+	alert($.sum(1,2,3));
+});
+
+$.sum = function(){
+	var rs = 0;
+	for(var i=0;i&lt;arguments.length;++i){
+		rs += arguments[i]
+	}
+	return rs;
+}
+
+/*
+$.extend({
+	"sum":function(){
+		var rs = 0;
+		for(var i=0;i&lt;arguments.length;++i){
+			rs += arguments[i]
+		}
+		return rs;
+	}
+});
+*/
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="2"></a>
+		<p><span class="flag">擴展 jQuery對象 方法</span>
+<pre>$.fn.underline = function(arguments){
+	...
+	return $(this);	//jQuery對象方法 一般返回對象 一般可以以連.()形式書寫
+}
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>//JavaScript Document
+$(document).ready(function(e){
+	$("a").underline();
+});
+
+
+
+$.fn.underline = function(add){
+	//設置參數默認值
+	if(undefined	==	add){
+		add = false;
+	}
+	
+	if(add){
+		$(this).css("text-decoration","underline");
+	}else{
+		$(this).css("text-decoration","none");
+	}
+	return $(this);
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="private"></a>
+		<p><span class="flag">隱藏 private 屬性 方法</span>
+<pre>jQuery 插件可以 將 擴展定義在一個 匿名函數中 之後使用 javascript閉包的特性 模擬 private
+(function($){
+	...
+})(jQuery);
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>$(document).ready(function(e) {
+	alert($.sum(1,2,3));	//6
+	alert($.sum(1,2,3));	//12
+});
+(function($){
+	var rs = 0;
+	$.sum = function(){
+	for(var i=0;i&lt;arguments.length;++i){
+		rs += arguments[i]
+	}
+	return rs;
+}	
+})(jQuery);
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

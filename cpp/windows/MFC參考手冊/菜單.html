@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>菜單</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">菜單</font>
+</p>
+
+<p>
+	<a href="#menu">CMenu</a><br />
+    <a href="#UPDATE_COMAND_UI">菜單命令更新 UPDATE_COMAND_UI</a><br />
+   <a href="#new">動態創建 菜單</a><br />
+</p>
+
+
+<div class="mydiv"><a name="menu"></a>
+	<p><font color="#FF0000">CMenu</font><br />
+    CMenu 封裝了對 菜單的操作
+	</p>
+    <p><font color="#FF0000">相關API</font><br />
+<pre>//獲取子菜單
+CMenu* GetSubMenu( int nPos ) const;
+
+//複選 菜單
+UINT CheckMenuItem( UINT nIDCheckItem, 
+	UINT nCheck );
+MF_BYCOMMAND	nIDCheckItem為 ID 
+MF_BYPOSITION	nIDCheckItem為 索引
+MF_CHECKED		複選菜單
+MF_UNCHECKED	取消選中狀態
+
+//設置缺省菜單項 (以 粗體 顯示 的菜單項 [一個子菜單中只能有一個缺省菜單])
+BOOL SetDefaultItem(UINT uItem,
+	BOOL fByPos = FALSE);	TRUE(uItem為索引) FALSE(uItem為ID)
+
+//創建一個圖形標記菜單
+BOOL SetMenuItemBitmaps( UINT nPosition, 
+	UINT nFlags, 			//同CheckMenuItem
+	const CBitmap* pBmpUnchecked, 	//未標記時的 位圖
+	const CBitmap* pBmpChecked );	//標記時的 位圖
+
+//禁用菜單
+UINT EnableMenuItem( UINT nIDEnableItem,
+	 UINT nEnable );
+nEnable取值
+MF_BYCOMMAND	nIDCheckItem為 ID 
+MF_BYPOSITION	nIDCheckItem為 索引
+
+MF_DISABLED 使菜單無效 但不變灰  
+MF_ENABLED  使菜單有效  並從變灰中恢復
+MF_GRAYED 	使菜單變無效 並變灰 
+
+//改變程序 主菜單
+BOOL <font color="#FF0000">CWnd</font>::SetMenu( CMenu* pMenu ); //傳入NULL 移除菜單
+//返回程序 主菜單
+CMenu* <font color="#FF0000">CWnd</font>::GetMenu( ) const;
+
+//顯示彈出菜單
+BOOL TrackPopupMenu( UINT nFlags,
+	int x, 			//顯示 屏幕坐標x
+	int y, 			//...y
+	CWnd* pWnd,		//父窗口
+	LPCRECT lpRect = NULL );
+<font color="#FF0000">nFlags取值</font>
+TPM_CENTERALIGN 	相對x居中  
+TPM_LEFTALIGN 		相對x左對齊 
+TPM_RIGHTALIGN 		相對x右對齊
+
+TPM_LEFTBUTTON 	追踪鼠標左鍵  
+TPM_RIGHTBUTTON ...右键  
+ 
+</pre> 
+	</p>
+    <p><font color="#FF0000">注意</font><br />
+    MFC 使用UPDATE_COMAND_UI機制控制 菜單項是否可用 這會導致EnableMenuItem無效<br />
+    若要自己控制 需要在<font color="#FF0000">CMainFrame構造函數中 設置 m_bAutoMenuEnable=FALSE; 以關閉UPDATE_COMAND_UI</font><br /><br />
+    
+    可以定義一個局部變量 CMenu 傳遞給  SetMenu 但此時<font color="#FF0000">必須調用CMenu::Detach() </font>以斷開 菜單句柄 和CMenu的關聯<br />
+    這樣 CMenu析構時 就不會銷毀菜單 菜單的銷毀 將由主窗口管理 
+    </p>
+</div>
+<div class="mydiv"><a name="UPDATE_COMAND_UI"></a>
+	<p><font color="#FF0000">菜單命令更新 UPDATE_COMAND_UI</font><br />
+    菜單的狀態維護依賴餘 CN_UPDATE_COMAND_UI 消息,誰捕獲CN_UPDATE_COMAND_UI消息<br />
+    每當菜單需要顯示時 MFC就創建一個 CCmdUI對象並於菜單關聯 通過對CCmdUI操作以維護菜單狀態<br />
+	</p>
+    
+    <p><font color="#FF0000">CCmdUI</font><br />
+<pre>//禁用菜單
+virtual void Enable( BOOL bOn = TRUE );	//FALSE(禁用)
+//選中菜單 
+virtual void SetCheck( int nCheck = 1 );	//0(取消選中)	 1(選中) 2(不確定)
+//設置菜單顯示文本
+virtual void SetText( LPCTSTR lpszText );
+</pre>    
+    </p>
+</div>    
+<div class="mydiv"><a name="new"></a>
+	<p><font color="#FF0000">動態創建 菜單</font><br />
+<pre><font color="#FF0000">//添加一個菜單項目 到菜單尾</font>
+BOOL AppendMenu( UINT nFlags,	//菜單相關信息
+ UINT nIDNewItem = 0, 			//菜單ID(分隔符 忽略此參數) （<font color="#FF0000">彈出菜單 菜單句柄HMENU</font>）
+ LPCTSTR lpszNewItem = NULL );
+BOOL AppendMenu( UINT nFlags, UINT nIDNewItem, const CBitmap* pBmp );
+<font color="#FF0000">nFlags取值</font>
+MF_POPUP		彈出菜單
+MF_SEPARATOR	分隔符
+MF_STRING		字符串
+
+//是否選中
+MF_CHECKED
+MF_UNCHECKED
+//是否禁用
+MF_DISABLED
+MF_ENABLED  
+MF_GRAYED 
+...
+
+<font color="#FF0000">//插入菜單 參數類似AppendMenu</font>
+BOOL InsertMenu( UINT nPosition,	//插入位置 nFlags 取MF_BYCOMMAND(ID) MF_BYPOSITION(索引)
+	UINT nFlags, 
+	UINT nIDNewItem = 0, 
+	LPCTSTR lpszNewItem = NULL );
+BOOL InsertMenu( UINT nPosition, UINT nFlags, UINT nIDNewItem, const CBitmap* pBmp );
+
+<font color="#FF0000">//創建一個空的彈出菜單</font>
+BOOL CreatePopupMenu( );
+
+<font color="#FF0000">//刪除一個子菜單菜單</font>
+BOOL DeleteMenu( UINT nPosition, 
+	UINT nFlags 	//MF_BYCOMMAND(id)	MF_BYPOSITION(索引)
+);	
+
+//重繪菜單欄
+void <font color="#FF0000">CWnd::</font>DrawMenuBar( );
+
+//重繪窗口
+void <font color="#FF0000">CWnd::</font>Invalidate( BOOL bErase = TRUE ); //TRUE(重繪背景)
+
+//重繪矩形區域
+void InvalidateRect( LPCRECT lpRect, 	//NULL 重繪整個客戶區域
+BOOL bErase = TRUE );
+
+//重繪區域
+void InvalidateRgn( CRgn* pRgn, BOOL bErase = TRUE );
+
+</pre>
+	</p>
+</div>
+</td></tr></table>
+</body>
+</html>

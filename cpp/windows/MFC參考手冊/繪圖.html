@@ -1,0 +1,527 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>繪圖</title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table align="center"><tr><td>
+<p>
+	<font color="#FF0000">繪圖</font>
+</p>
+
+<p>
+	<a href="#draw">繪圖</a><br />
+    <a href="#hdc">設備描述符表</a><br />
+    <a href="#cdc">CDC</a><br />
+    <a href="#CGdiObject">CGdiObject</a><br /> 
+    <a href="#CColorDialog">CColorDialog</a><br />
+    <a href="#CFontDialog">CFontDialog</a><br />
+    <a href="#WM_CTLCOLOR">WM_CTLCOLOR 改變 對話框 子控件 背景</a><br />
+    <a href="#CBitmap">CBitmap</a><br />
+    <a href="#bibt">貼圖</a><br />
+    <a href="#pos">坐標空間</a><br />
+    <a href="#rgn">區域</a><br />
+</p>
+
+
+<div class="mydiv"><a name="draw"></a>
+	<p><font color="#FF0000">繪圖</font><br />
+    HDC 代表一個 繪圖 相關設備<br />
+    在繪圖前 都需要 得到相應的HDC 句柄 <br />
+    在繪圖結束 需要 釋放掉 HDC句柄<br /><br />
+    
+    MFC 把SDK的DC操作 封裝在 CDC類中
+    </p>
+    
+    <p><font color="#FF0000">相關API</font>
+<pre>//獲取 窗口的 dc句柄
+HDC GetDC(  HWND hWnd   // handle to window);
+
+//釋放 窗口 dc
+int ReleaseDC(  HWND hWnd,  // handle to window  
+	HDC hDC     // handle to DC);
+
+//設置 hdc 的繪製原點
+BOOL MoveToEx(  HDC hdc,          // handle to device context
+ IN int X,            // x-coordinate of new current position
+ IN int Y,            // y-coordinate of new current position
+ OUT LPPOINT lpPoint   // old current position);
+ 
+//從 當前點 劃一條 到 目標點的 直線
+BOOL LineTo(  HDC hdc,    // device context handle
+  int nXEnd,  // x-coordinate of ending point
+  int nYEnd   // y-coordinate of ending point);
+
+//獲取整個窗口 HDC
+HDC GetWindowDC(  HWND hWnd   // handle to window);
+
+//獲取桌面 hwnd
+HWND GetDesktopWindow(void);
+
+</pre></p>
+
+    <p><font color="#FF0000">CDC</font>
+<pre>CDC* dc=GetDC();
+	dc->MoveTo(point_pre);
+	dc->LineTo(point);
+
+	ReleaseDC(dc);</pre>
+    </p>
+    
+	<p><font color="#FF0000">CClientDC</font><br />
+    CClientDC 從 CDC 繼承<br />
+    其在 構造時 自動調用  GetDc 析構時 自動調用 ReleaseDC
+    </p>
+    <p><font color="#FF0000">CWindowDC</font><br />
+    CWindowDC 從 CDC 繼承<br />
+    其在 構造時 自動調用 GetWindowDC 析構時 自動調用 ReleaseDC 
+    </p>
+ 
+    
+    
+</div>    
+<div class="mydiv"><a name="hdc"></a>
+	<p><font color="#FF0000">設備描述符表</font><br />
+	GDI中 有一個所謂的設備描述符表 用以確定 當前繪圖環境<br />
+    通過 創建相應 設備 再將其 選入到 設備描述符表 改變 繪圖效果<br /><br />
+    
+<pre>//將一個 設備選入 設備描述符表
+CDC::SelectObject
+CPen* SelectObject (CPen* pPen);
+CBrush* SelectObject(CBrush* pBrush);
+virtual CFont* SelectObject(CFont* pFont);
+CBitmap* SelectObject(CBitmap* pBitmap);
+int SelectObject (CRgn* pRgn);
+</pre>    
+    </p>
+    <p><font color="#FF0000">CPen</font><br />
+    CPen 封裝了畫筆相關的操作
+<pre>CPen( int nPenStyle	//風格
+	, int nWidth			//筆寬
+	, COLORREF crColor 		//顏色 RGB(255,0,0)
+);
+nPenStyle取值
+PS_SOLID 创建一支实线画笔。  
+PS_DASH 创建一支虚线画笔。只有当画笔宽度为1或更小（以设备单位计算）时才有效。  
+PS_DOT 创建一支点线画笔。只有当画笔宽度为1或更小（以设备单位计算）时才有效。  
+...
+</pre>    
+	</p>
+    
+    <p><font color="#FF0000">CBrush</font><br />
+    CBrush 封裝了畫刷相關的操作
+<pre>   
+ CBrush( );
+CBrush( COLORREF crColor );
+  throw( CResouceException );
+CBrush( int nIndex, COLORREF crColor );
+  throw( CResouceException );
+CBrush( CBitmap* pBitmap );
+
+crColor 指定画刷的前景色（RGB方式）。如果画刷是阴影线型的，则指定阴影线的颜色。  
+nIndex 指定画刷阴影线采用的风格，取值如下： · HS_BDIAGONAL 45度的向下影线（从左到右）  
+· HS_CROSS 水平和垂直方向以网格线作出阴影  
+· HS_DIAGCROSS 45度的网格线阴影  
+· HS_FDIAGONAL 45度的向上阴影线（从左到右）  
+· HS_HORIZONTAL 水平的阴影线  
+· HS_VERTICAL 垂直的阴影线  
+ 
+pBitmap 指向CBitmap对象的指针，该对象指定了画刷要绘制的位图。  
+
+//獲取畫刷句柄
+HGDIOBJ GetStockObject(  int fnObject   //NULL_BRUSH 透明畫刷
+// stock object type);
+
+//由一個畫刷句柄 返回CBrush 
+static CBrush* CBrush::FromHandle( HBRUSH hBrush );
+
+<font color="#FF0000">//創建一個透明畫刷</font>
+CBrush* pBrush=CBrush::FromHandle((HBRUSH)GetStockObject(NULL_BRUSH));
+</pre>    
+	</p>
+    <p><font color="#FF0000">CBitmap</font><br />
+    CBitmap 封裝了位圖相關的操作
+<pre>BOOL LoadBitmap( LPCTSTR lpszRecourceName ); //指向一个包含了位图资源名字的字符串（该字符串以null结尾）。
+BOOL LoadBitmap( UINT nIDResource );	//ID號
+
+CDC* dc=GetDC();
+	
+	CBitmap bitmap;
+	bitmap.LoadBitmap(IDB_BITMAP1);
+
+	CBrush brush(&bitmap);
+	CRect rect(point_pre,point);
+	dc->FillRect(rect,&brush);
+	
+	ReleaseDC(dc);
+    
+</pre>    
+   	</p>
+    
+    <p><font color="#FF0000">CDC 方法</font><br />
+<pre>FillRect   	填充矩形
+Rectangle	花矩形
+
+
+
+int SetROP2(int nDrawMode);
+返回值：绘图模式的前一次取值。可以取联机文档“Windows SDK”中提供的任意值。
+参数： nDrawMode 指定新的绘制模式，可以为下列值之一： · R2_BLACK 像素始终为黑色。  
+· R2_WHITE 像素始终为白色。  
+· R2_NOP 像素保持不变。  
+· R2_NOT 像素为屏幕颜色的反色。  
+· R2_COPYPEN 像素为笔的颜色。  
+· R2_NOTCOPYPEN 像素为笔颜色的反色。  
+· R2_MERGEPENNOT 像素为笔颜色或者屏幕颜色反色的组合色。  
+· R2_MASKPENNOT 像素为笔颜色与屏幕颜色反色的组合色。  
+· R2_MERGENOTPEN 像素为笔颜色反色或者屏幕颜色的组合色。  
+· R2_MASKNOTPEN 像素为笔颜色反色与屏幕颜色的组合色。  
+· R2_MERGEPEN 像素为笔颜色或者屏幕颜色的组合色。  
+· R2_NOTMERGEPEN R2_MERGEPEN的反色。  
+· R2_MASKPEN 像素为笔颜色与屏幕颜色的组合色。  
+· R2_NOTMASKPEN R2_MASKPEN的反色。  
+· R2_XORPEN 像素为笔颜色与或者屏幕颜色异或的颜色。  
+· R2_NOTXORPEN R2_XORPEN的反色。  
+</pre> </p>
+     <p><font color="#FF0000">注意</font><br />
+     通常在作圖 完畢後 需要 恢復設備描述符表
+     </p>
+</div>
+<div class="mydiv"><a name="cdc"></a>
+	<p><font color="#FF0000">CDC</font><br />
+    CDC 封裝了繪圖相關的操作
+    </p>
+    <p><font color="#FF0000">繪製相關</font><br />
+<pre><font color="#FF0000">//線條顏色由設備描述表 中CPen繪製 封閉區間由 CBrush 填充</font>
+//繪製點
+COLORREF SetPixel(int x ,int y,COLORREF crColor);
+COLORREF SetPixel(POINT point,COLORREF crColor);
+
+//繪製直線
+CPoint MoveTo(int x ,int y );	//設置起點
+CPoint MoveTo(POINT point );
+BOOL LineTo(int x,int y );	//設置終點
+BOOL LineTo(POINT point)
+
+//繪製矩形
+BOOL Rectangle(int x1 ,int y1 ,int x2 ,int y2 );
+BOOL Rectangle(LPCRECT lpRect);
+
+//繪製橢圓
+BOOL Ellipse(int x1, int y1, int x2,int y2);
+BOOL Ellipse(LPCRECT lpRect);
+
+//設置文本顏色
+virtual COLORREF SetTextColor(COLORREF crColor );
+//設置文本背景模式
+int SetBkMode(int nBkMode );	OPAQUE(背景不透明)	TRANSPARENT(背景透明)
+//設置文本 背景色
+virtual COLORREF SetBkColor(COLORREF crColor);
+//繪製文本
+virtual BOOL TextOut(int x ,int y ,LPCSTR lpszString ,int nCount );
+BOOL TextOut(int x ,int y ,const CString& str);
+
+//在指定區域繪製文本
+virtual int DrawText(LPCTSTR lpszString, int nCount, LPRECT lpRect, UINT nFormat);
+int DrawText(const CString& str, LPRECT lpRect, UNIT nFormat);//nFormat文本對齊方式
+</pre>    
+    </p>
+</div>
+<div class="mydiv"><a name="CGdiObject"></a>
+	<p><font color="#FF0000">CGdiObject</font><br />
+    CGdiObject	代表一個 c++相關的GDI對象 (如 CFont CBrush CPen)
+    </p>
+    <p><font color="#FF0000">相關API</font><br />
+<pre>
+//一个包含附加给对象的HBITMAP，HRGN，HBRUSH，HPEN，HPALETTE或HFONT的句柄
+CGdiObject::m_hObject
+
+//斷開與之關聯的 句柄
+BOOL DeleteObject( );
+</pre>    
+    </p>
+</div>    
+    
+<div class="mydiv"><a name="CColorDialog"></a>
+	<p><font color="#FF0000">CColorDialog</font><br />
+    CColorDialog	是一個顏色選擇對話框
+	</p>
+    <p><font color="#FF0000">相關API</font><br />
+<pre>//構造函數
+CColorDialog( COLORREF clrInit = 0,	// 缺省顏色 默認黑色
+DWORD dwFlags = 0, 			//定制外觀 也可以直接設置 成員變量m_cc
+CWnd* pParentWnd = NULL );		//父窗口
+
+CColorDialog.m_cc	是一個CHOOSECOLOR結構
+typedef struct {
+    DWORD lStructSize;
+    HWND hwndOwner;
+    HWND hInstance;
+    COLORREF rgbResult;			//<font color="#FF0000">如果用戶點擊OK 此值為 選擇的RGB顏色</font>
+    COLORREF *lpCustColors;
+    DWORD Flags;				//標誌
+    LPARAM lCustData;
+    LPCCHOOKPROC lpfnHook;
+    LPCTSTR lpTemplateName;
+} CHOOSECOLOR, *LPCHOOSECOLOR;
+<font color="#FF0000">Flags取值</font>
+如果設置 Flags |= CC_RGBINIT 則 rgbResult 為對話框顯示時 選擇的顏色
+CC_FULLOPEN		//完全展開 顏色對話框
+...
+</pre>    
+    </p>
+</div>    
+<div class="mydiv"><a name="CFontDialog"></a>
+	<p><font color="#FF0000">CFontDialog</font><br />
+    CFontDialog	是一個字體選擇對話框
+	</p>
+    <p><font color="#FF0000">相關API</font><br />
+<pre>//構造函數
+CFontDialog(LPLOGFONT lplfInitial = NULL,		//指向LOGFONT結構 以設置某些字體特徵
+            DWORD dwFlags = CF_EFFECTS | CF_SCREENFONTS,	//選擇標誌 亦可修改 m_cf.Flags
+            CDC* pdcPrinter = NULL,		//指向打印設備上下文
+            CWnd* pParentWnd = NULL		//父窗口
+           );
+           
+CFontDialog::m_cf 是一個CHOOSEFONT結構
+<font color="#FF0000">CHOOSEFONT 結構</font>
+typedef struct {
+    DWORD lStructSize;
+    HWND hwndOwner;
+    HDC hDC;
+    LPLOGFONT lpLogFont;			//<font color="#FF0000">返回選擇的字體 指向LOGFONT結構</font>
+    INT iPointSize;
+    DWORD Flags;
+    COLORREF rgbColors;				//<font color="#FF0000">字體顏色</font>
+    LPARAM lCustData;
+    LPCFHOOKPROC lpfnHook;
+    LPCTSTR lpTemplateName;
+    HINSTANCE hInstance;
+    LPTSTR lpszStyle;
+    WORD nFontType;
+    INT nSizeMin;
+    INT nSizeMax;
+} CHOOSEFONT, *LPCHOOSEFONT;
+
+<font color="#FF0000">LOGFONT 結構</font>
+typedef struct tagLOGFONT { 
+  LONG lfHeight; 
+  LONG lfWidth; 
+  LONG lfEscapement; 
+  LONG lfOrientation; 
+  LONG lfWeight; 
+  BYTE lfItalic; 
+  BYTE lfUnderline; 
+  BYTE lfStrikeOut; 
+  BYTE lfCharSet; 
+  BYTE lfOutPrecision; 
+  BYTE lfClipPrecision; 
+  BYTE lfQuality; 
+  BYTE lfPitchAndFamily; 
+  TCHAR lfFaceName[LF_FACESIZE]; 	//字體名
+} LOGFONT, *PLOGFONT;   
+<font color="#FF0000">LOGFONT 創建字體</font>
+BOOL CFont::CreateFontIndirect(const LOGFONT* lpLogFont);         
+</pre>    
+    </p>
+</div>
+
+<div class="mydiv"><a name="WM_CTLCOLOR"></a>
+	<p><font color="#FF0000">WM_CTLCOLOR 改變 對話框 子控件 背景</font><br />
+    對話框 控件 需要繪製時 會發送 WM_CTLCOLOR 給其父窗口<br /> 
+    父窗口可以在此返回一個畫刷 用以對話框 子控件 繪製背景<br />
+    SetTextColor SetBkMode SetBkColor改變其文本顏色
+    </p>
+    <p><font color="#FF0000">OnCtlColor</font><br />
+<pre>HBRUSH CMFCApplication1Dlg::OnCtlColor(CDC* pDC,	//子窗口 設備上下文
+						 CWnd* pWnd,		//子窗口指針
+						 UINT nCtlColor)	//返回控件類型
+{
+	HBRUSH hbr = CDialogEx::OnCtlColor(pDC, pWnd, nCtlColor);
+
+
+	// TODO:  如果默认的不是所需画笔，则返回另一个画笔
+	return hbr;
+}
+<font color="#FF0000">nCtlColor取值</font>
+CTLCOLOR_BTN   Button control 
+
+CTLCOLOR_DLG   Dialog box 
+
+CTLCOLOR_EDIT   Edit control 
+
+CTLCOLOR_LISTBOX   List-box control 
+
+CTLCOLOR_MSGBOX   Message box 
+
+CTLCOLOR_SCROLLBAR   Scroll-bar control 
+
+CTLCOLOR_STATIC   Static control 
+
+</pre>    
+    </p>
+    <p><font color="#FF0000">注意</font><br />
+    無法使 一個單行的 CEdit 控件 文本背景透明 只能設置其文本背景顏色<br />
+    對於 自繪製控件 無法通過 WM_CTLCOLOR 改變其外觀
+    </p>
+</div>
+<div class="mydiv"><a name="bibt"></a>
+	<p><font color="#FF0000">CBitmap</font><br />
+    CBitmap 封裝了位圖 相關操作
+    </p>
+    <p><font color="#FF0000">相關API</font><br />
+<pre>//加載位圖
+BOOL LoadBitmap( LPCTSTR lpszRecourceName );
+BOOL LoadBitmap( UINT nIDResource );
+
+//返回位圖信息 BITMAP
+int GetBimap( BITMAP* pBitMap );
+typedef struct tagBITMAP {
+  LONG   bmType; 
+  LONG   bmWidth; 		//位圖寬
+  LONG   bmHeight; 		//位圖高
+  LONG   bmWidthBytes; 
+  WORD   bmPlanes; 
+  WORD   bmBitsPixel; 
+  LPVOID bmBits; 
+} BITMAP, *PBITMAP; 
+
+</pre>    
+    </p>
+</div>    
+<div class="mydiv"><a name="bibt"></a>
+	<p><font color="#FF0000">貼圖</font><br />
+<pre>一般步驟
+//加載位圖
+CBitmap bitmap
+bitmap.LoadBitmap
+
+//創建兼容dc
+CDC dc
+dc.CreateCompatibleDC(CDC* pDC)	//實際上是在內存中分配一個 顯示塊(1*1的像素大小) 以用於準備 顯示圖像 以便最後顯示到實際dc的顯示表面
+兼容dc必須先 選擇一副位圖 到設備才能 使用 繪圖函數 對齊進行繪製
+
+//將位圖選到兼容dc(此時 兼容dc的顯示 大小將變為 位圖大小)
+dc.SelectObject
+
+//將兼容dc位圖 貼到當前dc中
+pDC->BitBlt
+</pre>
+    </p>
+    <p><font color="#FF0000">相關API</font><br />
+<pre>從源設備dc 拷貝 位圖 到當前設置 dc
+BOOL BitBlt( int x, int y,		//目的位圖 坐標
+	int nWidth, int nHeight,	//目的 源 設備 矩形 寬 高
+	CDC* pSrcDC, 			//源dc
+	int xSrc, int ySrc,		//源位圖坐標 
+	DWORD dwRop );			//拷貝模式
+<font color="#FF0000">dwRop取值</font>
+BLACKNESS 所有输出变黑。  
+DSTINVERT 反转目标位图。  
+MERGECOPY 使用布尔AND操作符合并特征与源位图。  
+MERGEPAINT 使用布尔OR操作符合并特征与源位图。  
+NOTSRCCOPY 拷贝反转源位图到目标。  
+NOTSRCERASE 反转使用布尔OR操作符合并源和目标位图的结果。  
+PATCOPY 拷贝特征到目标位图。  
+PATINVERT 使用布尔XOR操作符合并目标位图和特征。  
+PATPAINT 使用布尔OR操作符合并反转源位图和特征。用布尔OR操作符合并这项操作结果与目标位图。  
+SRCAND 使用布尔AND操作符合并目标像素和源位图。  
+<font color="#FF0000">SRCCOPY 拷贝源位图到目标位图。 </font> 
+SRCERASE 反转目标位图并用布尔AND操作符合并这个结果和源位图。  
+SRCINVERT 使用布尔XOR操作符合并目标像素和源位图。  
+SRCPAINT 使用布尔OR操作符合并目标像素和源位图。  
+WHITENESS 所有输出变白。 
+
+//同BitBlt只是 將源位圖 壓縮或拉伸到 目的矩形 大小
+BOOL StretchBlt(
+     int x,
+     int y,
+     int nWidth,
+     int nHeight,
+     CDC* pSrcDC,
+     intxSrc,
+     int ySrc,
+     int nSrcWidth,
+     int nSrcHeight,
+     DWORD dwRop
+     )    
+</pre>    
+    </p>
+</div>    
+
+<div class="mydiv"><a name="pos"></a>
+	<p><font color="#FF0000">坐標空間</font><br />
+<pre>win32程序使用 世界坐標空間  頁面空間  設備空間 物理設備空間 四種坐標空間
+程序使用 世界坐標空間 對圖形輸出 進行 旋轉 斜切 反射
+
+Win32API把世界坐標空間 頁面空間 稱為邏輯空間
+物理設備空間 通常指應用程序的客戶區 或整個桌面 完整的窗口 ...
+
+應用程序 需要考慮 頁面空間(窗口) 到 物理設備空間(視口)轉換
+
+GDI函數 使用邏輯坐標
+邏輯點(0,0) 會被映射為 視口原點
+窗口原點為(x,y) 則邏輯點(x,y 會被映射為) 設備點(0,0)
+
+設備點(0,0) 始終是 客戶區 左上角
+
+<font color="#FF0000">
+設備坐標 = 邏輯坐標 - 坐標原點 + 視口原點
+</font>
+</pre>
+    </p>
+    <p><font color="#FF0000">相關API</font><br />
+<pre>//設置窗口原點 返回原值
+CPoint SetWindowOrg(int x ,int y );
+CPoint SetWindowOrg(POINT point )
+
+//設置視口原點 返回原值
+virtual CPoint SetViewportOrg(int x ,int y );
+virtual CPoint SetViewportOrg (POINT point );   
+
+//設備點 轉 邏輯點
+void DptoLP(LPPOINT lpPoints, int nCount = 1) const;
+void DptoLP(LPRECT lpRect) const;
+void DptoLP(LPSIZE lpSize) const; 
+
+//邏輯點 轉 設備點
+void LPtoDP(LPPOINT lpPoints,int nCount=1) const;
+void LPtoDP(LPRECT lpRect ) const;
+void LPtoDP(LPSIZE lpSize ) const;
+   </pre> </p>
+</div>
+
+<div class="mydiv"><a name="rgn"></a>
+	<p><font color="#FF0000">區域</font><br />
+   GDI中使用 CRgn維護區域 用以確定一個多邊形 橢圓 等
+    </p>
+   	<p><font color="#FF0000">相關API</font><br />
+<pre>//創建矩形區域
+BOOL CreateRectRgn( int x1, int y1, int x2, int y2 );
+BOOL CreateRectRgnIndirect( LPCRECT lpRect );
+
+//創建橢圓區域
+BOOL CreateEllipticRgn( int x1, int y1, int x2, int y2 );
+BOOL CreateEllipticRgnIndirect( LPCRECT lpRect );
+
+//創建多邊形
+BOOL CreatePolygonRgn( LPPOINT lpPoints, int nCount, 
+int nMode );	ALTERNATE 
+
+//合成兩個區域
+int CombineRgn( CRgn* pRgn1, CRgn* pRgn2, int nCombineMode );
+<font color="#FF0000">nCombineMode取值</font>
+RGN_AND		取交集  
+RGN_COPY	创建区域1（由pRgn1标识）的一个拷贝  
+RGN_DIEF	區域1 - 交集  
+RGN_OR		取並集 
+RGN_XOR		並集 - 交集  
+
+</pre>
+    </p>
+</div>
+</td></tr></table>
+</body>
+</html>

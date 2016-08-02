@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>迭代器</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#iterator">迭代器</a>
+		<a href="#stream">stream迭代器</a>
+	</div>
+
+	<div class="note"><a name="iterator"></a>
+		<p><span class="flag">迭代器</span>
+<pre>迭代器是一种能遍历某个序列的对象
+任何东西只要行为像迭代器的 就是迭代器 如数组的指针
+</pre>
+		</p>
+		<p><span class="flag">辅助函数</span>
+<pre>void advance (InputIterator&amp; iter,Dist dis)//把迭代器向后移动n 对于随机迭代器 iter+=n
+Dist distance(InputIterator&amp; i1,InputIterator i2)//返回迭代器距离 i1必须小于i2否则引发未定义行为 对于随机迭代器i1-i2
+iter_swap(ForWardIterator i1,ForWardIterator i2)//交换迭代器所指的值的内容&lt;algorithm&gt; 
+</pre>
+		</p>
+		<p><span class="flag">逆向迭代器</span>
+<pre>逆向迭代器的base()方法返回其正向迭代器 逆向迭代器实际上没包括起点而包括了终点
+<img src="image/迭代器/riter.PNG" />
+其迭代器的操作的值其实是下一个迭代器的位置方法
+<img src="image/迭代器/iter.PNG" />
+</pre>
+		</p>
+		<p><span class="flag">安插迭代器</span>
+<pre>对安插迭代器的赋值会被变成安插 多次赋值安插多个值
+#include&lt;iterator&gt;
+
+*iter       //无实际操作 返回迭代器
+++iter    //同上
+iter++    //同上
+iter=value  //（或*iter=value ） 安插
+
+三种安插迭代器
+back_insert_iterator    //调用push_back(value)安插
+front_insert_iterator   //...push_front(value)...
+insert_iterator         //...insert(iter,value)...
+
+<span class="care">back_insert_iterator example</span><br />
+  std::list&lt;int&gt; v;
+  //对于 insert_iterator std::insert_iterator&lt;std::list&lt;int&gt;&gt; back_insert(v,v.begin());
+  std::back_insert_iterator&lt;std::list&lt;int&gt;&gt; back_insert(v);
+	for(int i=0;i&lt;5;++i)
+		back_insert=i;
+	
+	for(std::list&lt;int&gt;::const_iterator i=v.begin();v.end()!=i;++i)
+		std::cout&lt;&lt;*i&lt;&lt;"\n";
+
+	std::cout&lt;&lt;"\n"&lt;&lt;std::endl;
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="stream"></a>
+		<p><span class="flag">stream迭代器</span>
+<pre>通过stream迭代器可将stream当成算法的原点和终点
+</pre>
+		</p>
+		<p><span class="flag">ostream_iterator</span>
+<pre>ostream_iterator&lt;T&gt;(ostream) //产生一个ostream迭代器
+ostream——iterator&lt;T&gt;(ostream,delim) //同上 不过每个元素以delim(const char *)分隔符分开
+iter=value //将value希尔stream
+*iter //无实际操作返回iter
+++iter //同上
+iter++  //同上
+
+<span class="care">ostream_iterator example</span>
+std::list&lt;int&gt; list;
+	std::insert_iterator&lt;std::list&lt;int&gt;&gt; back_insert(list,list.begin());
+	for(int i=0;i&lt;5;++i)
+		back_insert=i;
+	std::ostream_iterator&lt;int&gt; o_iter(std::cout,"\n");
+	o_iter=1;
+	o_iter=2;
+	std::copy(list.begin(),list.end(),o_iter);
+</pre>
+		</p>
+		<p><span class="flag">istream_iterator</span>
+<pre>istream_iterator&lt;T&gt;() //产生一个end-of-ostream迭代器 当读取失败 所有istream_iterator都会被设置为此值 可用之检查读取是否失败
+istream_iterator&lt;T&gt;(istream,delim) //同上 不过每个元素以delim(const char *)分隔符分开
+iter-&gt;member //传回读取元素的成员(如果有的话)
+*iter //无实际操作返回iter
+++iter //读取下一个元素
+iter++  //同上
+iter1==iter2
+iter1!=iter2
+
+<span class="care">ostream_iterator example</span>
+std::istream_iterator&lt;int&gt; inError,in_iter(std::cin);
+	while(in_iter!=inError)
+	{
+		std::cout&lt;&lt;*in_ite&lt;&lt;std::endl;
+		++in_iter;
+	}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

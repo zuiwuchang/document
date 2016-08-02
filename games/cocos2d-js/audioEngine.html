@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>cocos2d-js</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#audioEngine">audioEngine</a>
+		
+	</div>
+
+	<div class="note"><a name="audioEngine"></a>
+		<p><span class="flag">audioEngine</span>
+<pre>Class
+cc.audioEngine
+
+Defined in: CCAudio.js
+</pre>
+		</p>
+		<p><span class="flag">用處</span>
+<pre>audioEngine 全部由 static 方法組成 提供了一個 
+全局的 音頻播放 單件
+
+audioEngine 同時 只播放一個 音樂(遊戲背景) 和混合多個 特效(音效)
+</pre>
+		</p>
+		
+		<p><span class="flag">方法</span>
+<pre>//結束 音樂 和 特效
+&lt;static&gt; cc.audioEngine.end()
+
+
+
+//獲取 特效/音樂 音量 [0.0,1.0]
+&lt;static&gt; {Number} cc.audioEngine.getEffectsVolume()
+&lt;static&gt; {Number} cc.audioEngine.getMusicVolume()
+
+//設置 特效/音樂 音量 [0.0,1.0]
+&lt;static&gt; cc.audioEngine.setEffectsVolume(volume)
+&lt;static&gt; cc.audioEngine.setMusicVolume(volume)
+
+
+
+//播放 特效(返回 audioID) 音樂
+&lt;static&gt; {Number|null} cc.audioEngine.playEffect(url, loop = false)
+&lt;static&gt; cc.audioEngine.playMusic(url, loop = false)
+
+//暫停 所有特效/指定特效 音樂
+&lt;static&gt; cc.audioEngine.pauseAllEffects()
+&lt;static&gt; cc.audioEngine.pauseEffect(audioID)
+&lt;static&gt; cc.audioEngine.pauseMusic()
+
+//恢復 所有特效/指定特效 音樂
+&lt;static&gt; cc.audioEngine.resumeAllEffects()
+&lt;static&gt; cc.audioEngine.resumeEffect(audioID)
+&lt;static&gt; cc.audioEngine.resumeMusic()
+
+//停止 播放 所有特效/指定特效 音樂(releaseData=true 釋放音樂)
+&lt;static&gt; cc.audioEngine.stopAllEffects()
+&lt;static&gt; cc.audioEngine.stopEffect(audioID)
+&lt;static&gt; cc.audioEngine.stopMusic(releaseData = false)
+
+
+
+//倒帶 音樂 到 開始
+&lt;static&gt; cc.audioEngine.rewindMusic()
+
+//音樂 處於 播放 狀態
+&lt;static&gt; {Boolean} cc.audioEngine.isMusicPlaying()
+
+//釋放 特效
+&lt;static&gt; cc.audioEngine.unloadEffect(url)
+
+//返回 背景 音樂是否 可播放
+&lt;static&gt; {boolean} cc.audioEngine.willPlayMusic()
+</pre>
+		</p>
+	</div>
+	
+
+</div>
+</body>
+</html>

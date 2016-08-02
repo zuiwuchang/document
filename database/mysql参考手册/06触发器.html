@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>数据类型</title>
+</head>
+<body>
+<table align="center"><tr><td>
+	<p>
+	<h3>
+    <br /><font color="#FF0000">创建触发器</font>
+    <br />create trigger 触发器名 before|after 触发事件 on 表名 for each row 执行语句
+    <br />delimiter &&
+    <br />begin
+    <br />end
+    <br /><br />delimiter &&
+    <br />create trigger name after delete on tablename for each row
+    <br />begin
+    <br /> sql
+    <br />end
+    <br />&&
+    <br />delimiter ;
+    </h3>
+	</p>
+    
+    <p>
+	<h3>
+    <br /><font color="#FF0000">查看触发器</font>
+    <br />show triggers
+    <br />select * from information_schema.triggers;
+    </h3>
+    </p>
+    
+    <p>
+	<h3>
+    <br /><font color="#FF0000">删除触发器</font>
+    <br />drop trigger 触发器名
+    </h3>
+    </p>
+</td></tr></table>
+</body>
+</html>

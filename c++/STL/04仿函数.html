@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>仿函数</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#functor">仿函数</a>
+		<a href="#istrue">判断式</a>
+		<a href="#STLfunctor">预定义的functor</a>
+		<a href="#adapters">函数配接器</a>
+	</div>
+
+	<div class="note"><a name="functor"></a>
+		<p><span class="flag">仿函数</span>
+<pre>行為像函數的任意東西 為仿函數
+</pre>
+		</p>
+		<p><span class="flag">相对函数的好处</span>
+<pre>functor可以拥有状态
+每个functor都有其型别
+functor执行速度通常比function快
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>算法中传入functor 其实是执行的functor的拷贝 既不会改变原functor内部状态(变量) 除非以显示引用的方式出让引用
+
+<span class="care">如</span>
+functor f;
+std::generate<...,functor &>(..,..,f);
+<span class="care">或 for_each()会返回functor</span>
+functor f=for_each(begin,end,functor);
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="istrue"></a>
+		<p><span class="flag">判断式</span>
+<pre>返回布尔值(可转换为bool)的一个 functor
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>对STL而言 正确的判断试 对于传入同样的参数始终返回同样的结果
+(如不能 第一次调用fun(x) 返回true 下一次调用fun(x)却返回false)
+</pre>
+		</p>
+
+	</div>
+
+	<div class="note"><a name="pair"></a>
+		<p><span class="flag">预定义的functor</span>
+			<table>
+				<tr><td>functor</td><td>note</td></tr>
+				<tr><td>negate&lt;T&gt;</td><td>-param</td></tr>
+				<tr><td>plus&lt;T&gt;</td><td>param1+param2</td></tr>
+				<tr><td>minus&lt;T&gt;</td><td>param1-param2</td></tr>
+				<tr><td>multiplies&lt;T&gt;</td><td>param1*param2</td></tr>
+				<tr><td>divides&lt;T&gt;</td><td>param1/param2</td></tr>
+				<tr><td>modulus&lt;T&gt;</td><td>param1%param2</td></tr>
+				<tr><td>equal_to&lt;T&gt;</td><td>param1==param2</td></tr>
+				<tr><td>not_equal_to&lt;T&gt;</td><td>param1!=param2</td></tr>
+				<tr><td>less&lt;T&gt;</td><td>param1&lt;param2</td></tr>
+				<tr><td>less_equal&lt;T&gt;</td><td>param1&lt;=param2</td></tr>
+				<tr><td>greater&lt;T&gt;</td><td>param1&gt;param2</td></tr>
+				<tr><td>greater_equal&lt;T&gt;</td><td>param1&gt;=param2</td></tr>
+				<tr><td>logical_not&lt;T&gt;</td><td>!param</td></tr>
+				<tr><td>logical_and&lt;T&gt;</td>
+				<td>param1 &amp;&amp; param2</td></tr>
+				<tr><td>logical_or&lt;T&gt;</td>
+				<td>param1 || param2</td></tr>
+			</table>
+		</p>
+	</div>
+
+	<div class="note"><a name="adapters"></a>
+		<p><span class="flag">函数配接器</span>
+<pre>将仿函数和另外一个仿函数(或值 或一般函数) 结合起来的仿函数
+</pre>
+		</p>
+		<p><span class="flag">配接器</span>
+			<table>
+				<tr><td>配接器</td><td>含义</td></tr>
+				<tr><td>bind1st(op,value)</td><td>op(value,param)</td></tr>
+				<tr><td>bind2nd(op,value)</td><td>op(param,value)</td></tr>
+				<tr><td>not1(op)</td><td>!op(param)</td></tr>
+				<tr><td>not2(op)</td><td>!op(param1,param2)</td></tr>
+			</table>
+		</p>
+		<p><span class="flag">example</span>
+<pre>find_if(begin,end,
+	bind2nd(greatre&lt;int&gt;(),42))
+</pre>
+		</p>
+		<p><span class="flag">针对成员函数设计的配接器</span>
+<pre>mem_fun_ref(op) //调用op,op是对象的一个const成员函数
+men_fun(op) //同上 不过是早期的版本
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>struct point
+{
+	int x;
+	int y;
+	void display() const
+	{
+		std::cout&lt;&lt;"x="&lt;&lt;x&lt;&lt;" y="&lt;&lt;y&lt;&lt;std::endl;
+	}
+	void addDisplay(int i) const
+	{
+		std::cout&lt;&lt;"x+"&lt;&lt;i&lt;&lt;"="&lt;&lt;x+i&lt;&lt;" y+"&lt;&lt;i&lt;&lt;"="&lt;&lt;y+i&lt;&lt;std::endl;
+	}
+};
+int _tmain(int argc, _TCHAR* argv[])
+{
+	std::vector&lt;point&gt; v;
+	std::back_insert_iterator&lt;std::vector&lt;point&gt; &gt; back_iter(v);
+	point tmp;
+	for(int i=0;i&lt;5;++i)
+	{
+		tmp.x=tmp.y=i;
+		back_iter=tmp;
+	}
+	std::for_each(v.begin(),v.end(),std::mem_fun_ref(&point::display));
+
+	std::for_each(v.begin(),v.end(),std::bind2nd(std::mem_fun_ref(&point::addDisplay),1));
+	system("pause");
+	return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">针对一般函数设计的配接器</span>
+<pre>ptr_fun(op)  //参见mem_fun_ref
+</pre>
+		</p>
+		<p><span class="flag">自定义仿函数使用配接器</span>
+<pre>需要满足一些条件，提供一些成员型别反应参数和返回值
+标准库提供如下定义
+<img src="image/functor/functor.PNG" />
+只要仿函数继承上述结构 便能获得使用配接器的能力
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

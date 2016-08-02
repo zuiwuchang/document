@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>函數與回調</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#webbrowser">webbrowser</a>
+		<a href="#function">function</a>
+		<a href="#js">調用 js</a>
+		<a href="#external">擴展 js</a>
+
+		
+	</div>
+
+	<div class="note"><a name="webbrowser"></a>
+		<p><span class="flag">webbrowser</span>
+<pre>webbrowser 用於 在應用中 使用ie內核 渲染 html
+
+webbrowser 模式使用 ie7 若 使用其他內核 需要修改 註冊表
+<a href="https://msdn.microsoft.com/en-us/library/ee330730(v=vs.85).aspx#browser_emulation" target="_blank">詳情</a>
+
+<pre><strong>HKEY_LOCAL_MACHINE (or HKEY_CURRENT_USER)</strong>
+&nbsp;&nbsp;&nbsp;<strong>SOFTWARE</strong>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>Microsoft</strong>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>Internet Explorer</strong>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>Main</strong>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>FeatureControl</strong>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>FEATURE_BROWSER_EMULATION</strong>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<em>contoso.exe(進程名)</em> = (DWORD) 00009000</pre>
+<table>
+<tbody><tr><td><strong>Value</strong></td><td><strong>Description</strong></td></tr>
+<tr><td>11001 (0x2AF9</td><td>Internet Explorer&nbsp;11. Webpages are displayed in IE11 edge mode, regardless of the <a href="https://msdn.microsoft.com/en-us/library/ms535242(v=vs.85).aspx">declared !DOCTYPE directive</a>.  Failing to <a href="https://msdn.microsoft.com/en-us/library/ms535242(v=vs.85).aspx">declare a !DOCTYPE directive</a> causes the page to load in Quirks.</td></tr>
+<tr><td>11000 (0x2AF8)</td><td>IE11.  Webpages containing standards-based <a href="https://msdn.microsoft.com/en-us/library/ms535242(v=vs.85).aspx">!DOCTYPE directives</a> are displayed in IE11 edge mode.  Default value for IE11.</td></tr>
+<tr><td>10001 (0x2711)</td><td>Internet Explorer&nbsp;10. Webpages are displayed in IE10 Standards mode, regardless of the <a href="https://msdn.microsoft.com/en-us/library/ms535242(v=vs.85).aspx">!DOCTYPE directive</a>.  </td></tr>
+<tr><td>10000 (0x02710)</td><td>Internet Explorer&nbsp;10.  Webpages containing standards-based <a href="https://msdn.microsoft.com/en-us/library/ms535242(v=vs.85).aspx">!DOCTYPE directives</a> are displayed in IE10 Standards mode.  Default value for Internet Explorer&nbsp;10.</td></tr>
+<tr><td>9999 (0x270F)</td><td>Windows Internet Explorer&nbsp;9. Webpages are displayed in IE9 Standards mode, regardless of the <a href="https://msdn.microsoft.com/en-us/library/ms535242(v=vs.85).aspx">declared !DOCTYPE directive</a>. Failing to <a href="https://msdn.microsoft.com/en-us/library/ms535242(v=vs.85).aspx">declare a !DOCTYPE directive</a> causes the page to load in Quirks.</td></tr>
+<tr><td>9000 (0x2328)</td><td>Internet Explorer&nbsp;9.  Webpages containing standards-based <a href="https://msdn.microsoft.com/en-us/library/ms535242(v=vs.85).aspx">!DOCTYPE directives</a> are displayed in IE9 mode.  Default value for Internet Explorer&nbsp;9.<div class="alert"><strong>Important</strong>&nbsp;&nbsp;In Internet Explorer&nbsp;10, Webpages containing standards-based !DOCTYPE directives are displayed in IE10 Standards mode.</div>
+<div>&nbsp;</div>
+</td></tr>
+<tr><td>8888 (0x22B8)</td><td>Webpages are displayed in IE8 Standards mode, regardless of the <a href="https://msdn.microsoft.com/en-us/library/ms535242(v=vs.85).aspx">declared !DOCTYPE directive</a>. Failing to <a href="https://msdn.microsoft.com/en-us/library/ms535242(v=vs.85).aspx">declare a !DOCTYPE directive</a> causes the page to load in Quirks.</td></tr>
+<tr><td>8000 (0x1F40)</td><td>Webpages containing standards-based <a href="https://msdn.microsoft.com/en-us/library/ms535242(v=vs.85).aspx">!DOCTYPE directives</a> are displayed in IE8 mode.  Default value for Internet Explorer&nbsp;8<div class="alert"><strong>Important</strong>&nbsp;&nbsp;In Internet Explorer&nbsp;10, Webpages containing standards-based !DOCTYPE directives are displayed in IE10 Standards mode.</div>
+<div>&nbsp;</div>
+</td></tr>
+<tr><td>7000 (0x1B58)</td><td>Webpages containing standards-based <a href="https://msdn.microsoft.com/en-us/library/ms535242(v=vs.85).aspx">!DOCTYPE directives</a> are displayed in IE7 Standards mode.  Default value for applications hosting the <a href="https://msdn.microsoft.com/en-us/library/aa752040(v=vs.85).aspx">WebBrowser Control</a>.</td></tr>
+</tbody></table>
+</pre>
+		</p>
+	</div>
+
+
+	<div class="note"><a name="function"></a>
+		<p><span class="flag">function</span>
+<pre>WebBrowser的8个方法和13个属性，以及它们的功能：
+
+方法：
+GoBack 相当于IE的“后退”按钮，使你在当前历史列表中后退一项
+
+GoBack 相当于IE的“后退”按钮，使你在当前历史列表中后退一项
+
+GoForward 相当于IE的“前进”按钮，使你在当前历史列表中前进一项
+GoHome 相当于IE的“主页”按钮，连接用户默认的主页
+GoSearch 相当于IE的“搜索”按钮，连接用户默认的搜索页面
+Navigate 连接到指定的URL
+Refresh 刷新当前页面
+Refresh2 同上，只是可以指定刷新级别，所指定的刷新级别的值来自RefreshConstants枚举表，
+该表定义在ExDisp.h中，可以指定的不同值如下：
+REFRESH_NORMAL 执行简单的刷新，不将HTTP pragma: no-cache头发送给服务器
+REFRESH_IFEXPIRED 只有在网页过期后才进行简单的刷新
+REFRESH_CONTINUE 仅作内部使用。在MSDN里写着DO NOT USE! 请勿使用
+REFRESH_COMPLETELY 将包含pragma: no-cache头的请求发送到服务器
+Stop 相当于IE的“停止”按钮，停止当前页面及其内容的载入
+
+属性 
+Application 如果该对象有效，则返回掌管WebBrowser控件的应用程序实现的自动化对象(IDispatch)。如果在宿主对象中自动化对象无效，这个程序将返回WebBrowser
+控件的自动化对象
+Parent 返回WebBrowser控件的父自动化对象，通常是一个容器，例如是宿主或IE窗口
+Container 返回WebBrowser控件容器的自动化对象。通常该值与Parent属性返回的值相同
+Document 为活动的文档返回自动化对象。如果HTML当前正被显示在WebBrowser中，则
+Document属性提供对DHTML Object Model的访问途径
+TopLevelContainer 返回一个Boolean值，表明IE是否是WebBrowser控件顶层容器，是就返回true
+
+Type 返回已被WebBrowser控件加载的对象的类型。例如：如果加载.doc文件，就会返
+回Microsoft Word Document
+Left 返回或设置WebBrowser控件窗口的内部左边与容器窗口左边的距离
+Top 返回或设置WebBrowser控件窗口的内部左边与容器窗口顶边的距离
+Width 返回或设置WebBrowser窗口的宽度，以像素为单位
+Height 返回或设置WebBrowser窗口的高度，以像素为单位
+LocationName 返回一个字符串，该字符串包含着WebBrowser当前显示的资源的名称，如果资源
+是网页就是网页的标题；如果是文件或文件夹，就是文件或文件夹的名称
+LocationURL 返回WebBrowser当前正在显示的资源的URL
+Busy 返回一个Boolean值，说明WebBrowser当前是否正在加载URL，如果返回true
+就可以使用stop方法来撤销正在执行的访问操作
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="js"></a>
+		<p><span class="flag">調用 js</span>
+<pre>#include &lt;MsHTML.h&gt;
+void CDarkFrameWorkDlg::OnBnClickedButton1()
+{
+	
+	CComQIPtr&lt;IHTMLDocument2&gt; spDoc = m_ie.get_Document();  
+	
+	CComDispatchDriver spScript;  
+	spDoc->get_Script(&spScript);  
+  
+	//調用2參數 函數
+	CComVariant var1 = 10, var2 = 20, varRet;  
+	spScript.Invoke2(L"sum", &var1, &var2, &varRet); 
+	
+	//調用 n 參數 函數
+	CComVariant params[5] = {1,2,3,4,5};
+	spScript.InvokeN(L"sum",params,5,&varRet);
+
+	//返回 obj
+	spScript.Invoke0(L"get_obj",&varRet);
+	CComDispatchDriver obj = varRet.pdispVal;
+
+	CComVariant name;
+	obj.GetPropertyByName(L"Name",&name);
+	//obj.PutPropertyByName
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="external"></a>
+		<p><span class="flag">擴展 js</span>
+<pre>webbrowser 中瀏覽器對象 window.external 可以通過 com進行擴展
+將其 和一個 com 類關聯
+</pre>
+		</p>
+		<p><span class="flag">擴展 js</span>
+<pre>1	定義一個實現了 IDispatch 接口的 子類
+	#pragma once
+	#include "oaidl.h"
+	class MyExternal :
+		public IDispatch
+	{
+		long _refNum;
+	public:
+		MyExternal(void)
+		{
+			_refNum = 1;
+		}
+		~MyExternal(void)
+		{
+		}
+
+		 // IUnknown Methods
+
+	    STDMETHODIMP QueryInterface(REFIID iid,void**ppvObject)
+	    {
+	        *ppvObject = NULL;
+	        if (iid == IID_IUnknown)    *ppvObject = this;
+	        else if (iid == IID_IDispatch)    *ppvObject = (IDispatch*)this;
+	        if(*ppvObject)
+	        {
+	            AddRef();
+	            return S_OK;
+	        }
+	        return E_NOINTERFACE;
+	    }
+
+	    STDMETHODIMP_(ULONG) AddRef()
+	    {
+	        return InterlockedIncrement(&_refNum);
+	    }
+
+	    STDMETHODIMP_(ULONG) Release()
+	    {
+	        InterlockedDecrement(&_refNum);
+	        if(_refNum != 0)
+	        {
+				return _refNum;
+	        }
+	        
+	        delete this;
+			return 0;
+	    }
+
+	    // IDispatch Methods
+	    HRESULT _stdcall GetTypeInfoCount(
+	        unsigned int * pctinfo) 
+	    {
+	        return E_NOTIMPL;
+	    }
+
+	    HRESULT _stdcall GetTypeInfo(
+	        unsigned int iTInfo,
+	        LCID lcid,
+	        ITypeInfo FAR* FAR* ppTInfo) 
+	    {
+	        return E_NOTIMPL;
+	    }
+
+		//關聯 函數名 id
+	    HRESULT _stdcall GetIDsOfNames(
+	        REFIID riid, 
+	        OLECHAR FAR* FAR* rgszNames, 
+	        unsigned int cNames, 
+	        LCID lcid, 
+	        DISPID FAR* rgDispId 
+	    )
+	    {
+	        if(lstrcmp(rgszNames[0], L"sum")==0)
+	        {
+	            //js 調用 window.external.sum 时 會獲取到此ID
+	            *rgDispId = 1;
+	        }
+			if(lstrcmp(rgszNames[0], L"show")==0)
+	        {
+	            *rgDispId = 2;
+	        }
+	        return S_OK;
+	    }
+
+		//根據函數id 執行不同操作
+	    HRESULT _stdcall Invoke(
+	        DISPID dispIdMember,
+	        REFIID riid,
+	        LCID lcid,
+	        WORD wFlags,
+	        DISPPARAMS* pDispParams,
+	        VARIANT* pVarResult,
+	        EXCEPINFO* pExcepInfo,
+	        unsigned int* puArgErr
+	    )
+	    {
+	        if(dispIdMember == 1)
+	        {
+	            //网页调用CppCall时，或根据获取到的ID调用Invoke方法
+				INT sum = 0;
+				for(UINT i=0;i&lt;pDispParams-&gt;cArgs;++i)
+				{
+					sum += pDispParams-&gt;rgvarg[i].intVal;
+				}
+				CComVariant rs = sum;
+				*pVarResult = rs;
+				
+	        }
+			else if(dispIdMember == 2)
+			{
+				CString str = pDispParams-&gt;rgvarg[0].bstrVal;
+				::AfxMessageBox(str);
+			}
+	        return S_OK;
+	    }
+	};
+
+
+
+2	重寫 webbrowser 的 GetExternal 方法 返回 IDispatch子類 實例
+	<span class='care'>IDispatch子類實例 必須 new 必須不能delete 由com自動釋放</span>
+	MyExternal* m_external;
+
+	CmywebView::CmywebView()
+	{
+		// TODO: 在此处添加构造代码
+		//mp_external = new MyExternal();
+		m_external = new MyExternal();
+	}
+
+	CmywebView::~CmywebView()
+	{
+		m_p->Release();
+	}
+
+	HRESULT CmywebView::OnGetExternal( LPDISPATCH *lppDispatch)
+	{
+		m_external->AddRef();
+		*lppDispatch = m_external;
+
+		return S_OK;
+	}
+
+3	在js中 通過 window.external.XXX 調用擴展函數
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

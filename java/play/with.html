@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>with</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#with">with</a>
+		 
+	</div>
+
+	<div class="note"><a name="with"></a>
+		<p><span class="flag">with</span>
+<pre>@With 可以用來標註一個 class 或 function
+用於 將 @With 指定的 多個 Action.Simple 的 call 方法 
+添加到 class所有function 或指定的 function
+
+使用 @With 可以方便的 實現 filter
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package models;
+
+import play.*;
+import play.mvc.*;
+import play.libs.*;
+
+public class SecurityAction extends Action.Simple { 
+	public F.Promise&lt;Result&gt; call(Http.Context ctx) throws Throwable {
+		String user = ctx.session().get("user");
+		if(user != null && user.equals("true")){
+			System.out.println("login");
+		}else{
+			System.out.println("unlogin");
+			return F.Promise.promise(new F.Function0&lt;Result&gt;() {
+				@Override
+				public Result apply() throws Throwable {
+					return redirect("/active.html?email=123");
+				}
+			});
+		}
+		return delegate.call(ctx);
+	}
+}
+
+
+
+package controllers.administer;
+
+import play.*;
+import play.mvc.*;
+import views.html.*;
+
+import models.SecurityAction;
+
+@With(SecurityAction.class)
+public class Application extends Controller {
+	public static Result index() {
+		return ok(views.html.administer.index.render());
+	}
+
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+
