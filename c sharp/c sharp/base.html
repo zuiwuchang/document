@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>c#</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#Console">Console</a>
+		<a href="#type">型別</a>
+		<a href="#StringBuilder">StringBuilder</a>
+		<a href="#checked">checked/unchecked</a>
+		<a href="#var">var</a>
+		<a href="#for">流程控制</a>
+	</div>
+
+	<div class="note"><a name="Console"></a>
+		<p><span class="flag">Console</span>
+<pre>System.Console 提供了 控制台 操作api
+
+Console.BackgroundColor
+Console.ForegroundColor
+屬性 指定了 控制台 文件 背景色/前景色
+
+Write WriteLine 提供了 輸出功能
+c#支持以 {n} {n:型別} 佔位符的方式 格式化 替代c的printf
+n 從0 開始 計數
+
+型別字符串
+:C/:c	格式化貨幣 $
+:D/:d	十進制 數字
+:E/:e	指數計數法
+:F/:f	指定小數點填充
+:G/:g	
+:N/:n
+:X/:x	十六進制
+
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>
+static void Main(string[] args)
+{
+    
+    Console.BackgroundColor = ConsoleColor.Blue;
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.WriteLine("i work for {0}\n{0} it's an idea","cerberus");
+}
+</pre>
+		</p>
+
+	</div>
+
+	<div class="note"><a name="type"></a>
+		<p><span class="flag">型別</span>
+<pre>c#		System			CLS		作用
+bool		System.Boolean		y
+sbyte		System.SByte		n		帶符號8位數據
+byte		System.Byte		y
+short		System.Int16		y
+ushort		System.UInt16		n
+int		System.Int32		y
+uint		System.UInt32		n
+long		System.Int64		y
+ulong		System.UInt64		n
+char		System.Char		y
+float		System.Single		y
+double		System.Double		y
+decimal		System.Decimal		y
+string		System.String		y
+object		System.Object		y
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>c# 的 char string 使用 unicode 編碼(wchar_t)
+
+
+//輸出 {}
+Console.WriteLine("{{0}}");
+
+c# 在定義字符串前 加上@ 字符串將不會被轉義
+Console.WriteLine(@"\n");	//輸出 \n 而非 換行
+
+雖然 string 也引用 然 C#可以重載 運算符 
+故 在 == != 是調用的 Equals 比較 而不是 直接比較的 引用地址
+然 string 和java中類似(java中必須使用 Equals 比較字符串是否相等) 字符串是不可變的
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="StringBuilder"></a>
+		<p><span class="flag">StringBuilder</span>
+<pre>c# 提供了 System.Text.StringBuilder 類 處理字符串
+以避免 string 類 產生 大量無用臨時 string的 問題
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>
+var str = new StringBuilder("cerberus it's an idea\n");
+str.AppendFormat("i work for {0}", "cerberus".ToUpper());
+Console.WriteLine(str);
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="checked"></a>
+		<p><span class="flag">checked/unchecked</span>
+<pre>checked 後的一個 代碼段 如果 發生 溢出 將拋出OverflowException異常
+unchecked 可以將 一段代碼的 checked 檢查 取消
+
+try
+{
+    checked
+    {
+        int l = Int32.MaxValue;
+        int r = 100;
+
+        int sum = l + r;
+    }
+}
+catch (OverflowException e)
+{
+    Console.WriteLine(e);
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="var"></a>
+		<p><span class="flag">var</span>
+<pre>關鍵字 var 類似 c++11的 auto
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="for"></a>
+		<p><span class="flag">流程控制</span>
+<pre>break
+continue
+goto
+
+for(;;)
+{
+
+}
+
+for(var ... in ...)
+{
+
+}
+
+while(...)
+{
+
+}
+
+do
+{
+
+}while(...);
+
+
+if(...)
+{
+
+}
+else if(...)
+{
+
+}
+else
+{
+
+}
+
+switch(...)
+{
+case ?:
+break;
+default:
+break;
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
