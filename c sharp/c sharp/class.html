@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>c#</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#static">static</a>
+		<a href="#public">訪問權限 修飾符</a>
+        <a href="#get">get set</a>
+        <a href="#partial">partial</a>
+	</div>
+
+	<div class="note"><a name="static"></a>
+		<p><span class="flag">static</span>
+<pre>static 用於 定義 靜態 變量 方法
+c#還可以 在 class 前 加 static 這樣的class 不能被 new 創建
+</pre>
+		</p>
+	</div>
+
+    <div class="note"><a name="public"></a>
+        <p><span class="flag">訪問權限 修飾符</span>
+<pre>public
+protected
+private
+internal    僅當前 程序集可訪問
+</pre>
+        </p>
+        <p><span class="flag">注意</span>
+<pre>internal 可和 其他3個修飾符 連用
+(protected internal)
+
+public不可用於 嵌套 類型
+
+class 默認被設置為internal 其成員被設置為private
+</pre>
+        </p>
+    </div>
+
+    <div class="note"><a name="get"></a>
+        <p><span class="flag">get set</span>
+<pre>c# 提供了所謂的 屬性 (和變量 建立的 映射)
+替代 傳統的 GetXXX SetXXX 方法
+且 讓 操作屬性 看起來 就想 操作 變量一樣
+</pre>
+        </p>
+
+        <p><span class="flag">example</span>
+<pre>class People
+{
+    private int lv;
+    private string name;
+    public People(string name)
+    {
+        this.name = name;
+    }
+
+    public int Lv
+    {
+        set
+        {
+            if (value < 1 || value > 10)
+            {
+                lv = 1;
+            }
+            else
+            {
+                lv = value;
+            }
+        }
+        get
+        {
+            return lv;
+        }
+    }
+    public string Name
+    {
+        get
+        {
+            return name;
+        }
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        People one = new People("king");
+        one.Lv = 100;
+        Console.WriteLine("{0} lv = {1}",one.Name,one.Lv);
+    }
+}
+</pre>
+        </p>
+         <p><span class="flag">注意</span>
+<pre>如果 屬性 只有 set/get 就是 只寫/讀 屬性
+
+static 變量 也可以 創建屬性 此時 屬性前也需要 加 static 修飾
+</pre>
+        </p>
+    </div>
+
+     <div class="note"><a name="const"></a>
+        <p><span class="flag">const</span>
+<pre>c# 使用 const 定義 常量 
+且 class的 常量成員 默認都是static
+class XXX
+{
+    public const PI = 3.14;
+}
+
+readonly 修飾 class 的 只讀變量
+只讀變量 只可以在 定義時設置值 或在 class的構造函數中 設置值 
+
+static readonly 變量 只可在 定義時設置值 或在 class的static構造函數中 設置值 
+</pre>
+        </p>
+    </div>
+
+    <div class="note"><a name="partial"></a>
+        <p><span class="flag">partial</span>
+<pre>c# 允許將 class 定義到多個 文件
+但在 主文件之外的定義時 class前 都需要加上 partial修飾符
+</pre>
+        </p>
+    </div>
+</div>
+</body>
+</html>

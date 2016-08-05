@@ -15,6 +15,11 @@
 		<a href="#checked">checked/unchecked</a>
 		<a href="#var">var</a>
 		<a href="#for">流程控制</a>
+		<a href="#params">參數修飾符</a>
+		<a href="#name">命名參數</a>
+		<a href="#array">數組</a>
+		<a href="#enum">枚舉</a>
+		<a href="#struct">結構</a>
 	</div>
 
 	<div class="note"><a name="Console"></a>
@@ -182,6 +187,226 @@ break;
 default:
 break;
 }
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="params"></a>
+		<p><span class="flag">參數修飾符</span>
+<pre>c# 使用 參數修飾符 限定 參數如何 傳遞給函數
+
+無		值傳遞
+out		輸出參數 引用傳遞 且函數必須為其設置值
+ref		同 out 只是 函數可以 不必一定要為 參數 設置值
+params	只能在最後一個 參數上限定(且 參數型別必須為數組) 代表 不定長參數 類似golang的 ...
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>ref 參數在傳遞給 函數前 必須 賦初始值 out 則不需要
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="name"></a>
+		<p><span class="flag">命名參數</span>
+<pre>c# 支持在傳遞 參數時 通過 參數名指定參數 而不是 通過 參數位置
+如果 使用 命名參數 命名參數必須在 使用 位置 參數 之後
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>
+class Program
+{
+    static void Main(string[] args)
+    {
+        Show("illusive man",power:9);
+    }
+    static void Show(string name = "king",int lv=1,int power = 10)
+    {
+        Console.WriteLine("{0} {1} {2}",name,lv,power);
+    }
+   
+}
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="array"></a>
+		<p><span class="flag">數組</span>
+<pre>c# 數組 基本 同 c++ 只是 其二維數組 可以允許 每行的 長度不同
+且 Length 屬性 記錄了 數組長度
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>static void Main(string[] args)
+{
+    Console.WriteLine("******   聲明數組    ******");
+    //string[] names = new string[3];
+    //string[] names = new string[3]{"illusive man","king","kate"};
+    string[] names =  { "illusive man", "king", "kate" };
+    
+    Console.WriteLine("******   遍歷數組    ******");
+    for (int i = 0; i < names.Length; i++)
+    {
+        Console.WriteLine("names[{0}] = {1}",i,names[i]);
+    }
+    foreach (var name in names)
+    {
+        Console.WriteLine(name);
+    }
+
+
+    Console.WriteLine("******   二維數組    ******");
+    int[][] table = new int[3][];
+    table[0] = new int[1];
+    table[1] = new int[2];
+    table[2] = new int[3];
+    int v = 0;
+    for (int i = 0; i < table.Length; i++)
+    {
+        for (int j = 0; j < table[i].Length; j++)
+        {
+            table[i][j] = v++;
+        }
+    }
+    foreach (var row in table)
+    {
+        foreach (var col in row)
+        {
+            Console.Write("{0}  ", col);
+        }
+        Console.WriteLine();
+    }
+    for (int i = 0; i < table.Length; i++)
+    {
+        Console.Write("row = {0}    ",i);
+        for (int j = 0; j < table[i].Length; j++)
+        {
+            Console.Write("{0}  ",table[i][j]);
+        }
+        Console.WriteLine();
+    }
+
+    Console.WriteLine("hellow word");
+
+}
+</pre>
+		</p>
+
+		<p><span class="flag">System.Array</span>
+<pre>System.Array 提供了 同數組 通用的 操作 方法
+
+Clear()		將數組 設置為空值(0 null false "")
+CopyTo()
+Length
+Rank
+Reverse
+Sort		使用 IComparer 接口 排序
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>static void Main(string[] args)
+{
+    string[] names =  { "illusive man", "king", "kate" };
+    string[] strs = new string[3];
+    Console.WriteLine("******   CopyTo  ******");
+    names.CopyTo(strs, 0);
+    foreach (var str in strs)
+    {
+        Console.WriteLine(str);
+    }
+
+    Console.WriteLine("******   Clear  ******");
+    System.Array.Clear(strs, 0, strs.Length);
+    foreach (var str in strs)
+    {
+        Console.WriteLine(str);
+    }
+
+
+    Console.WriteLine("******   Reverse  ******");
+    System.Array.Reverse(names);
+    foreach (var str in names)
+    {
+        Console.WriteLine(str);
+    }
+
+    Console.WriteLine("******   Sort  ******");
+    System.Array.Sort(names);
+    foreach (var str in names)
+    {
+        Console.WriteLine(str);
+    }
+    Console.WriteLine("hellow word");
+
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="enum"></a>
+		<p><span class="flag">枚舉</span>
+<pre>enum Job
+{
+	King,
+	Kate = 8,
+	IllusiveMan = 10,
+}
+/*指定 枚舉 存儲 型別 默認 System.Int32*/
+enum Power:byte
+{
+	King,
+	Kate = 8,
+	IllusiveMan = 10,
+	}
+
+class Program
+{
+	static void Main(string[] args)
+	{
+		Job job = Job.King;
+		Power power = Power.IllusiveMan;
+
+		Console.WriteLine("key = {0}    val = {1}", job, (int)job);
+		Console.WriteLine("key = {0}    val = {1}", power, (byte)power);
+	}
+}
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="struct"></a>
+		<p><span class="flag">結構</span>
+<pre>基本 同 c++ 只是 一個 結構的 實例
+其所有 屬性 都 必須 被 設置 才能 進行 其他 操作
+(使用 new 創建 將為所有屬性 設置 默認值)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>struct Point
+{
+    public int X,Y;
+    public void Show()
+    {
+        Console.WriteLine("x = {0}  y = {1}",X,Y);
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        Point p0;
+        p0.X = 0;
+        p0.Y = 2;
+        p0.Show();
+
+        Point p1 = new Point();
+        p1.Show();
+
+    }
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>c# 對結構 默認使用 值傳遞 對類使用 引用傳遞
 </pre>
 		</p>
 	</div>
