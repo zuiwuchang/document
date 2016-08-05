@@ -13,6 +13,8 @@
 		<a href="#public">訪問權限 修飾符</a>
         <a href="#get">get set</a>
         <a href="#partial">partial</a>
+        <a href="#child">派生</a>
+        <a href="#virtual">virtual</a>
 	</div>
 
 	<div class="note"><a name="static"></a>
@@ -127,6 +129,24 @@ static readonly 變量 只可在 定義時設置值 或在 class的static構造�
         <p><span class="flag">partial</span>
 <pre>c# 允許將 class 定義到多個 文件
 但在 主文件之外的定義時 class前 都需要加上 partial修飾符
+</pre>
+        </p>
+    </div>
+    <div class="note"><a name="child"></a>
+        <p><span class="flag">派生</span>
+<pre>c#中 子類只能從1個 基類派生
+
+如果 在 class 前 加上 sealed 修飾符 class 將 不能被 繼承
+
+c#在子類 構造中 使用 :base(...) 選擇 使用的 基類 構造函數
+</pre>
+        </p>
+    </div>
+    <div class="note"><a name="virtual"></a>
+        <p><span class="flag">virtual</span>
+<pre>c#中 使用 virtual 定義 虛函數 子類 使用 override 重寫子類
+
+在 class 前 加上 abstract 定義一個 不能被 實例化的 抽象類
 </pre>
         </p>
     </div>
