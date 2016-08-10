@@ -1,0 +1,86 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#binary">encoding/binary</a>
+		
+			
+	</div>
+
+	<div class="note"><a name="binary"></a>
+		<p><span class="flag">encoding/binary</span>
+<pre>encoding/binary 提供了 將 struct 到 二進制 數據轉換的操作
+同時 提供了 大(net)小(x86)端序列轉換
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"bytes"
+	"encoding/binary"
+	"log"
+)
+
+type Header struct {
+	Flag uint32
+	Id   uint32
+	Size uint32
+}
+
+func main() {
+	testStruct()
+	testUint()
+}
+func testUint() {
+
+	b16 := make([]byte, 2)
+	binary.BigEndian.PutUint16(b16, uint16(16))
+	log.Println(b16)
+	log.Println(binary.BigEndian.Uint16(b16))
+
+	b32 := make([]byte, 4)
+	binary.BigEndian.PutUint32(b32, uint32(32))
+	log.Println(binary.BigEndian.Uint32(b32))
+
+	b64 := make([]byte, 8)
+	binary.BigEndian.PutUint64(b64, uint64(64))
+	log.Println(b64)
+	log.Println(binary.BigEndian.Uint64(b64))
+}
+func testStruct() {
+	buf := &bytes.Buffer{}
+	h := &Header{Flag: 1, Id: 2, Size: 3}
+	//轉 二進制 小端 序列
+	e := binary.Write(buf, binary.LittleEndian, h)
+	if e != nil {
+		log.Fatalln(e)
+	}
+	log.Println(buf.Bytes())
+
+	//二進制 小端 序列 轉 結構
+	h = &Header{}
+	e = binary.Read(buf, binary.LittleEndian, h)
+	if e != nil {
+		log.Fatalln(e)
+	}
+	log.Println(h)
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>Write 傳入的結構 其成員 內存必須是 明確的(不能說 slice map ...)
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+

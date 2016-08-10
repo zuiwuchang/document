@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#bytes">bytes</a>
+		<a href="#Buffer">Buffer</a>
+		
+			
+	</div>
+
+	<div class="note"><a name="bytes"></a>
+		<p><span class="flag">bytes</span>
+<pre>bytes 實現了 對 []byte 的 相關 操作
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Buffer"></a>
+		<p><span class="flag">Buffer</span>
+<pre>Buffer 是一個 []byte 輸入輸出 流
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"bytes"
+	"fmt"
+	"os"
+)
+
+func main() {
+	var buf bytes.Buffer
+	buf.WriteString("cerberus it's an idea") //21 bytes
+	fmt.Println(buf.Bytes())                 //返回 []byte
+	fmt.Println(buf.Len())                   //21
+	buf.WriteTo(os.Stdout)
+	fmt.Println()
+	fmt.Println(buf.Len()) //0
+}
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+

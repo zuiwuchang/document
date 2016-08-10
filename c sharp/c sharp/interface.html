@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>c#</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#interface">接口</a>
+		<a href="#try">動態判斷 是否 實現接口</a>
+		<a href="#more">多接口 重名</a>
+		<a href="#iter">IEnumerable IEnumerator</a>
+		<a href="#yield">yield</a>
+		<a href="#ICloneable">ICloneable</a>
+		<a href="#ICloneable">IComparable</a>
+	</div>
+
+	<div class="note"><a name="interface"></a>
+		<p><span class="flag">接口</span>
+<pre>基本同 java 
+.net 接口 一般以 I (可選) 作為前綴
+
+c# 實現接口時不需要 加 關鍵字 寫法同 派生 子類 
+多個 接口 用 , 隔開
+
+1個接口 可以 派生自其它接口
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>//定義接口
+public interface IFight
+{
+    void Attack();
+    string Type { get; }
+}
+
+//實現接口
+public class Cat : IFight
+{
+    public void Attack()
+    {
+        Console.WriteLine("瘋狂亂抓");
+    }
+    public string Type
+    { 
+        get 
+        {
+            return "喵貓";
+        } 
+    }
+}
+class Program
+{
+    static void Main(string[] args)
+    {
+        Cat cat = new Cat();
+
+        Console.WriteLine("{0}", cat.Type);
+        cat.Attack();
+    }
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="try"></a>
+		<p><span class="flag">動態判斷 是否 實現接口</span>
+<pre>c#支持 動態 判斷 是否實現 某 接口 
+
+<span class="care">方法一</span>
+直接 強制 轉換 即可 如果 沒實現 將 拋出 System.InvalidCastException 異常
+
+<span class="care">方法二</span>
+使用 as 關鍵字 如果 沒實現 將 返回 null 否則 返回 接口 引用
+IFight fight = cat as IFight;
+if (fight != null)
+{
+    fight.Attack();
+}
+
+<span class="care">方法三</span>
+使用 is 關鍵字 
+(用法 同 as 只是 返回值 為 true/false)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="more"></a>
+		<p><span class="flag">多接口 重名</span>
+<pre>如果 待實現的多個接口 有相同的簽名
+只需要實現 1個 就可
+
+如果 需要 對不同 接口 實現簽名 實現 不同 功能
+需要顯示定義 並且顯示調用 (且 訪問權限 只能是默認的 private)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>//定義接口
+public interface IFight
+{
+    void Attack();
+}
+public interface IWar
+{
+    void Attack();
+}
+
+public class Cat : IFight, IWar
+{
+    //顯示 實現接口
+    void IFight.Attack()
+    {
+        Console.WriteLine("fight attack");
+    }
+
+    void IWar.Attack()
+    {
+        Console.WriteLine("war attack");
+    }
+}
+class Program
+{
+    static void Main(string[] args)
+    {
+        Cat cat = new Cat();
+        //顯示調用 接口
+        ((IWar)cat).Attack();
+        ((IFight)cat).Attack();
+    }
+    
+   
+}
+</pre>
+		</p>
+	</div>
+	
+	<div class="note"><a name="iter"></a>
+		<p><span class="flag">IEnumerable IEnumerator</span>
+<pre>c# foreach 使用 IEnumerable IEnumerator 接口 遍歷集合
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>public class Zoo : System.Collections.IEnumerable
+{
+    string[] animals = new string[3] { "喵貓", "卡迪狗", "可達鴨" };
+    public System.Collections.IEnumerator GetEnumerator()
+    {
+        //return animals.GetEnumerator();
+        return new ZooIterator(this);
+    }
+    public string GetAnimal(int pos)
+    {
+        return animals[pos];
+    }
+    public int GetAnimalCount()
+    {
+        return animals.Length;
+    }
+}
+public class ZooIterator : System.Collections.IEnumerator
+{
+    Zoo _obj;
+    int _pos;
+    public ZooIterator(Zoo zoo)
+    {
+        _obj = zoo;
+        _pos = 0;
+    }
+    public object Current
+    {
+        get 
+        {
+            return _obj.GetAnimal(_pos-1);
+        }
+    }
+
+    public bool MoveNext()
+    {
+        if (_pos < _obj.GetAnimalCount())
+        {
+            ++_pos;
+            return true;
+        }
+        return false;
+    }
+
+    public void Reset()
+    {
+        _pos = 0;
+    }
+}
+class Program
+{
+    static void Main(string[] args)
+    {
+        Zoo zoo = new Zoo();
+        foreach(var name in zoo)
+        {
+            Console.WriteLine(name);
+        }
+
+    }
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>每次 調用 MoveNext 後 才會 調用Current
+故 獲取 第1個元素時 MoveNext 已經被調用了1次
+故第一次 調用 MoveNext 後 游標 才能設置到 第一個元素 
+而非 構造時 游標 就指向第一個元素
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="yield"></a>
+		<p><span class="flag">yield</span>
+<pre>除了 實現 IEnumerator 接口外 c# 提供了yield
+用於 簡單的 實現 foreach 
+雖然這 只會讓語言變得 難以理解 無可救藥 但的確 節省了鍵盤磨損
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>public class Zoo : System.Collections.IEnumerable
+{
+    string[] animals = new string[3] { "喵貓", "卡迪狗", "可達鴨" };
+    public System.Collections.IEnumerator GetEnumerator()
+    {
+        foreach (string animal in animals)
+        {
+            yield return animal;
+        }
+
+        /*另外一種寫法 且逆向 返回
+        yield return animals[2];
+        yield return animals[1];
+        yield return animals[0];
+        */
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        Zoo zoo = new Zoo();
+        foreach(var name in zoo)
+        {
+            Console.WriteLine(name);
+        }
+    }
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>每次 foreach 執行到 yield 位置 返回
+下次 foreach 接在 之前 yield 之後 執行 直到 下個 yield
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="ICloneable"></a>
+		<p><span class="flag">ICloneable</span>
+<pre>ICloneable 接口 用於 返回一個 引用 型別的 副本
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="IComparable"></a>
+		<p><span class="flag">IComparable</span>
+<pre>IComparable 接口 用於 比較對象
+
+public interface IComparable
+{
+	//this &gt; o return 正數
+	//this &lt; o return 負數
+	//== return 0
+	int CompareTo(object o)	
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

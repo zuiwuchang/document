@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#net">net</a>
+		<a href="#tcp">tcp</a>
+	</div>
+
+	<div class="note"><a name="net"></a>
+		<p><span class="flag">net</span>
+<pre>net 包 封裝了網絡功能
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="tcp"></a>
+		<p><span class="flag">tcp</span>
+<pre><span class="care">server</span>
+package main
+
+import (
+	"fmt"
+	"log"
+	"net"
+)
+
+func main() {
+	s, e := net.Listen("tcp", ":1102")
+	if e != nil {
+		log.Fatalln(e)
+		return
+	}
+	for {
+		c, e := s.Accept()
+		if e != nil {
+			log.Println(e)
+			continue
+		}
+		go read(c)
+
+	}
+}
+func read(c net.Conn) {
+	fmt.Printf("%v in\n", c.RemoteAddr())
+	buf := make([]byte, 1024)
+
+	for {
+		n, e := c.Read(buf)
+		if e != nil {
+			fmt.Printf("%v out\n", c.RemoteAddr())
+			return
+		}
+
+		fmt.Println("%v", string(buf[:n]))
+	}
+}
+
+<span class="care">client</span>
+package main
+
+import (
+	"fmt"
+	"log"
+	"net"
+)
+
+func main() {
+	c, e := net.Dial("tcp", "127.0.0.1:1102")
+	if e != nil {
+		log.Fatalln(e)
+	}
+
+	var cmd string
+	for {
+		fmt.Print("&gt;")
+		fmt.Scan(&cmd)
+		c.Write([]byte(cmd))
+	}
+}
+
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

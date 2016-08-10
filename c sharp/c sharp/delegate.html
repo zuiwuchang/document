@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>c#</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#delegate">委託</a>
+		<a href="#bind">Action Func</a>
+		<a href="#event">事件</a>
+		<a href="#name">匿名方法</a>
+		<a href="#lambda">lambda</a>
+	</div>
+
+	<div class="note"><a name="delegate"></a>
+		<p><span class="flag">委託</span>
+<pre>c# 提供了 所謂的 委託 以 替代c風格中的 函數回調
+
+委託書一個 型別安全的對象 其指向另外 一個/多個 會被調用的方法
+
+委託包含3個重要信息
+1	調用方法名
+2	參數(可選)
+3	返回值型別(可選)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>class Program
+{
+    //定義一個委託
+    delegate void Eat(string what);
+
+    class Cat
+    {
+        public void Eat(string what)
+        {
+            Console.WriteLine("cat eat {0}", what);
+        }
+    }
+    class Dog
+    {
+        public void Eat(string what)
+        {
+            Console.WriteLine("dog eat {0}", what);
+        }
+    }
+    static void Main(string[] args)
+    {
+        Cat cat = new Cat();
+        Dog dog = new Dog();
+        //創建委託
+        Eat eat = new Eat(cat.Eat);
+
+        //c# 支持 多路廣播
+        eat += dog.Eat; 
+        //eat -= dog.Eat;
+        //eat = dog.Eat;
+
+        //調用 委託
+        eat("fish");
+
+        Console.WriteLine("hellow word");
+    }
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Action"></a>
+		<p><span class="flag">Action Func</span>
+<pre>c#的 Action 提供了 類似 boost::bind boost::function 的功能
+
+不過 Action 返回值 只能是 void 故 定義時 不需要寫出 返回值
+Func 提供了 返回值
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>class Program
+{
+    //定義一個委託
+    delegate void Eat(string what);
+    delegate string Who();
+    class Cat
+    {
+        public void Eat(string what)
+        {
+            Console.WriteLine("cat eat {0}", what);
+        }
+        public string Who()
+        {
+            Console.WriteLine("Cat");
+            return "i'm a Cat";
+        }
+    }
+    class Dog
+    {
+        public void Eat(string what)
+        {
+            Console.WriteLine("dog eat {0}", what);
+        }
+        public string Who()
+        {
+            Console.WriteLine("Dog");
+            return "i'm a Dog";
+        }
+    }
+    static void Main(string[] args)
+    {
+        Cat cat = new Cat();
+        Dog dog = new Dog();
+
+        Action&lt;string&gt; eat = new Action&lt;string&gt;(cat.Eat);
+        eat += dog.Eat;
+
+        eat("fish");
+
+        Func&lt;string&gt; who = new Func&lt;string&gt;(cat.Who);
+        who += dog.Who;
+
+        Console.WriteLine(who());
+
+        Console.WriteLine("hellow word");
+    }
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>如果 Func 路由到多個 方法
+最後的 方法 返回值 作為 Func 的 返回值
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="event"></a>
+		<p><span class="flag">事件</span>
+<pre>c# 提供了 event 關鍵字 以簡化 定義 委託變量
+
+class Animal
+{
+    public delegate void Slot();
+    public event Slot NewSlot;
+    public void Signal()
+    {
+
+        if (NewSlot != null)
+        {
+            NewSlot();
+        }
+    }
+
+    public static void CatSlot()
+    {
+        Console.WriteLine("給貓金幣");
+    }
+    public static void DogSlot()
+    {
+        Console.WriteLine("汪汪");
+    }
+    
+}
+static void Main(string[] args)
+{
+    Animal animal = new Animal();
+    animal.NewSlot += Animal.CatSlot;
+    animal.NewSlot += Animal.DogSlot;
+    animal.Signal();
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="name"></a>
+		<p><span class="flag">匿名方法</span>
+<pre>c# 可以使用 delegate 創建 匿名 函數
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>public delegate int Show(string name);
+   
+static void Main(string[] args)
+{
+
+    Show show = new Show(delegate(string name)
+        {
+            Console.WriteLine(name);
+            return 1;
+        }
+    );
+    show("king");
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>匿名方法 不能 訪問 定義方法的 ref out 參數
+
+...中 變量 不能和 外部方法的本地變量 重名
+
+...中 可以訪問外部類 作用域 中的 實例變量/靜態變量
+
+...中 本地變量可以和 外部 成員變量同名
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="lambda"></a>
+		<p><span class="flag">lambda</span>
+<pre>c# 提供了對 lambda 表達式的 支持
+
+=>前為 輸入參數 => 後為實現
+
+public delegate int Sum(int n1, int n2);
+public delegate void Show(string name);
+public delegate void Kig();
+   
+static void Main(string[] args)
+{
+    Sum sum = new Sum((l, r) =>
+    {
+        return l + r;
+    });
+    Console.WriteLine(sum(1,2));
+
+    //對於 單參數 單行代碼的 簡寫方式 
+    Show show = new Show(name => Console.WriteLine(name));
+    show("Cat");
+
+    Kig king = new Kig(()=>Console.WriteLine("dark king"));
+    king();
+
+    Console.WriteLine("hellow word");
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>c#</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#generic">泛型</a>
+		<a href="#System.Collections">System.Collections</a>
+		<a href="#InvalidCastException">裝箱 拆箱</a>
+		<a href="#T">泛型容器</a>
+	</div>
+
+	<div class="note"><a name="generic"></a>
+		<p><span class="flag">泛型</span>
+<pre>c# 從 .net2.0 開始 註冊 泛型 其相關實現 在 
+System.Collections.Generic 中
+System.Collections 中 包含了 非泛型 容器
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="System.Collections"></a>
+		<p><span class="flag">System.Collections</span>
+<pre>System.Collections 中 包含了 非泛型 容器 
+
+ArrayList
+BitArray
+Hashtable
+Queue
+SortedList
+Stack
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>ArrayList animals = new ArrayList();
+animals.AddRange(new string[]{"可達鴨", "卡帝狗"});
+animals.Add("喵貓");
+foreach (var animal in animals)
+{
+	Console.WriteLine(animal);
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="InvalidCastException"></a>
+		<p><span class="flag">裝箱 拆箱</span>
+<pre>c# 提供了 所謂的 裝箱 拆箱 用於 用 System.Object &lt;=&gt; 值型
+雖然 這是個 醜陋 難以理解的 蹩腳設計 但 ms 的 蹩腳設計從來都不 孤單
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>int lv = 999;
+//裝箱
+Object obj = lv;
+
+obj = 10;
+try
+{
+	//拆箱
+	Console.WriteLine("{0} {1}", lv, (int)obj);//999 10
+}
+catch (InvalidCastException)
+{
+}
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>裝箱 會 從新 創建 一份 值型別的 副本
+拆箱 會返回 副本
+
+如果 拆箱 型別 和裝箱 不同 將 拋出 InvalidCastException
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="T"></a>
+		<p><span class="flag">泛型容器</span>
+<pre>所有妄圖 支持泛型的 語言 都是 c++ 泛型的 蹩腳 模仿者
+
+List&lt;string&gt; animals = new List&lt;string&gt;();
+animals.Add("可達鴨");
+animals.Add("卡帝狗");
+animals.Add("喵貓");
+
+foreach (var animal in animals)
+{
+    Console.WriteLine(animal);
+}
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>public class Joker&lt;T&gt;
+{
+	public T Name { get; set; }
+};
+
+static void Main(string[] args)
+{
+
+	Joker&lt;int&gt; ji = new Joker&lt;int&gt;();
+	ji.Name = 1;
+	Console.WriteLine(ji.Name);
+
+	Joker&lt;string&gt; js = new Joker&lt;string&gt;();
+	js.Name = "tk";
+	Console.WriteLine(js.Name);
+
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>使用 default(T) 初始化 數據 類似c++的 T()
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
