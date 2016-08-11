@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>c#</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#[]">[]</a>
+		<a href="#operator">operator</a>
+		<a href="#explicit">強制轉換 explicit/implicit</a>
+		<a href="#expand">擴展方法</a>
+		<a href="#unsafe">不安全代碼</a>
+		<a href="#fixed">fixed</a>
+	</div>
+
+	<div class="note"><a name="[]"></a>
+		<p><span class="flag">[]</span>
+<pre>c# 提供了極其彆扭的 重載 [] 寫法
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>class Animals
+{
+    public List&lt;string&gt; datas = new List&lt;string&gt;();
+    
+    //operator []
+    public string this[int i]
+    {
+        get
+        {
+            return datas[i];
+        }
+        set
+        {
+            datas[i] = value;
+        }
+    }
+}
+   
+static void Main(string[] args)
+{
+    Animals animals = new Animals();
+    animals.datas.AddRange(new string[] { "喵貓", "卡帝狗", "可達鴨" });
+    animals[0] = "喵貓的喵";
+    for (int i = 0; i &lt; animals.datas.Count; i++)
+    {
+        Console.WriteLine(animals[i]);
+    }
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="operator"></a>
+		<p><span class="flag">operator</span>
+<pre>c# 提供了 操作符 重載
+寫法 基本 同 c++ 只是 其必須 為 class 的 static 方法
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="explicit"></a>
+		<p><span class="flag">強制轉換 explicit/implicit</span>
+<pre>c# 允許 使用explicit/implicit關鍵字 重載 強制轉換 操作符 
+
+explicit 定義 顯示轉換
+implicit 定義 隱示轉換
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>class Animal
+{
+    public int Type { set; get; }
+    public Animal(int n)
+    {
+        Type = n;
+    }
+}
+
+class Who
+{
+    public string Name { set; get; }
+    public static explicit operator Who(Animal a)
+    {
+        Who who = new Who();
+        if (a.Type == 0)
+        {
+            who.Name = "Cat";
+        }
+        else if (a.Type == 1)
+        {
+            who.Name = "Dog";
+        }
+        else
+        {
+            who.Name = "UnKnow";
+        }
+        return who;
+    }
+    public static explicit operator string(Who who)
+    {
+        return who.ToString();
+    }
+    public override string ToString()
+    {
+        return Name;
+    }
+}
+static void Main(string[] args)
+{
+    Animal[] animals = new Animal[] { new Animal(0), new Animal(1), new Animal(2) };
+
+    foreach (var animal in animals)
+    {
+        Console.WriteLine("{0}  {1} {2}", animal.Type, (Who)animal, (string)((Who)animal));
+    }
+
+    Console.WriteLine("hellow word");
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>定義了 隱示轉換 後 可以直接使用 顯示轉換
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="expand"></a>
+		<p><span class="flag">擴展方法</span>
+<pre>c# 支持在不改變 一個類 源碼的 情況下 創建新的 static class 為其擴展 方法
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>class Animal
+{
+    public string Name { set; get; }
+    public override string ToString()
+    {
+        return Name;
+    }
+}
+//擴展 類必須 是頂級 且 static
+static class AnimalEx
+{
+    //擴展方法 第一個參數 必須是 帶 this 的 待擴展類
+    public static void Fight(this Animal animal)
+    {
+        Console.WriteLine("瘋狂亂抓");
+    }
+}
+class Program
+{
+    static void Main(string[] args)
+    {
+        Animal animal =  new Animal();
+        animal.Name = "喵貓";
+        Console.WriteLine(animal);
+        animal.Fight();
+    }
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="unsafe"></a>
+		<p><span class="flag">不安全代碼</span>
+<pre>c# 用 unsafe {} 標記 不安全 代碼 (且必須在編譯設置中 選上 運行 不安全 代碼)
+c# 中 運行在 不安全代碼 中使用 指針
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>class Program
+{
+    static void Main(string[] args)
+    {
+        int x = 1;
+        int y = 2;
+
+        unsafe
+        {
+            swap(&x, &y);
+        }
+
+        Console.WriteLine("{0}  {1}",x,y);
+    }
+  
+    unsafe static void swap(int* l, int* r)
+    {
+        int tmp = *l;
+        *l = *r;
+        *r = tmp;
+    }
+    
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="fixed"></a>
+		<p><span class="flag">fixed</span>
+<pre>在 unsafe 代碼中 創建了 實例 並與之交互
+需要 使用 fixed 鎖定 實例 以免 其被 GC 在操作實例時 回收掉
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>class Cat
+{
+    public int Lv;
+}
+static void Main(string[] args)
+{
+    unsafe
+    {
+        Cat cat = new Cat();
+        cat.Lv = 10;
+        fixed (int* ptr = &cat.Lv)
+        {
+            Console.WriteLine(*ptr);
+        }
+    }
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

@@ -13,6 +13,7 @@
 		<a href="#System.Collections">System.Collections</a>
 		<a href="#InvalidCastException">裝箱 拆箱</a>
 		<a href="#T">泛型容器</a>
+		<a href="#std">標準容器</a>
 	</div>
 
 	<div class="note"><a name="generic"></a>
@@ -116,6 +117,81 @@ static void Main(string[] args)
 		</p>
 		<p><span class="flag">注意</span>
 <pre>使用 default(T) 初始化 數據 類似c++的 T()
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="std"></a>
+		<p><span class="flag">標準容器</span>
+<pre>c# 在 System.Collections.Generic 中 提供了 一些 已定義的 容器
+
+List		std::vector
+HashSet		boost::unordered_set
+</pre>
+		</p>
+		<p><span class="flag">HashSet example</span>
+<pre>class Animal 
+{ 
+    private string name;
+    public Animal(string name)
+    {
+        this.name = name;
+    }
+    public override string ToString()
+    {
+        return this.name;
+    }
+    public override int GetHashCode()
+    {
+        return name.GetHashCode();
+    }
+    public override bool Equals(Object x)
+    {
+        return name == ((Animal)x).name;
+    }
+    public static bool operator == (Animal l, Animal r)
+    {
+        return l.Equals(r);
+    }
+    public static bool operator != (Animal l, Animal r)
+    {
+        return !l.Equals(r);
+    }
+}
+//自定義 hash 比較
+class AnimalComparer : IEqualityComparer&lt;Animal&gt;
+{
+    public bool Equals(Animal x, Animal y)
+    {
+        return x == y;
+    }
+
+    public int GetHashCode(Animal obj)
+    {
+        return obj.GetHashCode();
+    }
+}
+static void Main(string[] args)
+{
+    HashSet&lt;Animal&gt; collection = new HashSet&lt;Animal&gt;(
+        new AnimalComparer()//為自定義 類 創建 自定義 hash 算法
+        );
+    Animal cat = new Animal("Cat");
+    Animal cat1 = new Animal("Cat");
+    Animal dog = new Animal("Dog");
+
+
+    collection.Add(cat);
+    collection.Add(cat1);
+    collection.Add(dog);
+
+    foreach (var item in collection)
+    {
+        Console.WriteLine(item);
+    }
+
+    
+    Console.WriteLine("hellow word");
+}
 </pre>
 		</p>
 	</div>
