@@ -86,6 +86,11 @@ func main() {
 
 </pre>
 		</p>
+		<p><span class="flag">注意</span>
+<pre>多個 goroutines 可調用 同一個 net.Conn 的方法
+其內部 已然同步
+</pre>
+		</p>
 	</div>
 
 </div>
