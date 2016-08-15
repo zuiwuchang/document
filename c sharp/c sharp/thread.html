@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>c#</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#thread">多線程</a>
+		<a href="#Thread">Thread</a>
+		<a href="#Interrupt">中斷線程</a>
+		<a href="#lock">同步</a>
+		<a href="#Timer">Timer</a>
+		<a href="#ThreadPool">ThreadPool</a>
+		
+	</div>
+
+	<div class="note"><a name="thread"></a>
+		<p><span class="flag">多線程</span>
+<pre>c# 在 System.Threading 下 提供了 線程操作 相關實現
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Thread"></a>
+		<p><span class="flag">Thread</span>
+<pre>class System.Threading.Thread 是線程的 核心
+
+其 static 屬性 CurrentThread 可返回當前 線程的 引用
+...	CurrentContext ... 上下文
+
+要創建 一個 thread 只需要 創建 一個 Thread 的實例
+並調用 Start 方法 即可
+</pre>
+		</p>
+		<p><span class="flag">public</span>
+<pre>Thread(ThreadStart)
+	<span class="care">public delegate void ThreadStart()</span>
+
+Thread(ParameterizedThreadStart)
+	<span class="care">public delegate void ParameterizedThreadStart(Object obj)</span>
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>class Cat
+{
+    public void Speak()
+    {
+        while (true)
+        {
+            Console.WriteLine("給貓金幣");
+            Thread.Sleep(1000);
+        }
+    }
+    public void Fight(Object who)
+    {
+        while (true)
+        {
+            Console.WriteLine("i kill a {0}", who);
+            Thread.Sleep(1000);
+        }
+    }
+}
+static void Main(string[] args)
+{
+    Cat cat = new Cat();
+    Thread thread = new Thread(new ThreadStart(cat.Speak));
+    thread.Start();
+
+    thread = new Thread(new ParameterizedThreadStart(cat.Fight));
+    thread.Start("皮卡丘");
+
+    thread.Join();
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>Thread 構造後 需要調用 Start 才能創建並運行 線程
+
+Thread 默認創建的 是前台線程 在Start前 設置 Thread.IsBackground = true 將創建 後台 線程
+C# 和其它語言不同 它不是等待 主線程 結束 而是 等待所有前台線程結束 才結束程序
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Interrupt"></a>
+		<p><span class="flag">中斷線程</span>
+<pre>c# 提供了 類似 boost interrupt 的功能
+
+Thread.Interrupt 引發一個 線程 中斷 拋出ThreadInterruptedException 異常
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>class Cat
+{
+    public void Speak()
+    {
+        try
+        {
+            while (true)
+            {
+                Console.WriteLine("給貓金幣");
+                Thread.Sleep(1000);
+      
+            }
+        }
+        catch (ThreadInterruptedException)
+        {
+
+        }
+    }
+    public void Fight(Object who)
+    {
+        while (true)
+        {
+            Console.WriteLine("i kill a {0}", who);
+            Thread.Sleep(1000);
+        }
+    }
+}
+static void Main(string[] args)
+{
+    Cat cat = new Cat();
+    Thread thread = new Thread(new ThreadStart(cat.Speak));
+    thread.Start();
+
+    Thread.Sleep(5000);
+    thread.Interrupt();
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="lock"></a>
+		<p><span class="flag">同步</span>
+<pre>同步 是所有 多線程的 噩夢
+</pre>
+		</p>
+		<p><span class="flag">lock</span>
+<pre>lock(...)	//...(一個 標識) 通常是 this 可以同步鎖定 一段 代碼 
+{
+
+}
+
+
+class Cat
+{
+	//protected Object section = new Object();
+	public void Speak()
+	{
+		//lock (section)
+		lock (this)
+		{
+			Console.Write("給貓");
+			Console.WriteLine("金幣");
+		}
+	}
+}
+static void Main(string[] args)
+{
+    Cat cat = new Cat();
+
+    for (int i = 0; i < 100; i++)
+    {
+        Thread thread = new Thread(new ThreadStart(cat.Speak));
+        thread.Start();
+    }
+
+    cat.Speak();
+}
+
+
+<span class="care">lock 其實 是Monitor類的 語法糖</span>
+class Cat
+{
+    public void Speak()
+    {
+        Monitor.Enter(this);
+        //Monitor.TryEnter(this);
+        try
+        {
+            Console.Write("給貓");
+            Console.WriteLine("金幣");
+        }
+        finally
+        {
+            Monitor.Exit(this);
+        }
+    }
+}
+</pre>
+		</p>
+		<p><span class="flag">Interlocked</span>
+<pre>Interlocked 提供了 數值 的原子操作
+
+int l = 0,r=1;
+Interlocked.Increment(ref l);   //+1
+Interlocked.Decrement(ref l);   //-1;
+Interlocked.Exchange(ref l, r); //l = r
+Interlocked.Add(ref l, 5);      //+n
+Interlocked.Add(ref l, -5);     //-n
+</pre>
+		</p>
+		<p><span class="flag">[Synchronization]</span>
+<pre>在 class 定義 前 加上 
+using System.Runtime.Remoting.Contexts;
+[Synchronization]
+可 使用 整個 類 操作 都 自動 同步
+
+[Synchronization]
+class Cat
+{
+    public void Speak()
+    {
+        Console.Write("給貓金幣");
+    }
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="loTimerck"></a>
+		<p><span class="flag">Timer</span>
+<pre>System.Threading中 提供了一個 Timer 類 用於 週期性 執行統一操作
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>class Cat
+{
+    public void Speak()
+    {
+        Console.WriteLine("給貓金幣");
+    }
+    public void TimerSpeak(Object obj)
+    {
+        Speak();
+    }
+}
+static void Main(string[] args)
+{
+    Cat cat = new Cat();
+    Timer timer = new Timer(new TimerCallback(cat.TimerSpeak),
+        null,//傳遞 給 委託的參數
+        0,  //第一次 等待時間
+        1000);  //間隔時間 
+   
+    Console.ReadLine();
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="ThreadPool"></a>
+		<p><span class="flag">ThreadPool</span>
+<pre>c# 提供了一個 線程池 使用 ThreadPool 的static 方法 操作
+ThreadPool 的線程 都是 後台 線程 且無法 修改 優先級 中斷...
+</pre>
+		</p>
+		<p><span class="flag">ThreadPool</span>
+<pre>class Cat
+{
+   
+    public void Fight(Object obj)
+    {
+        Console.WriteLine("cat kill {0}",obj);
+    }
+}
+static void Main(string[] args)
+{
+    Cat cat = new Cat();
+    ThreadPool.QueueUserWorkItem(new WaitCallback(cat.Fight),"皮卡丘"/*不參入 為null*/));
+    
+    Console.ReadLine();
+}
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>c#</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#gc">gc</a>
+		<a href="#System.GC">System.GC</a>
+		<a href="#Finalize">Finalize</a>
+		<a href="#IDisposable">IDisposable</a>
+		
+	</div>
+
+	<div class="note"><a name="gc"></a>
+		<p><span class="flag">gc</span>
+<pre>c# 使用 garbage collection 管理 內存
+
+c# 同其它 gc 語言 一樣 資源成為垃圾 後 不能保證 資源 立刻被釋放
+需要等到 下次 gc 清理 垃圾 才能被釋放
+
+c# 的 gc 使用 引用對象遍歷 而非 boost的引用計數方式
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="System.GC"></a>
+		<p><span class="flag">System.GC</span>
+<pre>System.GC 提供了 和gc交互的 static 方法
+一般 c# 程序都 不需要 調用
+然 在 和 c交互 用到 非託管資源時 這將 有用
+</pre>
+</p>
+		<p><span class="flag">function</span>
+<pre>//立刻進行 一次 gc 垃圾清理
+void Collect()
+
+//掛起當前 線程 直到所有垃圾 被gc回收 一般 在Collect之後 立刻調用
+void WaitForPendingFinalizers()
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Finalize"></a>
+		<p><span class="flag">Finalize</span>
+<pre>.net 提供了一個 protected override void Finalize() 在gc清楚垃圾後
+調用 釋放 自定義 資源
+然 對於 c# 一般不重寫 次方法 而且 創建 默認權限的析構方法 ~XXX()
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>class Cat
+{
+    ~Cat()
+    {
+        Console.WriteLine("Cat is die");
+    }
+}
+
+static void Main(string[] args)
+{
+    new Cat();
+    GC.Collect();
+    GC.WaitForPendingFinalizers();
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>Finalize 不會在對象不被使用時 立刻 被調用 
+Finalize 在GC 清理垃圾時 在銷毀對象前 被調用
+
+對於 struct 無法 提供 Finalize方法 c#中 結構 是 值類型
+Finalize 只能使用在 引用類型中
+
+
+Finalize 中 僅應該進行 非託管資源的 釋放 而不幹其它任何事
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="IDisposable"></a>
+		<p><span class="flag">IDisposable</span>
+<pre>c# 提供了一個 IDisposable 接口 其中定義了一個 Dispose方法
+用於 手動釋放 資源
+
+同時 提供了一個 using 的語法糖 用於簡寫
+XXX xxx = new XXX(...)
+try
+{
+
+}
+finally
+{
+	xxx.Dispose();	
+}
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>class Cat:IDisposable
+{
+    public void Dispose()
+    {
+        Console.WriteLine("Cat is die");
+    }
+    public void Speak()
+    {
+        Console.WriteLine("give cat some gold");
+    }
+}
+
+static void Main(string[] args)
+{
+    using (Cat cat1 = new Cat(),
+                 cat2 = new Cat())
+    {
+        cat1.Speak();
+        cat2.Speak();
+    }
+    Console.WriteLine("hellow word");
+}
+</pre>
+		</p>
+	</div>
+
+
+</div>
+</body>
+</html>

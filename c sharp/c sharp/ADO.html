@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>c#</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#ADO">ADO.NET</a>
+		<a href="#Common">Common example</a>
+	</div>
+
+	<div class="note"><a name="ADO"></a>
+		<p><span class="flag">ADO.NET</span>
+<pre>c# 提供了 ADO.NET 用於 操作 數據庫
+
+System.Data.OleDb
+System.Data.Odbc
+System.Data.SqlClient
+分片 提供了 對 ole odbc sqlserver 的操作能力
+
+System.Data.Common 下 提供了 抽象的 DbXXX 實現 對 上述 數據庫 的隱藏
+</pre>
+		</p>
+	</div>
+
+	
+
+	<div class="note"><a name="Common"></a>
+		<p><span class="flag">Common example</span>
+<pre>using System.Data.Common;
+
+namespace ConsoleApplication
+{
+   
+    class Program
+    {
+        class King
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public string Who { get; set; }
+
+            public King(int id, string name, string who)
+            {
+                Id = id;
+                Name = name;
+                Who = who;
+            }
+            public override string ToString()
+            {
+                return "孤是" + Name + "，大明" + Who + "," + Id + "。";
+            }
+        }
+        static void Main(string[] args)
+        {
+            string str_provider = "System.Data.Odbc";
+            string str_conn = "DSN=dark";
+            
+            try
+            {
+                //獲取 驅動 工廠
+                DbProviderFactory factory = DbProviderFactories.GetFactory(str_provider);
+
+                //創建 連接 對象
+                using (DbConnection conn = factory.CreateConnection())
+                {
+                    try
+                    {
+                        //連接到 數據庫
+                        conn.ConnectionString = str_conn;
+                        conn.Open();
+                        Console.WriteLine("connect success {0}", conn.State == System.Data.ConnectionState.Open);
+                        
+                        //創建 sql命令 對象
+                        DbCommand cmd = conn.CreateCommand();
+                        
+                        //執行 無返回 命令
+                        cmd.CommandText = "delete from king";
+                        cmd.ExecuteNonQuery();
+
+                        //插入數據
+                        King[] kings = new King[] { new King(0, "朱元璋", "太祖"),
+                            new King(0, "朱允炆", "惠帝"),
+                            new King(0, "朱棣", "成祖"),
+                            new King(0, "朱高熾", "仁宗")
+                            };
+                        //cmd.CommandText = "insert into king (name,who) values (@name,@who)";
+                        cmd.CommandText = "insert into king (name,who) values (?,?)";
+                        foreach (var king in kings)
+                        {
+                            DbParameter param = factory.CreateParameter();
+                            //param.ParameterName = "@name";    //mysql 不支持 @xxx 寫法
+                            param.Value = king.Name;
+                            param.DbType = System.Data.DbType.String;
+                            param.Direction = System.Data.ParameterDirection.Input;
+                            cmd.Parameters.Add(param);
+
+                            param = factory.CreateParameter();
+                            //param.ParameterName = "@who";
+                            param.Value = king.Who;
+                            param.DbType = System.Data.DbType.String;
+                            param.Direction = System.Data.ParameterDirection.Input;
+                            cmd.Parameters.Add(param);
+
+                            cmd.ExecuteNonQuery();
+                            cmd.Parameters.Clear();
+                        }
+
+                        //使用 事務
+                        DbTransaction transaction = null;
+                        try
+                        {
+                            transaction = conn.BeginTransaction();
+
+                            King[] kings2 = new King[] { new King(0, "朱祁鎮", "英宗"),
+                                new King(0, "朱祁鈺", "代宗"),
+                                new King(0, "朱見深", "憲宗"),
+                                new King(0, "朱祐樘", "孝宗"),
+                                new King(0, "朱厚照", "武宗")
+                            };
+                            
+                            foreach (var king in kings2)
+                            {
+                                //事務的 每個命令 都必須是 新的 DbCommand 實例
+                                DbCommand tc = conn.CreateCommand();
+                                //設置 事務
+                                tc.Transaction = transaction;
+
+                                tc.CommandText = "insert into king (name,who) values (?,?)";
+
+                                DbParameter param = factory.CreateParameter();
+                                param.Value = king.Name;
+                                param.DbType = System.Data.DbType.String;
+                                param.Direction = System.Data.ParameterDirection.Input;
+                                tc.Parameters.Add(param);
+
+                                param = factory.CreateParameter();
+                                param.Value = king.Who;
+                                param.DbType = System.Data.DbType.String;
+                                param.Direction = System.Data.ParameterDirection.Input;
+                                tc.Parameters.Add(param);
+
+                                tc.ExecuteNonQuery();
+                            }
+                            transaction.Commit();
+                        }
+                        catch(DbException e)
+                        {
+                            if (transaction != null)
+                            {
+                                transaction.Rollback();
+                            }
+                            throw e;
+                        }
+
+                        //查詢數據
+                        cmd.CommandText = "select * from king";
+                        using (DbDataReader r = cmd.ExecuteReader())
+                        {
+                            for (int i = 0; i < r.FieldCount; ++i)
+                            {
+                                Console.Write("{0}   ",r.GetName(i));
+                            }
+                            Console.WriteLine();
+
+                            while (r.Read())
+                            {
+                                //Console.WriteLine( new King(r.GetInt32(0), r.GetString(1), r.GetString(2)));
+                                Console.WriteLine("{0}  {1} {2}", r["id"], r["name"], r["who"]);
+                            }
+                        }
+
+                        //ExecuteReader 的輕量版本 用於 返回一個 值
+                        cmd.CommandText = "select count(*) from king";
+                        Console.WriteLine("{0} rows",cmd.ExecuteScalar());
+
+
+                    }
+                    catch (DbException e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+                }
+            }
+            catch (System.ArgumentException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            Console.WriteLine("press any key to exit");
+            Console.ReadLine();
+        }
+        
+    }
+}
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
