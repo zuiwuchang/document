@@ -36,6 +36,8 @@ func main() {
 		log.Fatalln(e)
 		return
 	}
+	defer s.Close()
+	
 	for {
 		c, e := s.Accept()
 		if e != nil {
@@ -49,6 +51,7 @@ func main() {
 func read(c net.Conn) {
 	fmt.Printf("%v in\n", c.RemoteAddr())
 	buf := make([]byte, 1024)
+	defer c.Close()
 
 	for {
 		n, e := c.Read(buf)
@@ -75,6 +78,7 @@ func main() {
 	if e != nil {
 		log.Fatalln(e)
 	}
+	defer c.Close()
 
 	var cmd string
 	for {

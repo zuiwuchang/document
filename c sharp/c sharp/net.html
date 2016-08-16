@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>c#</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#Sockets">System.Net.Sockets</a>
+		<a href="#wait">同步 Example</a>
+		<a href="#async">異步 Example</a>
+	</div>
+
+	<div class="note"><a name="Sockets"></a>
+		<p><span class="flag">System.Net.Sockets</span>
+<pre>System.Net.Sockets 對 win32 socket API 進行了 封裝
+操作 基本 同 win32 api
+然 比 win32 api 更加好用
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="wait"></a>
+		<p><span class="flag">同步 Example</span>
+<pre><span class="care">client</span>
+using System.Net.Sockets;
+namespace Client
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            //創建一個 socket
+            Socket c = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+            try
+            {
+                //連接 服務器
+                c.Connect("127.0.0.1", 1102);
+
+                //發送數據
+                string str = "i'm a soldier";
+                c.Send(System.Text.Encoding.UTF8.GetBytes(str));
+
+                //讀取數據
+                byte[] buf = new byte[1024];
+                int n = c.Receive(buf);
+                str = System.Text.Encoding.UTF8.GetString(buf, 0, n);
+                Console.WriteLine(str);
+            }
+            catch (SocketException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+
+            Console.WriteLine("press any key to exit");
+            Console.ReadLine();
+        }
+    }
+}
+
+
+<span class="care">server</span>
+using System.Net.Sockets;
+
+namespace Server
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            //創建一個 socket
+            Socket l = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+            try 
+            {
+                //綁定 socket
+                l.Bind(new System.Net.IPEndPoint(System.Net.IPAddress.Any, 1102));
+                
+                //監聽 socket
+                l.Listen(50);
+            
+                
+                //接受連接
+                while(true)
+                {
+                    Socket c = l.Accept();
+                    Console.WriteLine("{0} in", c.RemoteEndPoint);
+
+                    try
+                    {
+                        //發送數據
+                        string str = "welcome to cerberus's server";
+                        c.Send(System.Text.Encoding.UTF8.GetBytes(str));
+                    }
+                    finally
+                    {
+                        Console.WriteLine("{0} out", c.RemoteEndPoint);
+                    }
+                }
+            }
+            catch (SocketException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+    }
+}
+
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="async"></a>
+		<p><span class="flag">異步 Example</span>
+<pre>System.Net.Sockets 相對 同步操作 提供了 異步 api
+BeginXXX EndXXX
+
+一般用 BeginXXX 替換同步 XXX
+在 BeginXXX AsyncCallback 中 需要 調用 EndXXX 通知數據已被處理
+</pre>
+		</p>
+		<p><span class="flag">Example</span>
+<pre><span class="care">server</span>
+using System.Net.Sockets;
+
+namespace Server
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            //創建一個 socket
+            Socket l = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+            try 
+	        {
+                //綁定 socket
+                l.Bind(new System.Net.IPEndPoint(System.Net.IPAddress.Any, 1102));
+		        
+                //監聽 socket
+                l.Listen(50);
+
+                //投遞新的 accept
+                for (int i = 0; i < Environment.ProcessorCount; i++)
+                {
+                    PostAccept(l);   
+                }
+            }
+	        catch (SocketException e)
+	        {
+                Console.WriteLine(e.Message);
+	        }
+            
+            Console.WriteLine("press any key to exit");
+            Console.ReadLine();
+        }
+        static void PostAccept(Socket l)
+        {
+            
+            //異步 accept
+            l.BeginAccept(asyncResult =>
+            {
+                //投遞新的 accept
+                PostAccept(l);
+
+                //返回 客戶端
+                Socket c = l.EndAccept(asyncResult);
+                Console.WriteLine("{0} in",c.RemoteEndPoint);
+
+                //投遞新的 write
+                PostWrite(c, "this is cerberus's server");
+
+                //投遞新的 recv
+                PostRecv(c);
+            }, null);
+        }
+        static void PostWrite(Socket c, string str)
+        {
+            byte[] buf = System.Text.Encoding.UTF8.GetBytes(str);
+            try
+            {
+                c.BeginSend(buf, 0, buf.Length, SocketFlags.None, asyncResult =>
+                {
+                    try
+                    {
+                        c.EndSend(asyncResult);
+                    }
+                    catch (SocketException e)
+                    {
+                        Console.WriteLine(e.Message);
+                        Console.WriteLine("{0} out", c.RemoteEndPoint);
+                    }
+
+                }, null);
+            }
+            catch (SocketException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine("{0} out", c.RemoteEndPoint);
+            }
+ 
+        }
+        static void PostRecv(Socket c)
+        {
+            byte[] buf = new byte[1024];
+            try
+            {
+                c.BeginReceive(buf, 0, buf.Length, SocketFlags.None,
+                asyncResult =>
+                {
+                    //返回數據
+                    try
+                    {
+                        int n = c.EndReceive(asyncResult);
+                        string str = System.Text.Encoding.UTF8.GetString(buf, 0, n);
+                        Console.WriteLine("recv ({0}) : {1}", c.RemoteEndPoint, str);
+
+                        //投遞新的 recv
+                        PostRecv(c);
+                    }
+                    catch (SocketException e)
+                    {
+                        Console.WriteLine(e.Message);
+                        Console.WriteLine("{0} out", c.RemoteEndPoint);
+                    }
+                }, null);
+            }
+            catch (SocketException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine("{0} out", c.RemoteEndPoint);
+            }
+ 
+        }
+    }
+}
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>異步調用 發生在其它 crl 線程 故操作共享數據需要同步之
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
