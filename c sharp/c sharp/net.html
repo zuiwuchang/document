@@ -217,6 +217,11 @@ namespace Server
                     try
                     {
                         int n = c.EndReceive(asyncResult);
+                        if (n < 1)
+                        {
+                            Console.WriteLine("{0} out", c.RemoteEndPoint);
+                            return;
+                        }
                         string str = System.Text.Encoding.UTF8.GetString(buf, 0, n);
                         Console.WriteLine("recv ({0}) : {1}", c.RemoteEndPoint, str);
 

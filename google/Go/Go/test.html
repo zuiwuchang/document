@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#test">單元測試</a>
+	</div>
+
+	<div class="note"><a name="test"></a>
+		<p><span class="flag">單元測試</span>
+<pre>go 提供了 簡單 實用的 單元測試框架
+
+1	創建 測試文件 XXX_test.go
+2	在測試文件中 import testing
+3	創建 測試 方法 TestXXX(t *testing.T)
+4	在TestXXX中 如果 出錯 調用 t.FatalXXX t.ErrorXXX ...
+5	執行 go test 執行 測試
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"testing"
+)
+
+func TestExample(t *testing.T) {
+	t.Fatal("example")
+}
+
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>XXX_test.go 中 多個 TestXXX 將 安裝 定義順序 執行
+
+t.FatalXXX 或讓 當前 TestXXX 方法 停止執行 之後 的 代碼
+當 不會影響 其他 TestXXX
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

@@ -434,6 +434,153 @@ int _tmain(int argc, _TCHAR* argv[])
 </pre>
 		</p>
 		<p><span class="flag">server example</span>
+<pre>// asio-server.cpp : 定义控制台应用程序的入口点。
+//
+
+#include "stdafx.h"
+#include &lt;boost/smart_ptr.hpp&gt;
+#include &lt;boost/asio.hpp&gt;
+#include &lt;boost/thread.hpp&gt;
+
+typedef boost::shared_ptr&lt;boost::asio::io_service&gt; ios_ptr_t;
+typedef boost::shared_ptr&lt;boost::asio::ip::tcp::acceptor&gt; acceptor_ptr_t;
+typedef boost::shared_ptr&lt;boost::asio::ip::tcp::socket&gt; socket_ptr_t;
+
+void post_accept(ios_ptr_t ios,acceptor_ptr_t acceptor);
+void post_accept_handler(const boost::system::error_code& e,ios_ptr_t ios,acceptor_ptr_t acceptor,socket_ptr_t s);
+void post_recv(socket_ptr_t s,boost::shared_array&lt;char&gt; buf);
+void post_recv_handler(const boost::system::error_code& e,socket_ptr_t s,boost::shared_array&lt;char&gt; buf,std::size_t n);
+void post_send(socket_ptr_t s,const std::string& str);
+void post_send_handler(const boost::system::error_code& e,socket_ptr_t s,boost::shared_array&lt;char&gt; buf,std::size_t n);
+void work_thread(ios_ptr_t ios);
+int _tmain(int argc, _TCHAR* argv[])
+{
+	
+
+	//前攝器
+	ios_ptr_t ios = boost::make_shared&lt;boost::asio::io_service&gt;();
+	
+	//創建 接受器
+	acceptor_ptr_t acceptor;
+	try
+	{
+		acceptor = boost::make_shared&lt;boost::asio::ip::tcp::acceptor&gt;(*ios,
+			boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(),1102)
+		);
+	}
+	catch(const boost::system::system_error& e)
+	{
+		std::cout&lt;&lt;e.what()&lt;&lt;"\n";
+		std::system("pause");
+		return 0;
+	}
+
+	//投遞 異步 accept 
+	for(unsigned int i = 0 ; i &lt; boost::thread::hardware_concurrency() * 2 + 2 ; ++i)
+	{
+		post_accept(ios,acceptor);	
+	}
+
+	//運行工作 線程
+	boost::thread_group threads;
+	for(unsigned int i = 0 ; i &lt; boost::thread::hardware_concurrency() * 2 + 2 ; ++i)
+	{
+		threads.add_thread(new boost::thread(boost::bind(work_thread,ios)));
+	}
+
+	threads.join_all();
+
+	return 0;
+}
+void work_thread(ios_ptr_t ios)
+{
+	//運行服務
+	ios->run();
+}
+void post_accept(ios_ptr_t ios,acceptor_ptr_t acceptor)
+{
+	socket_ptr_t s = boost::make_shared&lt;boost::asio::ip::tcp::socket&gt;(*ios);
+	acceptor->async_accept(*s,
+		boost::bind(post_accept_handler,
+		boost::asio::placeholders::error,
+		ios,
+		acceptor,
+		s)
+	);
+}
+void post_accept_handler(const boost::system::error_code& e,ios_ptr_t ios,acceptor_ptr_t acceptor,socket_ptr_t s)
+{
+	//投遞 新的 異步 accept
+	post_accept(ios,acceptor);
+	if(e)
+	{
+		return;	
+	}
+
+	{
+		std::cout&lt;&lt;s->remote_endpoint()&lt;&lt;" in\n";
+		post_send(s,"this is cerberus's server");
+	}
+
+	//投遞 異步 recv
+	boost::shared_array&lt;char&gt; buf(new char[1024]);
+	post_recv(s,buf);
+}
+void post_send(socket_ptr_t s,const std::string& str)
+{
+	boost::shared_array&lt;char&gt; buf(new char[str.size()]);
+	memcpy(buf.get(),str.data(),str.size());
+
+	s->async_write_some(boost::asio::buffer(buf.get(),str.size()),
+		boost::bind(post_send_handler,
+		boost::asio::placeholders::error,
+		s,
+		buf,
+		boost::asio::placeholders::bytes_transferred
+		)
+	);
+}
+void post_send_handler(const boost::system::error_code& e,socket_ptr_t s,boost::shared_array&lt;char&gt; buf,std::size_t n)
+{
+	if(e)
+	{
+		return;
+	}
+}
+void post_recv(socket_ptr_t s,boost::shared_array&lt;char&gt; buf)
+{
+	s->async_read_some(boost::asio::buffer(buf.get(),1024),
+		boost::bind(post_recv_handler,
+		boost::asio::placeholders::error,
+		s,
+		buf,
+		boost::asio::placeholders::bytes_transferred
+		)
+	);
+}
+void post_recv_handler(const boost::system::error_code& e,socket_ptr_t s,boost::shared_array&lt;char&gt; buf,std::size_t n)
+{
+	if(e)
+	{
+		//連接斷開
+		std::cout&lt;&lt;s->remote_endpoint()&lt;&lt;" out\n";
+		return;
+	}
+
+	std::string str(buf.get(),n);
+	std::cout&lt;&lt;"recv "&lt;&lt;s->remote_endpoint()&lt;&lt;" : "&lt;&lt;str&lt;&lt;"\n";
+
+	if(str == "i wan't join cerberus")
+	{
+		post_send(s,"you are cerberus's soldier now");
+	}
+
+	//投遞 異步 recv
+	post_recv(s,buf);
+}
+</pre>
+		</p>
+		<p><span class="flag">server example</span>
 <pre>#include&lt;boost\asio.hpp&gt;
 #include&lt;boost\noncopyable.hpp&gt;
 #include&lt;boost\thread.hpp&gt;
