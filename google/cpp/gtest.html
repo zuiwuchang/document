@@ -1,0 +1,172 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>v8</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#gtest">gtest</a>
+		<a href="#vs">環境配置 vs</a>
+		<a href="#how">how</a>
+		<a href="#ASSERT">斷言</a>
+	</div>
+
+	<div class="note"><a name="gtest"></a>
+		<p><span class="flag">gtest</span>
+<pre>gtest 是 Google 為c++ 提供的一個 開源(BSD) 單元測試 庫
+
+官網 <a href="https://github.com/google/googletest/" target="_blank">https://github.com/google/googletest/</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="vs"></a>
+		<p><span class="flag">環境配置 vs</span>
+<pre>1	下載 最新 源碼
+2	打開 googletest/msvc/gtest.sln googletest/msvc/gtest-md.sln 項目
+3	分別編譯 md mt 版本 靜態庫
+4	將 靜態庫 googletest/include 加入項目
+</pre>
+		</p>
+	</div>
+	
+	<div class="note"><a name="how"></a>
+		<p><span class="flag">how</span>
+<pre>1	使用 Test 宏定義測試代碼段
+2	在測試範圍中 使用 EXPECT_* ASSER_* 設置 檢查點
+3	使用 testing::InitGoogleTest(&argc, argv); 初始化 測試
+4	使用 RUN_ALL_TESTS(); 運行 所有 測試
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;gtest/gtest.h&gt;
+
+#ifdef _DEBUG
+#pragma comment(lib,"gtest-mdd.lib")
+#else
+#pragma comment(lib,"gtest-md.lib")
+#endif
+
+TEST(ExampleTest, HandleNoneZeroInput)
+{
+	//使用 == 比較相等
+	EXPECT_EQ(1,1);
+	EXPECT_EQ(std::string("12"),"12");
+}
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//初始化 測試框架
+	testing::InitGoogleTest(&argc, argv);
+	//運行 全部測試
+	int rs = RUN_ALL_TESTS();
+	std::system("pause");
+	return rs;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="ASSERT"></a>
+		<p><span class="flag">斷言</span>
+<pre>gtest 提供了 兩類 斷言的 宏 
+ASSERT_*** EXPECT_***
+其功能 一致 只是 ASSERT_ 檢查到出錯 將退出當前函數 而 EXPECT_將繼續執行後續代碼
+</pre>
+		</p>
+		<p><span class="flag">宏</span>
+<pre>//比較 true false
+EXPECT_TRUE(1);
+EXPECT_FALSE(false);
+
+//使用 運算符 比較
+EXPECT_EQ(1,1);		//==
+EXPECT_NE(1,10);	//!=
+EXPECT_LT(1,2);		//<
+EXPECT_LE(1,2);		//<=
+EXPECT_GT(2,1);		//>
+EXPECT_GE(2,1);		//>=
+
+//c 字符串 比較
+EXPECT_STREQ("1","1");		//==
+EXPECT_STRNE("1","2");		//!=
+EXPECT_STRCASEEQ("a","A");	//忽略大小寫 ==
+EXPECT_STRCASENE("a","B");	//忽略大小寫 !=
+	<span class="care">字符串 比較 支持 char* 和 wchar_t*</span>
+
+//成功 失敗 標記
+SUCCEED();
+FAIL();		//設置出錯標記 並使 函數 返回 ASSERT 版本
+ADD_FAILURE();	//同FAIL 只是 EXPEC 版本
+
+//異常檢測
+EXPECT_THROW(throw std::exception("test"),std::exception);	//將會拋出指定異常
+EXPECT_ANY_THROW(throw 1);					//將會拋出任意異常
+EXPECT_NO_THROW(true);						//沒有異常拋出
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>// CppSharedPtrBugTest.cpp : 定义控制台应用程序的入口点。
+//
+
+#include "stdafx.h"
+
+#include &lt;gtest/gtest.h&gt;
+
+#ifdef _DEBUG
+#pragma comment(lib,"gtest-mdd.lib")
+#else
+#pragma comment(lib,"gtest-md.lib")
+#endif
+
+TEST(ExampleTest, HandleNoneZeroInput)
+{
+	//比較 true false
+	EXPECT_TRUE(1);
+	EXPECT_FALSE(false);
+
+	//使用 運算符 比較
+	EXPECT_EQ(1,1);		//==
+	EXPECT_NE(1,10);	//!=
+	EXPECT_LT(1,2);		//&lt;
+	EXPECT_LE(1,2);		//&lt;=
+	EXPECT_GT(2,1);		//&gt;
+	EXPECT_GE(2,1);		//&gt;=
+		
+	//c 字符串 比較
+	EXPECT_STREQ("1","1");		//==
+	EXPECT_STRNE("1","2");		//!=
+	EXPECT_STRCASEEQ("a","A");	//忽略大小寫 ==
+	EXPECT_STRCASENE("a","B");	//忽略大小寫 !=
+
+	//異常檢測
+	EXPECT_THROW(throw std::exception("test"),std::exception);	//將會拋出指定異常
+	EXPECT_ANY_THROW(throw 1);		//將會拋出任意異常
+	EXPECT_NO_THROW(true);		//沒有異常拋出
+	
+	//檢查函數返回 true 且 輸出 函數 調用 參數
+	EXPECT_PRED1(printf,"show param 1 ...\n");
+	EXPECT_PRED2(printf,"show param 2 ... %d\n",2);
+	//EXPECT_PREDn
+
+}
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	//初始化 測試框架
+	testing::InitGoogleTest(&argc, argv);
+	//運行 全部測試
+	int rs = RUN_ALL_TESTS();
+
+	std::system("pause");
+    return rs;
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
