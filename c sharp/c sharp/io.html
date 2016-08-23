@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>c#</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#System.IO">System.IO</a>
+		<a href="#DirectoryInfo">DirectoryInfo</a>
+		<a href="#DriveInfo">DriveInfo</a>
+		<a href="#FileStream">FileStream</a>
+		<a href="#Serialization">對象序列化</a>
+		
+	</div>
+
+	<div class="note"><a name="System.IO"></a>
+		<p><span class="flag">System.IO</span>
+<pre>System.IO 中包含了 io功能
+
+BinaryReader BinaryWriter	以二進制輸入輸出 基本型別到數據流
+BufferedStream			為輸入輸出流 添加一個緩衝區
+Directory DirectoryInfo		操作os目錄
+File FileInfo			文件操作
+FileStream			以字節流 隨機訪問文件
+FileSystemWatcher		監控對文件的修改
+MemoryStream			對內存中 數據流 提供 隨機訪問
+Path				文件文件目錄等提供平台無關操作
+StreamReader StreamWriter	文本讀寫文件 不能隨機訪問
+StringReader StringWriter	...不過是針對字符串 而非文件
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="DirectoryInfo"></a>
+		<p><span class="flag">DirectoryInfo</span>
+<pre>DirectoryInfo 提供了對 os 文件系統的 操作 能力 
+(Directory 的 static 方法 提供了類似 功能 然 其 參數 返回值 大多為 string 
+而非 像 DirectoryInfo 一樣 需要 class)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>static void Main(string[] args)
+{
+    DirectoryInfo dir = new DirectoryInfo(".");
+    Console.WriteLine("當前路徑:{0}", dir.FullName);
+    Console.WriteLine("父目錄:{0}", dir.Parent.FullName);
+    Console.WriteLine("根目錄:{0}", dir.Root);
+    Console.WriteLine("屬性:{0}", dir.Attributes);
+    if (!dir.Exists)
+    {
+        dir.Create();
+    }
+    //創建 子目錄
+    dir.CreateSubdirectory(@"cerberus/dark king");
+    
+    //刪除 文件目錄 ture 如果目錄中 存在其它文件 一併刪除
+    DirectoryInfo info = new DirectoryInfo(@"./cerberus");
+    info.Delete(true);
+
+    //枚舉 子目錄
+    FileInfo[] infos = dir.GetFiles("*.exe", SearchOption.AllDirectories);
+    foreach (var item in infos)
+    {
+        Console.WriteLine("***  begin   ***");
+        Console.WriteLine("name :   {0}", item.Name);
+        Console.WriteLine("ext :   {0}", item.Extension);
+        Console.WriteLine("size :   {0}", item.Length);
+        Console.WriteLine("***  end   ***");
+    }
+
+    Console.WriteLine("press any key to exit");
+    Console.ReadLine();
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="DriveInfo"></a>
+		<p><span class="flag">DriveInfo</span>
+<pre>DriveInfo 可以獲取 驅動器 信息
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>static void Main(string[] args)
+{
+    DriveInfo[] infos = DriveInfo.GetDrives();
+    foreach (var item in infos)
+    {
+        Console.WriteLine("name :   {0}", item.Name);
+        Console.WriteLine("type :   {0}", item.DriveType);
+        if (item.IsReady)
+        {
+            Console.WriteLine("size :   {0}", item.TotalSize);
+            Console.WriteLine("free :   {0}", item.TotalFreeSpace);
+        }
+    }
+
+    Console.WriteLine("press any key to exit");
+    Console.ReadLine();
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="FileStream"></a>
+		<p><span class="flag">FileStream</span>
+<pre>FileStream 提供了文件 讀寫能力
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>static void Main(string[] args)
+{
+    FileInfo f = new FileInfo("d:/kate.jpg");
+    if (!f.Exists)
+    {
+        return;
+    }
+    Console.WriteLine("size :   {0}", f.Length);
+    
+    using (FileStream fr = f.Open(FileMode.Open,FileAccess.Read))
+    {
+        FileInfo f1 = new FileInfo("d:/kate2.jpg");
+        using (FileStream fw = f1.Create())
+        {
+            byte[] bytes = new byte[1024];
+            while (fr.Position < fr.Length)
+            {
+                int n = fr.Read(bytes, 0, bytes.Length);
+                fw.Write(bytes, 0, n);
+            }
+        }
+    }
+
+    Console.WriteLine("press any key to exit");
+    Console.ReadLine();
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>對文件 讀寫 和對數據庫 類型 操作完後 需要 手動調用 Close()/Dispose(); 釋放非託管資源
+(當然 不調用 亦可 如果 可以忍受 資源等到 gc時才被釋放)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Serialization"></a>
+		<p><span class="flag">對象序列化</span>
+<pre>c# 提供了 簡單 的 序列化 方式
+只需要 為 class 加上 [Serializable] 標記 即可
+[NonSerialized] 可 讓 指定 成員 不被序列化
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>[Serializable]
+public class Animal
+{
+    public int Lv;
+    public string Name;
+    [NonSerialized]
+    public int Random;
+
+    public override string ToString()
+    {
+        return String.Format("i'm {0},my lv is {1},random = {2}", Name, Lv, Random);
+    }
+};
+
+class Program
+{
+
+    static void Main(string[] args)
+    {
+        Animal cat = new Animal() { Lv = 9, Name = "喵貓", Random = 10 };
+        Console.WriteLine(cat);
+
+        //binary
+        System.Runtime.Serialization.Formatters.Binary.BinaryFormatter fmt = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+        MemoryStream ms1 = new MemoryStream();
+        
+        //序列化
+        fmt.Serialize(ms1, cat);
+        
+        //反序列化
+        ms1.Position = 0;
+        Animal cat1 = fmt.Deserialize(ms1) as Animal;
+        Console.WriteLine(cat1);
+
+
+
+        //xml
+        System.Xml.Serialization.XmlSerializer xml = new System.Xml.Serialization.XmlSerializer(typeof(Animal));
+        MemoryStream ms2 = new MemoryStream();
+
+        //序列化
+        xml.Serialize(ms2, cat);
+        Console.WriteLine(System.Text.Encoding.UTF8.GetString(ms2.GetBuffer()));
+
+        //反序列化
+        ms2.Position = 0;
+        Animal cat3 = xml.Deserialize(ms2) as Animal;
+        Console.WriteLine(cat3);
+
+        Console.WriteLine("press any key to exit");
+        Console.ReadLine();
+    }
+   
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>BinaryFormatter 序列化的 二進制 數據 保存了 .net 信息 
+故和 c++中 直接 保存的內存 二進制數據是不同的
+
+XmlSerializer 將序列化到 utf8 字符串
+且 XmlSerializer 要求 被序列化 的 class 為 public
+
+序列化 會將 祖先類的 數據 一起 序列化
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

@@ -434,13 +434,14 @@ int _tmain(int argc, _TCHAR* argv[])
 </pre>
 		</p>
 		<p><span class="flag">server example</span>
-<pre>// asio-server.cpp : 定义控制台应用程序的入口点。
-//
-
-#include "stdafx.h"
-#include &lt;boost/smart_ptr.hpp&gt;
+<pre>#include &lt;boost/smart_ptr.hpp&gt;
 #include &lt;boost/asio.hpp&gt;
 #include &lt;boost/thread.hpp&gt;
+
+#include &lt;dark-cpp/io/msg/reader.hpp&gt;
+#include &lt;dark-cpp/io/msg/writer.hpp&gt;
+
+#define IO_BUFFER_SIZE	1024
 
 typedef boost::shared_ptr&lt;boost::asio::io_service&gt; ios_ptr_t;
 typedef boost::shared_ptr&lt;boost::asio::ip::tcp::acceptor&gt; acceptor_ptr_t;
@@ -448,15 +449,23 @@ typedef boost::shared_ptr&lt;boost::asio::ip::tcp::socket&gt; socket_ptr_t;
 
 void post_accept(ios_ptr_t ios,acceptor_ptr_t acceptor);
 void post_accept_handler(const boost::system::error_code& e,ios_ptr_t ios,acceptor_ptr_t acceptor,socket_ptr_t s);
-void post_recv(socket_ptr_t s,boost::shared_array&lt;char&gt; buf);
-void post_recv_handler(const boost::system::error_code& e,socket_ptr_t s,boost::shared_array&lt;char&gt; buf,std::size_t n);
-void post_send(socket_ptr_t s,const std::string& str);
-void post_send_handler(const boost::system::error_code& e,socket_ptr_t s,boost::shared_array&lt;char&gt; buf,std::size_t n);
+void post_recv(socket_ptr_t s,boost::shared_array&lt;char&gt; buf,dark::io::msg::reader_t reader);
+void post_recv_handler(const boost::system::error_code& e,socket_ptr_t s,boost::shared_array&lt;char&gt; buf,std::size_t n,dark::io::msg::reader_t reader);
+void post_send(socket_ptr_t s,dark::io::msg::message_t msg);
+void post_send_handler(const boost::system::error_code& e,socket_ptr_t s,dark::io::msg::message_t msg,std::size_t n);
 void work_thread(ios_ptr_t ios);
+
+std::size_t get_id()
+{
+	static std::size_t id = 0;
+	static boost::mutex mutex;
+
+	boost::mutex::scoped_lock lock(mutex);
+	return ++id;
+}
 int _tmain(int argc, _TCHAR* argv[])
 {
 	
-
 	//前攝器
 	ios_ptr_t ios = boost::make_shared&lt;boost::asio::io_service&gt;();
 	
@@ -467,6 +476,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		acceptor = boost::make_shared&lt;boost::asio::ip::tcp::acceptor&gt;(*ios,
 			boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(),1102)
 		);
+		puts("listen at :1102");
 	}
 	catch(const boost::system::system_error& e)
 	{
@@ -495,7 +505,7 @@ int _tmain(int argc, _TCHAR* argv[])
 void work_thread(ios_ptr_t ios)
 {
 	//運行服務
-	ios->run();
+	ios-&gt;run();
 }
 void post_accept(ios_ptr_t ios,acceptor_ptr_t acceptor)
 {
@@ -516,231 +526,92 @@ void post_accept_handler(const boost::system::error_code& e,ios_ptr_t ios,accept
 	{
 		return;	
 	}
-
-	{
-		std::cout&lt;&lt;s->remote_endpoint()&lt;&lt;" in\n";
-		post_send(s,"this is cerberus's server");
-	}
+	
+	std::cout&lt;&lt;s-&gt;remote_endpoint()&lt;&lt;" in\n";
+		
+	//send
+	dark::io::msg::writer_t writer;
+	writer.write(std::string("this is cerberus's server"));
+	dark::io::msg::message_t msg = writer.create_message(get_id());
+	post_send(s,msg);
+	
+	writer.write(std::string("cerberus it's an idea"));
+	msg = writer.create_message(get_id());
+	post_send(s,msg);
 
 	//投遞 異步 recv
-	boost::shared_array&lt;char&gt; buf(new char[1024]);
-	post_recv(s,buf);
+	dark::io::msg::reader_t reader;
+	boost::shared_array&lt;char&gt; buf(new char[IO_BUFFER_SIZE]);
+	post_recv(s,buf,reader);
 }
-void post_send(socket_ptr_t s,const std::string& str)
+void post_send(socket_ptr_t s,dark::io::msg::message_t msg)
 {
-	boost::shared_array&lt;char&gt; buf(new char[str.size()]);
-	memcpy(buf.get(),str.data(),str.size());
-
-	s->async_write_some(boost::asio::buffer(buf.get(),str.size()),
+	dark::io::msg::data_t data = msg.data();
+	s-&gt;async_write_some(boost::asio::buffer(data.get(),data.size()),
 		boost::bind(post_send_handler,
 		boost::asio::placeholders::error,
 		s,
-		buf,
+		msg,
 		boost::asio::placeholders::bytes_transferred
 		)
 	);
 }
-void post_send_handler(const boost::system::error_code& e,socket_ptr_t s,boost::shared_array&lt;char&gt; buf,std::size_t n)
+void post_send_handler(const boost::system::error_code& e,socket_ptr_t s,dark::io::msg::message_t msg,std::size_t n)
 {
 	if(e)
 	{
 		return;
 	}
 }
-void post_recv(socket_ptr_t s,boost::shared_array&lt;char&gt; buf)
+void post_recv(socket_ptr_t s,boost::shared_array&lt;char&gt; buf,dark::io::msg::reader_t reader)
 {
-	s->async_read_some(boost::asio::buffer(buf.get(),1024),
+	s-&gt;async_read_some(boost::asio::buffer(buf.get(),IO_BUFFER_SIZE),
 		boost::bind(post_recv_handler,
 		boost::asio::placeholders::error,
 		s,
 		buf,
-		boost::asio::placeholders::bytes_transferred
+		boost::asio::placeholders::bytes_transferred,
+		reader
 		)
 	);
 }
-void post_recv_handler(const boost::system::error_code& e,socket_ptr_t s,boost::shared_array&lt;char&gt; buf,std::size_t n)
+void post_recv_handler(const boost::system::error_code& e,socket_ptr_t s,boost::shared_array&lt;char&gt; buf,std::size_t n,dark::io::msg::reader_t reader)
 {
 	if(e)
 	{
 		//連接斷開
-		std::cout&lt;&lt;s->remote_endpoint()&lt;&lt;" out\n";
+		std::cout&lt;&lt;s-&gt;remote_endpoint()&lt;&lt;" out\n";
 		return;
 	}
 
-	std::string str(buf.get(),n);
-	std::cout&lt;&lt;"recv "&lt;&lt;s->remote_endpoint()&lt;&lt;" : "&lt;&lt;str&lt;&lt;"\n";
-
-	if(str == "i wan't join cerberus")
+	reader.write(buf.get(),n);
+	while(true)
 	{
-		post_send(s,"you are cerberus's soldier now");
+		dark::io::msg::message_t msg = reader.get_message();
+		if(!msg)
+		{
+			break;
+		}
+		dark::io::msg::body_t body = msg.body();
+		std::string str(body,body.size());
+
+		if(str == "i want join cerberus")
+		{
+			dark::io::msg::writer_t writer;
+			writer.write(std::string("you are cerberus soldier now"));
+			dark::io::msg::message_t msg = writer.create_message(get_id());
+			post_send(s,msg);
+		}
 	}
 
 	//投遞 異步 recv
-	post_recv(s,buf);
-}
-</pre>
-		</p>
-		<p><span class="flag">server example</span>
-<pre>#include&lt;boost\asio.hpp&gt;
-#include&lt;boost\noncopyable.hpp&gt;
-#include&lt;boost\thread.hpp&gt;
-#include&lt;boost\smart_ptr.hpp&gt;
-#include&lt;boost\unordered_set.hpp&gt;
-
-using namespace boost::asio;
-
-
-class server
-	: boost::noncopyable
-{	
-private:
-	//前攝器
-	boost::asio::io_service ios;
-	//連接器
-	boost::asio::ip::tcp::acceptor acceptor;
-
-	//客戶端 散列表
-	typedef boost::shared_ptr&lt;boost::asio::ip::tcp::socket&gt; socket_ptr_t;
-	boost::unordered_set&lt;socket_ptr_t&gt; set;
-	boost::unordered_set&lt;socket_ptr_t&gt; set_standby;
-	friend std::size_t hash_value(const server::socket_ptr_t value);
-
-	unsigned int buf_length;
-	typedef boost::shared_ptr&lt;std::vector&lt;char&gt;&gt; buffer_ptr_t;
-public:
-	inline unsigned int buffer_length()const
-	{
-		return buf_length;
-	}
-	void buffer_length(const unsigned int buffer_length)
-	{
-		buf_length	=	buffer_length;
-	}
-public:
-	server(const boost::asio::ip::tcp::endpoint& endpoint,const unsigned int buffer_length	=	10240)
-		: acceptor(ios,endpoint)
-		,buf_length(buffer_length)
-	{
-
-		std::cout&lt;&lt;"listen at "&lt;&lt;endpoint.port()&lt;&lt;"\n";
-
-		//投遞 接受客戶端連接
-		start(false);
-	}
-	inline void run()
-	{
-		ios.run();
-	}
-private:
-	void start(bool is_once	=	true)
-	{
-		unsigned int count	=	1;
-		if(!is_once)
-		{
-			count	=	boost::thread::hardware_concurrency()  + 2;
-		}
-		for(unsigned int i = 0 ; i &lt; count ; ++i)
-		{
-			socket_ptr_t tmp_socket_ptr	=	boost::make_shared&lt;boost::asio::ip::tcp::socket&gt;(ios);
-
-			//接受連接 綁定連接 完成處理函數
-			acceptor.async_accept(*tmp_socket_ptr
-				,boost::bind(&amp;server::accept_handler
-					,this
-					,boost::asio::placeholders::error
-					,tmp_socket_ptr
-					)
-				);
-		}
-	}
-	void accept_handler(const boost::system::error_code&amp; e,socket_ptr_t socket_ptr)
-	{
-		//再來給連接
-		start();
-
-		if(e)
-		{
-			return;
-		}
-
-		//連接成功 加入到 客戶端 散列表中
-		set.insert(socket_ptr);
-
-		buffer_ptr_t buf_ptr	=	boost::make_shared&lt;std::vector&lt;char&gt;&gt;(buf_length,0);
-		socket_ptr->async_read_some(boost::asio::buffer(*buf_ptr)
-			,boost::bind(&amp;server::read_handler
-				,this
-				,boost::asio::placeholders::error
-				,socket_ptr
-				,buf_ptr
-				)
-			);
-
-		std::cout&lt;&lt;"client port:"&lt;&lt;socket_ptr-&gt;remote_endpoint().port()
-			&lt;&lt;"\tclient address:"&lt;&lt;socket_ptr-&gt;remote_endpoint().address()
-			&lt;&lt;"\n";
-
-		//write
-		boost::shared_ptr&lt;std::string&gt; buf_write_ptr	=	boost::make_shared&lt;std::string&gt;("i'm come in");
-		socket_ptr-&gt;async_write_some(boost::asio::buffer(*buf_write_ptr)
-			,boost::bind(&amp;server::write_handler
-				,this
-				,boost::asio::placeholders::error
-				,buf_write_ptr
-				)
-			);
-	}
-
-	void read_handler(const boost::system::error_code&amp; e,socket_ptr_t socket_ptr,buffer_ptr_t buf_ptr)
-	{
-		//連接斷開 釋放資源
-		if(e)
-		{
-			std::cout&lt;&lt;"leave : "&lt;&lt;socket_ptr-&gt;remote_endpoint().port()&lt;&lt;"\t"&lt;&lt;socket_ptr-&gt;remote_endpoint().address()
-				&lt;&lt;"\n";
-
-			set.erase(socket_ptr);
-			return;
-		}
-
-		//處理接收到數據
-		std::cout&lt;&lt;"from:"&lt;&lt;socket_ptr-&gt;remote_endpoint().port()&lt;&lt;"\t"&lt;&lt;socket_ptr-&gt;remote_endpoint().address()
-			&lt;&lt;"\tdata:\t"&lt;&lt;buf_ptr-&gt;data()
-			&lt;&lt;"\n";
-
-		//繼續接受下一段數據
-		socket_ptr-&gt;async_read_some(boost::asio::buffer(*buf_ptr)
-			,boost::bind(&amp;server::read_handler
-				,this
-				,boost::asio::placeholders::error
-				,socket_ptr
-				,buf_ptr
-				)
-			);
-		std::fill(buf_ptr-&gt;begin(),buf_ptr-&gt;end(),0);
-
-	}
-
-	void write_handler(const boost::system::error_code&amp; e,boost::shared_ptr&lt;std::string&gt; buf_write_ptr)
-	{
-		
-	}
-};
-
-
-int _tmain(int argc, _TCHAR* argv[])
-{
-	boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(),1102);
-	server s(endpoint);
-	s.run();
-
-	std::system("pause");
-	return 0;
+	post_recv(s,buf,reader);
 }
 </pre>
 		</p>
 		<p><span class="flag">注意</span>
-<pre>
+<pre>io_service::run() 可以工作在 多線程 下 但 當 發生io事件時
+到底 哪個線程被 喚醒 不確定 
 </pre>
 		</p>
 	</div>
