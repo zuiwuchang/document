@@ -11,6 +11,7 @@
 		<a href="#File">File</a>
 		<a href="#xml">encoding/xml</a>
 		<a href="#json">encoding/json</a>
+		<a href="#gob">encoding/gob</a>
 		<a href="#zip">archive/zip</a>
 		<a href="#tar">archive/tar</a>
 		
@@ -319,6 +320,61 @@ func main() {
 </pre>
 		</p>
 	</div>
+	<div class="note"><a name="gob"></a>
+		<p><span class="flag">encoding/gob</span>
+<pre>encoding/gob 包提供了對 golang 型別 序列化的 功能
+用法 同 json xml
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"bytes"
+	"encoding/gob"
+	"log"
+)
+
+type Persons struct {
+	Person []*Node
+}
+type Node struct {
+	Name string
+	Job  string
+}
+
+func main() {
+	data := make([]*Node, 0, 2)
+	data = append(data, &Node{Name: "dark king", Job: "king"})
+	data = append(data, &Node{Name: "kate beckinsale", Job: "queen"})
+	persons := &Persons{Person: data}
+
+	//寫
+	buf := &bytes.Buffer{}
+	encoder := gob.NewEncoder(buf)
+	e := encoder.Encode(&persons)
+	if e != nil {
+		log.Fatal(e)
+	}
+
+	//讀
+	out := &Persons{}
+	decoder := gob.NewDecoder(buf)
+	e = decoder.Decode(&out)
+	if e != nil {
+		log.Fatal(e)
+	}
+
+	if out != nil {
+		for _, person := range out.Person {
+			log.Println(person)
+		}
+	}
+}
+</pre>
+		</p>
+	</div>
+
 	<div class="note"><a name="zip"></a>
 		<p><span class="flag">archive/zip</span>
 <pre>archive/zip 包提供了對zip操作的功能
