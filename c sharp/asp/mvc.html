@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>c#</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#Controller 和 ">控制器</a>
+		<a href="#Route">路由</a>
+        <a href="#View">視圖</a>
+        <a href="#Filter">過濾器</a>
+		
+	</div>
+
+	
+
+	<div class="note"><a name="Controller"></a>
+		<p><span class="flag">控制器</span>
+<pre>c# 的控制器 是一個 派生 自Controller的 class 
+且 class name 必須以 Controller結尾
+
+控制器 需要提供 方法 public ActionResult XXX(...)
+路由 自動 將 url 解析到 class.XXX
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>public class HelloController : Controller
+{
+    //
+    // GET: /Hello/
+
+    class JsResult
+    {
+        protected string name;
+        protected int lv;
+        public JsResult(string name, int lv)
+        {
+            this.name = name;
+            this.lv = lv;
+        }
+        public string Name { get { return name; } }
+        public int Lv { get { return lv; } }
+    }
+    public ActionResult Index(string what)
+    {
+        if (what == "js")
+        {
+            //返回 json
+            return Json(new JsResult("illusive man", 9));
+        }
+        else if (what == "about2")
+        {
+            //跳轉頁面
+            return RedirectToAction("About", "Hello");
+        }
+        else if (what == "about")
+        {
+            //跳轉頁面
+            return Redirect("/Hello/About");
+        }
+
+        //返回 view
+        ViewData["Name"] = "illusive man";
+        ViewData["Lv"] = 9;
+        return View();
+    }
+    public ActionResult About()
+    {
+        return View();
+    }
+}
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>控制器的 所有 public 方法 都和一個 路由綁定 如果 
+不想此方法 被路由 訪問 可以在方法前 加上 [NonAction] 標記
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Route"></a>
+        <p><span class="flag">路由</span>
+<pre>路由 負責 將 url請求 發送給 控制器 處理
+</pre>
+        </p>
+    </div>
+
+    <div class="note"><a name="View"></a>
+        <p><span class="flag">視圖</span>
+<pre>視圖 負責 頁面顯示 用戶輸入
+
+在 Controller 和 View 之間 可以 通過 ViewData 傳遞 數據
+</pre>
+        </p>
+        <p><span class="flag">example</span>
+<pre><span class="care">Controller</span>
+public ActionResult Index()
+{
+    ViewData["Name"] = "illusive man";
+    ViewData["Lv"] = 9;
+    ViewData["Obj"] = new JsResult("illusive man", 9);
+    return View();
+}
+
+<span class="care">View</span>
+&lt;h2&gt;&lt;%: ViewData["Name"] %&gt; &lt;%: ViewData["Lv"] %&gt;&lt;/h2&gt;
+
+&lt;h2&gt;
+&lt;% var obj = ViewData["Obj"] as WebTest.Controllers.HelloController.JsResult;
+   if (obj != null)
+   {
+       Response.Write(obj.Name);
+       Response.Write(" ");
+       Response.Write(obj.Lv); 
+   }
+%&gt;
+&lt;/h2&gt;
+</pre>
+        </p>
+    </div>
+
+    <div class="note"><a name="Filter"></a>
+        <p><span class="flag">過濾器</span>
+<pre>c# mvc 提供了 過濾器
+
+要定義 一個 過濾器 只需要 從 ActionFilterAttribute 派生
+重寫 需要的方法
+OnActionExecuting 在執行控制器前被調用
+OnActionExecuted ...後
+OnResultExecuting 在控制器返回 數據前 調用
+OnResultExecuted ...後
+</pre>
+        </p>
+        <p><span class="flag">example</span>
+<pre><span class="care">定義 過濾器</span>
+namespace WebTest.Controllers
+{
+    <span class="care">public class UserFilter:ActionFilterAttribute</span>
+    {
+        public override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            if (filterContext.HttpContext.Session["name"] != "root")
+            {
+                /*filterContext.Result = new ContentResult()
+                {
+                    Content = "沒有足夠權限"
+                };*/
+                filterContext.Result = new RedirectResult("/Account/LogOn");
+
+            }
+        }
+    }
+}
+
+<span class="care">綁定 過濾器</span>
+namespace WebTest.Controllers
+{
+   
+    public class HelloController : Controller
+    {
+        //
+        // GET: /Hello/
+        <span class="care">[UserFilter]</span>
+        public ActionResult Index(string what)
+        {
+
+            return View();
+        }
+        public ActionResult Login(string what)
+        {
+            Session["name"] = "root";
+            return View();
+        }
+        public ActionResult Logout(string what)
+        {
+            Session.Clear();
+            return View();
+        }
+    }
+}
+</pre>
+        </p>
+    </div>
+
+</div>
+</body>
+</html>
