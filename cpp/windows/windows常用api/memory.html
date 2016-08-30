@@ -1,0 +1,55 @@
+<!DOCTYPE html >
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>algorithm</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#memory">內存洩漏</a>
+		
+	</div>
+
+	<div class="note"><a name="memory"></a>
+		<p><span class="flag">內存洩漏</span>
+<pre>微軟 提供了 _CrtDumpMemoryLeaks 函數 用於 在debug下檢查 是否有 new後 沒有 delete的 
+資源 打印到 調試窗口
+
+對於 mfc 已經 包含了頭文件 宏 對_CrtDumpMemoryLeaks 的調用
+對於其他 c++程序 需要自己 include 定義 必要的 宏
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><span class="care">
+#ifndef DEBUG_NEW
+
+#ifdef _DEBUG
+#include &lt;crtdbg.h&gt;
+#define DEBUG_NEW new(_NORMAL_BLOCK ,__FILE__, __LINE__)
+#else
+#define DEBUG_NEW new
+#endif
+
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
+
+#endif	//DEBUG_NEW
+</span>
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	new int;
+	<span class="care">_CrtDumpMemoryLeaks();</span>
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+
