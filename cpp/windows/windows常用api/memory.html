@@ -41,8 +41,10 @@
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+	<span class="care">//_CrtSetDbgFlag 可設置在 程序退出時 自動調用 _CrtDumpMemoryLeaks()
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF|_CRTDBG_LEAK_CHECK_DF);</span>
 	new int;
-	<span class="care">_CrtDumpMemoryLeaks();</span>
+	<span class="care">//_CrtDumpMemoryLeaks();</span>
 	return 0;
 }
 </pre>
