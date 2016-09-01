@@ -1,0 +1,164 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#list">container/list</a>
+		<a href="#ring">container/ring</a>
+		
+			
+	</div>
+
+	<div class="note"><a name="list"></a>
+		<p><span class="flag">container/list</span>
+<pre>container/list 包中 提供了一個 鍊錶 List
+</pre>
+		</p>
+		<p><span class="flag">Example</span>
+<pre>package main
+
+import (
+	"container/list"
+	"fmt"
+)
+
+type Animal struct {
+	Name string
+}
+
+func (a *Animal) Speak() {
+	fmt.Println("i'm ", a.Name)
+}
+
+func main() {
+	//創建鍊錶 *List
+	l := list.New()
+
+	//壓入數據
+	l.PushBack(&Animal{Name: "喵喵"})
+	l.PushFront(&Animal{Name: "卡蒂狗"})
+
+	//插入數據
+	l.InsertBefore("begin", l.Front())
+	l.InsertAfter("end", l.Back())
+	l.InsertAfter("remove", l.Back())
+
+	//刪除數據
+	l.Remove(l.Back())
+
+	//遍歷
+	for iter := l.Front(); iter != nil; iter = iter.Next() {
+		if str, ok := iter.Value.(string); ok {
+			fmt.Println(str)
+		} else if animal, ok := iter.Value.(*Animal); ok {
+			animal.Speak()
+		}
+
+	}
+	for iter := l.Back(); iter != nil; iter = iter.Prev() {
+		if str, ok := iter.Value.(string); ok {
+			fmt.Println(str)
+		} else if animal, ok := iter.Value.(*Animal); ok {
+			animal.Speak()
+		}
+	}
+
+	//返回 鍊錶 長度
+	fmt.Println(l.Len())
+
+	//清空鍊錶
+	l.Init()
+	fmt.Println(l.Len())
+}
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="ring"></a>
+		<p><span class="flag">container/ring</span>
+<pre>container/ring 包中 提供了一個 閉環 Ring
+</pre>
+		</p>
+		<p><span class="flag">Example</span>
+<pre>package main
+
+import (
+	"container/ring"
+	"fmt"
+)
+
+func main() {
+	//創建 環 Ring*
+	r := ring.New(3)
+	r0 := r
+	r2 := r.Prev()
+
+	//獲取環中 數據
+	for i := 0; i < r.Len(); i++ {
+		r.Value = i + 1
+		r = r.Next()
+	}
+
+	//對所有 數據 調用 call 環的位置不變
+	r.Do(func(v interface{}) {
+		fmt.Println(v)
+	}) //1 2 3
+
+	//r.Next/r.Prev n
+	r = r.Move(-2)
+	r.Do(func(v interface{}) {
+		fmt.Println(v)
+	}) //2 3 1
+	r.Move(2)
+
+	//連接環
+	r = r0.Link(r2)
+	fmt.Println("Link")
+	r.Do(func(v interface{}) {
+		fmt.Println(v)
+	}) //2
+	r0.Do(func(v interface{}) {
+		fmt.Println(v)
+	}) //1 3
+
+	rn := ring.New(3)
+	for i := 0; i < rn.Len(); i++ {
+		rn.Value = i + 10
+		rn = rn.Next()
+	}
+	r = r0.Link(rn)
+	fmt.Println("Link2")
+	r.Do(func(v interface{}) {
+		fmt.Println(v)
+	}) //3 1 10 11 12
+	testAutoLen()
+}
+func testAutoLen() {
+	var r *ring.Ring
+	for i := 0; i < 10; i++ {
+		ri := ring.New(1)
+		ri.Value = i
+		if r == nil {
+			r = ri
+		} else {
+			r = r.Prev().Link(ri)
+		}
+	}
+
+	fmt.Println("testAutoLen")
+	r.Do(func(v interface{}) {
+		fmt.Println(v)
+	})//0 1 2 3 4 5 6 7 8 9
+}
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+
