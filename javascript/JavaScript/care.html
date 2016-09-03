@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>care</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#var">變量範圍</a>
+		
+	</div>
+
+	<div class="note"><a name="var"></a>
+		<p><span class="flag">變量範圍</span>
+<pre>js 變量範圍 是在一個函數內 而非 {} 代碼塊
+<span class="care">show 將 打印 two 而非 one</span>
+function show(){
+	var str = "one";
+	{
+		var str = "two";
+	}
+
+	alert(str);
+}
+
+故 在寫 js時 盡量 將 變量 聲明 寫在 func 開始(像傳統的c聲明變量一樣) 而不要到用時 才寫
+function show(){
+	var str,id;
+
+	//...
+
+	str = "king";
+	id = 1;
+
+	alert(id + ":" + str);
+}
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

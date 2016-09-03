@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>kindeditor</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#QUnit">QUnit</a>
+	</div>
+	
+
+	<div class="note"><a name="QUnit"></a>
+		<p><span class="flag">QUnit</span>
+<pre>QUnit 是一個 開源(MIT) 的 javascript 單元測試框架
+
+官網<a target="_blank" href="http://qunitjs.com/">http://qunitjs.com/</a>
+</pre>
+		</p>
+		
+		<p><span class="flag">使用</span>
+<pre>1	在html中 引入 QUnit 的 js(qunit-xxx.js) css(qunit-xxx.css) 文件
+2	在html中定義 分別一個id為 qunit 和 qunit-fixture 的div
+3	使用 QUnit.test 定義 測試函數
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+	&lt;meta charset="utf-8"&gt;
+	&lt;meta name="viewport" content="width=device-width"&gt;
+	&lt;title&gt;QUnit Example&lt;/title&gt;
+	&lt;link rel="stylesheet" href="qunit/qunit-2.0.1.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+	&lt;div id="qunit"&gt;&lt;/div&gt;
+	&lt;div id="qunit-fixture"&gt;&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+
+&lt;script src="qunit/qunit-2.0.1.js"&gt;&lt;/script&gt;
+
+&lt;script type="text/javascript"&gt;
+//定義一個 模塊
+QUnit.module ("example1")
+QUnit.test( "test-e1-1", function( assert ) {
+	assert.ok( 1 == "1" ,"測試 true");
+	assert.notOk(1 == "1","測試 false");
+
+	assert.equal(1,1);
+	assert.notEqual(1,2);
+});
+QUnit.test( "test-e1-2", function( assert ) {
+	assert.ok( 1 == "1" );
+});
+
+//定義一個 模塊
+QUnit.module ("example2")
+QUnit.test( "test-e2-2", function( assert ) {
+	assert.ok( 1 == "1");
+});
+&lt;/script&gt;
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
