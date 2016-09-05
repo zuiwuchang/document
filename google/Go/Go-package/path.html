@@ -9,6 +9,7 @@
 <div class="main">
 	<div class="title">
 		<a href="#path">path</a>
+		<a href="#filepath">path/filepath</a>
 		
 			
 	</div>
@@ -133,6 +134,121 @@ func main() {
 
 	</div>
 
+	<div class="note"><a name="filepath"></a>
+		<p><span class="flag">path/filepath</span>
+<pre>path/filepath 包 提供了 對 os 文件 路徑 目錄的 處理功能
+//遍歷目錄 對找到的文件回調 walkFn
+//walkFn 返回 error 停止遍歷
+func Walk(root string, walkFn WalkFunc) error
+	<span class="care">type WalkFunc func(path string, info os.FileInfo, err error) error</span>
+</pre>
+		</p>
+		<p><span class="flag">example 遍歷文件夾</span>
+<pre><span class="care">filepath.Walk</span>
+package main
+
+import (
+	"fmt"
+	"log"
+	"os"
+	"path/filepath"
+)
+
+func main() {
+	e := filepath.Walk("d:/",
+		func(path string, f os.FileInfo, e error) error {
+			if f == nil {
+				return e
+			}
+			if f.IsDir() {
+				return nil
+			}
+
+			if f.Name() == "kate.jpg" {
+				e := fmt.Errorf("find kate %v", path)
+				fmt.Println(e)
+				//return filepath.SkipDir
+				//跳過 目錄
+
+				return e
+			}
+			return nil
+		})
+	if e != nil {
+		log.Fatalln(e)
+	}
+
+}
+
+<span class="care">遞歸</span>
+package main
+
+import (
+	"log"
+	"os"
+)
+
+func main() {
+	var dir = "d:/"
+	f, e := os.Open(dir)
+	if e != nil {
+		log.Fatalln(e)
+	}
+	defer f.Close()
+	info, e := f.Stat()
+	if e != nil {
+		log.Fatalln(e)
+	}
+	if !info.IsDir() {
+		log.Fatalf("%v is not directory", dir)
+	}
+
+	if infos, e := f.Readdir(0); e != nil {
+		log.Fatalln(e)
+	} else {
+		for _, info := range infos {
+			if doWalk(dir, info) {
+				break
+			}
+		}
+	}
+}
+func doWalk(dir string, info os.FileInfo) bool {
+	path := dir + info.Name()
+	if info.IsDir() {
+		f, e := os.Open(path)
+		if e != nil {
+			log.Println(e)
+		}
+		defer f.Close()
+		if infos, e := f.Readdir(0); e != nil {
+			log.Println(e)
+		} else {
+			for _, info := range infos {
+				if doWalk(path+"/", info) {
+					break
+				}
+			}
+		}
+
+	} else {
+		if info.Name() == "kate.jpg" {
+			log.Println("find kate ", path)
+			return true
+		}
+	}
+	return false
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>filepath.Walk 的 WalkFunc 返回的 error 將作為 filepath.Walk的返回值
+
+WalkFunc 在文件夾中返回 filepath.SkipDir 將跳過 次文件夾
+	... 文件 ... 跳過 當前目錄後續 文件
+</pre>
+		</p>
+	</div>
 </div>
 </body>
 </html>
