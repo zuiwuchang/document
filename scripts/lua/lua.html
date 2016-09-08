@@ -10,6 +10,7 @@
 	<div class="title">
 		<a href="#lua">lua</a>
 		<a href="#evi">環境配置</a>
+		<a href="#evi-vs">環境配置 win32</a>
 		
 	</div>
 
@@ -32,6 +33,73 @@
 		</p>
 	</div>
 
+	<div class="note"><a name="evi-vs"></a>
+		<p><span class="flag">環境配置 win32</span>
+<pre>lua 源碼 只提供了 make 文件 沒提供 vs 項目 文件 若要編譯
+需要自己 創建 vs項目
+</pre>
+		</p>
+
+		<p><span class="flag">編譯 lua 解析器</span>
+<pre>1	用 vs 創建 console 項目
+2	將 lua 源碼中(src/*.h src/*.c) 除 luac.c 之外文件 全部加入 項目
+3	編譯之
+</pre>
+		</p>
+		<p><span class="flag">編譯 靜態庫</span>
+<pre>1	用 vs 創建 靜態庫 項目
+2	將 lua 源碼中(src/*.h src/*.c) 除 luac.c lua.c 之外文件 全部加入 項目
+3	編譯之
+</pre>
+		</p>
+		<p><span class="flag">編譯 動態庫</span>
+<pre>1	用 vs 創建 動態庫 項目
+2	將 lua 源碼中(src/*.h src/*.c) 除 luac.c lua.c 之外文件 全部加入 項目
+3	增加 預編譯 宏 LUA_BUILD_AS_DLL
+4	編譯之
+</pre>
+		</p>
+		<p><span class="flag">hellow word</span>
+<pre>#include &lt;lua/lua.hpp&gt;
+
+#ifdef _DEBUG
+//#pragma comment(lib,"luady-mdd.lib")
+#pragma comment(lib,"lualib-mdd.lib")
+#else
+//#pragma comment(lib,"luady-md.lib")
+#pragma comment(lib,"lualib-md.lib")
+#endif
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	/*打開lua*/
+	lua_State* L	=	luaL_newstate();
+	//打開標準庫
+	luaL_openlibs(L);
+
+
+	if(!luaL_loadstring(L,"print(\"hellow word\")"))	//載入lua
+	{
+		if(lua_pcall(L,0,0,0))
+		{
+			puts(lua_tostring(L,-1));	//輸出 lua棧中消息
+			lua_pop(L,1);			//彈出 lua棧中 消息
+		}
+	}
+	else
+	{
+		puts(lua_tostring(L,-1));
+		lua_pop(L,1);
+	}
+
+	lua_close(L);	//釋放環境
+
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
 </div>
 </body>
 </html>
