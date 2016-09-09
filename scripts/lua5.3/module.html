@@ -1,0 +1,96 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>lua</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#module">定義模塊</a>
+		<a href="#__gc">__gc</a>
+		
+	</div>
+
+	<div class="note"><a name="module"></a>
+		<p><span class="flag">定義模塊</span>
+<pre>5.3 取消了 5.2 新加入的 module(...,package.seeall)
+現在需要手動 進行 模塊 註冊
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><span class="care">模塊文件 m.lua</span>
+--獲取模塊名
+local modname = ...
+--創建模塊
+local M = {}
+
+--加載模塊
+package.loaded[modname] = M
+
+--為當前模塊 加載全局變量
+setmetatable(M,{__index = _G})
+
+--將當前環境 設置為創建的模塊
+local _ENV = M
+
+--創建模塊方法
+function Add( ... )
+	local s=0
+	for i,v in ipairs{...} do    
+		s = s + v
+	end
+	return s
+end
+
+
+<span class="care">main.lua</span>
+local my = require "m"
+print(m.Add(1))
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="__gc"></a>
+		<p><span class="flag">__gc</span>
+<pre>從5.2開始 可以給元表 添加 __gc 方法
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>function NewAnimal( name )
+	--創建 類 實例
+	local obj = {
+		Name = name
+	}
+	--定義 類 方法
+	function obj:Speak()
+		print(self.Name .. " Speak : 給喵金幣")
+	end
+
+	setmetatable(obj,{
+		__gc = function( obj )
+			print("Animal die " .. obj.Name)
+		end
+	});
+
+	return obj
+end
+
+local cat = NewAnimal("喵喵")
+cat:Speak()
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>當 資源 引用計數為0 並不能保證 資源被釋放(__gc被調用)
+還需要 等待 gc 
+可以手動調用 collectgarbage("collect") 立刻進行gc
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+
