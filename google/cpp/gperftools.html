@@ -1,0 +1,94 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>v8</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#gperftools">gperftools</a>
+		<a href="#tcmalloc">tcmalloc</a>
+	</div>
+
+	<div class="note"><a name="gperftools"></a>
+		<p><span class="flag">gperftools</span>
+<pre>gperftools 是 Google 提供的一個 開源(BSD) 性能測試 庫(c++)
+
+官網 <a href="https://github.com/gperftools/gperftools" target="_blank">https://github.com/gperftools/gperftools</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="tcmalloc"></a>
+		<p><span class="flag">tcmalloc</span>
+<pre>tcmalloc 是gperftools中的一個 組件 可以直接用在 c/c++ 項目
+tcmalloc 是為高並發而優化的高效內存分配器 
+tc 是 thread cache的縮寫 對於小對象 為每個線程都 創建一個 內存池 
+從池中 分配內存 避免加鎖操作
+對於 大對象(大於32k) 使用 全局的 內存池
+</pre>
+		</p>
+		<p><span class="flag">win32</span>
+<pre>1	從官網下載 源碼
+2	打開附帶的vs項目 並編譯 libtcmalloc_minimal
+3	將 dll src/windows/gperftools/tcmalloc.h 加入項目
+4	使用 tc_malloc/tc_free 替代 malloc/free
+
+<span class="care">靜態庫</span>
+tcmalloc 默認使用 動態庫 如果 要使用 靜態庫 在編譯 和 使用前 添加宏
+#define PERFTOOLS_DLL_DECL
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;boost/progress.hpp&gt;
+#include &lt;vector&gt;
+
+#ifdef _DEBUG
+#pragma comment(lib,"libtcmalloc_minimal-mdd.lib")
+#else
+#pragma comment(lib,"libtcmalloc_minimal-md.lib")
+#endif
+
+#define PERFTOOLS_DLL_DECL
+#include &lt;tcmalloc/tcmalloc.h&gt;
+
+
+
+void test(int count)
+{
+	boost::progress_timer t;
+	std::vector&lt;char*&gt; ptrs(10000);
+	for(int j=0;j&lt;count;++j)
+	{
+		for(int i=0;i&lt;10000;++i)
+		{
+			char* p = (char*)tc_malloc(1024);
+			ptrs[i] = p;
+			//tc_free(p);
+		}
+
+		for(int i=0;i&lt;10000;++i)
+		{
+			tc_free(ptrs[i]);
+		}
+	}
+}
+
+
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	test(10);
+	std::system("pause");
+	return 0;
+}
+</pre>
+		</p>
+	</div>
+	
+	
+</div>
+</body>
+</html>
