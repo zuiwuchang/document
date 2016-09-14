@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>lua</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#luaL_checkstack">lua_checkstack/luaL_checkstack c 棧</a>
+		
+	</div>
+
+	<div class="note"><a name="luaL_checkstack"></a>
+		<p><span class="flag">lua_checkstack/luaL_checkstack c 棧</span>
+<pre>在 c api 中 與lua交互 使用 一個 虛擬的棧 默認大小 參考值為 LUA_MINSTACK 
+然 如果 push 時 棧 不夠 將引發 錯誤 使用 luaL_checkstack 可以檢測棧是否 夠用 如果不夠用
+luaL_checkstack將 擴展 棧
+
+
+
+//檢測 當前 棧 是否 足夠 push n 個元素 如果 不夠 擴展之
+//無法擴展 返回 0(false)
+int lua_checkstack (lua_State *L, int n);
+
+//同 lua_checkstack 只是 失敗時 調用 luaL_error 引發 lua error
+//msg 為 NULL 或一個 錯誤描述 當 不能擴展 棧時 引發的lua error 中 將 包含 msg描述
+void luaL_checkstack (lua_State *L, int sz, const char *msg);
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>if(lua_checkstack(ctx,50))
+{
+	for(int i=0;i&lt;50;++i)
+	{
+		ctx.push_integer(i);
+	}
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>不要 多次 調用 lua_checkstack/luaL_checkstack 而是在 一開始 
+就 luaL_checkstack/luaL_checkstack 所有需要的 棧 以避免 多次 luaL_checkstack 的開銷
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>design-pattern</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#InsertSort">插入排序</a>
+		<a href="#MergetSort">歸併排序</a>
+	</div>
+
+	<div class="note"><a name="InsertSort"></a>
+		<p><span class="flag">插入排序</span>
+<pre>插入排序 類似玩撲克時 每次抽牌 後將 牌插入 正確的位置
+其 最壞時間為 C * n^2
+對於小規模輸入有 較好效率 
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;boost/progress.hpp&gt;
+#include &lt;boost/foreach.hpp&gt;
+
+#include &lt;vector&gt;
+#include &lt;cmath&gt;
+
+typedef std::vector&lt;int&gt; arrays_t;
+
+
+void create_rand(arrays_t& arrs,unsigned int seed,int mod);
+void show_arrays(const arrays_t& arrs);
+void insert_sort(arrays_t& arrs);
+int main(int argc, char* argv[])
+{
+	std::size_t n = 10;
+	unsigned int seed = 1;
+	int mod = 10;
+
+	arrays_t arrs(n);
+	create_rand(arrs,seed,mod);
+
+	{
+		boost::progress_timer t;
+		show_arrays(arrs);
+		insert_sort(arrs);
+		show_arrays(arrs);
+	}
+
+	std::system("pause");
+    return 0;
+}
+
+void create_rand(arrays_t& arrs,unsigned int seed,int mod)
+{
+	std::srand(seed);
+	
+	BOOST_FOREACH(int& v,arrs)
+	{
+		v = std::rand() % mod;
+	}
+}
+void show_arrays(const arrays_t& arrs)
+{
+	BOOST_FOREACH(const int& v,arrs)
+	{
+		printf("%d ",v);
+	}
+	puts("");
+}
+void insert_sort(arrays_t& arrs) 
+{
+	int count = arrs.size();
+	for(int i=1;i&lt;count;++i)
+	{
+		int key = arrs[i];
+
+
+		int j = i -1;
+		while(j &gt; -1 && arrs[j] &gt; key)
+		{
+			arrs[j+1]=arrs[j];
+			--j;
+		}
+		arrs[j+1] = key;
+	}
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="MergetSort"></a>
+		<p><span class="flag">歸併排序</span>
+<pre>歸併排序 將序列 拆分為 已排序的子序列 再將子序列 合併 
+       [1 2 2 3 4 5 6 7]
+   [2 4 5 7]      [1 2 3 6]
+ [2 5]   [4 7]   [1 3]  [2 6]
+[5] [2] [4] [7] [1] [3] [2] [6]
+
+需要 n*lg*n 時間
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;boost/progress.hpp&gt;
+#include &lt;boost/foreach.hpp&gt;
+
+#include &lt;vector&gt;
+#include &lt;cmath&gt;
+
+typedef std::vector&lt;int&gt; arrays_t;
+
+
+void create_rand(arrays_t& arrs,unsigned int seed,int mod);
+void show_arrays(const arrays_t& arrs);
+//將兩個有序節點 合併
+void merge_sort_arry(arrays_t& arrs,int p, int q,int n);
+//遞歸 歸併排序
+void merge_sort(arrays_t& arrs,int p, int n);
+int main(int argc, char* argv[])
+{
+	std::size_t n = 10;
+	unsigned int seed = 1;
+	int mod = 10;
+
+	arrays_t arrs(n);
+	create_rand(arrs,seed,mod);
+
+	{
+		boost::progress_timer t;
+		show_arrays(arrs);
+		merge_sort(arrs,0,arrs.size());
+		show_arrays(arrs);
+	}
+
+	std::system("pause");
+    return 0;
+}
+
+void create_rand(arrays_t& arrs,unsigned int seed,int mod)
+{
+	std::srand(seed);
+	
+	BOOST_FOREACH(int& v,arrs)
+	{
+		v = std::rand() % mod;
+	}
+}
+void show_arrays(const arrays_t& arrs)
+{
+	BOOST_FOREACH(const int& v,arrs)
+	{
+		printf("%d ",v);
+	}
+	puts("");
+}
+
+void merge_sort(arrays_t& arrs,int p, int n)
+{
+	if(p+1 &lt; n)
+	{
+		int q = p + (n-p) / 2;
+
+		merge_sort(arrs,p,q);
+		merge_sort(arrs,q,n);
+
+		merge_sort_arry(arrs,p,q,n);
+	}
+}
+void merge_sort_arry(arrays_t& arrs,int p, int q,int n)
+{
+	int n1 = q - p;
+	int n2 = n - q;
+
+	arrays_t l(n1);
+	arrays_t r(n2);
+
+	std::copy(arrs.begin() + p,arrs.begin()+p+n1,l.begin());
+	std::copy(arrs.begin() + q,arrs.begin()+q+n2,r.begin());
+
+	int i = 0;
+	int j = 0;
+
+	n = n1 + n2;
+	for(int k=p;k&lt;p+n;++k)
+	{
+		if(i&gt;=n1)
+		{
+			arrs[k] = r[j];
+			++j;
+		}
+		else if(j &gt;= n2)
+		{
+			arrs[k] = l[i];
+			++i;
+		}
+		else
+		{
+			if(l[i] &gt; r[j])
+			{
+				arrs[k] = r[j];
+				j++;
+			} 
+			else 
+			{
+				arrs[k] = l[i];
+				i++;
+			}
+		}
+	}
+}
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
