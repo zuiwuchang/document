@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -8,9 +8,22 @@
 <body>
 <div class="main">
 	<div class="title">
+		<a href="#wxWidgets">wxWidgets</a>
 		<a href="#win32">win32 環境配置</a>
-		<a href="#wxwidgets">wxwidgets</a>
-		
+		<a href="#run">wxwidgets 運行流程</a>
+
+	</div>
+
+	<div class="note"><a name="wxWidgets"></a>
+		<p><span class="flag">wxWidgets</span>
+<pre>wxWidgets Windows and X widgets 是一個開源(wxWidgets) 跨平台 gui庫
+
+wxWidgets 使用陽數版本 代表一個 開發中的 版本 如 3.1.x
+wxWidgets 使用陰數版本 代表一個 已穩定的 版本 如 3.0.x
+
+官網 <a href="http://www.wxwidgets.org/" target="_blank">http://www.wxwidgets.org/</a>
+</pre>
+		</p>
 	</div>
 
 	<div class="note"><a name="win32"></a>
@@ -41,8 +54,8 @@
 		</p>
 	</div>
 
-	<div class="note"><a name="wxwidgets"></a>
-		<p><span class="flag">wxwidgets</span>
+	<div class="note"><a name="run"></a>
+		<p><span class="flag">wxwidgets 運行流程</span>
 <pre>wxwidgets 運行 流程
 1	依據不同平臺 創建不同入口函數 
 	並實例化一個 wxApp(代表一個應用程序實例) 對象
@@ -282,4 +295,3 @@ void wxTestFrame::OnAbout(wxCommandEvent &event)
 </div>
 </body>
 </html>
-
