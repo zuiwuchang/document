@@ -34,7 +34,8 @@ tc 是 thread cache的縮寫 對於小對象 為每個線程都 創建一個 內
 <pre>1	從官網下載 源碼
 2	打開附帶的vs項目 並編譯 libtcmalloc_minimal
 3	將 dll src/windows/gperftools/tcmalloc.h 加入項目
-4	使用 tc_malloc/tc_free 替代 malloc/free
+4	強制引入 符號 __tcmalloc 
+5	調用 malloc/free 或 tc_malloc/tc_free 申請釋放 內存
 
 <span class="care">靜態庫</span>
 tcmalloc 默認使用 動態庫 如果 要使用 靜態庫 在編譯 和 使用前 添加宏
@@ -84,6 +85,35 @@ int _tmain(int argc, _TCHAR* argv[])
 	std::system("pause");
 	return 0;
 }
+</pre>
+		</p>
+		<p><span class="flag">__tcmalloc</span>
+<pre>如果 調用 malloc/free 需要 強制引入 __tcmalloc 
+__tcmalloc是一個空函數
+否則 tc模塊 會因為 沒有 調用其中 任何內容 而被 編譯器 忽略
+如果 調用了 tc模塊中 任何 其他函數 則可以 不引入 __tcmalloc
+</pre>
+		</p>
+		<p><span class="flag">無縫引入</span>
+<pre>win下 tc模塊 定義了一個 static TCMallocGuard module_enter_exit_hook;
+TCMallocGuard 是一個 class
+
+TCMallocGuard::TCMallocGuard() 中調用 ReplaceSystemAlloc() 
+ReplaceSystemAlloc 對os的 malloc/free 進行了inline hook 使用其調用 tc 模塊的 對應 函數
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>不要在 多個模塊中 引入 tc模塊
+僅在主模塊中 引入
+否則 會 出現 多次 調用 ReplaceSystemAlloc 從而 進行了 多次 inline hook 的錯誤
+以及可能引發其他 未知錯誤
+
+而且 只需要在 主模塊中 引入 tc 模塊 其他模塊 調用 malloc/free 而非 new/delete 
+便可享用tc的好處(malloc/free 已經被 inline hook)
+
+
+windows 下 tc 似乎 沒hook new/delete 故 只有 malloc/free 可以享用 tc的好處
 </pre>
 		</p>
 	</div>
