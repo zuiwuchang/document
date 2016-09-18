@@ -65,14 +65,14 @@ void test(int count)
 	{
 		for(int i=0;i&lt;10000;++i)
 		{
-			char* p = (char*)tc_malloc(1024);
+			char* p = (char*)malloc(1024);
 			ptrs[i] = p;
-			//tc_free(p);
+			//free(p);
 		}
 
 		for(int i=0;i&lt;10000;++i)
 		{
-			tc_free(ptrs[i]);
+			free(ptrs[i]);
 		}
 	}
 }
@@ -88,7 +88,8 @@ int _tmain(int argc, _TCHAR* argv[])
 </pre>
 		</p>
 		<p><span class="flag">__tcmalloc</span>
-<pre>如果 調用 malloc/free 需要 強制引入 __tcmalloc 
+<pre>如果 調用 malloc/free new/delete 需要 強制引入 __tcmalloc 
+(配置屬性-&lt;鏈接器-&lt;輸入-&lt;強制符號引入)
 __tcmalloc是一個空函數
 否則 tc模塊 會因為 沒有 調用其中 任何內容 而被 編譯器 忽略
 如果 調用了 tc模塊中 任何 其他函數 則可以 不引入 __tcmalloc
@@ -110,10 +111,12 @@ ReplaceSystemAlloc 對os的 malloc/free 進行了inline hook 使用其調用 tc 
 以及可能引發其他 未知錯誤
 
 而且 只需要在 主模塊中 引入 tc 模塊 其他模塊 調用 malloc/free 而非 new/delete 
-便可享用tc的好處(malloc/free 已經被 inline hook)
+便可享用tc的好處
+tc 同時 hook 了 LoadLibrary 每當有新dll 加載 都會 執行PatchAllModules hook dll的 malloc/free
 
 
-windows 下 tc 似乎 沒hook new/delete 故 只有 malloc/free 可以享用 tc的好處
+vs 下 debug模式下 會 調用 dbgnew.cpp 下 的 new/delete 此函數沒有 tc hook
+然 release 下會調用 new.cpp 中的 new/delete 此 new/delete 調用了 malloc/free 故 可以 享受 tc的 效果
 </pre>
 		</p>
 	</div>
