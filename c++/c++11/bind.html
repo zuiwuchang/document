@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>c++11</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#bind">bind function</a>
+	</div>
+
+	<div class="note"><a name="array"></a>
+		<p><span class="flag">bind function</span>
+<pre>#include &lt;functional&gt;
+
+c++11 提供了 新的 函數適配器 std::bind 和新的 functor std::function
+將 boost 的 boost::bind boost::function
+直接 納入了標準庫 使用方式和 boost 中的庫 一樣 只是現在 namespace 變為 std
+_1,_2 ... 需要寫成 std::placeholders::_1 std::placeholders::_2 ...
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;iostream&gt;
+#include &lt;functional&gt;
+
+int main()
+{
+    std::function&lt;void(int)&gt; f = std::bind(
+                                     [](const char* name,int lv)
+    {
+        std::cout&lt;&lt;"i'm "&lt;&lt;name&lt;&lt;"\nmy lv is "&lt;&lt;lv&lt;&lt;"\n";
+    },"cat",std::placeholders::_1);
+    f(1);
+    return 0;
+}
+
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

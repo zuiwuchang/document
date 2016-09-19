@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>c++11</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#initializer_list">初始化列表 initializer_list</a>
+		<a href="#{}">{} 統一初始化</a>
+		<a href="#decltype">decltype</a>
+		<a href="#auto">auto 類型推導</a>
+		<a href="#for">基於範圍的 for</a>
+		<a href="#Lambda">Lambda</a>
+		<a href="#rvalue">右值引用 &amp;&amp;</a>
+		<a href="#classvar">類成員初始化</a>
+		<a href="#nullptr">nullptr</a>
+	</div>
+
+	<div class="note"><a name="initializer_list"></a>
+		<p><span class="flag">初始化列表 initializer_list</span>
+<pre>現在 c++允許定義 一個 初始化列表 構造函數
+以允許 使用 形如
+T instance{...,...,..}
+T instance = {...,...,..}
+的方式 去實例化 對象
+
+這對於 像 vector list ... 等容器的 初始化 提供了方便
+終於告別了 沒完沒了的 push_back insert
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;iostream&gt;
+#include &lt;algorithm&gt;
+#include &lt;iterator&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+#include &lt;list&gt;
+#include &lt;set&gt;
+
+template&lt;typename T&gt;
+void show_container(const T&amp; container)
+{
+    for(const auto& v:container)
+    {
+        std::cout&lt;&lt;v&lt;&lt;" ";
+    }
+    std::cout&lt;&lt;"\n";
+}
+
+class array_t
+{
+private:
+    std::vector&lt;int&gt; _container;
+public:
+    array_t(std::initializer_list&lt;int&gt; list)
+    {
+        std::back_insert_iterator&lt;std::vector&lt;int&gt;&gt; back_insert(_container);
+        std::copy(list.begin(),list.end(),back_insert);
+    }
+    void show()
+    {
+        show_container(_container);
+    }
+};
+int main()
+{
+    std::list&lt;int&gt; l{0,1,2,3,4};
+    show_container(l);
+
+    std::set&lt;int&gt; s{0,1,2,3,3};
+    show_container(s); //0 1 2 3
+
+    array_t arrs{0,1,2,3,4};
+    arrs.show();
+
+    return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>initializer_list 由編譯器 靜態構造 一旦創建 其成員 便不可變動
+
+initializer_list 可以使用在 非構造函數中
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="{}"></a>
+		<p><span class="flag">{} 統一初始化</span>
+<pre>c++11 提供了 統一使用 {} 初始化的 方式
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;iostream&gt;
+#include &lt;array&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+
+template&lt;typename T&gt;
+void show_container(const T& container)
+{
+    for(const auto& v:container)
+    {
+        std::cout&lt;&lt;v&lt;&lt;" ";
+    }
+    std::cout&lt;&lt;"\n";
+}
+
+class Animal
+{
+private:
+    std::string name;
+    int lv;
+public:
+    Animal(const std::string& str,int n):name(str),lv(n)
+    {
+
+    }
+    void Speak()
+    {
+        std::cout&lt;&lt;"i'm "&lt;&lt;name&lt;&lt;"\nmy lv is "&lt;&lt;lv&lt;&lt;"\n";
+    }
+};
+
+struct CAnimal
+{
+    std::string name;
+    int lv;
+
+    void Speak()
+    {
+        std::cout&lt;&lt;"i'm "&lt;&lt;name&lt;&lt;"\nmy lv is "&lt;&lt;lv&lt;&lt;"\n";
+    }
+};
+int main()
+{
+    std::array&lt;int,5&gt; arrs{0,1,2,3,4};
+    show_container(arrs);
+
+    std::vector&lt;int&gt; vs{0,1,2,3,4};
+    show_container(vs);
+
+    Animal animal{"cat",11};
+    animal.Speak();
+
+    CAnimal a{"cat",11};
+    a.Speak();
+    return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="decltype"></a>
+		<p><span class="flag">decltype</span>
+<pre>decltype 是一個 新加入到 操作符 
+將 boost BOOST_TYPEOF 宏 的功能 作為標準 實現
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;iostream&gt;
+#include &lt;array&gt;
+
+int main()
+{
+    std::array&lt;int,5&gt; arrs{0,1,2,3,4};
+    typedef decltype(arrs[0]) data_t;
+    for(data_t v:arrs)
+    {
+        std::cout&lt;&lt;v&lt;&lt;" ";
+    }
+    return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="auto"></a>
+		<p><span class="flag">auto 類型推導</span>
+<pre>auto 關鍵字 已經 去掉 98標準的含義 現在代表一個 型別定義 
+型別由 編譯器 自動推導
+
+終於可以 結束 反人類的 模板 型別書寫了
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main()
+{
+    vector&lt;int&gt; v;
+    for(int i=0;i&lt;10;++i)
+    {
+        v.push_back(i);
+    }
+
+    for(auto iter = v.begin();iter!=v.end();++iter)
+    {
+       cout&lt;&lt;*iter&lt;&lt;"\n";
+    }
+    return 0;
+}
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="for"></a>
+		<p><span class="flag">基於範圍的 for</span>
+<pre>for 現在 可以 遍歷 一個 範圍(實現了標準 迭代器的 容器)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main()
+{
+    vector&lt;int&gt; v;
+    for(int i=0;i&lt;10;++i)
+    {
+        v.push_back(i);
+    }
+    int arrs[] = {0,1,2,3,4,5,6,7,8,9};
+
+    for(auto d:v)
+    {
+        cout&lt;&lt;d&lt;&lt;" ";
+    }
+    cout&lt;&lt;"\n";
+    for(auto d:arrs)
+    {
+        cout&lt;&lt;d&lt;&lt;" ";
+    }
+    cout&lt;&lt;"\n";
+
+    return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Lambda"></a>
+		<p><span class="flag">Lambda</span>
+<pre>algorithm 中包含了 大量有用的 算法 然 大部分需要一個自定義的 functor 
+現在 可以使用 Lambda 定義一個匿名 函數 
+[](int x,int y){return x+y;}
+[](int x,int y) -&lt; int{return x+y;}
+</pre>
+		</p>
+		<p><span class="flag">閉包</span>
+<pre>c++ Lambda 可以在 [] 中 可以指示如何 使用 閉包
+
+[]  // 沒有定義任何變數。使用未定義變數會導致錯誤。
+[x, &y] // x以傳值方式傳入（預設），y以傳參考方式傳入。
+[&]   // 任何被使用到的外部變數皆隱式地以參考方式加以引用。
+[=]   // 任何被使用到的外部變數皆隱式地以傳值方式加以引用。
+[&, x]   // x顯示地以傳值方式加以引用。其餘變數以參考方式加以引用。
+[=, &z]   // z顯示地以參考方式加以引用。其餘變數以傳值方式加以引用。
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;iostream&gt;
+#include &lt;algorithm&gt;
+#include &lt;array&gt;
+
+int main()
+{
+    std::array&lt;int,5&gt; arrs{0,1,2,3,4};
+
+    std::for_each(arrs.begin(),arrs.end(),[](int v)
+    {
+        std::cout&lt;&lt;v&lt;&lt;" ";
+    });
+
+    int sum = 0;
+    std::for_each(arrs.begin(),arrs.end(),[&amp;sum](int v)
+    {
+        sum += v;
+    });
+    std::cout&lt;&lt;"\nsum = "&lt;&lt;sum&lt;&lt;" ";
+
+    return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="rvalue"></a>
+		<p><span class="flag">右值引用 &amp;&amp;</span>
+<pre>c++ 11 提供了 右值引用 用於增強性能(消除不需要的 臨時對象創建)
+使用 T &amp;&amp; v 定義一個 右值引用
+
+同時 c++11 提供了 std::move 將1個左值 轉為右值
+
+對於模板 T &amp;&amp; 將根據 傳入參數 確定v為 左值引用 還是 右值引用
+template
+T &amp;&amp; v
+
+測試後續代碼時 務必打開 -fno-elide-constructors 選項 禁用gcc的 值傳遞優化否則
+</pre>	
+		</p>
+		<p><span class="flag">臨時對象創建 的開銷</span>
+<pre><span class="care">code</span>
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;cstring&gt;
+
+
+class Animal
+{
+private:
+    char* _name = NULL;
+public:
+    Animal(const char* name)
+    {
+        _name = new char[strlen(name)+1];
+        strcpy(_name,name);
+        std::cout&lt;&lt;_name&lt;&lt;" create  "&lt;&lt;this&lt;&lt;"\n";
+    }
+    Animal(const Animal&amp; copy)
+    {
+        const char* name = copy._name;
+
+        _name = new char[strlen(name)+1];
+        strcpy(_name,name);
+
+        std::cout&lt;&lt;_name&lt;&lt;" copy    "&lt;&lt;this&lt;&lt;"\n";
+    }
+
+    ~Animal()
+    {
+        std::cout&lt;&lt;_name&lt;&lt;" die "&lt;&lt;this&lt;&lt;"\n";
+        if(_name)
+        {
+            delete _name;
+        }
+    }
+
+    void Speak()const
+    {
+        std::cout&lt;&lt;"i'm "&lt;&lt;_name&lt;&lt;"\n";
+    }
+
+};
+
+Animal make_animal(const char* name)
+{
+    return Animal(name);
+}
+
+int main()
+{
+    {
+        puts("********  one ********");
+        Animal cat(make_animal("cat"));
+        cat.Speak();
+    }
+
+    {
+        puts("********  two ********");
+        Animal dog = make_animal("dog");
+        dog.Speak();
+    }
+
+
+    return 0;
+}
+
+
+<span class="care">輸出</span>
+********  one ********
+cat create  0x22fdb0
+cat copy    0x22fe20
+cat die 0x22fdb0
+cat copy    0x22fe10
+cat die 0x22fe20
+i'm cat
+cat die 0x22fe10
+********  two ********
+dog create  0x22fdb0
+dog copy    0x22fe30
+dog die 0x22fdb0
+dog copy    0x22fe00
+dog die 0x22fe30
+i'm dog
+dog die 0x22fe00
+
+<span class="care">分析</span>
+Animal cat(make_animal("cat"));
+Animal dog = make_animal("dog");
+將 引發多次 創建 歷時對象 每個臨時對象 創建 都是 不必要的 開銷
+</pre>
+		</p>
+		<p><span class="flag">右值引用 版</span>
+<pre><span class="care">code</span>
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;cstring&gt;
+
+
+class Animal
+{
+private:
+    char* _name = nullptr;
+public:
+    Animal(const char* name)
+    {
+        _name = new char[strlen(name)+1];
+        strcpy(_name,name);
+        printf("%s create %08x\n",_name,this);
+    }
+    Animal(const Animal&amp; copy)
+    {
+        const char* name = copy._name;
+
+        _name = new char[strlen(name)+1];
+        strcpy(_name,name);
+
+        printf("%s copy %08x\n",_name,this);
+    }
+    Animal(Animal&amp;&amp; copy)
+    {
+        _name = copy._name;
+        copy._name = nullptr;
+
+        printf("%s move %08x\n",_name,this);
+    }
+
+    ~Animal()
+    {
+        if(_name)
+        {
+            printf("%s die %08x\n",_name,this);
+            delete _name;
+        }
+    }
+
+    void Speak()const
+    {
+        if(_name)
+        {
+            printf("i'm %s\n",_name);
+        }
+        else
+        {
+            puts("i'm NULL");
+        }
+    }
+
+};
+
+Animal make_animal(const char* name)
+{
+    return Animal(name);
+}
+
+int main()
+{
+    {
+        puts("********  one ********");
+        Animal cat(make_animal("cat"));
+        cat.Speak();
+    }
+
+    {
+        puts("********  two ********");
+        Animal d1 = make_animal("dog");
+        //Animal dog = d1; //copy 構造
+        Animal dog = std::move(d1);
+        d1.Speak();     //i'm null
+        dog.Speak();
+    }
+
+
+    return 0;
+}
+
+<span class="care">輸出</span>
+********  one ********
+cat create 0022fdb0
+cat move 0022fe20
+cat move 0022fe10
+i'm cat
+cat die 0022fe10
+********  two ********
+dog create 0022fdb0
+dog move 0022fe30
+dog move 0022fe00
+dog move 0022fdf0
+i'm NULL
+i'm dog
+dog die 0022fdf0
+
+<span class="care">分析</span>
+Animal(Animal&amp;&amp; copy) 定義了一個 move 語義
+當 傳入 右值時 將 引發 次 函數的調用
+其中 別沒有 申請 _name 的 內存 而是 直接 將 copy的 _name 資源 接管
+同時 讓copy 放棄 資源管理權 從而 極大的提高了效率
+</pre>
+		</p>
+
+		<p><span class="flag">std::forward</span>
+<pre>std::forward 可以將 參數原本的語義(左右值) 為其產生 左右值
+以便 完美的 轉發函數
+
+
+#include &lt;iostream&gt;
+
+void process_value(const int&amp; v)
+{
+    printf("left value %d\n",v);
+}
+
+void process_value(const int&amp;&amp; v)
+{
+    printf("right value %d\n",v);
+}
+
+template&lt;typename T&gt;
+void process(T &amp;&amp; v)
+{
+    process_value(std::forward&lt;T&gt;(v));
+}
+int main()
+{
+
+    int x = 1;
+    process(0);   //right
+    process(x);   //left
+
+    return 0;
+}
+
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>stl 標準容器 都實現了 move 語義
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="classvar"></a>
+		<p><span class="flag">類成員初始化</span>
+<pre>c++98 中class只有 static 成員 變量 可以在定義時 初始化
+現在 非 static 也可以在 定義時初始化 
+
+終於可以結束 為多個 構造函數 沒完沒了的 初始化相同 成員變量了
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="nullptr"></a>
+		<p><span class="flag">nullptr</span>
+<pre>c++11 引入新的關鍵字 nullptr 作為空指針
+
+nullptr 的型別為 nullptr_t 可以隱式轉換為其它任意指針 
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
