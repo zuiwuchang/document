@@ -9,6 +9,7 @@
 <div class="main">
 	<div class="title">
 		<a href="#bind">bind function</a>
+		<a href="#reference_wrapper">reference_wrapper</a>
 	</div>
 
 	<div class="note"><a name="array"></a>
@@ -33,6 +34,43 @@ int main()
         std::cout&lt;&lt;"i'm "&lt;&lt;name&lt;&lt;"\nmy lv is "&lt;&lt;lv&lt;&lt;"\n";
     },"cat",std::placeholders::_1);
     f(1);
+    return 0;
+}
+
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>std::function 和 boost::function 一樣 參數使用 值傳遞
+需要使用 引用 需要用 reference_wrapper 包裝
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="reference_wrapper"></a>
+		<p><span class="flag">reference_wrapper</span>
+<pre>#include &lt;utility&gt;
+
+boost::ref boost::reference_wrapper 被納入 c++11標準
+現在只是 將namespace 改為 std 其它不變
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;iostream&gt;
+#include &lt;functional&gt;
+#include &lt;utility&gt;
+
+int main()
+{
+    typedef std::reference_wrapper&lt;int&gt; int_rt;
+    std::function&lt;void(int_rt)&gt; f = std::bind([](const char* name,int_rt lv)
+    {
+        std::cout&lt;&lt;"i'm "&lt;&lt;name&lt;&lt;"\nmy lv is "&lt;&lt;lv&lt;&lt;"\n";
+        ++lv;
+    },"cat",std::placeholders::_1);
+
+    int lv = 1;
+    f(std::ref(lv));
+    std::cout&lt;&lt;lv;  //2
     return 0;
 }
 
