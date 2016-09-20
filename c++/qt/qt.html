@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>qt</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#qt">qt</a>
+		<a href="#qDebug">qDebug</a>
+		<a href="#win32">環境配置 win32</a>
+	</div>
+
+	<div class="note"><a name="qt"></a>
+		<p><span class="flag">qt</span>
+<pre>Qt 跨平台 c++ 框架 廣泛用在 gui開發中
+
+Qt 提供了多種許可協議 LGPL GPL 商業授權
+
+Qt 同時提供了 多種 語言綁定 Java C# Lua Python ...
+
+官網 <a href="https://www.qt.io/" target="_blank">https://www.qt.io/</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="qDebug"></a>
+		<p><span class="flag">qDebug</span>
+<pre>#include &lt;QDebug&gt;
+QDebug 是一個 用於調試信息的 輸出流
+
+qDebug() 返回一個 QDebug輸出流 實例 常將調試信息 輸出到 qDebug()
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="win32"></a>
+		<p><span class="flag">環境配置 win32</span>
+<pre>1	從官網 下載 win32 版本 並安裝
+2	安裝 對應 vs 或 gcc
+3	對於 vs 若要調試 需要安裝 wdk 的 debugger cdb
+	<a href="https://developer.microsoft.com/en-us/windows/hardware/windows-driver-kit" target="_blank">https://developer.microsoft.com/en-us/windows/hardware/windows-driver-kit</a>
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>只需要 安裝 wdk中的 Debugging Tools for Windows 即可
+<img src="image/qt/0.png">
+<img src="image/qt/1.png">
+</pre>
+		</p>
+	</div>	
+</div>
+</body>
+</html>

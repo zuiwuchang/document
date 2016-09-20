@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>qt</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#QString">QString</a>
+		<a href="#QTextStream">QTextStream</a>
+		<a href="#QByteArray">QByteArray</a>
+	</div>
+
+	<div class="note"><a name="QString"></a>
+		<p><span class="flag">QString</span>
+<pre>#include &lt;QString&gt;
+
+qt的源代碼文件 默認使用 utf8
+
+qt 像所有框架一樣 都封裝了 字符串
+qt 使用 QChar 代表 字符(utf16)
+qt 使用 QString 代表 字符串
+</pre>
+		</p>
+		<p><span class="flag">編碼轉換</span>
+<pre>//和os 本地 多字節編碼 轉換
+[static] QString QString::fromLocal8Bit(const char *str, int size = -1)
+[static] QString QString::fromLocal8Bit(const QByteArray &str)
+QByteArray QString::toLocal8Bit() const
+
+<span class='care'>//和utf8 轉換
+//c++11 已經確認 std::string 存儲的為 utf8 字符串</span>
+[static] QString QString::fromUtf8(const char *str, int size = -1)
+[static] QString QString::fromUtf8(const QByteArray &str)
+QByteArray QString::toUtf8() const
+
+[static] QString QString::fromStdString(const std::string &str)
+std::string QString::toStdString() const
+
+<span>//std::wstring 只有win32下 wchar_t 才是 2字節</span>
+[static] QString QString::fromStdWString(const std::wstring &str)
+std::wstring QString::toStdWString() const
+
+<span>//std::u16string</span>
+[static] QString QString::fromStdU16String(const std::u16string &str)
+std::u16string QString::toStdU16String() const
+
+<span>//utf32</span>
+[static] QString QString::fromStdU32String(const std::u32string &str)
+std::u32string QString::toStdU32String() const
+
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="QTextStream"></a>
+		<p><span class="flag">QTextStream</span>
+<pre>#include &lt;QTextStream&gt;
+
+QTextStream 是一個 文本 輸入 輸出流 可以將 文本 在指定設備上 以流的方式 操作
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;QDebug&gt;
+#include &lt;QString&gt;
+#include &lt;QTextStream&gt;
+
+int main()
+{
+    //定義 輸出設備
+    QString device;
+    //定義流
+    QTextStream stream(&device,QIODevice::ReadWrite);
+    //輸出
+    stream&lt;&lt;"line "&lt;&lt;1;
+    stream<<" kata beckinsale is so sexy\n";
+
+    qDebug()&lt;&lt;device;//"line 1 kata beckinsale is so sexy\n"
+
+    QString cmd = stream.readAll();
+    qDebug()&lt;&lt;cmd;//"line 1 kata beckinsale is so sexy\n"
+
+    return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="QByteArray"></a>
+		<p><span class="flag">QByteArray</span>
+<pre>#include &lt;QByteArray&gt;
+
+QByteArray 是一個 byte 數組 亦可作為字符串處理(編碼不確定 由數據流確定)
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

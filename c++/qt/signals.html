@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>qt</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#signals">信號/插槽</a>
+		<a href="#disconnect">信號 插槽 管理</a>
+		<a href="#my">自定義信號</a>
+	</div>
+
+	<div class="note"><a name="signals"></a>
+		<p><span class="flag">信號/插槽</span>
+<pre>qt 使用 信號/插槽 機制 處理gui
+
+當 操作gui時 將 創建信號 與之關聯的 插槽 將被自動 調用
+
+使用 
+QObject::connect(信號指針,
+	信號,
+	插槽對象指針,
+	插槽指針
+)
+關聯 信號 插槽
+<span class="care">(或者使用 特定名稱 實現自動關聯)
+</span>
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    explicit MainWindow(QWidget *parent = 0);
+    ~MainWindow();
+
+
+<span class="care">//定義插槽
+private slots:
+    void onButtonClicked();
+</span>
+
+private:
+    Ui::MainWindow *ui;
+};
+
+#endif // MAINWINDOW_H
+
+
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+
+    <span class="care">//關聯插槽
+    connect(ui-&gt;pushButton,&QPushButton::clicked,this,&MainWindow::onButtonClicked);
+    //connect(ui->pushButton,SIGNAL(clicked()),this,SLOT(onButtonClicked())); 舊版本qt4寫法 不要繼續使用</span>
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="disconnect"></a>
+		<p><span class="flag">信號 插槽 管理</span>
+<pre>信號 插槽 可以多次 組合
+只需要 調用 多次 QObject::connect 便可
+QObject::disconnect 可以解除 信號 插槽 的關聯 其 參數和connect一樣
+
+當 多個 信號 關聯到 同一 插槽時
+在 調用 QObject * QObject::​sender() const 可以 返回 發出信號的 指針
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre><img src="image/signals/0.png">
+
+<span class="care">*.h</span>
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
+
+#include &lt;QMainWindow&gt;
+
+namespace Ui {
+class MainWindow;
+}
+
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    explicit MainWindow(QWidget *parent = 0);
+    ~MainWindow();
+
+
+
+private slots:
+    void onButtonWhoClicked();
+    void onButtonConnectClicked();
+    void onButtonDisconnectClicked();
+
+private:
+    Ui::MainWindow *ui;
+};
+
+#endif // MAINWINDOW_H
+
+
+
+<span class="care">*.cpp</span>
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+#include &lt;QMessageBox&gt;
+#include &lt;QDebug&gt;
+
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
+{
+    ui-&gt;setupUi(this);
+
+
+    connect(ui-&gt;btnConnect,&amp;QPushButton::clicked,this,&amp;MainWindow::onButtonConnectClicked);
+    connect(ui-&gt;btnDisconnect,&amp;QPushButton::clicked,this,&amp;MainWindow::onButtonDisconnectClicked);
+
+    connect(ui-&gt;btnOne,&amp;QPushButton::clicked,this,&amp;MainWindow::onButtonWhoClicked);
+    connect(ui-&gt;btnTwo,&amp;QPushButton::clicked,this,&amp;MainWindow::onButtonWhoClicked);
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+
+void MainWindow::onButtonWhoClicked()
+{
+    qDebug()&lt;&lt;"obj name "&lt;&lt;sender()-&gt;objectName(); //btnOne|btnTwo
+    qDebug()&lt;&lt;"is QPushButton's child "&lt;&lt;sender()-&gt;inherits("QPushButton");
+    QPushButton* p = qobject_cast&lt;QPushButton*&gt;(sender());
+    qDebug()&lt;&lt;"qobject_cast&lt;QPushButton*&gt; "&lt;&lt;(p!=nullptr);
+    if(p == ui-&gt;btnOne)
+    {
+        QMessageBox::information(this,"test","this is one");
+    }
+    else
+    {
+        QMessageBox::information(this,"test","this is two");
+    }
+}
+void MainWindow::onButtonConnectClicked()
+{
+    connect(ui-&gt;btnOne,&amp;QPushButton::clicked,this,&amp;MainWindow::onButtonWhoClicked);
+    connect(ui-&gt;btnTwo,&amp;QPushButton::clicked,this,&amp;MainWindow::onButtonWhoClicked);
+
+
+    QMessageBox::information(this,"test","connect");
+}
+void MainWindow::onButtonDisconnectClicked()
+{
+    disconnect(ui-&gt;btnOne,&amp;QPushButton::clicked,this,&amp;MainWindow::onButtonWhoClicked);
+    disconnect(ui-&gt;btnTwo,&amp;QPushButton::clicked,this,&amp;MainWindow::onButtonWhoClicked);
+
+    QMessageBox::information(this,"test","disconnect");
+}
+
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>對 同一信號 關聯多次 同一 插槽 將 使插槽 多次被 調用
+但 只需要 調用 一次 disconnect 就可 解除 多個關聯
+
+信號 除了可以 管理到 插槽外 亦可以關聯到一個 匹配的 其他信號上
+當本信號被觸發時 關聯的信號 亦將被觸發
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="my"></a>
+		<p><span class="flag">自定義信號</span>
+<pre>要自定義一個 信號 只需要 在函數聲明前 加上 signals: 即可
+在信號函數調用前 加上關鍵字 emit 即可將函數作為 信號發送
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><span class="care">*.h</span>
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
+
+#include &lt;QMainWindow&gt;
+
+namespace Ui {
+class MainWindow;
+}
+
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    explicit MainWindow(QWidget *parent = 0);
+    ~MainWindow();
+
+<span class="care">
+signals:
+    //自定義信號
+    void SendMySignals();</span>
+private slots:
+    void onButtonClick();
+    void onMySlots();
+
+private:
+    Ui::MainWindow *ui;
+};
+
+#endif // MAINWINDOW_H
+
+
+<span class="care">*.cpp</span>
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+#include &lt;QMessageBox&gt;
+#include &lt;QDebug&gt;
+
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+
+    //connect(ui-&gt;pushButton,&amp;QPushButton::clicked,this,&amp;MainWindow::SendMySignals);//直接關聯 信號
+    connect(ui-&gt;pushButton,&amp;QPushButton::clicked,this,&amp;MainWindow::onButtonClick);
+    connect(this,&amp;MainWindow::SendMySignals,this,&amp;MainWindow::onMySlots);
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+
+
+void MainWindow::onButtonClick()
+{
+    //發送信號
+    emit SendMySignals();
+}
+void MainWindow::onMySlots()
+{
+    QMessageBox::information(this,"test","my");
+}
+
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>對於 信號 只需要寫聲明 不能實現 qt編譯前 會自動為其添加 實現代碼
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
