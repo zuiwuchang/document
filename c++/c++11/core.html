@@ -15,7 +15,9 @@
 		<a href="#for">基於範圍的 for</a>
 		<a href="#Lambda">Lambda</a>
 		<a href="#rvalue">右值引用 &amp;&amp;</a>
-		<a href="#classvar">類成員初始化</a>
+		<a href="#objinit">對象構造改良</a>
+		<a href="#func">回返型別後置的函數簽名</a>
+		<a href="#virtual">顯示virtual函數重載</a>
 		<a href="#nullptr">nullptr</a>
 	</div>
 
@@ -430,6 +432,14 @@ public:
 
         printf("%s move %08x\n",_name,this);
     }
+    Animal&amp; operator=(Animal&amp;&amp; copy)
+    {
+        _name = copy._name;
+        copy._name = nullptr;
+
+        printf("%s move = %08x\n",_name,this);
+        return *this;
+    }
 
     ~Animal()
     {
@@ -545,12 +555,215 @@ int main()
 		</p>
 	</div>
 
-	<div class="note"><a name="classvar"></a>
+	<div class="note"><a name="objinit"></a>
+		<p><span class="flag">對象構造改良</span>
+<pre>c++11 中 使用 初始化 對象 變得更加 簡單
+</pre>
+		</p>
+		
+		<p><span class="flag">調用其他 構造函數</span>
+<pre>c++11 中 運行構造函數 在初始化時 調用其它構造函數
+</pre>
+		</p>
+
+		<p><span class="flag">運行派生類 繼承 構造函數</span>
+<pre>c++11 運行派生類 繼承 父類 構造函數
+使用 using PClass::PClass; 繼承
+一旦繼承 就必須繼承 所有 基類 構造函數
+</pre>
+		</p>
+
 		<p><span class="flag">類成員初始化</span>
 <pre>c++98 中class只有 static 成員 變量 可以在定義時 初始化
 現在 非 static 也可以在 定義時初始化 
+(初始化 將作為 變量的 默認值 如果構造函數沒有 顯示 傳入變量值 變量將以此值初始化)
 
 終於可以結束 為多個 構造函數 沒完沒了的 初始化相同 成員變量了
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;cstring&gt;
+
+class animal_t
+{
+protected:
+    std::string _name;
+
+public:
+    animal_t(const std::string&amp; name):_name(name)
+    {
+
+    }
+
+};
+std::string make_like()
+{
+    puts("make_like");
+    return "sleep and eat";
+}
+class cat_t : public animal_t
+{
+protected:
+    //聲明時 初始化 值
+    std::string _like = make_like();
+public:
+    using animal_t::animal_t;
+
+    //調用其他 構造函數
+    cat_t():cat_t("cat")
+    {
+
+    }
+
+    /*錯誤 和 繼承的 構造函數 同簽名 造成 重定義
+    cat_t(const std::string&amp; name)
+    {
+
+    }
+    */
+
+    //不使用 聲明時 定義的 like 值
+    //此時 不能 調用 cat_t(name) 任何一個 構造函數 完成 都代表 對象構造完成
+    //成員變量 需要在 構造完成 時被正確初始化
+    cat_t(const std::string&amp; name,const std::string&amp; like):animal_t(name),_like(like)
+    {
+
+    }
+    void speak()
+    {
+        std::cout&lt;&lt;"i'm "&lt;&lt;_name&lt;&lt;"\n"
+        &lt;&lt;"i like "&lt;&lt;_like&lt;&lt;"\n";
+    }
+};
+int main()
+{
+    //使用 繼承的 構造函數
+    cat_t garfield("Garfield");
+    garfield.speak();
+
+    cat_t cat;
+    cat.speak();
+
+    //make_like 不會被調用
+    cat_t cat1("Cat","eat");
+    cat1.speak();
+
+    return 0;
+}
+
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="func"></a>
+		<p><span class="flag">回返型別後置的函數簽名</span>
+<pre>現在 c++ 運行 將 函數 返回值 寫在 簽名 之後
+配合 decltype 可以寫出 更加 靈活的 模板
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;cstring&gt;
+
+/*
+auto sum(int x,short y)->decltype(x+y)
+{
+    return x + y;
+}*/
+template&lt;typename L,typename R&gt;
+auto sum(L l,R r)->decltype(l+r)
+{
+    return l + r;
+}
+
+int main()
+{
+    int x = 1;
+    short y = 2;
+    std::cout&lt;&lt;sum(x,y)&lt;&lt;"\n";
+
+    return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="virtual"></a>
+		<p><span class="flag">顯示virtual函數重載</span>
+<pre>c++11 增強了對 virtual 函數的 控制
+
+在 重載 的 virtual 後減少 <span class="care">override</span> 描述
+代表 是在重載基類的 virtual 函數 如果 基類不存在 此 virtual 編譯器將 給出錯誤
+
+在 virtual 後 加上 <span class="care">final</span> 描述
+將使用 子類無法 重載 此 virtual 函數
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;cstring&gt;
+
+class Animal
+{
+public:
+    virtual void Move()
+    {
+
+    }
+    virtual void Attack()
+    {
+
+    }
+};
+
+class Cat:public Animal
+{
+public:
+    /*錯誤 基類不存在 此簽名的 virtual 函數
+    virtual void Move() const override
+    {
+        puts("Cat move");
+    }*/
+    virtual void Move() override
+    {
+        puts("Cat move");
+    }
+    virtual void Attack() override final
+    {
+        Move();
+        puts("Cat Attack");
+    }
+};
+
+class Garfield:public Cat
+{
+public:
+    virtual void Move() override
+    {
+        puts("Garfield move");
+    }
+    /*無法重載 編譯器會對 final的重載 報錯
+    virtual void Attack() override
+    {
+        Move();
+        puts("Garfield Attack");
+    }*/
+};
+int main()
+{
+    Cat cat;
+    cat.Attack();
+
+    Garfield garfield;
+    garfield.Attack();
+
+    return 0;
+}
 </pre>
 		</p>
 	</div>
@@ -559,10 +772,16 @@ int main()
 		<p><span class="flag">nullptr</span>
 <pre>c++11 引入新的關鍵字 nullptr 作為空指針
 
-nullptr 的型別為 nullptr_t 可以隱式轉換為其它任意指針 
+nullptr 的型別為 nullptr_t 可以隱式轉換為其它任意指針
+
+nullptr 在判別式中 為 false
+
+為了兼容 舊代碼 0 依然可以 作為 空指針
+nullptr 相對 0 的壞處在於 不能隱式 轉換為 整型 亦不可和 整型 計算 比較 
 </pre>
 		</p>
 	</div>
+
 </div>
 </body>
 </html>
