@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>qt</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#QPushButton">QPushButton</a>
+		<a href="#QRadioButton">QRadioButton</a>
+		<a href="#QCheckBox">QCheckBox</a>
+		<a href="#QCommandLinkButton">QCommandLinkButton</a>
+	</div>
+
+	<div class="note"><a name="QPushButton"></a>
+		<p><span class="flag">QPushButton</span>
+<pre>QPushButton 是一個 按壓按鈕
+
+通常會為 void clicked() 信號 綁定一個 插槽 執行 按鈕單擊代碼
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="QRadioButton"></a>
+		<p><span class="flag">QRadioButton</span>
+<pre>QRadioButton 是一個 單選按鈕
+
+通常會為 void toggled(bool checked) 信號 綁定一個 插槽 執行 單選狀態改變時的邏輯
+
+所有 QRadioButton 默認在 同一組中 除非將其 放在 GroupBox容器中
+或者 手動放在一個 QButtonGroup 中
+
+對去 QButtonGroup 中的 QRadioButton 可以 綁定 QButtonGroup 的 
+void buttonToggled(QAbstractButton *button, bool checked)
+void buttonToggled(int id, bool checked)
+信號 處理 單選 切換
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><span class="care">*.h</span>
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
+
+#include &lt;QMainWindow&gt;
+#include &lt;QButtonGroup&gt;
+
+namespace Ui {
+class MainWindow;
+}
+
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    explicit MainWindow(QWidget *parent = 0);
+    ~MainWindow();
+
+
+private slots:
+
+    void RadioButtonToggled(int id, bool checked);
+
+
+
+private:
+    Ui::MainWindow *ui;
+
+    QButtonGroup _group;
+};
+
+#endif // MAINWINDOW_H
+
+
+
+<span class="care">*.cpp</span>
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+#include &lt;QMessageBox&gt;
+#include &lt;QDebug&gt;
+
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow),
+    _group(this)
+{
+    ui->setupUi(this);
+
+    _group.addButton(ui->radioButton,0);
+    _group.addButton(ui->radioButton_2,1);
+    _group.addButton(ui->radioButton_3,2);
+
+    connect(&amp;_group, static_cast&lt;void(QButtonGroup::*)(int, bool)&gt;(&amp;QButtonGroup::buttonToggled),this,&amp;MainWindow::RadioButtonToggled);
+
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+
+void MainWindow::RadioButtonToggled(int id, bool checked)
+{
+    if(checked)
+    {
+        QString str = QString::number(id) + " select";
+        QMessageBox::information(this,"test",str);
+    }
+}
+
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="QCheckBox"></a>
+		<p><span class="flag">QCheckBox</span>
+<pre>QCheckBox 是一個複選框
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="QCommandLinkButton"></a>
+		<p><span class="flag">QCommandLinkButton</span>
+<pre>QCommandLinkButton 是一個 Vista style 的 命令鏈接按鈕
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
