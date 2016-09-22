@@ -12,6 +12,11 @@
 		<a href="#QRadioButton">QRadioButton</a>
 		<a href="#QCheckBox">QCheckBox</a>
 		<a href="#QCommandLinkButton">QCommandLinkButton</a>
+		<a href="#QLineEdit">QLineEdit</a>
+		<a href="#QTextEdit">QTextEdit</a>
+		<a href="#QTextBrowser">QTextBrowser</a>
+
+		
 	</div>
 
 	<div class="note"><a name="QPushButton"></a>
@@ -129,6 +134,97 @@ void MainWindow::RadioButtonToggled(int id, bool checked)
 		</p>
 	</div>
 
+	<div class="note"><a name="QLineEdit"></a>
+		<p><span class="flag">QLineEdit</span>
+<pre>QLineEdit 是一個 單行的文本 編輯框
+
+void setEchoMode(EchoMode) 可以設置 如何顯示文本
+	<span class="care">QLineEdit::Normal
+	QLineEdit::NoEcho
+	QLineEdit::Password
+	QLineEdit::PasswordEchoOnEdit	//短暫顯示輸入文本後 切換為*顯示</span>
+</pre>
+		</p>
+
+		<p><span class="flag">數據驗證</span>
+<pre>QLineEdit 提供了多種 輸入數據驗證方式
+
+方法一 使用
+void setInputMask(const QString &inputMask)
+傳入一個 QString 掩碼
+
+方法二 使用 
+void QLineEdit::setValidator(const QValidator *v)
+設置 一個QValidator 驗證器
+	<span>QIntValidator QDoubleValidator QRegExpValidator
+	分別是 int double 正則驗證器
+	</span>
+
+
+下面的實例 分別 使用 不同方法 使QLineEdit 只能輸入 [0,999] 的數字
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
+{
+    ui-&gt;setupUi(this);
+
+    ui-&gt;lineEditMask-&gt;setInputMask("999");
+
+    ui-&gt;lineEditInt-&gt;setValidator(new QIntValidator(0,999,ui-&gt;lineEditInt));
+
+    ui-&gt;lineEditRegex-&gt;setValidator(new QRegExpValidator(QRegExp("\\d{0,3}"),ui-&gt;lineEditRegex));
+}
+</pre>
+		</p>
+	
+		<p><span class="flag">自動 補全</span>
+<pre>void QLineEdit::setCompleter(QCompleter *c) 可以 啟動 輸入 自動 補全功能
+
+
+//創建 匹配 數據
+QStringList list;
+list+="kate is so sexy";
+list+="kate beckinsale";
+//將列表 排序
+list.sort();
+QCompleter* p_completer = new QCompleter(list,ui-&gt;lineEdit);
+
+//Qt::CaseSensitive 區分大小寫 默認
+//Qt::CaseInsensitive 忽略大小寫
+p_completer-&gt;setCaseSensitivity(Qt::CaseInsensitive);
+
+//設置 匹配 顯示 模式
+//QCompleter::PopupCompletion 默認 顯示 可選匹配列表
+//QCompleter::InlineCompletion 值顯示 最接近的 匹配
+//QCompleter::UnfilteredPopupCompletion 不進行匹配將所有 可選列表 顯示 出來
+//p_completer-&gt;setCompletionMode(QCompleter::PopupCompletion);
+
+//設置 匹配
+ui-&gt;lineEdit-&gt;setCompleter(p_completer);
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="QTextEdit"></a>
+		<p><span class="flag">QTextEdit</span>
+<pre>QTextEdit 是一個 富文本框
+可以 顯示 編輯一個 html css 的一個 子集
+
+QString toHtml() const
+void setHtml(const QString &text)
+...
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="QTextBrowser"></a>
+		<p><span class="flag">QTextBrowser</span>
+<pre>QTextBrowser 是一個 富文本顯示框
+派生 自QTextEdit 用法 基本同 QTextEdit 只是 QTextBrowser 只可顯示罷
+
+同時 QTextBrowser 提供了 打開 a 標籤的能力
+</pre>
+		</p>
+	</div>
 </div>
 </body>
 </html>

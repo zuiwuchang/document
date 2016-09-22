@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>qt</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#source">資源</a>
+		<a href="#ico">app ico</a>
+
+		
+	</div>
+
+	<div class="note"><a name="source"></a>
+		<p><span class="flag">資源</span>
+<pre>qt 提供了 平台無關的 資源系統
+使用 *.qrc 定義資源
+
+qt使用
+:XXX
+qrc://XXX
+訪問資源
+	<span class="care">: 協議 用於需要文件路徑
+	qrc: 協議 用於需要url路徑</span>
+
+ui->pushButton_2->setIcon(QIcon(":/img/king.ico"));
+ui->textBrowser->setHtml("&lt;img src='qrc:///img/king.ico'&gt;");
+</pre>
+		</p>
+		<p><span class="flag">內嵌資源</span>
+<pre>直接在 *.pro 中 加上
+RESOURCES += *.qrc
+即可
+</pre>
+		</p>
+		<p><span class="flag">外部資源文件</span>
+<pre>qt 提供了 rcc 工具 將 資源打包為一個 二進制文件
+
+使用 rcc -binary *.qrc -o *.rcc
+將資源打包為 rcc文件
+
+在 main 函數中 調用 QResource::registerResource("*.rcc") 加載資源
+QResource::unregisterResource 卸載資源
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="ico"></a>
+		<p><span class="flag">app ico</span>
+<pre>要為應用設置一個 圖標 只需將圖標 複製到 項目下
+之後 在 *.pro 中添加 
+RC_ICONS = *.ico
+</pre>
+		</p>
+	</div>
+
+	
+</div>
+</body>
+</html>

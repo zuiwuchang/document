@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>qt</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#QWebEngineView">QWebEngineView</a>
+		<a href="#calljs">c++調用js</a>
+		<a href="#callcpp">js調用c++</a>
+
+		
+	</div>
+
+	<div class="note"><a name="QWebEngineView"></a>
+		<p><span class="flag">QWebEngineView</span>
+<pre>QWebEngineView 是qt使用 Chromium 內核的一個 web視圖
+
+_view = new QWebEngineView(this);
+_view->setUrl(QUrl(QStringLiteral("qrc:///view/index.html")));
+</pre>
+	</div>
+
+	<div class="note"><a name="calljs"></a>
+		<p><span class="flag">c++調用js</span>
+<pre>//_view->page()->runJavaScript("get_name()");                           
+_view->page()->runJavaScript("get_name()",[](const QVariant& v){
+    if(v.canConvert(QVariant::String))
+    {
+        QString s = v.value&lt;QString&gt;();
+        QMessageBox::information(nullptr,"test",s);
+    }
+});
+</pre>
+		</p>
+	</div>	
+
+	<div class="note"><a name="callcpp"></a>
+		<p><span class="flag">js調用c++</span>
+<pre>qt 使用 所謂的 QWebChannel 使用 js 調用 c++
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre><span class="care">step 1 定義一個派生自QObject 的class作為 Channel</span>
+#ifndef MYCHANNEL_H
+#define MYCHANNEL_H
+
+#include &lt;QObject&gt;
+
+class MyChannel : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(QString text MEMBER _text NOTIFY textChanged)
+public:
+    explicit MyChannel(QObject *parent = 0);
+
+
+
+private:
+    QString _text = "val test";
+
+signals:
+    void textChanged(const QString &amp;text);
+public slots:
+    void Show(const QString&amp; str);
+    void onTextChanged(const QString&amp; text);
+};
+
+#endif // MYCHANNEL_H
+
+
+#include "mychannel.h"
+#include &lt;QMessageBox&gt;
+MyChannel::MyChannel(QObject *parent) : QObject(parent)
+{
+    connect(this,&amp;MyChannel::textChanged,this,&amp;MyChannel::onTextChanged);
+}
+void MyChannel::onTextChanged(const QString&amp; text)
+{
+    QMessageBox::information(nullptr,"value change",text);
+}
+void MyChannel::Show(const QString&amp; str)
+{
+    QMessageBox::information(nullptr,"from js call",str);
+}
+
+
+
+<span class="care">step 2 將 Channel 註冊到 QWebEngineView 的Page上</span>
+_view = new QWebEngineView(this);
+QWebEnginePage* page = _view-&gt;page();
+
+QWebChannel *channel = new QWebChannel(this);
+channel-&gt;registerObject(QStringLiteral("mychannel"), new MyChannel(this));
+page-&gt;setWebChannel(channel);
+
+page-&gt;load(QUrl(QStringLiteral("qrc:///view/index.html")));
+
+
+
+<span class="care">step 3 在html中引入js qwebchannel.js
+qwebchannel.js 有qt 提供 在 
+Qt5.7.0/Examples/Qt-5.7/webenginewidgets/markdowneditor/resources 中</span>
+&lt;script type="text/javascript" src="qrc:///view/qwebchannel.js"&lt;&gt;/script&gt;
+
+
+
+<span class="care">step 4 在html中引 創建 QWebChannel 對象 獲取channel對象</span>
+
+&lt;button onclick='on_click();'&gt;call c++&lt;/button&gt;
+
+&lt;script type="text/javascript"&gt;
+function get_name(){
+	return "index view";
+}
+
+new QWebChannel(qt.webChannelTransport, function(channel) {
+        window.mychannel = channel.objects.mychannel;
+      });
+function on_click(){
+	if(window.mychannel){
+		var text = window.mychannel.text;
+		alert(text);
+		window.mychannel.text = "val change";
+		window.mychannel.Show("test msg");
+	}
+}
+&lt;/script&gt;
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>定義的channel類中 只有 
+qt屬性		會被作為 js屬性 傳入js
+qt slots	會被作為 js函數 傳入js
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
