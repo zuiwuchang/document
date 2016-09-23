@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>qt</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#i18n">國際化</a>
+		<a href="#%n">%n 參數</a>
+
+		
+	</div>
+
+	<div class="note"><a name="i18n"></a>
+		<p><span class="flag">國際化</span>
+<pre>qt 提供了 國際化功能
+
+如下函數 提供了 類似 gettext 的功能
+static QString QObject::tr(const char *sourceText, const char *disambiguation = Q_NULLPTR, int n = -1)
+	<span class="care">sourceText 帶翻譯文本
+	disambiguation	為翻譯文本編寫的 參考說明
+	n 為翻譯文本編寫的 參考說明
+	</span>
+
+
+QMenuBar* bar = new QMenuBar(this);
+QMenu* file = new QMenu(tr("&File"),bar);
+bar-&gt;addMenu(file);
+{
+    QAction* msg = new QAction (tr("&Msg"),file);
+    file-&gt;addAction(msg);
+
+    QAction* close = new QAction (tr("&Close"),file);
+    file-&gt;addAction(close);
+
+    connect(close,&QAction::triggered,this,&MainWindow::close);
+}
+setMenuBar(bar);
+</pre>
+		</p>
+		
+		<p><span class="flag">lupdate</span>
+<pre>qt使用 *.ts 作為 翻譯編輯文件
+
+在*.pro中 添加 TRANSLATIONS += *.ts
+之後 在 項目文件夾下 執行 lupdate *.pro
+
+lupdate 自動為項目 創建 *.ts 或更新 *.ts 文件
+</pre>
+		</p>
+
+		<p><span class="flag">Qt Linguist</span>
+<pre>qt 提供了一個 Qt Linguist 用於 編輯 *.ts 文件
+
+在 Qt Linguist 編輯完成後 點擊 Qt Linguist 的 文件-&gt;發布 
+可以將 *.ts 轉為 qt使用的 *.qm 二進制翻譯文件
+</pre>
+		</p>
+
+		<p><span class="flag">使用 *.qm</span>
+<pre>在 main 函數中 使用 QTranslator 加載 翻譯文件
+
+int main(int argc, char *argv[])
+{
+    QApplication a(argc, argv);
+    QTranslator translator;
+    translator.load(":/zh.qm");
+    a.installTranslator(&translator);
+
+    MainWindow w;
+    w.show();
+
+    return a.exec();
+}
+</pre>
+		</p>
+
+	</div>
+
+	<div class="note"><a name="%n"></a>
+		<p><span class="flag">%n 參數</span>
+<pre>tr 不能像 gettext 一樣 使用 % 傳遞參數
+而是使用 蹩腳的 %n 和 .arg()...
+
+void MainWindow::onButtonClick()
+{
+   int hp = 10;
+   int mp = 20;
+   QString s = tr("hp = %1 mp = %2").arg(hp).arg(mp);
+   QMessageBox::information(this,"test",s);
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

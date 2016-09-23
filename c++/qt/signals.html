@@ -62,7 +62,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     <span class="care">//關聯插槽
     connect(ui-&gt;pushButton,&QPushButton::clicked,this,&MainWindow::onButtonClicked);
-    //connect(ui->pushButton,SIGNAL(clicked()),this,SLOT(onButtonClicked())); 舊版本qt4寫法 不要繼續使用</span>
+    //connect(ui->pushButton,SIGNAL(clicked()),this,SLOT(onButtonClicked())); 舊版本qt4寫法 不要繼續使用
+    /* 關聯 帶參數 插槽
+    connect(&_group, 
+        static_cast&lt;void(QButtonGroup::*)(int, bool)&gt;(&amp;QButtonGroup::buttonToggled),
+        this,
+        &amp;MainWindow::RadioButtonToggled);
+    */</span>
 }
 </pre>
 		</p>

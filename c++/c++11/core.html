@@ -19,6 +19,9 @@
 		<a href="#func">回返型別後置的函數簽名</a>
 		<a href="#virtual">顯示virtual函數重載</a>
 		<a href="#nullptr">nullptr</a>
+		<a href="#enum">強類型枚舉</a>
+		<a href="#explicit">顯示類型轉換</a>
+		<a href="#string">新的 字符串定義</a>
 	</div>
 
 	<div class="note"><a name="initializer_list"></a>
@@ -778,6 +781,69 @@ nullptr 在判別式中 為 false
 
 為了兼容 舊代碼 0 依然可以 作為 空指針
 nullptr 相對 0 的壞處在於 不能隱式 轉換為 整型 亦不可和 整型 計算 比較 
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="enum"></a>
+		<p><span class="flag">強類型枚舉</span>
+<pre>c++11 之前的枚舉來源於c 所有枚舉使用同一個 環境 故
+若 兩個 枚舉 使用了相同 枚舉值 會出現 重定義錯誤
+
+c++11 增加了 強類型枚舉 解決此問題
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>enum class Animal
+{
+    Cat,
+    Dog,
+};
+enum class Monster
+{
+    Cat,
+    Snake,
+};
+int main()
+{
+    Animal animal = Animal::Cat;
+    Monster monster = Monster::Cat;
+
+    return 0;
+}
+
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="explicit"></a>
+		<p><span class="flag">explicit</span>
+<pre>在 構造函數前 加上 explicit 可以避免 隱式 轉換
+現在 explicit 可以使用 在 operator bool() 等型別轉換 上
+以避免 型別隱式 轉換 
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="string"></a>
+		<p><span class="flag">新的 字符串定義</span>
+<pre>c++11 使用 u8 u U 定義字符串 字面值
+同時 定義了 新string 型別
+
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+int main()
+{
+    std::string utf8 = u8"this is UTF-8 string";
+    std::u16string utf16 = u"this is UTF-16 string";
+    std::u32string utf32 = U"this is UTF-32 string";
+    return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>現在 std::string 不再是一個 ascii 字符串 而是 utf8 字符串
 </pre>
 		</p>
 	</div>
