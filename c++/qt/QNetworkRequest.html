@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>qt</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#QNetworkRequest">QNetworkRequest</a>
+
+		
+	</div>
+
+	<div class="note"><a name="QNetworkRequest"></a>
+		<p><span class="flag">QNetworkRequest</span>
+<pre>QNetworkRequest 可以發送 一個 http get/post ...請求
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><span class="care">//創建 網絡管理器</span>
+_mamager = new QNetworkAccessManager(this);
+connect(_mamager,
+        static_cast&lt;void(QNetworkAccessManager::*)(QNetworkReply*)&gt;(&amp;QNetworkAccessManager::finished),
+        this,
+        &amp;MainWindow::onReply
+        );
+
+
+<span class="care">//發送 post get 請求</span>
+void MainWindow::on_pushButtonGet_clicked()
+{
+    //create request
+    QNetworkRequest request= QNetworkRequest(QUrl("http://127.0.0.1:9090"));
+    request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    //get
+    _mamager-&gt;get(request);
+    //QNetworkReply* reply = _mamager->get(request);
+    //reply->deleteLater();
+}
+
+void MainWindow::on_pushButtonPost_clicked()
+{
+    //create request
+    QNetworkRequest request= QNetworkRequest(QUrl("http://127.0.0.1:9090"));
+    request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    //post
+    QByteArray data;
+    _mamager-&gt;post(request,data);
+}
+
+
+<span class="care">//解析 請求 結果</span>
+void MainWindow::onReply(QNetworkReply* reply)
+{
+    //reply
+    if(reply-&gt;error() == QNetworkReply::NoError)
+    {
+        qDebug()&lt;&lt;reply-&gt;readAll();
+    }
+    else
+    {
+        qDebug()&lt;&lt;reply-&gt;errorString();
+    }
+
+    reply-&gt;deleteLater();
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>使用 QNetworkReply::deleteLater 釋放 QNetworkReply指針 而不要 delete ptr
+</pre>
+		</p>
+	</div>
+
+	
+
+</div>
+</body>
+</html>
