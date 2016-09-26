@@ -1,0 +1,33 @@
+<!DOCTYPE html >
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>algorithm</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#static">static</a>
+
+	</div>
+
+	<div class="note"><a name="static"></a>
+		<p><span class="flag">static</span>
+<pre>mingw 編譯的 程序 需要 打包 
+libgcc_s_dw2-1.dll
+libstdc++-6.dll
+
+在 linker 的選項 中 增加 
+-static-libgcc -static-libstdc++
+可以 將其 靜態 連接到代碼中
+	<span class="care">-static-libgcc	libgcc_s_dw2-1.dll
+	-static-libstdc++	libstdc++-6.dll</span>
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+
