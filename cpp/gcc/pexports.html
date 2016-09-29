@@ -1,0 +1,39 @@
+<!DOCTYPE html >
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>algorithm</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#pexports">pexports</a>
+		<a href="#dlltool">dlltool</a>
+
+	</div>
+
+	<div class="note"><a name="pexports"></a>
+		<p><span class="flag">pexports</span>
+<pre>pexports 是mingw 中的一個組件 
+可以將 生成一個 *.dll 的 標準 *.def 文件
+
+pexports XXX.dll > XXX.def
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="dlltool"></a>
+		<p><span class="flag">dlltool</span>
+<pre>dlltool 是mingw 中的一個組件 
+可以將 從一個 標準 *.def 文件 產生 *.a 的 庫描述文件
+
+dlltool -d XXX.def -D XXX -l XXX.a
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+
