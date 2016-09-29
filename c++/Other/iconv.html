@@ -46,12 +46,6 @@ iconv 值提供了 三個 函數
 	<span class="care">關閉之前打開的 句柄</span>
 </pre>
 		</p>
-		<p><span class="flag">注意</span>
-<pre>iconv 轉碼時 
-沒讀取 inbuf 一個字節 ++(*inbytesleft)
-每向outbuf寫入 一個 字節 --(*outbytesleft)
-</pre>
-		</p>
 
 		<p><span class="flag">example</span>
 <pre>#include &lt;iostream&gt;
@@ -91,6 +85,13 @@ int main()
     iconv_close(cd);
     return 0;
 }
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>iconv 轉碼時 
+沒讀取 inbuf 一個字節 ++(*inbytesleft)
+每向outbuf寫入 一個 字節 --(*outbytesleft)
 </pre>
 		</p>
 	</div>
