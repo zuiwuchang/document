@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>c++11</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#atomic">atomic</a>
+	</div>
+
+	<div class="note"><a name="atomic"></a>
+		<p><span class="flag">atomic</span>
+<pre>#include &lt;atomic&gt;
+
+c++11 提供了原子操作 以便 在不需要 mutex 時可以 簡單的在多線程中 操作一些數據
+
+template&lt;typename T&gt;
+std::atomic&lt;T&gt;
+可以創建一個 型別T 的原子數據
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
