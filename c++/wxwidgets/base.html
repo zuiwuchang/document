@@ -33,11 +33,11 @@ wxWidgets 使用陰數版本 代表一個 已穩定的 版本 如 3.0.x
 3	下載最新 wxwidgets 源碼 並解壓
 4	cd wxwidgets/build/msw 編譯 wxwidgets
 	//編譯 動態庫
-	mingw32-make -f makefile.gcc MONOLITHIC=0 SHARED=1 UNICODE=1 BUILD=release
-	mingw32-make -f makefile.gcc MONOLITHIC=0 SHARED=1 UNICODE=1 BUILD=debug
+	mingw32-make -f makefile.gcc MONOLITHIC=0 SHARED=1 UNICODE=1 CXXFLAGS="-std=gnu++14" BUILD=release
+	mingw32-make -f makefile.gcc MONOLITHIC=0 SHARED=1 UNICODE=1 CXXFLAGS="-std=gnu++14" BUILD=debug
 	//編譯 靜態庫
-	mingw32-make -f makefile.gcc MONOLITHIC=0 SHARED=0 UNICODE=1 BUILD=release
-	mingw32-make -f makefile.gcc MONOLITHIC=0 SHARED=0 UNICODE=1 BUILD=debug
+	mingw32-make -f makefile.gcc MONOLITHIC=0 SHARED=0 UNICODE=1 CXXFLAGS="-std=gnu++14" BUILD=release
+	mingw32-make -f makefile.gcc MONOLITHIC=0 SHARED=0 UNICODE=1 CXXFLAGS="-std=gnu++14" BUILD=debug
 
 	UNICODE(1/0 是否使用 unicode)
 	MONOLITHIC(1/0 是否將庫編譯到一個文件中)
@@ -50,6 +50,9 @@ wxWidgets 使用陰數版本 代表一個 已穩定的 版本 如 3.0.x
 		</p>
 		<p><span class="flag">注意</span>
 <pre>需要編譯 debug 版本庫 才能編譯debug版本項目
+
+error <span class="care">strcasecmp</span> 函數未定義
+修改 wx***/include/wx/string.h 增加 #include &lt;strings.h&gt;
 </pre>
 		</p>
 	</div>
