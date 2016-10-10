@@ -10,6 +10,7 @@
 	<div class="title">
 		<a href="#gtest">gtest</a>
 		<a href="#vs">環境配置 vs</a>
+		<a href="#gcc">環境配置 gcc</a>
 		<a href="#how">how</a>
 		<a href="#ASSERT">斷言</a>
 	</div>
@@ -29,6 +30,18 @@
 2	打開 googletest/msvc/gtest.sln googletest/msvc/gtest-md.sln 項目
 3	分別編譯 md mt 版本 靜態庫
 4	將 靜態庫 googletest/include 加入項目
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="gcc"></a>
+		<p><span class="flag">環境配置 gcc</span>
+<pre>1	安裝 cmake
+2	下載 最新 源碼
+3	執行 cmake -G "MSYS Makefiles"
+4	執行 make
+
+gcc 編譯 需要加上 -std=gnu++11 選項
 </pre>
 		</p>
 	</div>

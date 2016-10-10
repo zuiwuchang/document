@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>shared_ptr</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#assert">assert 斷言</a>
+		<a href="#test">test</a>
+	</div>
+
+	<div class="note"><a name="assert"></a>
+		<p><span class="flag">assert 斷言</span>
+<pre><span class="care">#include &lt;boost/assert.hpp&gt;</span>
+
+assert 組件 提供了 多個 有用的宏
+
+BOOST_ASSERT(expr)
+在 debug 模式下  判斷 expr 如果斷言失敗 將 打印錯誤並 結束程序
+
+如果定義了 BOOST_DISABLE_ASSERTS 則 BOOST_ASSERT 宏將被禁用
+
+如果定義了 BOOST_ENABLE_ASSERT_HANDLER 則無論是否debug 
+BOOST_ASSERT宏 都將生效
+並且將 調用 boost namespace 下的 void assertion_failed(const char * expr,const char* function,const char * file, long line) 函數
+	<span class="care">boost 故意沒有實現 assertion_failed 函數
+	讓使用者 去實現 以便 可以安自己的方式 處理錯誤</span>
+</pre>
+		</p>
+		<p><span class="flag">example BOOST_ASSERT</span>
+<pre>#include &lt;iostream&gt;
+
+#define BOOST_ENABLE_ASSERT_HANDLER
+#include &lt;boost/assert.hpp&gt;
+
+namespace boost
+{
+    void assertion_failed(const char* expr,const char* function,const char* file, long line)
+    {
+        std::cout&lt;&lt;"error:"&lt;&lt;file&lt;&lt;"(at "&lt;&lt;line&lt;&lt;"line)\n";
+    }
+};
+int main()
+{
+    BOOST_ASSERT(false);
+
+    std::cout&lt;&lt;"Hello world!"&lt;&lt;std::endl;
+    return 0;
+}
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="test"></a>
+		<p><span class="flag">test</span>
+<pre>#include &lt;boost/test/unit_test.hpp&gt;
+
+test庫需要編譯
+bjam --toolset=msvc-10.0 --with-test --build-type=complete --prefix=D:\Boost install
+
+test 是一個 功能強大的 單元測試框架
+</pre>
+		</p>
+	</div>
+	
+</div>
+</body>
+</html>
