@@ -1,0 +1,115 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>lua</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="main">
+	<div class="title">
+		<a href="#luaunit">luaunit</a>
+		<a href="#use">使用 luaunit</a>
+		<a href="#assert">斷言</a>
+		
+	</div>
+
+	<div class="note"><a name="luaunit"></a>
+		<p><span class="flag">luaunit</span>
+<pre>luaunit 是一個 開源(BSD) lua 單元測試 庫
+
+官網 <a href="https://github.com/bluebird75/luaunit" target="_blank">https://github.com/bluebird75/luaunit</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="use"></a>
+		<p><span class="flag">使用 luaunit</span>
+<pre>1	從官網下載最新 源碼
+
+2	將 luaunit.lua 加入到 lua require 目錄
+
+3	執行 require('luaunit')
+	定義 TestXXX 測試函數
+	執行lu.LuaUnit.run() 運行 測試
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>local test = require('luaunit')
+
+function TestExample()
+	test.assertTrue(true)
+end
+
+
+test.LuaUnit.run()
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="assert"></a>
+		<p><span class="flag">斷言</span>
+<pre>luaunit 提供了 多種斷言
+
+//值
+assertTrue(value)
+assertFalse(value)
+assertNil(value)
+assertNotNil(value)
+assertIs(actual, expected)
+assertNotIs(actual, expected)
+
+//字符串
+assertStrContains(str, sub[, useRe])
+assertStrIContains(str, sub)
+assertNotStrContains(str, sub, useRe)
+assertNotStrIContains(str, sub)
+assertStrMatches(str, pattern[, start[, final]])
+
+//error
+assertError(func, ...)
+assertErrorMsgEquals(expectedMsg, func, ...)
+assertErrorMsgContains(partialMsg, func, ...)
+assertErrorMsgMatches(expectedPattern, func, ...)
+
+//型別
+assertIsNumber(value)
+assertIsString(value)
+assertIsTable(value)
+assertIsBoolean(value)
+assertIsNil(value)
+assertIsFunction(value)
+assertIsUserdata(value)
+assertIsThread(value)
+
+//table
+assertItemsEquals(actual, expected)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>local test = require('luaunit')
+
+function TestValue()
+	test.assertTrue(true)
+	test.assertFalse(false)
+	test.assertNil(nil)
+	test.assertNotNil(1)
+	test.assertIs("1","1")
+	test.assertNotIs(1,"1")
+end
+
+function TestString()
+	test.assertStrContains("kate beckinsale is so sexy","beckinsale")
+	test.assertStrIContains("kate beckinsale is so sexy","Beckinsale")
+end
+
+test.LuaUnit.run()
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+

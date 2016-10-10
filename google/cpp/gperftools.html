@@ -28,8 +28,11 @@ tcmalloc 是為高並發而優化的高效內存分配器
 tc 是 thread cache的縮寫 對於小對象 為每個線程都 創建一個 內存池 
 從池中 分配內存 避免加鎖操作
 對於 大對象(大於32k) 使用 全局的 內存池
+
+win32 下gperftools的的組件 只有 tcmalloc_minimal 可用
 </pre>
 		</p>
+
 		<p><span class="flag">win32</span>
 <pre>1	從官網下載 源碼
 2	打開附帶的vs項目 並編譯 libtcmalloc_minimal
@@ -87,6 +90,7 @@ int _tmain(int argc, _TCHAR* argv[])
 }
 </pre>
 		</p>
+
 		<p><span class="flag">__tcmalloc</span>
 <pre>如果 調用 malloc/free new/delete 需要 強制引入 __tcmalloc 
 (配置屬性-&lt;鏈接器-&lt;輸入-&lt;強制符號引入)
@@ -104,6 +108,14 @@ ReplaceSystemAlloc 對os的 malloc/free 進行了inline hook 使用其調用 tc 
 </pre>
 		</p>
 
+		<p><span class="flag">mingw</span>
+<pre>tcmalloc 沒提供 mingw的 編譯 項目 
+只能 使用 dlltool 使用 vs 編譯的 dll
+
+字啊 linker 中 要加上 -u __tcmalloc 參數
+</pre>
+		</p>
+
 		<p><span class="flag">注意</span>
 <pre>不要在 多個模塊中 引入 tc模塊
 僅在主模塊中 引入
@@ -113,7 +125,6 @@ ReplaceSystemAlloc 對os的 malloc/free 進行了inline hook 使用其調用 tc 
 而且 只需要在 主模塊中 引入 tc 模塊 其他模塊 調用 malloc/free 而非 new/delete 
 便可享用tc的好處
 tc 同時 hook 了 LoadLibrary 每當有新dll 加載 都會 執行PatchAllModules hook dll的 malloc/free
-
 
 vs 下 debug模式下 會 調用 dbgnew.cpp 下 的 new/delete 此函數沒有 tc hook
 然 release 下會調用 new.cpp 中的 new/delete 此 new/delete 調用了 malloc/free 故 可以 享受 tc的 效果

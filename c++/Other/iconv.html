@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>jsoncpp</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#iconv">iconv</a>
+		<a href="#using">使用 iconv</a>
+	</div>
+
+	<div class="note"><a name="iconv"></a>
+		<p><span class="flag">iconv</span>
+<pre>iconv 是 GNU社區 提供的 一個開源(GPL LGPL) 跨平台的 c 字符集 轉換庫
+
+官網 <a href="https://www.gnu.org/software/libiconv/" target="_blank">https://www.gnu.org/software/libiconv/</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="using"></a>
+		<p><span class="flag">使用 iconv</span>
+<pre>#include &lt;iconv.h&gt;
+
+-llibiconv
+
+iconv 值提供了 三個 函數
+
+1	iconv_t iconv_open (const char* tocode, const char* fromcode)
+	<span class="care">打開一個 轉換句柄
+	tocode		轉換到的編碼
+	fromcode	輸入編碼
+	失敗返回 (iconv_t)(−1)
+	</span>
+
+2	size_t iconv (iconv_t cd,	//打開的句柄
+	const char* * inbuf, 	//輸入編碼
+	size_t * inbytesleft,	//輸入長度
+	char* * outbuf, 	//輸出編碼
+	size_t * outbytesleft	//輸出長度
+	);
+	<span class="care">轉碼 失敗返回 (size_t)(−1)</span>
+
+3	int iconv_close (iconv_t cd);
+	<span class="care">關閉之前打開的 句柄</span>
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>#include &lt;iostream&gt;
+#include &lt;iconv.h&gt;
+#include &lt;string&gt;
+
+
+int main()
+{
+
+    //創建一個 轉換 句柄
+    iconv_t cd = iconv_open("GBK","UTF-8");
+    if(cd == (iconv_t)-1)
+    {
+        std::cout&lt;&lt;"iconv_open error\n";
+        return 0;
+    }
+
+    std::string utf8 = u8"草泥馬b";
+    std::size_t utf8_size = utf8.size();
+    const char* p_u = utf8.data();
+
+    std::size_t gbk_size = 100;
+    char gbk[100] = {0};
+    char* p_g = gbk;
+    std::size_t n = iconv(cd,&p_u,&utf8_size,&p_g,&gbk_size);
+    if(n == (std::size_t)-1)
+    {
+        std::cout&lt;&lt;"iconv error\n";
+    }
+    else
+    {
+        std::cout&lt;&lt;(100 - gbk_size)&lt;&lt;" "&lt;&lt;gbk&lt;&lt;"\n";
+    }
+
+    //銷毀 iconv 句柄
+    iconv_close(cd);
+    return 0;
+}
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>iconv 轉碼時 
+沒讀取 inbuf 一個字節 ++(*inbytesleft)
+每向outbuf寫入 一個 字節 --(*outbytesleft)
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
