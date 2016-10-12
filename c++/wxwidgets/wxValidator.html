@@ -1,0 +1,99 @@
+<!DOCTYPE html">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>dialog</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#wxValidator">wxValidator 控件輸入驗證</a>
+		<a href="#wxTextValidator">wxTextValidator 文本驗證</a>
+		<a href="#wxNumValidator">wxNumValidator wxIntegerValidator 數字過濾</a>
+	</div>
+
+	<div class="note"><a name="wxValidator"></a>
+		<p><span class="flag">wxValidator 控件輸入驗證</span>
+<pre>wx 的輸入控件通常 都可以綁定一個 wxValidator
+用於驗證 輸入數據是否合法
+
+new wxTextCtrl(panel,
+	wxID_ANY,
+	wxEmptyString,
+	wxDefaultPosition,
+	wxDefaultSize,
+	0,
+	wxTextValidator(wxFILTER_ALPHA)
+	)
+
+void SetValidator(const wxValidator&);
+wxValidator* GetValidator();
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>wxValidator 值過濾 用戶輸入 對於調用api設置的值無效
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="wxTextValidator"></a>
+		<p><span class="flag">wxTextValidator 文本驗證</span>
+<pre>wxTextValidator 提供了常用的 文本 驗證
+
+wxTextValidator	(	long 	style = wxFILTER_NONE,
+wxString * 	valPtr = NULL 
+)	
+	<span class="care">style 取值
+	wxFILTER_NONE	不進行過濾
+	wxFILTER_ASCII 	過濾掉非 ascii字符
+	wxFILTER_ALPHA	過濾掉非字母
+	...
+	</span>
+
+new wxTextCtrl(panel,
+	wxID_ANY,
+	wxEmptyString,
+	wxDefaultPosition,
+	wxDefaultSize,
+	0,
+	wxTextValidator(wxFILTER_ALPHA)
+	)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="wxNumValidator"></a>
+		<p><span class="flag">wxNumValidator wxIntegerValidator 數字過濾</span>
+<pre>template&lt;typename T&gt;
+class wxNumValidator&lt;T&gt;
+可以 過濾 [min,max] 範圍外的數字
+
+template&lt;typename T&gt;
+class wxIntegerValidator&lt;T&gt;
+基本是 wxNumValidator 的子類 但只過濾 整數
+
+typedef T 	ValueType
+void 	SetMin (ValueType min)
+void 	SetMin (ValueType min)
+void 	SetMax (ValueType max)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>wxIntegerValidator&lt;int&gt; validator;
+validator.SetRange(1,100);
+sizer->Add(new wxTextCtrl(panel,
+                       wxID_ANY,
+                       wxEmptyString,
+                       wxDefaultPosition,
+                       wxDefaultSize,
+                       0,
+                       validator
+                       ),1,wxALL|wxEXPAND,5);
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

@@ -31,12 +31,13 @@ _() 和 宏 中的內容 將會被 gettext 翻譯
 <pre><span class="care">./locale/zh_TW/zh_TW.mo</span>
 bool *App::OnInit()
 {
-    if(locale_.Init(wxLANGUAGE_CHINESE_TAIWAN,wxLOCALE_DONT_LOAD_DEFAULT))
+    /* ./locale/<span class="care">zh_TW</span>/zh_TW.mo */
+    if(_locale.Init(wxLANGUAGE_CHINESE_TRADITIONAL,wxLOCALE_DONT_LOAD_DEFAULT))
     {
-        locale_.AddCatalogLookupPathPrefix(_T("."));
-        if(locale_.AddCatalog("zh_TW"))
+        _locale.AddCatalogLookupPathPrefix(_T("locale")); /* <span class="care">./locale</span>/zh_TW/zh_TW.mo */
+        if(_locale.AddCatalog("zh_TW")) /* ./locale/zh_TW/<span class="care">zh_TW.mo</span> */
         {
-            wxMessageBox(_("success"));
+            wxMessageBox(_("yes"));
         }
         else
         {
