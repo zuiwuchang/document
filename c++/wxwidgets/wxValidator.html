@@ -11,6 +11,8 @@
 		<a href="#wxValidator">wxValidator 控件輸入驗證</a>
 		<a href="#wxTextValidator">wxTextValidator 文本驗證</a>
 		<a href="#wxNumValidator">wxNumValidator wxIntegerValidator 數字過濾</a>
+		<a href="#io">關聯變量</a>
+		<a href="#my">自定義驗證器</a>
 	</div>
 
 	<div class="note"><a name="wxValidator"></a>
@@ -94,6 +96,227 @@ sizer->Add(new wxTextCtrl(panel,
 		</p>
 	</div>
 
+	<div class="note"><a name="io"></a>
+		<p><span class="flag">關聯變量</span>
+<pre>wxValidator 除了用於 數據過濾 還可以 實現類似 mfc 的 變量 關聯
+wxValidator 通常 構造時都 可以傳入 一個 與之關聯的 變量
+通過 
+TransferDataToWindow
+TransferDataFromWindow
+實現 變量 窗口間的 傳遞
+
+wxGenericValidator 是一個 只提供了 變量關聯 而沒有過濾數據 的驗證器
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>對話框 第一次顯示時將 自動 調用 TransferDataToWindow
+
+對話框 默認的 wxID_OK 按鈕事件 
+將先調用 Validate 驗證 數據
+如果成功之後調用 TransferDataFromWindow 將控件數據設置到關聯變量
+
+Validate 只會驗證 直接子窗口的 驗證器 設置
+SetExtraStyle(wxWS_EX_VALIDATE_RECURSIVELY);
+可以 檢查 全部 子窗口
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="my"></a>
+		<p><span class="flag">自定義驗證器</span>
+<pre>1	從 wxValidator 派生子類
+2	實現 
+	virtual wxObject * 	Clone () const
+3	實現 
+	//重新驗證函數
+	virtual bool Validate(wxWindow *parent);
+	//重寫 val to window
+	virtual bool TransferToWindow();
+
+	//重寫 window to val
+	virtual bool TransferFromWindow();
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><span class="care">*.h</span>
+#ifndef MYEMPTYVALIDATOR_H
+#define MYEMPTYVALIDATOR_H
+
+#ifndef WX_PRECOMP
+    #include &lt;wx/wx.h&gt;
+#endif
+
+#include &lt;wx/textentry.h&gt;
+
+class myEmptyValidator
+    :public wxValidator
+{
+    public:
+        myEmptyValidator(wxString* val,const wxString& emsg = wxString(_("Required information entry is empty.")),const wxString& title = wxString(_("Validation conflict")));
+        virtual ~myEmptyValidator();
+
+        //實現 copy 構造
+        myEmptyValidator(const myEmptyValidator& copy);
+
+        //實現 clone
+        virtual wxObject * 	Clone () const
+        {
+            return new myEmptyValidator(*this);
+        }
+        //實現 copy
+        bool Copy(const myEmptyValidator& copy)
+        {
+            wxValidator::Copy(copy);
+
+            _val = copy._val;
+            _emsg = copy._emsg;
+            _title = copy._title;
+
+            return true;
+        }
+    protected:
+        //保存的 關聯變量 指針
+        wxString* _val;
+
+        //驗證失敗時 顯示的 錯誤信息
+        wxString _emsg;
+
+        //驗證失敗時 顯示的 錯誤標題
+        wxString _title;
+    public:
+        //重新驗證函數
+        virtual bool Validate(wxWindow *parent);
+        //重寫 val to window
+        virtual bool TransferToWindow();
+
+        //重寫 window to val
+        virtual bool TransferFromWindow();
+
+    protected:
+        //返回可以支持此 驗證器的 控件指針
+        wxTextEntry* GetTextEntry();
+
+    private:
+        //增加 wx 類型識別
+        DECLARE_CLASS(myEmptyValidator)
+        wxDECLARE_NO_ASSIGN_CLASS(myEmptyValidator);
+};
+
+#endif // MYEMPTYVALIDATOR_H
+
+
+
+<span class="care">*.cpp</span>
+#include "myEmptyValidator.h"
+#include &lt;wx/combo.h&gt;
+
+IMPLEMENT_CLASS(myEmptyValidator, wxValidator)
+
+myEmptyValidator::myEmptyValidator(wxString* val,const wxString& emsg,const wxString& title)
+    :_val(val),_emsg(emsg),_title(title)
+{
+    //ctor
+}
+
+myEmptyValidator::~myEmptyValidator()
+{
+    //dtor
+}
+myEmptyValidator::myEmptyValidator(const myEmptyValidator& copy)
+{
+    Copy(copy);
+}
+
+bool myEmptyValidator::TransferToWindow()
+{
+    if(!_val)
+    {
+        return true;
+    }
+
+    wxTextEntry* text = GetTextEntry();
+    if(!text)
+    {
+        return false;
+    }
+
+    text->SetValue(
+        _val->Trim().Trim(false)
+    );
+
+    return true;
+}
+bool myEmptyValidator::Validate(wxWindow *parent)
+{
+    wxTextEntry* text = GetTextEntry();
+    if(!text)
+    {
+        return false;
+    }
+
+    wxString val = text->GetValue();
+    val.Trim().Trim(false);
+    if(val.IsEmpty())
+    {
+        m_validatorWindow->SetFocus();
+        wxMessageBox(_emsg, _title,
+                     wxOK | wxICON_EXCLAMATION, parent);
+        return false;
+    }
+
+    return true;
+}
+bool myEmptyValidator::TransferFromWindow()
+{
+    if(!_val)
+    {
+        return true;
+    }
+
+    wxTextEntry* text = GetTextEntry();
+    if(!text)
+    {
+        return false;
+    }
+
+    *_val = text->GetValue().Trim().Trim(false);
+    return true;
+}
+
+wxTextEntry* myEmptyValidator::GetTextEntry()
+{
+#if wxUSE_TEXTCTRL
+    if (wxDynamicCast(m_validatorWindow, wxTextCtrl))
+    {
+        return (wxTextCtrl*)m_validatorWindow;
+    }
+#endif
+
+#if wxUSE_COMBOBOX
+    if (wxDynamicCast(m_validatorWindow, wxComboBox))
+    {
+        return (wxComboBox*)m_validatorWindow;
+    }
+#endif
+
+#if wxUSE_COMBOCTRL
+    if (wxDynamicCast(m_validatorWindow, wxComboCtrl))
+    {
+        return (wxComboCtrl*)m_validatorWindow;
+    }
+#endif
+
+    wxFAIL_MSG(
+        "wxTextValidator can only be used with wxTextCtrl, wxComboBox, "
+        "or wxComboCtrl"
+    );
+
+    return NULL;
+}
+
+</pre>
+		</p>
+	</div>
 </div>
 </body>
 </html>
