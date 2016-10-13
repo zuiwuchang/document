@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>jsoncpp</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#nvwa">nvwa</a>
+		<a href="#use">使用 nvwa</a>
+	</div>
+
+	<div class="note"><a name="nvwa"></a>
+		<p><span class="flag">nvwa</span>
+<pre>nvwa 是一個開源 跨平台的 c++ 內存洩漏檢測 庫
+類似 win mfc 的 _CrtDumpMemoryLeaks
+
+其 重載了 c++ 的 new delete 操作符 用於檢測內存洩漏
+
+官網 <a href="http://wyw.dcweb.cn/leakage.htm" target="_blank">http://wyw.dcweb.cn/leakage.htm</a>
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>nvwa 只能檢測到 new delete 不能檢測 malloc free
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="use"></a>
+		<p><span class="flag">使用 nvwa</span>
+<pre>直接 連接 nvwa 庫即可 
+如果還需要 獲取洩漏 源碼位置 加入 #include "debug_new.h"
+</pre>
+		</p>
+	</div>
+	
+</div>
+</body>
+</html>
