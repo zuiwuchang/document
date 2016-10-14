@@ -23,7 +23,7 @@
 
 	<div class="note"><a name="array"></a>
 		<p><span class="flag">array</span>
-<pre>#include&lt;boost\array.hpp&gt;
+<pre>#include &lt;boost/array.hpp&gt;
 array	已經納入c++11
 
 array	包裝了 原始的數組 其通過為模板傳入 型別 數組大小 構造
@@ -66,7 +66,7 @@ operator []
 		</p>
 		
 		<p><span class="flag">example</span>
-<pre>#include&lt;boost\array.hpp&gt;
+<pre>#include &lt;boost/array.hpp&gt;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -86,7 +86,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	<div class="note"><a name="dynamic_bitset"></a>
 		<p><span class="flag">dynamic_bitset</span>
-<pre>#include&lt;boost\dynamic_bitset.hpp&gt;
+<pre>#include &lt;boost/dynamic_bitset.hpp&gt;
 
 STL 提供了vector&lt;bool&gt; 和bitset 處理二進制位 
 然 vector&lt;bool&gt; 不支持 大多數 位運算 bitset 不支持動態增長
@@ -153,8 +153,8 @@ find_next(pos)
 		</p>
 		
 		<p><span class="flag">example</span>
-<pre>#include&lt;boost\dynamic_bitset.hpp&gt;
-#include&lt;boost\utility\binary.hpp&gt;
+<pre>#include &lt;boost/dynamic_bitset.hpp&gt;
+#include &lt;boost/utility/binary.hpp&gt;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -190,8 +190,8 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	<div class="note"><a name="unordered"></a>
 		<p><span class="flag">unordered</span>
-<pre>#include&lt;boost\unordered_set.hpp&gt;
-#include&lt;boost\unordered_map.hpp&gt;
+<pre>#include &lt;boost/unordered_set.hpp&gt;
+#include &lt;boost/unordered_map.hpp&gt;
 
 unordered_* 是boost 提供的散列容器
 unordered_set/unordered_multiset
@@ -214,9 +214,9 @@ unordered_* 接口參加set map
 		<p><span class="flag">example</span>
 <pre>//對於 自定義型別 需要實現 boost::hash&lt;T&gt; 以讓boost庫 知道如何計算散列
 
-#include&lt;boost\foreach.hpp&gt;
-#include&lt;boost\assign.hpp&gt;
-#include&lt;boost\unordered_set.hpp&gt;
+#include &lt;boost/foreach.hpp&gt;
+#include &lt;boost/assign.hpp&gt;
+#include &lt;boost/unordered_set.hpp&gt;
 
 class Test
 {
@@ -273,7 +273,7 @@ boost::hash&lt;T&gt; 實際上 只是調用了 hash_value
 
 	<div class="note"><a name="circular_buffer"></a>
 		<p><span class="flag">circular_buffer</span>
-<pre>#include&lt;boost\circular_buffer.hpp&gt;
+<pre>#include &lt;boost/circular_buffer.hpp&gt;
 
 circular_buffer 是一個環形緩衝區 其接口完全類似STL標準容器 
 唯一的區別是 大小固定 其以環形存儲 當一端空間使用完時 重用另一端
@@ -296,7 +296,7 @@ bool is_linearized() const { return m_first < m_last || m_last == m_buff; }
 </pre>
 		</p>
 		<p><span class="flag">example</span>
-<pre>#include&lt;boost\circular_buffer.hpp&gt;
+<pre>#include &lt;boost/circular_buffer.hpp&gt;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -346,7 +346,7 @@ boost為此 提供了 circular_buffer_space_optimized 接口同 circular_buffer
 
 	<div class="note"><a name="tuple"></a>
 		<p><span class="flag">tuple</span>
-<pre>#include&lt;boost\tuple\tuple.hpp&gt;
+<pre>#include &lt;boost/tuple/tuple.hpp&gt;
 namespace boost::tuples
 
 tuple	是一個有固定數目 指定型別的容器 是std::pair的泛化
@@ -379,7 +379,7 @@ T&amp; get();
 
 //tuple 支持io流操作 但要求 其內部型別支持
 //tuple默認 以 <span class="care">(</span> 開始 <span class="care">空格</span>分隔元素 <span class="care">)</span> 結束
-#include&lt;boost\tuple\tuple_io.hpp&gt;
+#include &lt;boost/tuple/tuple_io.hpp&gt;
 //boost提供了 一下三個 格式操作符 用於改變 開始 分隔 結束 符號
 boost::tuples::set_open(const CharType c)
 boost::tuples::set_delimiter(const CharType c)
@@ -402,9 +402,9 @@ boost::tuples::length&lt;T&gt;::value 返回T的元素數量
 </pre>
 		</p>
 		<p><span class="flag">example</span>
-<pre>#include&lt;boost\tuple\tuple.hpp&gt;
-#include&lt;boost\tuple\tuple_comparison.hpp&gt;
-#include&lt;boost\tuple\tuple_io.hpp&gt;
+<pre>#include &lt;boost/tuple/tuple.hpp&gt;
+#include &lt;boost/tuple/tuple_comparison.hpp&gt;
+#include &lt;boost/tuple/tuple_io.hpp&gt;
 
 
 //遞歸tuple
@@ -469,7 +469,7 @@ tuple 不能存儲 void  和 函數類型(不是指函數指針) 因為 tuple要
 
 	<div class="note"><a name="any"></a>
 		<p><span class="flag">any</span>
-<pre>#include&lt;boost\any.hpp&gt;
+<pre>#include &lt;boost/any.hpp&gt;
 
 any 是一個特殊容器 其可以容納任意型別 值要求元素 具有copy 語義
 使用any 保存 指針三個錯誤的想法 然 保存智能指針如 shared_ptr 則是個好注意(any 析構時 不會delete 指針)
@@ -494,7 +494,7 @@ any_cast
 </pre>
 		</p>
 		<p><span class="flag">example</span>
-<pre>#include&lt;boost\any.hpp&gt;
+<pre>#include &lt;boost/any.hpp&gt;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -531,7 +531,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	<div class="note"><a name="variant"></a>
 		<p><span class="flag">variant</span>
-<pre>#include&lt;boost\variant.hpp&gt;
+<pre>#include &lt;boost/variant.hpp&gt;
 
 variant 是對 union 的增強 union只能持有 POD 數據 variant 則無此限制
 variant 在模板參數中指定 可持有數據型別 無參variant 以第一個模板參數的無參構造 
@@ -549,7 +549,7 @@ empty	//返回true 只為兼容any語法
 </pre>
 		</p>
 		<p><span class="flag">example</span>
-<pre>#include&lt;boost\variant.hpp&gt;
+<pre>#include &lt;boost/variant.hpp&gt;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -570,7 +570,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	<div class="note"><a name="multi_array"></a>
 		<p><span class="flag">multi_array</span>
-<pre>#include&lt;boost\multi_array.hpp&gt;
+<pre>#include &lt;boost/multi_array.hpp&gt;
 
 multi_array 是一個多維數組 其重載了 [] 可以像元素數組一樣使用 
 其亦提供了 STL 風格接口
@@ -593,8 +593,8 @@ num_dimensions()
 </pre>
 		</p>
 		<p><span class="flag">example</span>
-<pre>#include&lt;boost\multi_array.hpp&gt;
-#include&lt;boost\function.hpp&gt;
+<pre>#include &lt;boost/multi_array.hpp&gt;
+#include &lt;boost/function.hpp&gt;
 
 template&lt;typename T&gt;
 void display(const T&amp; t)
@@ -746,8 +746,8 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	<div class="note"><a name="property_tree"></a>
 		<p><span class="flag">property_tree</span>
-<pre>#include&lt;boost\property_tree\ptree.hpp&gt;
-#include&lt;boost\property_tree\*_parser.hpp&gt;
+<pre>#include &lt;boost/property_tree/ptree.hpp&gt;
+#include &lt;boost/property_tree/*_parser.hpp&gt;
 namespace boost::property_tree
 
 property_tree	是一個保存多個屬性的 樹形結構 可用類似路徑 或STL風格 方式訪問
@@ -770,8 +770,8 @@ value_type	是節點數據 其為一個 std::pair first為節點名 second 為�
 
 		<div class="note"><a name="xml"></a>
 			<p><span class="flag">xml</span>
-<pre>#include&lt;boost\property_tree\ptree.hpp&gt;
-#include&lt;boost\property_tree\xml_parser.hpp&gt;
+<pre>#include &lt;boost/property_tree/ptree.hpp&gt;
+#include &lt;boost/property_tree/xml_parser.hpp&gt;
 
 要解析xml 需要include xml_parser
 再實例化 ptree後 使用 read_xml 解析 xml 使用 write_xml 保存xml
@@ -814,9 +814,9 @@ find
 	&lt;clock_style&gt;24&lt;/clock_style&gt;
 &lt;/conf&gt;
 
-#include&lt;boost\property_tree\ptree.hpp&gt;
-#include&lt;boost\property_tree\xml_parser.hpp&gt;
-//#include&lt;sstream&gt;
+#include &lt;boost/property_tree/ptree.hpp&gt;
+#include &lt;boost/property_tree/xml_parser.hpp&gt;
+//#include &lt;sstream&gt;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -905,8 +905,8 @@ property_tree 將所有xml節點 轉換為樹形節點 屬性保存在 &lt;xmlat
 
 		<div class="note"><a name="json"></a>
 			<p><span class="flag">json</span>
-<pre>#include&lt;boost\property_tree\ptree.hpp&gt;
-#include&lt;boost\property_tree\json_parser.hpp&gt;
+<pre>#include &lt;boost/property_tree/ptree.hpp&gt;
+#include &lt;boost/property_tree/json_parser.hpp&gt;
 
 json	是來自 javascript 的數據結構
 

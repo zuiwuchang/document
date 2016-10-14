@@ -1,0 +1,70 @@
+<!DOCTYPE html">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>thread</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#wxString">wxString 字符串</a>
+	</div>
+
+	<div class="note"><a name="wxString"></a>
+		<p><span class="flag">wxString 字符串</span>
+<pre>wxWidgets 使用 wxString 處理字符串
+
+wxString 提供了 STL like api 可以像使用 std::string 一樣使用 wxString
+
+wxWidgets 使用 _T() 宏 定義 字符串 _() 宏 定義 翻譯字符串
+</pre>
+		</p>
+		<p><span class="flag">public</span>
+<pre>像流一樣 將基本型別 添加到 字符串 尾
+wxString& wxString::operator<<(const XXX & s)
+
+
+//返回 字符串長
+size_t 	Len () const
+size_t 	Length () const
+
+//返回 字符串 是否為空 
+bool 	IsEmpty () const
+bool 	IsNull () const
+bool 	operator! () const
+
+
+
+//轉 utf8
+const wxScopedCharBuffer ToUTF8 () const
+const wxScopedCharBuffer utf8_str () const
+static wxString FromUTF8 (const char *s)
+static wxString FromUTF8 (const char *s, size_t len)
+
+
+
+//比較
+int Cmp (const wxString &s) const
+int CmpNoCase (const wxString &s) const
+
+//首尾
+bool StartsWith(const wxString &prefix, wxString *rest=NULL) const
+bool EndsWith(const wxString &suffix, wxString *rest=NULL) const
+
+//使用 *(0到n任意字符) ?(任意字符) 模式比較
+bool Matches(const wxString &mask) const
+
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>雖然 c++11 已經規定 std::string 為utf8 字符串
+然 std::string wxString::ToStdString()const 返回的 依然是locale字符串
+wxString::wxString(const std::string& str)	等函數 亦不能從 utf8 構造
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
