@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>qt</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#QGLWidget">QGLWidget</a>
+	</div>
+
+	<div class="note"><a name="QGLWidget"></a>
+		<p><span class="flag">QGLWidget</span>
+<pre>QGLWidget 提供了 qt 使用 opengl的 能力
+QGLWidget 是一個 opengl 畫布
+
+可以像使用 一般 窗口一樣使用 QGLWidget
+一般會從 QGLWidget 派生 子類
+QGLWidget 提供了 三個 virtual 函數 完成 基本 opengl邏輯
+virtual void initializeGL()
+	<span class="care">在opengl環境創建完成時 被調用 
+	一般進行 opengl狀態設定</span>
+virtual void resizeGL(int w, int h)
+	<span class="care">在 QGLWidget 大小發送變化時被調用 
+	一般用來 調整 opengl 渲染區域</span>
+virtual void paintGL()
+	<span class="care">在 窗口需要被繪製時 被調用
+	一般用來 需要opengl 命令</span>
+
+qmake:
+QT += opengl
+LIBS += -lopengl32 -lglu32
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre><span class="care">*.h</span>
+#ifndef WIDGET_H
+#define WIDGET_H
+
+#include &lt;QGLWidget&gt;
+
+namespace Ui {
+class Widget;
+}
+
+class Widget : public QGLWidget
+{
+    Q_OBJECT
+
+public:
+    explicit Widget(QWidget *parent = 0);
+    ~Widget();
+
+private:
+    Ui::Widget *ui;
+
+protected:
+    virtual void initializeGL() override;
+    virtual void resizeGL(int w, int h)override;
+    virtual void paintGL()override;
+};
+
+#endif // WIDGET_H
+
+
+
+<span class="care">*.cpp</span>
+#include "widget.h"
+#include "ui_widget.h"
+
+Widget::Widget(QWidget *parent) :
+    QGLWidget(parent),
+    ui(new Ui::Widget)
+{
+    ui->setupUi(this);
+}
+
+Widget::~Widget()
+{
+    delete ui;
+}
+void Widget::initializeGL()
+{
+    // Set up the rendering context, define display lists etc.:
+    //...
+    glClearColor(0.0f,0.0f,0.0f,0.0f);
+    //glEnable(GL_DEPTH_TEST);
+    //...
+
+    glMatrixMode(GL_PROJECTION);
+    glOrtho(0,1,0,1,-1,1);
+}
+void Widget::resizeGL(int w, int h)
+{
+    // setup viewport, projection etc.:
+    glViewport(0, 0, (GLint)w, (GLint)h);
+    //...
+    //glFrustum(...);
+    //...
+}
+void Widget::paintGL()
+{
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glColor3f(1.0f,0.0f,0.0f);
+
+    glLoadIdentity();
+    glOrtho(0,1,0,1,-1,1);
+
+    glRectf(0.25,0.25,0.75,0.75);
+}
+
+</pre>
+		</p>
+	</div>
+
+
+</div>
+</body>
+</html>

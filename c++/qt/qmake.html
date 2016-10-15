@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>qt</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#qmake">qmake</a>
+		<a href="#LIBS">LIBS</a>
+	</div>
+
+	<div class="note"><a name="qmake"></a>
+		<p><span class="flag">qmake</span>
+<pre>Qt 代碼不能直接被 標準 c++編譯器 編譯
+必須 先被 qmake 處理後才能 被編譯
+qmake 配置文件 一般為 *.pro
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="LIBS"></a>
+		<p><span class="flag">LIBS</span>
+<pre>LIBS 設置 可以指定 gcc編譯時的 -l -L 參數
+
+LIBS += -lopengl32 -lglu32 -Lmingw/lib
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
