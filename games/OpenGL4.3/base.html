@@ -1,0 +1,87 @@
+<!DOCTYPE html >
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>algorithm</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#glClear">glClear</a>
+		<a href="#glFlush">glFlush</a>
+		<a href="#glEnable">glEnable</a>
+	</div>
+
+	<div class="note"><a name="glClear"></a>
+		<p><span class="flag">glClear</span>
+<pre>opengl的 渲染代碼一般如下
+glClear(...) //清除 緩存
+
+... //渲染到緩衝區
+
+xxxSwapBuffers() //將緩衝區 輸出到現實設備
+
+
+
+//清除指定的 緩存 數據
+void glClear(GLbitfield mask)
+	<span class="care">mask 取值
+	GL_COLOR_BUFFER_BIT	顏色緩存
+	GL_DEPTH_BUFFER_BIT	深度緩存
+	GL_STENCIL_BUFFER_BIT	模板緩存</span>
+
+//設置 指定的顏色 用於 清除 顏色緩存
+void glClearColor(GLclampd red,GLclampd green,GLclampd blue,GLclampd alpha)
+	<span class="care">
+	GLclampd 通常是一個 typedef double GLclampd
+	GLclampd 將被 截斷為 [0,1] 的範圍
+
+	alpha == 0 不透明
+	alpha == 1 50% 透明
+	alpha == 1 100% 透明
+	</span>
+</pre>
+		</p>
+	</div>
+	
+	<div class="note"><a name="glFlush"></a>
+		<p><span class="flag">glFlush</span>
+<pre>opengl 使用 服務端 客戶端模式 工作
+在客戶端 定義完 執行命令後 需要傳輸到 服務端進行 渲染
+
+
+//將所有opengl 命令送到服務端處理 並且立刻返回
+void glFlush()
+	<span class="care">glFlush 不會等待 opengl渲染完成
+	glFlush 只是將命令傳到 服務端後立刻返回</span>
+
+//同 glFlush 但會等待 所有渲染完成 函數才返回
+void glFinish()
+	<span class="care">一般只在開發版本中使用 glFinish
+	發布版本一般 使用glFlush
+	glFinish 會嚴重影響 opengl效率</span>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="glEnable"></a>
+		<p><span class="flag">glEnable</span>
+<pre>opengl 使用狀態機實現 其提供了 許多特性 
+可供用戶選擇 是否使用
+
+
+//啟用/禁用 opengl 特性
+void glEnable(GLenum capability)
+void glDisable(GLenum capability)
+
+//返回指定 特性 是否 啟用 GL_TRUE/GL_FALSE
+Glboolean gllsEnabled(GLenum capability)
+</pre>
+		</p>
+	</div>
+	
+</div>
+</body>
+</html>
+

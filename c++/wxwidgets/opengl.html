@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>wxwidgets</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#opengl">opengl</a>
+
+	</div>
+
+	<div class="note"><a name="opengl"></a>
+		<p><span class="flag">opengl</span>
+<pre>wxWidgets 提供了 使用 opengl的 能力
+wxGLCanvas 是一個 opengl 畫布 可以在其中 使用 opengl
+</pre>
+		</p>
+		<p><span class="flag">編譯</span>
+<pre>要使用 opengl 必須在編譯 wxWidgets 設置USE_OPENGL=1 選項
+
+對於 win32 還需要在編譯前 修改 include/wx/msw/setup.h 文件
+修改 #define wxUSE_GLCANVAS 0 為 #define wxUSE_GLCANVAS 1
+
+對於 其他平台 需要使用 --with-opengl 選項
+</pre>
+		</p>
+		<p><span class="flag">使用 wxGLCanvas</span>
+<pre>1 創建 wxGLCanvas 實例
+2 調用 wxGLCanvas::SetCurrent 設置opengl 環境
+3 可選的 調用 wxGLCanvas::SetColour 設置 opengl 背景色
+4 調用opengl 進行繪製
+5 調用 wxGLCanvas::SwapBuffers 將 opengl 緩衝區內容 繪製到 wxGLCanvas窗口
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

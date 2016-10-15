@@ -53,6 +53,11 @@ wxWidgets 使用陰數版本 代表一個 已穩定的 版本 如 3.0.x
 
 error <span class="care">strcasecmp</span> 函數未定義
 修改 wx***/include/wx/string.h 增加 #include &lt;strings.h&gt;
+
+
+編譯好庫之後 在使用 wxwidgets時 出現錯誤
+error platform.h|183|fatal error: wx/setup.h: No such file or directory
+修改 platform.h 將 #include "wx/setup.h" 改為 #include "wx/msw/setup.h"
 </pre>
 		</p>
 	</div>
