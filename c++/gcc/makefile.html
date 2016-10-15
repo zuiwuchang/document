@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>layout</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#makefile">makefile</a>
+	</div>
+
+	<div class="note"><a name="makefile"></a>
+		<p><span class="flag">makefile</span>
+<pre>makefile 是 gcc 支持的一個編譯 腳本
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>bin = hellow.exe
+objs = main.o Animal.o
+
+hellow : $(objs)
+	g++ -O2 -o $(bin) $(objs)
+
+main.o : main.cpp
+	g++ -c -O2 -Wall -Iinclude main.cpp
+
+Animal.o : src/Animal.cpp
+	g++ -c -O2 -Wall -Iinclude src/Animal.cpp
+
+clean : 
+	rm $(bin) $(objs)
+
+
+
+bin 和 objs 定義的 兩個 變量 使用 $(XXX) 使用變量
+hellow 定義了需要 鏈接的 *.o 文件 和 g++ 命令
+
+Animal.o main.o 定義了 兩個 *.o 文件 如何 生成
+
+clean 定義了 make clean 操作
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>layout</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#gcc">gcc</a>
+		<a href="#cmd">常用命令</a>
+	</div>
+
+	<div class="note"><a name="gcc"></a>
+		<p><span class="flag">gcc</span>
+<pre>gcc 既 GNU Compiler Collection 的簡稱
+以 GPL LGPL 發行的 編譯器
+
+官網 <a href="http://gcc.gnu.org/" target="_blank">http://gcc.gnu.org/</a>
+</pre>
+		</p>
+	</div>
+	
+	<div class="note"><a name="cmd"></a>
+		<p><span class="flag">常用命令</span>
+<pre>//顯示 gcc 版本 信息
+gcc -v
+gcc --version
+
+
+// 編譯 代碼
+gcc [options] [filenames]
+</pre>
+		</p>
+		<p><span class="flag">編譯參數</span>
+<pre>-c	值編譯 為 *.o 文件 而不鏈接
+
+-o	output_filename 編譯文件名 不設置使用 默認文件名
+
+-g	產生gdb調試需要的 調試信息
+	<span class="care">一般 debug 版本都帶此選項</span>
+
+
+-O2	比使用 優化等級2 進行優化
+	<span class="care">一般 release 版本都帶此選項
+	O0 不優化
+	O1
+	O2
+	O3	更好的優化 更慢的編譯速度
+	</span>
+
+
+-Idirname	將dirname指定目錄加入到 include目錄中
+
+-Ldirname	將dirname指定目錄加入到 Lib目錄中
+
+-lname	將 libname.a 作為鏈接依賴
+
+-Wall
+	顯示警告信息
+
+-DMACRO
+-DMACRO=DEFN	//定義宏 MACRO
+
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
