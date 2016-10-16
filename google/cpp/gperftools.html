@@ -112,7 +112,7 @@ ReplaceSystemAlloc 對os的 malloc/free 進行了inline hook 使用其調用 tc 
 <pre>tcmalloc 沒提供 mingw的 編譯 項目 
 只能 使用 dlltool 使用 vs 編譯的 dll
 
-字啊 linker 中 要加上 -u __tcmalloc 參數
+字啊 linker 中 要加上 -ltcmalloc_minimal -u__tcmalloc 參數
 </pre>
 		</p>
 
