@@ -9,6 +9,8 @@
 <div class="main">
 	<div class="title">
 		<a href="#layout">佈局</a>
+		<a href="#QLayout">QLayout</a>
+		<a href="#QBoxLayout">QBoxLayout</a>
 
 		
 	</div>
@@ -25,7 +27,60 @@ QFormLayout	表單佈局
 		</p>
 	</div>
 
+	<div class="note"><a name="QLayout"></a>
+		<p><span class="flag">QLayout</span>
+<pre>QLayout 是所有佈局的 基類 提供了基本的 方法
+
+#include &lt;QLayout&gt;
+QT += widgets
+</pre>
+		</p>
+		<p><span class="flag">QLayout</span>
+<pre>//返回/設置 子元素 間距
+int spacing() const
+void setSpacing(int)
+
+//返回/設置 佈局邊距
+QMargins contentsMargins() const
+void setContentsMargins(int left, int top, int right, int bottom)
+void setContentsMargins(const QMargins &margins)
+
+...
+</pre>
+		</p>
+	</div>
 	
+	<div class="note"><a name="QBoxLayout"></a>
+		<p><span class="flag">QBoxLayout</span>
+<pre>QBoxLayout 是 QHBoxLayout QVBoxLayout 的基類 實現了 水平/垂直佈局
+</pre>
+		</p>
+
+		<p><span class="flag">public</span>
+<pre>//增加子 元素
+void addLayout(QLayout *layout, int stretch = 0)
+void addWidget(QWidget *widget, int stretch = 0, Qt::Alignment alignment = Qt::Alignment())
+void insertLayout(int index, QLayout *layout, int stretch = 0)
+void insertWidget(int index, QWidget *widget, int stretch = 0, Qt::Alignment alignment = Qt::Alignment())
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+
+    QBoxLayout* layout = new QVBoxLayout();
+
+    layout->addWidget(new KingGLWidget);
+    layout->setContentsMargins(0,0,0,0);
+
+    ui->centralWidget->setLayout(layout);
+}
+</pre>
+		</p>
+	</div>
 </div>
 </body>
 </html>
