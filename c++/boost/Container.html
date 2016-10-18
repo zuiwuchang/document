@@ -874,7 +874,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		puts("write_xml");
 		boost::property_tree::write_xml(std::cout,tree);
 	}
-	catch(const boost::property_tree::xml_parser::xml_parser_error&amp; e)
+	catch(const boost::property_tree::file_parser_error&amp; e)
 	{
 		std::cout&lt;&lt;e.what()&lt;&lt;std::endl;
 	}
