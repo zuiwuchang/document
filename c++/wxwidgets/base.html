@@ -58,6 +58,11 @@ error <span class="care">strcasecmp</span> 函數未定義
 編譯好庫之後 在使用 wxwidgets時 出現錯誤
 error platform.h|183|fatal error: wx/setup.h: No such file or directory
 修改 platform.h 將 #include "wx/setup.h" 改為 #include "wx/msw/setup.h"
+
+
+編譯好庫之後 在使用 wxwidgets時 出現錯誤
+winundef.h|38|error: cannot convert 'LPCTSTR {aka const char*} ...
+定義 宏 -D _UNICODE
 </pre>
 		</p>
 	</div>
