@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>c++11</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#define">宏</a>
+		<a href="#strcat">## 連接 字符串</a>
+		<a href="#__VA_ARGS__">__VA_ARGS__ 可變長參數</a>
+	</div>
+
+	<div class="note"><a name="define"></a>
+		<p><span class="flag">宏</span>
+<pre>c++ 從c 繼承來了 宏 使用 方式 基本 同 c
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="strcat"></a>
+		<p><span class="flag">## 連接 字符串</span>
+<pre>使用 ## 可以 將宏 和字符串連接
+
+#define TEST_SHOW_1 puts("1");
+#define TEST_SHOW_2 puts("2");
+#define TEST_SHOW(XXX) TEST_SHOW_##XXX
+int main()
+{
+    TEST_SHOW(1)    //show 1
+    TEST_SHOW(2)    //show 2
+
+    return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="__VA_ARGS__"></a>
+		<p><span class="flag">__VA_ARGS__ 可變長參數</span>
+<pre>c99 標準開始 c的宏支持了可變參數 
+使用 ... 定義 可變長
+使用 __VA_ARGS__ 使用 可變長
+
+#define PRINTF(...) printf(__VA_ARGS__);
+int main()
+{
+    PRINTF("ok %d",1);
+
+    return 0;
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
