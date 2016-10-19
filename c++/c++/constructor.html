@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>c++11</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#constructor">構造函數</a>
+        <a href="#throw">拋出異常</a>
+	</div>
+
+	<div class="note"><a name="constructor"></a>
+		<p><span class="flag">構造函數</span>
+<pre>c++ 對象在被 創建後 其析構函數 會被自動調用
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="throw"></a>
+		<p><span class="flag">拋出異常</span>
+<pre>構造 函數 可以 拋出異常
+然 析構函數 不會被調用(對象沒有創建成功)
+在拋出異常前 創建的 成員 會自動被銷毀(不用操心)
+在拋出異常前 new 的 對象 需要 自己 delete
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;memory&gt;
+
+class Animal
+{
+public:
+    int* _ptr;
+    std::shared_ptr&lt;int&gt; _sptr;
+    Animal()
+    {
+        _ptr = new int;
+        delete _ptr;
+        _sptr = std::make_shared&lt;int&gt;();
+        throw int(1);
+    }
+};
+int main()
+{
+    try
+    {
+        Animal* animal = new Animal();
+    }
+    catch(int)
+    {
+
+    }
+    return 0;
+}
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

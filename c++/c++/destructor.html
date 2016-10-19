@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>c++11</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#destructor">析構函數</a>
+		<a href="#virtual">virtual</a>
+	</div>
+
+	<div class="note"><a name="destructor"></a>
+		<p><span class="flag">析構函數</span>
+<pre>c++ 對象在被 釋放前 其析構函數 會被自動調用
+
+c++ 對象在析構函數中 拋出異常 是 錯誤的 寫法
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="virtual"></a>
+		<p><span class="flag">virtual</span>
+<pre>如果 一個 class 會被 派生 應該將 析構函數 定義為 virtual
+因為 如果 delete 一個 基類指針 然而 其卻保存的是 子類對象 時
+若 析構函數 不是 virtual 子類的 將調用的是基類的 析構函數
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;cstdio&gt;
+
+class Animal
+{
+public:
+    Animal()
+    {
+        puts("new Animal");
+    }
+    virtual ~Animal()
+    {
+        puts("delete Animal");
+    }
+
+};
+class Cat:public Animal
+{
+public:
+    Cat()
+    {
+        puts("new Cat");
+    }
+    virtual ~Cat()
+    {
+        puts("delete Cat");
+    }
+};
+int main()
+{
+    Cat* cat = new Cat();
+
+    Animal* animal = cat;
+
+    delete animal;
+
+    return 0;
+}
+
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
