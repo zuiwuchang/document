@@ -277,6 +277,13 @@ int _tmain(int argc, _TCHAR* argv[])
 }
 </pre>
 		</p>
+		<p><span class="flag">注意</span>
+<pre>在 win32 下 調用 mutex::unlock()
+如果 mutex 處於 unlock 狀態 mutex 將會被 lock
+(此顯然是一個 bug 
+version 1.55 and 1.61 確認)
+</pre>
+		</p>
 	</div>
 
 	<div class="note"><a name="shared_mutex"></a>
