@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>c++11</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#vars">變長模板參數</a>
+		<a href="#static_assert">靜態 assert</a>
+	</div>
+
+	<div class="note"><a name="vars"></a>
+		<p><span class="flag">變長模板參數</span>
+<pre>現在 c++11 模板 支持變長參數
+
+使用
+typename ...Name 定義 變長型別
+Name... name 定義 變長 參數
+name... 使用 變長參數
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;iostream&gt;
+
+template&lt;typename T&gt;
+void Println(const T&amp; val)
+{
+    std::cout&lt;&lt;val&lt;std::endl;
+}
+
+template&lt;typename T, typename ...Args&gt;
+void Println(const T&amp; val, Args... args)
+{
+    std::cout&lt;&lt;val&lt;&lt;",";
+    Println(args...);
+}
+
+int main()
+{
+    Println(1,2,"3","4",5);
+
+    return 0;
+}
+
+
+//變長的 Println 每次將 參數 分解為  val 和 剩下的 args
+//到 最後一次調用 Println(args...); 時 args只剩下 一個 所以會匹配到 單參數的 Println
+</pre>
+		</p>
+		<p><span class="flag">example GetCount</span>
+<pre>使用了和上面相同的技巧 計算 傳入 參數 數量
+
+#include &lt;iostream&gt;
+
+
+std::size_t GetCount()
+{
+    return 0;
+}
+template&lt;typename T&gt;
+std::size_t GetCount(const T&amp; val)
+{
+    return 1;
+}
+template&lt;typename T, typename ...Args&gt;
+std::size_t GetCount(const T&amp; val, Args... args)
+{
+    return 1 + GetCount(args...);
+}
+
+int main()
+{
+    std::cout&lt;&lt;GetCount()&lt;&lt;"\n";
+    std::cout&lt;&lt;GetCount(1,2,3,4,5)&lt;&lt;"\n";
+
+    return 0;
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="static_assert"></a>
+		<p><span class="flag">靜態 assert</span>
+<pre>c++11 將 boost 的 static_assert 加入到 標準庫中
+
+#include &lt;type_traits&gt;
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>
+#include &lt;type_traits&gt;
+
+template&lt;typename T,size_t N&gt;
+void TestAssert(const T& val)
+{
+    //static_assert( constant-expression, error-message ) ;
+
+    static_assert(N > 0,"N must large 0");
+    static_assert(sizeof(int) <= sizeof(T),"T is not big enough!");
+
+}
+
+
+int main()
+{
+    TestAssert&lt;int,1&gt;(1);
+
+    return 0;
+}
+
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

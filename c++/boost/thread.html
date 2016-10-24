@@ -14,6 +14,7 @@
 		<a href="#thread_group">thread_group</a>
 		<a href="#mutex">同步</a>
 		<a href="#shared_mutex">讀寫鎖</a>
+		<a href="#condition_variable">condition_variable 條件變量</a>
 
 		<a href="#barrier">barrier rendezvous 約會地點</a>
 		<a href="#call_once">call_once</a>
@@ -347,6 +348,109 @@ int _tmain(int argc, _TCHAR* argv[])
 	std::system("pause");
 	return 0;
 }
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="condition_variable"></a>
+		<p><span class="flag">condition_variable 條件變量</span>
+<pre>condition_variable condition_variable_any 一般用在 
+某種條件 達成時 通知 另外一個 線程
+
+wait 可以 掛起線程 直達 得到一個 notify_one/notify_all 通知
+notify_one 可以 喚醒一個 wait 線程
+notify_all 可以 喚醒所有 wait 線程
+
+condition_variable 的 wait  必須 使用 unique_lock
+而 condition_variable_any 可以用在 更多 型別的 ***_lock 上
+
+
+使用 condition_variable 可以很容易的 實現 生產消費 模型
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;cassert&gt;
+#include &lt;iostream&gt;
+#include &lt;ctime&gt;
+#include &lt;cstdlib&gt;
+#include &lt;boost/thread.hpp&gt;
+
+//同步對象
+boost::mutex m;
+//生產者 通知
+boost::condition_variable cv_producer;
+//消費者 通知
+boost::condition_variable cv_consumer;
+//產品 為0 未生產
+int v = 0;
+void producer()
+{
+	while(true)
+	{
+		boost::unique_lock&lt;boost::mutex&gt; lock(m);
+		while(v)
+		{
+			//產品還未被消費掉 等待消費者消費
+			cv_producer.wait(lock);
+		}
+		assert(v == 0);
+		v = std::rand()%10 + 1;
+		std::cout&lt;&lt;"producer "&lt;&lt;v&lt;&lt;"\n";
+
+		//喚醒一個 消費者
+		cv_consumer.notify_one();
+	}
+}
+
+void consumer()
+{
+	while(true)
+	{
+		boost::unique_lock&lt;boost::mutex&gt; lock(m);
+		while(!v)
+		{
+			//產品還未生產 等待生產者生產
+			cv_consumer.wait(lock);
+		}
+
+		assert(v != 0);
+		
+		std::cout&lt;&lt;"consumer "&lt;&lt;v&lt;&lt;"\n";
+		v = 0;
+
+		//喚醒一個 生產者
+		cv_producer.notify_one();
+	}
+}
+
+int main()
+{
+	std::srand(std::time(NULL));
+	
+	//創建 生產者
+	boost::thread producer0(producer);
+	
+	for(int i=0;i&lt;std::rand()%5+5;++i)
+	{
+		boost::thread t(producer);
+	}
+	
+	//創建 消費者
+	for(int i=0;i&lt;std::rand()%5+5;++i)
+	{
+		boost::thread t(consumer);
+	}
+	
+
+	producer0.join();
+
+    return 0;
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>wait 調用時 會 unlock mutex 使用其他線程能夠 lock
+wait 返回時 會 重新lock mutex 使用其他線程 無法lock
 </pre>
 		</p>
 	</div>
