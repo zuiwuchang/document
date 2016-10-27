@@ -10,6 +10,7 @@
 	<div class="title">
 		<a href="#array">數組 array</a>
 		<a href="#unordered_">散列表 unordered_*</a>
+		<a href="#tuple">tuple</a>
 	</div>
 
 	<div class="note"><a name="array"></a>
@@ -31,6 +32,39 @@ c++11 提供了 一個使用容器包裝的 數組 以更方便的將數組作�
 c++11 提供了 散列表 
 將 boost 的 unordered_set/unordered_map unordered_multiset/unordered_multimap
 直接 納入了標準庫 使用方式和 boost 中的庫 一樣 只是現在 namespace 變為 std
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="tuple"></a>
+		<p><span class="flag">tuple</span>
+<pre>boost::tuple 被納入c++11 現在是 std::tuple
+#include &lt;tuple&gt;
+
+std::tuple 去掉了 get 成員函數
+在 #include &lt;utility&gt; 中 提供了一個 std::get&lt;N&gt;(T&amp) 
+完成 操作tuple 成員的 功能
+
+同時 std::get 還可以 操作 std::pair 
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;iostream&gt;
+//#include &lt;utility&gt;
+#include &lt;tuple&gt;
+int main()
+{
+    std::pair&lt;int,int&gt; pos = std::make_pair(1,2);
+    std::cout&lt;&lt;"x = "&lt;&lt;std::get&lt;0&gt;(pos)
+        &lt;&lt;" y = "&lt;&lt;std::get&lt;1&gt;(pos)<<"\n";
+
+
+    std::tuple&lt;int,int,int&gt; v3 = std::make_tuple(1,2,3);
+    std::cout&lt;&lt;"x = "&lt;&lt;std::get&lt;0&gt;(v3)
+        &lt;&lt;" y = "&lt;&lt;std::get&lt;1&gt;(v3)
+        &lt;&lt;" z = "&lt;&lt;std::get&lt;2&gt;(v3)&lt;&lt;"\n";
+    return 0;
+}
 </pre>
 		</p>
 	</div>
