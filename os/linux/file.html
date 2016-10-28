@@ -78,7 +78,76 @@ chmod a-x a.text
 
 	<div class="note"><a name="directory"></a>
 		<p><span class="flag">目錄配置</span>
-<pre>
+<pre>/	(root 系統根目錄)
+
+	<span class="care">/bin	可執行命令存放目錄</span>
+
+	/boot	內核文件
+		/boot/grub	開機設置文件
+
+	/dev	類似 /dev/null /dev/sda ...等設備文件
+
+	<span class="care">/etc	各種軟體與系統配置文件</span>
+		/etc/init.d	各種軟體的啟動腳本
+
+	/home	用戶主文件夾
+
+	/lib	各種目標文件和函數庫
+		/lib/modules	各種不同版本內核模塊 如硬件驅動
+
+	/media	如cdroom 等暫存媒體
+	/mnt	通常是臨時掛節點
+
+	<span class="care">/opt	通常是第三方軟體安裝位置</span>
+
+	/proc	內存中的數據 如內核 軟體等
+
+	/root	root 用戶主文件夾
+
+	/sbin	開機或單用戶模式下 能執行的系統命令
+
+	/srvc	網絡服務器提供的 數據放置處
+
+	/sys	內存中的數據 如內核 文件系統等
+
+	/tmp	臨時數據
+
+	<span class="care">/usr	軟體默認安裝位置</span>
+</pre>
+		</p>
+
+		<p><span class="flag">/etc</span>
+<pre>/etc/init.d	存放服務默認啟動腳本
+/etc/X11	X Window相關配置
+</pre>
+		</p>
+
+		<p><span class="flag">/usr</span>
+<pre>/usr/X11R6	x window 系統重要數據
+/usr/bin	大部分用戶可用命令
+/usr/include	c/c++ header
+/usr/lib	引用程序 函數庫 目標文件
+/usr/local	系統管理員 在本機 安裝的軟體
+/usr/sbin	非系統正常運行需要的命令
+/usr/share	共享文件夾
+/usr/src	源碼
+</pre>
+		</p>
+
+		<p><span class="flag">/var</span>
+<pre>/var/cache	應用程序緩存
+/var/lib	應用程序執行中需要使用的數據 如 mysql為 /var/lib/mysql
+/var/locl
+/var/log
+/var/mail
+/var/run
+/var/spool
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>os啟動時只會掛接 / 
+故 /etc /bin /dev /lib /sbin 不能掛接到其它分區
 </pre>
 		</p>
 	</div>
