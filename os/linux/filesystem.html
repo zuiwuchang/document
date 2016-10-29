@@ -8,17 +8,63 @@
 <body>
 <div class="main">
 	<div class="title">
-		<a href="#"></a>
+		<a href="#du">磁盤 與目錄 容量</a>
+		<a href="#link">連結</a>
+		<a href="#fdisk">磁盤分割</a>
 	
 	</div>
 
-	<div class="note"><a name=""></a>
-		<p><span class="flag"></span>
-<pre>
+	<div class="note"><a name="du"></a>
+		<p><span class="flag">磁盤 與目錄 容量</span>
+<pre>//查看 檔案 所在掛節點 的使用量
+//如果不接 檔案 將 顯示 所有掛節點使用量  
+df 檔案
+	-a	列出所有檔案系統 包括 /proc 等
+	-k	以kb為單位 顯示
+	-m	以mb為單位
+	-h	自動 使用 合適的 單位
+	-H	以1000換算 而非 1024
+	-T	顯示 filesystem名 (如 xfs ext4 ...)
+	-i	不以容量 而以 inode 數量顯示
+
+//顯示 檔案/目錄 使用磁盤量
+du 檔案
+	-a	列出目錄下所有檔案 和 目錄
+	-h	自動 使用 合適的 單位
+	-s	僅列出目錄佔用總量 而不列出其下 檔案 目錄 信息
+	-S	列出目錄容量時 不包括子目錄
+	-k	以kb為單位
+	-m	以mb為單位
 </pre>
 		</p>
 	</div>
 
+	<div class="note"><a name="link"></a>
+		<p><span class="flag">hard link 硬連結</span>
+<pre>hard link 是新增 一個 檔案名 使其 inode 連結到某個已存在的 inode
+hard link 不可 跨filesystem 不可用於 目錄
+
+//創建 hard link
+ln src dist
+	-s	創建 symbolic link
+	-f	若目標檔案存在 刪除之
+	-i	若目標存在 詢問操作
+</pre>
+		</p>
+		<p><span class="flag">symbolic link 軟連結</span>
+<pre>symbolic link 只是為檔案 創建一個 指向檔案的 別名
+
+可以 跨filesystem 用於目錄
+</pre>
+		</p>
+	</div>
+	
+	<div class="note"><a name="fdisk"></a>
+		<p><span class="flag">磁盤分割</span>
+<pre>
+</pre>
+		</p>
+	</div>
 	
 </div>
 </body>
