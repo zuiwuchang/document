@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#file">檔案與目錄 管理</a>
+		<a href="#cat">查看檔案 內容</a>
+		<a href="#umask">umask 檔案預設權限</a>
+		<a href="#attr">檔案隱藏屬性</a>
+		<a href="#find">指令 與 檔案 搜索</a>
+	
+	</div>
+
+	<div class="note"><a name="file"></a>
+		<p><span class="flag">檔案與目錄 管理</span>
+<pre>.		//代表当前目录
+.. 		//...上层目录
+-		//...前一个工作目录
+~		//...当前用户主目录
+~king	//...用户 king 的主目录
+
+
+//切换目录
+cd ..
+
+//显示当前目录
+pwd	[-P]
+	P參數指示 不要以 link 方式顯示
+
+//创建目錄 test2
+mkdir [-pm 774] /tmp/test/test2
+	p 自動創建祖先目錄 
+	m 以指定的 權限 而非默認的 umask 創建
+
+//刪除空目錄
+rmdir [-P] /tmp/test/test2
+	P 連同祖先的空目錄一起刪除
+
+$PATH	環境變量 記錄了 可執行檔案搜索 路徑
+</pre>
+		</p>
+		<p><span class="flag">操作</span>
+<pre>//查看 檔案 目錄
+ls	目錄名/檔案名
+	<span class="care">-a	顯示 全部檔案 （如隱藏檔案）</span>
+	-A	同a 但不顯示 . 和 ..
+	<span class="care">-d	顯示目錄本身 而非 其下的檔案</span>
+	-f	不用排序
+	-F	為檔案名加上附加參數 指示檔案類型 
+		* 可執行檔案
+		/ 目錄
+		= socket
+		| IFFO
+	<span class="care">-h	自動將檔案大小轉為 合適的 MB/GB ...單位</span>
+	-i	列出 inode
+	<span class="care">-l	顯示 權限等 詳細 信息</span>
+	-n	顯示 uid gid 值 而非 用戶名 組名
+	<span class="care">-r	反向排序</span>
+	-R	連同子目錄一起列出
+	<span class="care">-S	以檔案大小 排序</span>
+	-t	依時間排序
+
+	--color=never	不要為檔案添加特徵顏色
+	--color=always	顯示顏色
+	--color=auto	系統自動判斷是否上色
+	--full--time	顯示完整時間信息
+	--time={atime,ctime}	輸出訪問數據(atime) 或權限改變時間(ctime) 而非內容改變時間
+
+//複製檔案
+cp src dist
+	<span class="care">-a	相當於 -pdr</span>
+	-d	若src為link 複製link 而非 實體
+	-f	dist 若存在 則替換
+	-i	dist 若存在 詢問如何操作
+	-I	創建 hard link
+	-p	連同 檔案屬性 一起copy 而非使用 默認的 umask
+	-r	遞歸copy 用於copy目錄
+	-s	創建 link
+	-u	dist 比 src 舊時 才copy
+
+//移動/改名
+mv src dist
+	-f	dist 存在 覆蓋
+	-i	dist 存在 詢問操作
+	-u	dist 不存在 或比 src 舊時才 move  
+
+//刪除 空目錄
+rmdir 目錄
+
+//刪除 檔案 目錄
+rm 目錄/檔案
+	-f	強制刪除
+	-i	互動模式刪除
+	-r	遞歸刪除 用於刪除目錄
+
+//批量改名
+rename expression replacement file
+	expression	是原字符
+	replacement	是替換字符
+	file	是要修改的檔案
+	(//將所有 後綴為.txt 的檔案 改名為 .text檔案  
+	rename .txt .text *.txt)
+
+//獲取檔案名
+basename 路徑
+
+//獲取檔案 路徑 (不包含檔案名)
+dirname 路徑
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="cat"></a>
+		<p><span class="flag">查看檔案 內容</span>
+<pre>//查看 檔案 類型
+file 檔案
+
+//顯示 全部內容
+cat 檔案
+	-A	同 vET
+	-b	顯示行號 但不為空白行添加
+	-E	將結尾的 $ 斷行顯示出來
+	-n	顯示行號 要為空白行添加
+	-T	將 [tab] 以 ^| 顯示
+	-v	列出一些看不出來的字符
+
+//同 cat 指示 顯示行號
+nl 檔案
+	-b a	加上行號 包括空白行
+	-b t	默認 加上行號 不包括空白行
+
+//同 cat 當 從最後一行開始顯示
+tac 檔案
+
+
+//使用分頁方式 查看 檔案 
+//(對於管道 不可回翻)
+more 檔案
+
+	space	下翻一頁
+	enter	下翻一行
+	:f	顯示檔案名和行數
+	q	退出 more
+	b	回翻 對於管道無效
+
+<span class="care">//查看檔案
+less [-N] 檔案</span>
+	-N	顯示行號
+
+	space	下翻一行
+	[PageDown]	...
+	[PageUp]	上翻一頁
+	Down Arrow	下翻一行
+	Up Arrow	上...
+	/	向下查找字符串
+	?	向上...
+	n	重複查詢
+	N	反向重複查詢
+	q	退出 less
+
+<span class="care">//只顯示 檔案 前/後 n 行
+head -n 行數 檔案
+tail -n 行數 檔案
+	//顯示行號的示例
+	nl a.txt | head -n 20
+
+//以 二進制 顯示 文件
+od -t type 檔案
+	type取值
+	a	默認字符輸出
+	c	ascill字符輸出
+	d	十進制輸出
+	f	浮點輸出
+	o	八進制輸出
+	x	十六進制輸出
+
+<span class="care">//修改檔案時間 若檔案不存在 創建之
+touch 檔案
+	-a	修改 atime (檔案 最後被讀取時間)
+	-c	修改 ctime (檔案權限 最後被修改時間)
+	-m	修改 mtime (檔案內容 最後被修改時間)</span>
+	-d
+	-t [YYMMDDHHMM]	以指定格式修改時間 而非當前日期
+</span>
+	
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="umask"></a>
+		<p><span class="flag">umask 檔案預設權限</span>
+<pre>umask 標識了用戶在創建 檔案 目錄時 的默認 權限
+無論 umask 是否設置 x權限 創建檔案時 檔案都不會設置 x權限
+
+//查看 umask
+umask -S
+	u=rwx,g=rwx,o=rx
+//顯示 umask 中去掉的權限
+umask
+	0002
+
+//修改 umask
+//(os 重啟後將 還原為os默認值)
+umask 值
+	umask 0022
+</pre>
+		</p>
+		<p><span class="flag">SUID SGID SBIT</span>
+<pre>對於 u g o 外 多出的第一個位 用於 設置  SUID SGID SBIT
+
+<table>
+<tr><th>權限</th><th>對檔案含義</th><th>對目錄含義</th><th>權限分數</th></tr>
+<tr><td>s	SUID</td><td>執行檔案的人在執行此檔案時<br />使用檔案所有者的權限<br /><span class="care">對腳本 無效</span></td><td><span class="care">對目錄 無效</span></td><td>4</td></tr>
+
+<tr><td>S	SGID</td><td>對於 二進制檔案 執行時 使用檔案所有組的權限</td><td>在此目錄下 有效用戶組 為 目錄所有組</td><td>2</td></tr>
+
+<tr><td>t	SBIT</td><td>無效</td><td>在此目錄下創建的 檔案目錄 只有root 可以 刪除 移動 改名</td><td>1</td></tr>
+</table>
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>chmod 4777 檔案
+chmod u+s,g+s 檔案
+chmod g+s,o+t 檔案
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="attr"></a>
+		<p><span class="flag">檔案隱藏屬性</span>
+<pre>檔案 目錄 還存在所謂的 隱藏屬性
+
+//查看 隱藏屬性
+lsattr 檔案
+	-a	顯示隱藏屬性
+	-d	如果是目錄 顯示 目錄本身 而非其下檔案
+	-R	連同子目錄一起顯示
+
+//改變 隱藏屬性
+chattr [+-=] [ASacdistu] 檔案
+	+	增加屬性
+	-	刪除屬性
+	=	設置為指定屬性
+
+	A	檔案的 atime不會改變
+	S	改變linux默認的一次寫入為同步
+	<span class="care">a	檔案只能增加數據 不能刪除 (root可設置)</span>
+	c	設置後 寫入檔案會自動壓縮 讀取時自動解壓
+	d	不會被 dump 程式 備份
+	<span class="care">i	檔案不能被刪除 改名 移動 寫入 或 添加數據 (root可設置)</span>
+	s	檔案被刪除時 完成從磁盤刪除
+	u 	檔案被刪除時 其實未從磁盤刪除
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="find"></a>
+		<p><span class="flag">指令 與 檔案 搜索</span>
+<pre>//在 $PATH 變量中 查找 指令
+which [-a] command
+	-a	列出所有 找到的 指令 而非 只列出 第一個
+
+//從 whereis 數據庫中 查找檔案
+whereis 檔案
+	-b	只查找 二進制檔案
+	-m	只查找 在 說明文件 manual 下的 檔案
+	-s	值查找 source 源代碼
+	-u	查找 -bms 之外的檔案
+
+//從 locate數據庫(/var/lib/locate) 中 查找 檔案 目錄
+locate 檔案
+	-i	忽略大小寫
+	-r	使用正則表達式匹配
+	-c	進顯示 找到數量
+	-l n	進顯示 n 行
+
+//更新 locate數據庫(大多linux 默認 每天自動更新一次)
+updatedb
+</pre>
+		</p>
+		<p><span class="flag">find</span>
+<pre>//從 磁盤中 查找
+find [PATH] [option] [action]
+
+
+<span class="care">時間相關 參數 atime ctime mtime</span>
+//找出 在4天前 這天內 被訪問的 檔案
+find / -atime 4
+//找出 在4天前 不包括第4天 被訪問的 檔案
+find / -atime +4
+//找出 在4天內 包括第4天 被訪問的 檔案
+find / -atime -4
+//找出 不指定 檔案新的 檔案
+find / -newer 檔案
+
+<span class="care">用戶 用戶組</span>
+//找出 指定 用戶的 檔案
+-uid 1000
+-user king
+
+//找出 指定 用戶組的 檔案
+-gid 1000
+-group king
+
+//找出 用戶不存在  /etc/passwd 中的檔案
+-nouser
+//找出 用戶組不存在  /etc/group 中的檔案
+-nogroup
+
+<span class="care">檔案名 權限相關</span>
+//找出 名稱 以 king 開始的 檔案
+-name  king*
+
+//找出 大小 大(+)/(-)小於 指定 大小的 檔案
+-size [+-] SIZE
+	SIZE 可使用 單位
+	c	byte
+	k	kb
+	m	mb
+	 ... 
+
+//查找指定 類型 文件
+-type TYPE
+	TYPE 取值
+	f	一般檔案
+	b	設備檔案
+	c	...
+	d	目錄
+	l	link
+	s	socket
+	p	FIFO
+	...
+//查找 指定權限
+-perm mode
+//查找 指定權限 必須都被設置
+-perm -mode
+//查找 u g o 任一權限 滿足 mode  的
+-perm /mode
+
+<span class="care">處理查找結果</span>
+//將 查找過程 結果 輸出到 屏幕
+-ptrint
+
+//如何 處理 查找結果 (默認 輸出到 屏幕 -print)
+-exec command 
+find ./ -name 'a*' -exec ls -l {} \;
+ 	{}代表 被查找到的結果
+ 	\; 代表 -exec 參數結束
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
