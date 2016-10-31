@@ -8,17 +8,137 @@
 <body>
 <div class="main">
 	<div class="title">
-		<a href="#"></a>
-	
+		<a href="#gzip">gzip</a>
+		<a href="#bzip2">bzip2 </a>
+		<a href="#tar">tar </a>
+		<a href="#dump">dump </a>
+		<a href="#dd">dd </a>
 	</div>
 
-	<div class="note"><a name=""></a>
-		<p><span class="flag"></span>
-<pre>
+	<div class="note"><a name="gzip"></a>
+		<p><span class="flag">gzip</span>
+<pre>//壓縮 檔案
+gzip src
+	-c	將 數據 輸出到屏幕
+	-d	解壓
+	-t	檢查壓縮檔案是否無錯
+	-v	顯示 壓縮比
+	-#	#為 [1,9] 代表壓縮程度 9（最慢 壓縮比最大）默認為 6
+
+//cat less ... 等 gzip 版 可直接讀取 gzip檔案
+zcat zless zmore zgrep ...
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>gzip 會將 src 刪除 創建 src.gz 的壓縮文件
+(gzip -d 亦會 刪除 *.gz 文件)
+除非 設置 -c 參數 並配合 重定向
+gzip -c src &gt; src.gz
+gzip -cd src.gz &gt; src
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="bzip2"></a>
+		<p><span class="flag">bzip2</span>
+<pre>bzip
+
+bzip2 用法 完全 同 gzip 只是現在
+bzip2 同一個 -k 參數 可以 直接 保留 src文件
+
+bzip 亦提供了 bzcat bzless ...
 </pre>
 		</p>
 	</div>
 
+	<div class="note"><a name="tar"></a>
+		<p><span class="flag">tar</span>
+<pre>tar 提供了 打包多個 檔案的 能力 同時 可以使用 gzip bzip2 等進行 壓縮
+//打包
+tar -jcvf dist src
+
+//查看包
+tar -jtf src
+
+//解壓
+tar -jxvf src -C dist
+
+	-c	打包
+	-t	查詢包中檔案名
+	-x	解包
+
+	-j	使用 bzip2 算法
+	-z	使用 gzip 算法
+
+	-v	顯示正在處理的檔案名
+
+	-f	指定打包 檔案名
+	-C	接包時 指定 解包目錄名
+
+	-p	保留 檔案 原本權限 屬性(可用於備份)
+	-P	保留 絕對路徑
+	--exclude=FILE	打包時 排除FILE 多個 FILE 以空格隔開
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>//只查看包中 home/dark 下的檔案
+tar -jtf test.tar.bz2 home/dark 
+
+//只解包 包中的 home/dark/test 檔案
+tar -jxf test.tar.bz2 home/dark/test 
+
+//只把 home中 mtime 比包中 媒體麼新的 加入/替換到 已有包
+tar -jcvf test.tar.bz2 --newer-mtime="2012/01/12" /home 
+	--newer-mtime 還可以是 --newer(包含了 mtime ctime)
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="dump"></a>
+		<p><span class="flag">dump</span>
+<pre>//備份 目錄/分區
+dump -f dist src
+	-S	僅列出備份需要佔用的空間 而不進行備份操作
+	-u	將備份信息寫入到 /etc/dumpdates
+	-v	將 dump 過程 顯示出來
+	-j	使用bzip2壓縮 
+	-level	level為[0,9] 指定差異備份序列
+	-f	備份後的目標文件
+	-W	列出 /etc/fstab 中 dump設置的 分區是否 有過備份
+
+
+//查看 dump
+restore -t [-f dumpfile] [-h]
+
+//比較 備份和 掛接點
+restore -C [-f dumpfile] [-D 掛接點]
+
+//以互動模式還原
+restore -i [-f dumpfile]
+
+//還原
+restore -r [-f dumpfile] 
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>dump 用於目錄時 不能使用 -u參數 也不會 差異備份 level只能為0
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="dd"></a>
+		<p><span class="flag">dd</span>
+<pre>dd 不但可以創建 文件 亦可用於 備份
+dd 直接從磁區讀取 數據 故可以讀取 完整的 磁盤信息 即使是不認識的 格式
+
+//創建 大小 為 512M(bs*count) 的文件 file.iso
+dd if=/dev/zero of=file.iso bs=1M count=512
+	if	輸入檔案 /dev/zero 會一直輸出0
+	of	輸出檔案
+	bs	每個 block 大小 默認 512byte
+	count	block 數量
+</pre>
+		</p>
+	</div>
 </div>
 </body>
 </html>
