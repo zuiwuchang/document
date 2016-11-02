@@ -13,6 +13,7 @@
 		<a href="#vi0">vi 一般模式</a>
 		<a href="#vi1">vi 編輯模式</a>
 		<a href="#vi2">vi 命令</a>
+		<a href="#vim-more">vim 增強功能</a>
 	</div>
 
 	<div class="note"><a name="vim"></a>
@@ -86,7 +87,7 @@ wiki <a href="https://zh.wikipedia.org/wiki/Vim" target="_blank">https://zh.wiki
 	<div class="note"><a name="vi1"></a>
 		<p><span class="flag">vi 編輯模式</span>
 <pre><table>
-<tr><th>command</th><th>node</th></tr>
+<tr><th>command</th><th>note</th></tr>
 <tr><td>i,I</td><td>i 從目前光標位置插入
 I 從目前光標行 第一個非空字符插入</td></tr>
 <tr><td>a,A</td><td>a 從目前光標位置後插入
@@ -117,6 +118,91 @@ R 一直替換</td></tr>
 <tr><td>:set nu</td><td>顯示 行號</td></tr>
 <tr><td>:set nonu</td><td>隱藏 行號</td></tr>
 </table>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="vim-more"></a>
+		<p><span class="flag">vim 增強功能</span>
+<pre>vim 兼容所有 vi 用法 同時 提供了 許多額外功能
+</pre>
+		</p>
+		<p><span class="flag">塊選擇</span>
+<pre>
+<table>
+<tr><th>command</th><th>note</th></tr>	
+<tr><td>v</td><td>以反白選擇 多字符</td></tr>
+<tr><td>V</td><td>以反白選擇 多行</td></tr>
+<tr><td>[ctrl] + v</td><td>以反白選擇 長方形</td></tr>
+<tr><td>y</td><td>複製 反白選擇塊</td></tr>
+<tr><td>d</td><td>刪除 反白選擇塊</td></tr>
+</table>
+</pre>
+		</p>
+		<p><span class="flag">多檔案 編輯</span>
+<pre>//同時編輯 多檔案
+vim file1 file2 ... 
+
+<table>
+<tr><th>command</th><th>note</th></tr>
+<tr><td>:n</td><td>編輯 下個檔案</td></tr>
+<tr><td>:N</td><td>編輯 上個檔案</td></tr>
+<tr><td>:files</td><td>列出 所有打開的 檔案</td></tr>
+</table>
+</pre>
+		</p>
+		<p><span class="flag">分割窗口</span>
+<pre>//分割出 一個 新窗口
+:sp
+
+//分割出 ... 編輯 file
+:sp file
+
+//編輯 下方 窗口
+[ctrl] + w + [j]/Down Arrow
+
+//編輯 上方 窗口
+[ctrl] + w + [k]/Up Arrow
+</pre>
+		</p>
+		<p><span class="flag">環境設置</span>
+<pre>環境 預設 檔案 (在檔案中設置 不需要加: 如 set nu)
+～/.vimrc 
+
+//設置 vim環境
+:set ...
+
+<table>
+<tr><th>set</th><th>note</th></tr>
+<tr><td>:set nu
+:set nonu</td><td>是否 顯示 行號</td></tr>
+<tr><td>:set hlsearch
+:set nohlsearch</td><td>搜索內容 是否 高光</td></tr>
+<tr><td>:set autoindent
+:set noautoindent</td><td>是否 自動縮進</td></tr>
+<tr><td>:set backup
+:set nobackup</td><td>是否備份 默認 noback
+如果 backup write 時 會創建 file~ 備份檔</td></tr>
+<tr><td>:set rule</td><td>顯示狀態欄</td></tr>
+<tr><td>:set showmode</td><td>顯示 --INSERT-- 等信息</td></tr>
+<tr><td>:set backspace=(012)</td><td>一般 linux編輯模式下 不可用 backspace 刪除
+2 運行
+1 僅可刪除 剛輸入的 字符
+0 不可刪除</td></tr>
+<tr><td>:set all</td><td>顯示 全部 可設置 參數</td></tr>
+<tr><td>:set</td><td>顯示於 默認值 不同的 設置</td></tr>
+<tr><td>:syntax on
+:syntax off</td><td>是否 對不同 檔案類型 使用不同 配色方案</td></tr>
+<tr><td>:set bg=dark
+:set bg=light</td><td>設置 不同 配色方案</td></tr>
+</table>
+</pre>
+		</p>
+		<p><span class="flag">other</span>
+<pre>vim 編輯時 會創建 .file.swp 檔案 以避免 vim異常關閉
+若要恢復 在 重新打開時 選擇 R(recover)
+
+vim 為同行創建了 ~/.viminfo 檔案 其中記錄了 所有vim 操作
 </pre>
 		</p>
 	</div>
