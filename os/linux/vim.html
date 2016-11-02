@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#vim">vim</a>
+		<a href="#vi">vi 工作模式</a>
+		<a href="#vi0">vi 一般模式</a>
+		<a href="#vi1">vi 編輯模式</a>
+		<a href="#vi2">vi 命令</a>
+	</div>
+
+	<div class="note"><a name="vim"></a>
+		<p><span class="flag">vim</span>
+<pre>vim 是由 vi 發展來的 一個 文本編輯器 是最好的編輯器之一
+用法基本同 vi 現在的linux一般都 不會帶vi 
+使用 vi命令時 會被執行vim命令
+
+wiki <a href="https://zh.wikipedia.org/wiki/Vim" target="_blank">https://zh.wikipedia.org/wiki/Vim</a>
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="vi"></a>
+		<p><span class="flag">vi 工作模式</span>
+<pre>vi 存在三種 工作模式 用於不同的 操作
+
+一般模式	用於光標移到 數據刪除 粘貼
+編輯模式	文本輸入
+命令模式	讀取保存 查找 設置編輯環境
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="vi0"></a>
+		<p><span class="flag">vi 一般模式</span>
+<pre><table>
+<tr><th>command</th><th>note</th><th>example</th></tr>
+<tr><td>...</td><td><h2><span class="care">光標移動</span></h2></td></tr>
+<tr><td>[n]h 或 [n]Left Arrow</td><td>光標 左移n個字符 n默認為1</td><td>3n</td></tr>
+<tr><td>[n]j 或 [n]Down Arrow 或 [n] Enter</td><td>... 下 ..</td></tr>
+<tr><td>[n]k 或 [n]Up Arrow</td><td>... 上 ..</td></tr>
+<tr><td>[n]l 或 [n]Right Arrow 或 [n][space]</td><td>... 右 ..</td></tr>
+<tr><td>0 或 [home]</td><td>... 本行最前</td></tr>
+<tr><td>$ 或 [end]</td><td>... 本行最後</td></tr>
+<tr><td>...</td></tr>
+<tr><td>H</td><td>光標移動到 屏幕上首行 第一個字符</td></tr>
+<tr><td>M</td><td>... 屏幕中 ...</td></tr>
+<tr><td>L</td><td>... 屏幕尾行 ...</td></tr>
+<tr><td>...</td></tr>
+<tr><td>[n]G</td><td>光標移到到 最後第n行 n默認為最後一行</td></tr>
+<tr><td>gg</td><td>1G</td></tr>
+<tr><td>...</td><td><h2><span class="care">查找 替換</span></h2></td></tr>
+<tr><td>/work</td><td>向下查找</td></tr>
+<tr><td>?work</td><td>向上查找</td></tr>
+<tr><td>n</td><td>向下 重複 查找</td></tr>
+<tr><td>N</td><td>向上 重複 查找</td></tr>
+<tr><td>:[n1,n2]s/[word1]/[word2][/gc]</td><td>把 [n1,n2] 行中 word1 替換為 word2
+($ 代表最後一行)
+(gc 指定替換時 是否 詢問操作)</td><td>把全文的 king 替換為 dark king
+:1,$s/king/dark king</td></tr>
+<tr><td>...</td><td><h2><span class="care">刪除 複製 粘貼</span></h2></td></tr>
+<tr><td>[n]x</td>向後刪除 n個字符 n默認為1</tr>
+<tr><td>[n]X</td><td>向前 ...</td></tr>
+<tr><td>dd</td><td>刪除整行</td></tr>
+<tr><td>dd[n]G</td><td>刪除 光標 到 n行</td></tr>
+<tr><td>d0</td><td>刪除光標到 本行首</td></tr>
+<tr><td>d$</td><td>刪除光標到 本行尾</td></tr>
+<tr><td>yy</td><td>複製本行</td></tr>
+<tr><td>nyy</td><td>複製n行</td></tr>
+<tr><td>ynG</td></tr>
+<tr><td>y0</td></tr>
+<tr><td>y$</td></tr>
+<tr><td>p 或 P</td>粘貼到</tr>
+<tr><td>...</td><td><h2><span class="care">其它常用</span></h2></td></tr>
+<tr><td>u</td>撤銷操作</tr>
+<tr><td>. 或 [ctrl] + r</td>重複操作</tr>
+<tr><td>J</td>合併 光標行和下一行</tr>
+</table>
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="vi1"></a>
+		<p><span class="flag">vi 編輯模式</span>
+<pre><table>
+<tr><th>command</th><th>node</th></tr>
+<tr><td>i,I</td><td>i 從目前光標位置插入
+I 從目前光標行 第一個非空字符插入</td></tr>
+<tr><td>a,A</td><td>a 從目前光標位置後插入
+A 從目前光標行 最後一個非空字符插入</td></tr>
+<tr><td>o,O</td><td>o 下一行插入
+O 上一行插入</td></tr>	
+<tr><td>r,R</td><td>進行 替換模式
+r 進替換一次
+R 一直替換</td></tr>
+</table>
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="vi2"></a>
+		<p><span class="flag">vi 命令</span>
+<pre><table>
+<tr><th>command</th><th>note</th></tr>
+<tr><td>:w</td><td>保存</td></tr>
+<tr><td>:w!</td><td>強制保存</td></tr>
+<tr><td>:q</td><td>退出</td></tr>
+<tr><td>:q!</td><td>強制退出</td></tr>
+<tr><td>:wq</td><td>保存並退出</td></tr>
+<tr><td>ZZ</td><td>若檔案未改動離開 若檔案已經改動 存儲後離開</td></tr>
+<tr><td>:w [filename]</td><td>另存為</td></tr>
+<tr><td>:r [filename]</td><td>將 filename 內存 插入到光標後</td></tr>
+<tr><td>:n1,n2 w[filename]</td><td>將 [n1,n2] 行數據 另存為</td></tr>
+<tr><td>:! command</td><td>執行bash 指令</td></tr>
+<tr><td>:set nu</td><td>顯示 行號</td></tr>
+<tr><td>:set nonu</td><td>隱藏 行號</td></tr>
+</table>
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
