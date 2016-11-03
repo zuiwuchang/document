@@ -9,6 +9,9 @@
 <div class="main">
 	<div class="title">
 		<a href="#bash">bash</a>
+		<a href="#var">變量</a>
+		<a href="#env">環境變量</a>
+		<a href="#locale">語系</a>
 	</div>
 
 	<div class="note"><a name="bash"></a>
@@ -21,8 +24,162 @@
 <img src="img/bash/shells.png">
 </pre>
 		</p>
+		<p><span class="flag">常用</span>
+<pre>//將命令轉行 書寫
+\[Enter]
+
+//顯示 命令執行 返回碼 0(通常為成功)
+echo $?
+
+//顯示 當前 進程 pid
+echo $$
+
+//停止 執行
+[ctrl] + c
+
+//暫停 當前程式 並將其切到 後台
+[ctrl] + z
+
+//依次執行 多條命令
+cmd1;cmd2;cmd3 ...
+
+//$? 為 0 才執行下個 命令
+cmd1 &amp;&amp; cmd2 &amp;&amp; cmd3 ...
+//$? 不為 0 才執行下個 命令
+cmd1 || cmd2 || cmd3 ...
+
+//在 後台 運行 命令
+cmd &amp;
+
+//執行命令 並且在 登出用戶後 依然繼續執行
+nohup cmd [&amp;]
+
+//查看 命令 類型
+type cmd
+	-t	僅以 file(外部命令) alias(別名) builtin(bash內置) 等字符顯示 類型
+	-p	類型為 外部命令 時才顯示 完整檔案名
+	-a	將 所有 cmd 都找出來
+</pre>
+		</p>
+		<p><span class="flag">bash 執行路徑</span>
+<pre>1	絕對/相對 路徑
+2	alias
+3	bash內置
+4	$PATH 變量
+</pre>
+		</p>
 	</div>
-	
+	<div class="note"><a name="var"></a>
+		<p><span class="flag">變量</span>
+<pre>//顯示 變量PATH 的值
+echo $PATH
+
+//設置變量 myvar
+myvar="this is a test"
+
+//取消 變量
+unset myvar
+</pre>
+		</p>
+		<p><span class="flag">變量 規則</span>
+<pre>1	變量 與 值 用 <span class="care">=</span> 連接
+2	= 兩邊 不能直接出現 空格 需要使用 <span class="care">"</span> 或 <span class="care">'</span>
+3	變量名 只能是 英文 數字 且不用以 數字 開頭
+4	" 內 $ 等 特殊符號 保存其 原本 特性 
+	' 內 一切皆為 字符串
+		(
+			//同 echo $PATH
+			ehco "$PATH"
+
+			//顯示 字符串 $PATH
+			echo '$PATH'
+
+			//將 ~/bin 增加到 $PATH
+			PATH=$PATH:~/bin
+		）
+5	<span class="care">`</span> 或 <span class="care">$()</span> 內為命令結果
+		echo `uname -r`
+		echo $(uname -r)
+
+6	使用 <span class="care">export</span> 前綴 導入為 環境變量
+7	環境變量 一般使用 全大寫名稱 自定義使用小寫
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>自定義 變量 不會被引入到 新的 子 shell 中
+只有 環境變量(export MYVAR="env var test") 才會被 子 shell 繼承
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="env"></a>
+		<p><span class="flag">環境變量</span>
+<pre>//設置環境變量
+export GOROOT=/opt/go
+	(
+		GOROOT=/opt/go
+		export GOROOT
+	)
+
+//查看所有 環境變量
+env
+export
+
+//查看 當前 shell 所有相關 變量(包括 自定義)
+set
+</pre>
+		</p>
+		<p><span class="flag">env 常見 環境變量</span>
+<pre>HOME	當前用戶 home 目錄
+SHELL	...使用的 SHELL
+HISTSIZE	...記錄命令 數量
+MAIL	mail 命令讀取 檔案 路徑
+PATH	可執行檔案 查找路徑
+LANG	語系
+RANDOM	[0,32767] 的一個偽隨機 值
+...
+</pre>
+		</p>
+		<p><span class="flag">set 常見 shell變量</span>
+<pre>HISTFILE	當前shell 命令記錄 檔案路徑
+MAILCHECK	多少秒 掃描一次 $MAIL
+PS1	命令提示字元 如何 顯示
+	<img src="img/bash/ps1.png">
+	\d	顯示出 星期 月 日 (如"Mon Feb 2")
+	\H	顯示出 完整 主機名  $HOSTNAME
+	\h	... 主機名 第一個 小數點前的 字符串
+	\t	... 24時間 HH:MM:SS
+	\T	... 12... 
+	\A	... 24... HH:MM
+	\@	... 12... am/pm
+	\u	... 目前 用戶名
+	\v	... bash 版本
+	\w	... 完整目錄名cd'
+	\W	... 工作目錄
+	\#	執行的第 幾個 命令
+	\$	為root 顯示 # 其他用戶顯示 $ 提示符
+OSTYPE		OSTYPE=linux-gnu
+HOSTTYPE		HOSTTYPE=x86_64
+MACHTYPE	MACHTYPE=x86_64-redhat-linux-gnu
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="locale"></a>
+		<p><span class="flag">語系</span>
+<pre>//查看 系統 支持的 所有 語系
+locale -a
+
+//查看 語系 設置
+locale
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>如果 設置了 LANG 或 LC_ALL
+其它未設置 的項都將 設置 LANG 或 LC_ALL 的設置
+</pre>
+		</p>
+	</div>
+
 </div>
 </body>
 </html>
