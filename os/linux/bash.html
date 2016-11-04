@@ -9,9 +9,12 @@
 <div class="main">
 	<div class="title">
 		<a href="#bash">bash</a>
+		<a href="#locale">語系</a>
+		<a href="#history">命令歷史</a>
 		<a href="#var">變量</a>
 		<a href="#env">環境變量</a>
-		<a href="#locale">語系</a>
+		<a href="#declare">變量 聲明 讀取</a>
+		<a href="#varset">變量 操作</a>
 	</div>
 
 	<div class="note"><a name="bash"></a>
@@ -54,6 +57,12 @@ cmd &amp;
 //執行命令 並且在 登出用戶後 依然繼續執行
 nohup cmd [&amp;]
 
+//創建 命令 別名
+alias 別名=命令
+	alias ll="ls -l | less"
+//刪除 別名
+unalias 別名
+
 //查看 命令 類型
 type cmd
 	-t	僅以 file(外部命令) alias(別名) builtin(bash內置) 等字符顯示 類型
@@ -69,6 +78,54 @@ type cmd
 </pre>
 		</p>
 	</div>
+
+	<div class="note"><a name="locale"></a>
+		<p><span class="flag">語系</span>
+<pre>//查看 系統 支持的 所有 語系
+locale -a
+
+//查看 語系 設置
+locale
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>如果 設置了 LANG 或 LC_ALL
+其它未設置 的項都將 設置 LANG 或 LC_ALL 的設置
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="history"></a>
+		<p><span class="flag">命令歷史</span>
+<pre>//顯示 最近執行的 n條 命令
+history n
+
+//刪除 目前shell的 命令歷史
+history -c
+
+//將 新的 命令歷史 加入 file 而非  $HISTFILE
+history -a file
+
+//將 file的內容 加入到當前 命令歷史
+history -r file
+
+//將 當前 命令歷史 寫入到 file
+history -w file
+
+
+
+//執行 命令歷史中 第n個命令
+!n
+
+//執行 上個 命令
+!!
+
+//執行 最近 的以 str開頭的 命令
+!str
+</pre>
+		</p>
+	</div>
+
 	<div class="note"><a name="var"></a>
 		<p><span class="flag">變量</span>
 <pre>//顯示 變量PATH 的值
@@ -108,6 +165,11 @@ unset myvar
 		<p><span class="flag">注意</span>
 <pre>自定義 變量 不會被引入到 新的 子 shell 中
 只有 環境變量(export MYVAR="env var test") 才會被 子 shell 繼承
+
+在讀取變量值 變量值時 需要使用 $
+
+變量的 作用範圍為 當前程式
+環境變量 作用範圍為 當前程式 以及其 子程式
 </pre>
 		</p>
 	</div>
@@ -164,22 +226,70 @@ MACHTYPE	MACHTYPE=x86_64-redhat-linux-gnu
 </pre>
 		</p>
 	</div>
-	<div class="note"><a name="locale"></a>
-		<p><span class="flag">語系</span>
-<pre>//查看 系統 支持的 所有 語系
-locale -a
+	<div class="note"><a name="declare"></a>
+		<p><span class="flag">變量 聲明 讀取</span>
+<pre>//聲明 一個 變量
+declare 變量名
+typeset 變量名
+	-a	聲明為一個 數組
+	-i	聲明為整數(默認為字符串)
+	-x	聲明為環境變量(同 export)
+	-r	只讀
 
-//查看 語系 設置
-locale
+//獲取變量 值
+$變量名
+
+//獲取數組 值
+$變量名[索引]
+	索引從0開始
+
+//從標準輸入 讀取一個值到變量中
+read 變量名
+	-p	後接顯示的提示
+	-t	後接秒數 超過時間 直接進入 下一步
 </pre>
 		</p>
-		<p><span class="flag">注意</span>
-<pre>如果 設置了 LANG 或 LC_ALL
-其它未設置 的項都將 設置 LANG 或 LC_ALL 的設置
+		<p><span class="flag">變量 聲明 讀取</span>
+<pre>#!/bin/bash
+declare -i length
+read -p "input array length : " length
+echo $length
+
+declare -a arrs
+for((i=0;i&lt;length;i=i+1))
+do
+        arrs[i]=$i
+done
+for((i=0;i&lt;length;i=i+1))
+do
+        echo ${arrs[i]}
+done
 </pre>
 		</p>
 	</div>
 
+	<div class="note"><a name="varset"></a>
+		<p><span class="flag">變量 操作</span>
+<pre>//返回 變量值
+<table>
+<tr><th>command</th><th>note</th></tr>
+<tr><td>$變量 或 ${變量}</td><td>返回變量值</td></tr>
+<tr><td>${變量[n]}</td><td>返回數組 第n個元素 值</td></tr>
+<tr><td>${變量#關鍵字}</td><td>返回變量值 然 從左到右 符合關鍵字的最短 數據 被刪除</td></tr>
+<tr><td>${變量##關鍵字}</td><td>... 長 ...</td></tr>
+<tr><td>${變量%關鍵字}</td><td>... 從右到左 .. 短 ...</td></tr>
+<tr><td>${變量%%關鍵字}</td><td>... 從右到左 ... 長 ...</td></tr>
+<tr><td>${變量/關鍵字/字符串}</td><td>... 從左到右 第一個 滿足關鍵字的 內容被替換為 字符串</td></tr>
+<tr><td>${變量/關鍵字/字符串}</td><td>... 從左到右 第一個 滿足關鍵字的 內容被替換為 字符串</td></tr>
+<tr><td>${變量//關鍵字/字符串}</td><td>... 滿足關鍵字的 內容 全被替換為 字符串</td></tr>
+</table>	關鍵字可以使用 bash 通配符
+
+//設置 變量值
+<table>
+</table>
+</pre>
+		</p>
+	</div>
 </div>
 </body>
 </html>
