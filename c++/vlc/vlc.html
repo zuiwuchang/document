@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#vlc">vlc</a>
+		<a href="#libvlc">libvlc</a>
+	</div>
+
+	<div class="note"><a name="vlc"></a>
+		<p><span class="flag">vlc</span>
+<pre>vlc 是一個 開源(GPL LGPL) 跨平台的 多媒體播放器
+
+官網 <a href="https://www.videolan.org/vlc/" target="_blank">https://www.videolan.org/vlc/</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="libvlc"></a>
+		<p><span class="flag">libvlc</span>
+<pre>libvlc 是在vlc之上 提供給程序員使用的 vlc sdk 開發包
+
+document <a target="_blank" href="http://www.videolan.org/developers/vlc/doc/doxygen/html/modules.html">http://www.videolan.org/developers/vlc/doc/doxygen/html/modules.html</a>
+</pre>
+		</p>
+		<p><span class="flag">環境 配置</span>
+<pre>1 安裝 vlc 播放器 將 
+libvlccore.dll
+libvlc.dll
+plugins
+複製到項目
+
+2 https://github.com/RSATom/libvlc-sdk 項目 包含了 win32下 vlc需要的 include *.lib 檔案
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;Windows.h&gt;
+#include &lt;iostream&gt;
+
+#include &lt;vlc/vlc.h&gt;
+
+void showMediaInfo(libvlc_media_t* vlcMedia)
+{
+    //解析媒體格式
+    libvlc_media_parse(vlcMedia);
+
+    //返回 時長 ms
+    libvlc_time_t duration = libvlc_media_get_duration(vlcMedia);
+    std::cout&lt;&lt;"times : "&lt;&lt;duration&lt;&lt;"ms\n";
+
+    //媒體包含 多個 視頻 音頻 以及其它 軌道 等信息
+    libvlc_media_track_t** tracks = NULL;
+    unsigned int n = libvlc_media_tracks_get(vlcMedia,&tracks);
+    for(unsigned int i=0;i&lt;n;++i)
+    {
+        std::cout&lt;&lt;"tracks["&lt;&lt;i&lt;&lt;"]"&lt;&lt;tracks[i]-&gt;i_id&lt;&lt;"\n";
+    }
+    //釋放 tracks
+    libvlc_media_tracks_release(tracks,n);
+}
+int main()
+{
+    //vlc 啟動 參數
+    const char * vlcArgs[] =
+    {
+        //"-I",
+        //"dummy",
+        "--ignore-config",
+        "--extraintf=logger",   //創建日誌文件
+        "--verbose=2",          //輸出日誌詳細度 [0,2]
+    };
+
+    //vlc 實例
+    libvlc_instance_t* vlcInstance = NULL;
+    //vlc 播放器
+    libvlc_media_player_t* vlcPlayer = NULL;
+    //vlc 媒體
+    libvlc_media_t* vlcMedia = NULL;
+
+
+    //創建 vlc 實例
+    vlcInstance = libvlc_new(sizeof(vlcArgs)/sizeof(vlcArgs[0]),vlcArgs);
+    if(vlcInstance)
+    {
+        // 创建一个VLC播放器
+        vlcPlayer = libvlc_media_player_new(vlcInstance);
+        if(vlcPlayer)
+        {
+            //設置 播放器 窗口
+            libvlc_media_player_set_hwnd(vlcPlayer,GetDesktopWindow());
+
+            //通過文件 創建一個 vlc 媒體
+            vlcMedia = libvlc_media_new_path(vlcInstance, "d:\\mass effect.mp4");
+            if(vlcMedia)
+            {
+                //可選的 獲取一些 媒體信息
+                showMediaInfo(vlcMedia);
+
+                //關聯 播放器 媒體
+                libvlc_media_player_set_media(vlcPlayer, vlcMedia);
+
+
+                //播放 媒體
+                if(!libvlc_media_player_play(vlcPlayer))
+                {
+
+                    //等待播放結束
+                    while(true)
+                    {
+                        Sleep(10);
+                        // 获取当前播放位置
+                        libvlc_time_t time = libvlc_media_player_get_time(vlcPlayer);
+                        printf("playing time : %lld ms\n", (__int64)(time));
+
+                        //獲取播放 狀態
+                        libvlc_state_t media_state = libvlc_media_get_state(vlcMedia);
+                        printf("state %d\n",media_state);
+                        if(media_state == libvlc_Ended || media_state == libvlc_Error)
+                        {
+                            break;
+                        }
+                    }
+                }
+                //停止播放
+                libvlc_media_player_stop(vlcPlayer);
+                //释放 vlc 媒體
+                libvlc_media_release(vlcMedia);
+            }
+            //释放 vlc 播放器
+            libvlc_media_player_release(vlcPlayer);
+        }
+        //释放 vlc 實例
+        libvlc_release(vlcInstance);
+    }
+    return 0;
+}
+
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
