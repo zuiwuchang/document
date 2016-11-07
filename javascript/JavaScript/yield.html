@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>care</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#yield">yield</a>
+		<a href="#sync">同步</a>
+		
+	</div>
+
+	<div class="note"><a name="yield"></a>
+		<p><span class="flag">yield</span>
+<pre>js 在 es6 後加入了 所謂的 Generator
+
+Generator 是一個 函數 和普通函數 沒有任何 差別 
+只是 定義時  在函數名前加個 * 代表是 Generator
+
+其次 Generator 在被調用時 不會 執行 函數 而是 返回 一個 obj
+每次 調用 obj.next() 方法 才執行 函數體
+函數體 執行到 yield 時 將 中斷並返回 直到下次 obj.next() 的調用 才從 中斷處開始 繼續執行 
+</pre>
+		</p>
+		<p><span class="flag">next</span>
+<pre>Generator 返回的 obj 存在一個 next 函數
+調用 將 執行 Generator 函數體 
+next的 參數 將 傳入 作為 Generator的 參數 
+
+obj.value 存儲了 yield 傳入的值 或 Generator 的返回值
+obj.done 返回true 代表 Generator 已經執行結束 而非因為yield中斷
+</pre>
+		</p>
+		<p><span class="flag">throw</span>
+<pre>Generator 返回的 obj 存在一個 throw 函數
+將 使用當前等待的yield 拋出一個 異常 
+</pre>
+		</p>
+		<p><span class="flag">yield</span>
+<pre>Generator 函數體中 執行到 yield時
+函數將中斷 並將 yield 右邊的值 返回給 next
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>$(document).ready(function() {
+	//獲取一個 Generator 實例
+	var g = Generator();
+	while(true) {
+		//執行 函數體
+		var rs = g.next();
+		alert(rs.value);
+		
+		if(rs.done){
+			break;
+		}
+	}
+
+});
+//Generator 定義
+function *Generator() {
+	var v = 0;
+	while(true){
+		//中斷 並將值返回給 next
+		yield v++;
+		if(v > 2){
+			break;
+		}
+	}
+	return v;
+}
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="sync"></a>
+		<p><span class="flag">同步</span>
+<pre>Generator 的出現是為了 解決js返人類的 異步 callback
+使用 異步 調用 能夠 有同步的 寫法
+
+example 提供了一個 ControllerAsync 組件 用於 將異步代碼 變為 同步寫法
+
+1	使用 ControllerAsync.New 創建 流程管理 器
+2	使用 *.Sync 設置一個 Generator 作為 同步 流程
+	(在 Generator 中 使用 yield 執行異步代碼
+	在異步代碼 完成 時 使用 *.Notify 通知 yield返回)
+3	使用 *.Do 異步處理 流程結束邏輯
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>var ControllerAsync={
+	New:function(){
+		//輔助函數 進入下個 流程
+		var next = function(g,callback,err, data){
+			if(err) {
+				g.throw(err);
+				if(callback){
+					callback(err);
+				}
+				return;
+			} 
+
+			//執行 next
+			var res = g.next(data);
+			
+			if(res.done){
+				//通知 所有流程 執行完
+				if(callback){
+					callback(null,res.value);
+				}
+			} 
+		};
+
+		return {
+			//設置 流程 函數
+			//參數 gen 是一個 Generator 函數
+			Sync:function(gen){
+				//存儲 Generator 實例
+				this._gen = gen();
+			},
+			//通知 異步操作已完成 等待的 
+			//yield 可以返回繼續執行
+			//參數 data 為 yield 的返回值
+			//參數 err 為 null 繼續下個流程
+			//參數 err 不為 null 停止流程 並使 yield 拋出 err 異常
+			Notify:function(err,data){
+				next(this._gen,this._callback,err,data);
+			},
+
+			//執行 流程
+			//參數 callback 為流程結束 回調
+			//	callback 存儲兩個參數 err,data
+			//	如果 流程 出現任何錯誤導致 流程結束 則err為 Notify 中指定的錯誤
+			//	如果 流程 正常結束 err為null data為 Generator函數返回值
+			//參數 userdata 為 傳給 Generator 函數的 參數
+			Do:function(callback,userdata){
+				//流程 結束 回調
+				this._callback = callback;
+
+				//執行 首個流程
+				next(this._gen,callback,null,userdata);
+			},
+		};
+	}
+};
+$(document).ready(function() {
+	//創建 流程管理 器
+	var co = ControllerAsync.New();
+
+	//設置 流程 函數
+	co.Sync(function*(){
+		alert("co begin");
+		try{
+			//異步操作
+			var tmp = yield setTimeout(function() {
+				//通知 yield 返回
+				co.Notify(null,"co 1");
+			}, 500);
+			alert("co 1 tmp = " + tmp);
+
+			tmp = yield setTimeout(function() {
+				//通知 yield 返回
+				//co.Notify(null,"co 2");
+
+				//通知 yield 拋出異常 並以err結束流程
+				co.Notify("err test");
+			}, 1000);
+			alert("co 2 tmp = " + tmp);
+
+			tmp = yield setTimeout(function() {
+				//通知 yield 返回
+				co.Notify(null,"co 3");
+			}, 500);
+			alert("co 3 tmp = " + tmp);
+		}catch(err){
+			alert("catch err " + err)
+		}
+
+		return true;
+	});
+
+	//執行流程
+	co.Do(function(err,data){
+		alert("co end");
+		if(err){
+			alert("Do error " + err);
+		}else{
+			alert("Do success " + data);
+		}
+	});
+});
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
