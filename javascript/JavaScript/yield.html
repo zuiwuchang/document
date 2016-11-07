@@ -37,6 +37,9 @@ obj.done 返回true 代表 Generator 已經執行結束 而非因為yield中斷
 		<p><span class="flag">throw</span>
 <pre>Generator 返回的 obj 存在一個 throw 函數
 將 使用當前等待的yield 拋出一個 異常 
+
+Generator 實例的 throw 函數 將在 Generator返回 或 遇到 yield時 返回
+其返回值 和 next 的返回值 內容一致
 </pre>
 		</p>
 		<p><span class="flag">yield</span>
