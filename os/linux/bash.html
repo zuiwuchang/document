@@ -15,6 +15,8 @@
 		<a href="#env">環境變量</a>
 		<a href="#declare">變量 聲明 讀取</a>
 		<a href="#varset">變量 操作</a>
+		<a href="#bash-env">bash 環境設置</a>
+		<a href="#bashrc">bashrc 環境配置檔案</a>
 	</div>
 
 	<div class="note"><a name="bash"></a>
@@ -286,10 +288,169 @@ done
 
 //設置 變量值
 <table>
+<tr><th>command</th><th>str沒設置時</th><th>str為空字符串時</th><th>str為非空字符串時</th></tr>
+<tr><td>var=${str-expr}</td><td>var=expr</td><td>var=</td><td>var=$str</td></tr>
+<tr><td>var=${str:-expr}</td><td>var=expr</td><td>var=expr</td><td>var=$str</td></tr>
+<tr><td>...</tr>
+<tr><td>var=${str+expr}</td><td>var=</td><td>var=expr</td><td>var=$str</td></tr>
+<tr><td>var=${str:+expr}</td><td>var=</td><td>var=</td><td>var=$str</td></tr>
+<tr><td>...</tr>
+<tr><td>var=${str=expr}</td><td>str=expr<br/>var=expr</td><td>str=<br/>var=</td><td>str 不變<br/>var=$str</td></tr>
+<tr><td>var=${str:=expr}</td><td>str=expr<br/>var=expr</td><td>str=expr<br/>var=expr</td><td>str 不變<br/>var=$str</td></tr>
+<tr><td>...</tr>
+<tr><td>var=${str?expr}</td><td>expr 輸出到 stderr</td><td>var=</td><td>var=$str</td></tr>
+<tr><td>var=${str:?expr}</td><td>expr 輸出到 stderr</td><td>expr 輸出到 stderr</td><td>var=$str</td></tr>
+<tr><td>...</tr>
 </table>
 </pre>
 		</p>
 	</div>
+	<div class="note"><a name="bash-env"></a>
+		<p><span class="flag">bash 環境設置</span>
+<pre>//登入界面 檔案
+/etc/issue
+
+//遠程 登入界面 檔案
+/etc/issue.net
+
+tty1~tty6
+
+<table>
+<tr><th>command</th><th>note</th></tr>
+<tr><td>\d</td><td>本地時間日期</td></tr>
+<tr><td>\l</td><td>顯示 第幾個 終端機</td></tr>
+<tr><td>\m</td><td>硬件等級 (i386,i486...)</td></tr>
+<tr><td>\n</td><td>主機網絡名</td></tr>
+<tr><td>\o</td><td>顯示 domain name</td></tr>
+<tr><td>\r</td><td>顯示 uname -r</td></tr>
+<tr><td>\t</td><td>本地端 時間</td></tr>
+<tr><td>\s</td><td>os名稱</td></tr>
+<tr><td>\v</td><td>os版本</td></tr>
+</table>
+
+//登入成功後的 信息
+/etc/motd
+</pre>
+		</p>
+		<p><span class="flag">特殊符號</span>
+<pre>
+<table>
+<tr><th>組合鍵</th><th>效果</th></tr>
+<tr><th>[ctrl]+c</th><th>終止目前命令</th></tr>
+<tr><th>[ctrl]+d</th><th>輸入結束</th></tr>
+<tr><th>[ctrl]+m</th><th>enter</th></tr>
+<tr><th>[ctrl]+s</th><th>暫停屏幕輸出</th></tr>
+<tr><th>[ctrl]+q</th><th>恢復屏幕輸出</th></tr>
+<tr><th>[ctrl]+u</th><th>將整行命令刪除</th></tr>
+<tr><th>[ctrl]+z</th><th>暫停當前命令</th></tr>
+</table>
+<table>
+<tr><th>通配符</th><th>含義</th></tr>
+<tr><td>*</td><td>0到任意個字符</td></tr>
+<tr><td>?</td><td>單個字符</td></tr>
+<tr><td>[]</td><td>單個括號中的字符</td></tr>
+<tr><td>[-]</td><td>連續編碼順序中的一個字符 如[0-9]</td></tr>
+<tr><td>[^]</td><td>單個字符但不是括號中的字符</td></tr>
+</table>
+<table>
+<tr><th>其它符號</th><th>含義</th></tr>
+<tr><td>#</td><td>批註</td></tr>
+<tr><td>\</td><td>轉義</td></tr>
+<tr><td>|</td><td>管道</td></tr>
+<tr><td>;</td><td>分隔連續命令</td></tr>
+<tr><td>~</td><td>用戶 主檔案夾</td></tr>
+<tr><td>$</td><td>使用 變量 前導符</td></tr>
+<tr><td>&amp;</td><td>作業控制 將命令 轉為 後台執行</td></tr>
+<tr><td>！</td><td>非</td></tr>
+<tr><td>/</td><td>目錄分隔</td></tr>
+<tr><td>&gt;<br/>&gt;&gt;</td><td>輸出 重定向</td></tr>
+<tr><td>&lt;<br/>&lt;&lt;</td><td>輸入 重定向</td></tr>
+<tr><td>'</td><td>不具備變量功能</td></tr>
+<tr><td>"</td><td>具備變量功能</td></tr>
+<tr><td>`</td><td>命令 同 $()</td></tr>
+</table>
+</pre>
+		</p>
+
+		<p><span class="flag">數據重定向</span>
+<pre>//stdin	代碼為 0
+&lt;	
+&lt;&lt;
+
+//stdout	代碼為 1
+&gt;		//覆蓋
+&gt;&gt;		//累加
+
+//stderr	代碼為 2
+&gt;
+&gt;&gt;
+
+	對於 &gt; 和 &gt;&gt; 默認使用 代碼 1 既 stdout
+	如果要 重定向 stderr 使用 2&gt; 和 2&gt;&gt;
+
+//無限 輸入 0 的 設備
+/dev/zero
+
+//將 任何輸入 都扔掉的 設備
+/dev/null
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="bashrc"></a>
+		<p><span class="flag">bashrc 環境配置檔案</span>
+<pre>login shell			取得bash時 需要完成對 登入 如(tty1~tty6)
+
+non-login shell	不需要輸入密碼 時獲取的shell
+					(如在 X window 中 打開 終端機 / 在bash中 進入另一個bash)
+
+
+
+//系統整體 設置 (只有 login shell 會執行)
+/etc/profile
+
+//按照如下順序 執行用戶 設置 (只有 login shell 會執行)
+~/.bash_profile
+~/.bash_login
+~/.profile
+
+//執行用戶 設置 
+//<span class="care">(只有 non-login shell 會執行)</span>
+//<span class="care">(但一般 ~/.bash_profile 等會 加載 ~/.bashrc  故對 login shell 通常亦有效 )</span>
+~/.bashrc 
+
+//將 src 導入到 當前bash環境
+source src
+. src
+	source ~/.bashrc
+	. ~/.bashrc
+</pre>
+		</p>
+
+		<p><span class="flag">其它設置</span>
+<pre>/etc/man_db.conf
+	man 指令查找檔案位置
+
+～/.bash_history
+	命令歷史 檔案
+
+～/.bash_logout
+	登出時後 系統自動執行的 操作
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>1	~/.bash_profile
+2	~/.bash_login
+3	~/.profile
+執行中 按照順序 一旦 發現其中1個 執行後 就 不會 執行後續 檔案
+
+一般 .bash_profile 等會 判斷 是否 存在檔案 <span class="care">~/.bashrc</span>
+如果 存在 執行其中 設置
+故一般 將 login shell 的 自定義設置 都寫在 ~/.bashrc 中
+</pre>
+		</p>
+	</div>
+
 </div>
 </body>
 </html>
