@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>c</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#ucontext">ucontext</a>
+	</div>
+
+	<div class="note"><a name="ucontext"></a>
+		<p><span class="flag">ucontext</span>
+<pre>ucontext 是 glibc 中的一個 組件 實現了 跨平台的 線程 環境 操作
+#include &lt;ucontext.h&gt;
+
+//ucontext_t 是運行 環境
+//對於 不同平台 其成員可能不同 然其下幾個 成員 在所有平台都存在
+typedef struct  XXX {
+	struct __ucontext	*uc_link;
+	stack_t		uc_stack;
+	mcontext_t	uc_mcontext; 
+	__sigset_t	uc_sigmask;
+	...
+} ucontext_t;
+
+//返回 執行環境 存儲到 ucp中
+//創建成功 返回 0
+int getcontext(ucontext_t *ucp);
+
+//設置 執行環境
+//失敗 返回 -1 
+//成功不會有 返回值 因為cpu 已經切換到其它地方執行
+int setcontext (const ucontext_t *ucp)
+
+//將執行環境 切換到 ucp 並將當前 環境 保存到 oucp中
+//失敗返回 -1
+//成功返回 0
+int swapcontext (ucontext_t * oucp, const ucontext_t * ucp)
+
+//創建 執行環境 並將其 保存 到ucp中
+//f是一個 自定義無參 函數
+//argc 是 f需要的 參數數量
+//... 是 傳給f的 參數
+void makecontext (ucontext_t *ucp, void (*func) (void) f, int argc, …)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>#include &lt;cstdio&gt;
+#include "ucontext.h"
+
+ucontext_t ctx_f,ctx_main;
+void f(char a,char b)
+{
+    printf("%c %c\n",a,b);
+
+    //執行結束 切回原 環境
+    setcontext(&ctx_main);
+}
+int main()
+{
+    //定義棧
+    char ustack[1024*64];
+    ctx_f.uc_stack.ss_sp = ustack;
+    ctx_f.uc_stack.ss_size = sizeof(ustack);
+
+    //創建 執行環境
+    makecontext(&ctx_f,(void (*)())f,2,'a','b');
+
+    //切換 到新的執行 環境
+    swapcontext (&ctx_main, &ctx_f);
+
+    puts("ok");
+    return 0;
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
