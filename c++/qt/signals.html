@@ -11,6 +11,7 @@
 		<a href="#signals">信號/插槽</a>
 		<a href="#disconnect">信號 插槽 管理</a>
 		<a href="#my">自定義信號</a>
+		<a href="#sync">同步</a>
 	</div>
 
 	<div class="note"><a name="signals"></a>
@@ -272,7 +273,13 @@ void MainWindow::onMySlots()
 </pre>
 		</p>
 	</div>
-
+	<div class="note"><a name="sync"></a>
+		<p><span class="flag">同步</span>
+<pre>信號 可以由任何 線程 發送
+關聯的 插槽 會在ui的主線程中被 回調 故多個 插槽 操作同一數據時是 不需要 額外同步的
+</pre>
+		</p>
+	</div>
 </div>
 </body>
 </html>
