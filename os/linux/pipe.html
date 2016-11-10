@@ -9,15 +9,172 @@
 <div class="main">
 	<div class="title">
 		<a href="#pipe">pipe</a>
+		<a href="#cut">數據篩選</a>
+		<a href="#sort">數據處理</a>
+		<a href="#tee">雙重重定向</a>
+		<a href="#tr">字符串替換</a>
+		<a href="#split">檔案分割</a>
 	</div>
 
 	<div class="note"><a name="pipe"></a>
 		<p><span class="flag">pipe</span>
-<pre>
+<pre>linux 支持所謂的 管道 可以將 一個輸入程式的 輸出 作爲另一個程式的 輸入
+使用 <span class="care">|</span> 連接管道 如 ls | less
 </pre>
 		</p>
 	</div>
+	<div class="note"><a name="cut"></a>
+		<p><span class="flag">數據篩選</span>
+<pre>linux 提供了許多 用於數據篩選的功能 以配合 pipe
+</pre>
+		</p>
+		<p><span class="flag">cut</span>
+<pre>cut 對每行數據 進行分割 只顯示其 部分內容
+用於對 每行數據的內容進行 篩選
 
+//將數據 使用 單個字符 c 分割 顯示出第n(n 從1開始計數)個被分割的 數據 
+cut -d 'c' -f n
+
+
+
+//顯示 每行 第 [20,...) 字符
+cut -c 20-
+
+//顯示 每行 第 [1,20] 字符
+cut -c -20
+
+//顯示 每行 第 [20,30] 字符
+cut -c 20-30
+</pre>
+		</p>
+		<p><span class="flag">grep egrep</span>
+<pre>grep egrep 使用正則表達式 對每行數據 進行 匹配 只顯示匹配的行
+用於對 數據行 進行篩選
+	--color=auto	爲匹配到的關鍵字 加上顏色 一般都被默認設置
+	-a	將 二進制檔案 以 text檔案方式 搜尋
+	-c	計算 找到的 匹配字串 次數
+	-i	忽略大小寫
+	-n	顯示行號
+	-v	反向搜尋 (將不 匹配的行 顯示出來)
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="sort"></a>
+		<p><span class="flag">數據處理</span>
+<pre>在篩選完數據後 linux 提供了方便的 功能對數據 進行 進一步的處理
+</pre>
+		</p>
+		<p><span class="flag">sort 排序</span>
+<pre>//以行爲單位 排序數據
+sort [file or stdin]
+	-f	忽略大小寫
+	-b	忽略最前面的空白字符
+	-M	以月的名字排序 如 JAN DEC ...
+	-n	使用純數字排序
+	-r	反向排序
+	-u	相當於 uniq 消除重複行
+	-t	分隔符 默認 tab
+	-k	以分隔的第n個字符串排序 默認爲 1
+	(
+		以 : 作爲分隔符 以第3(從1開始計數)個字串 排序
+		cat /etc/passwd | sort -t ':' -k 3
+	)
+</pre>
+		</p>
+		<p><span class="flag">uniq</span>
+<pre>//消除重複行
+uniq [file or stdin]
+	-i	忽略大小寫
+	-c	顯示 消除前 數據出現 次數
+
+	<span class="care">uniq 只消除 相鄰的 重複數據 故一般 都先 sort 再 uniq</span> 
+</pre>
+		</p>
+		<p><span class="flag">wc</span>
+<pre>//統計數據
+wc [file or stdin]
+	-l	統計 行數
+	-w	統計 有多少 英文單詞
+	-m	統計 有多少 字節
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="tee"></a>
+		<p><span class="flag">雙重重定向</span>
+<pre>使用 &gt; &gt;&gt; 可以將 數據重定向到 檔案
+然 這樣 就無法使用 pipe 
+故linux 提供了 tee 將數據 重定向到 檔案的 同時 輸出到 stdout
+
+tee -a file 
+	-a	使用累加方式 寫入檔案 &gt;&gt;
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="tr"></a>
+		<p><span class="flag">字符串替換</span>
+<pre>linux 提供了 方便的 字符串 替換 工具
+</pre>
+		</p>
+		<p><span class="flag">字符串替換 tr</span>
+<pre>//將 小寫 轉 大寫
+echo abc | tr '[a-z]' 'A-Z'
+	tr 實際上使用 正則表達式 匹配數據
+
+//刪除小寫 字符
+echo abc | tr -d '[a-z]'
+</pre>
+		</p>
+		<p><span class="flag">col</span>
+<pre>col
+	-x	將 tab 轉爲 對等的 空格
+</pre>
+		</p>
+		<p><span class="flag">join</span>
+<pre>//將 兩個 檔案中 指定數據 相同的 寫到一起 
+//將 結果 輸出到 stdout(沒合併的 不會輸出)
+join file1 file2
+	-t	指定分隔符 默認 空白
+	-i	忽略大小寫
+	-1	後接 第一個檔案 用於比較 字段 默認從 1 開始
+	-2	... 二 ...
+	(
+		1.txt	file 1
+		2.txt	file 2
+
+		join 1.txt  2.txt
+		join 1.txt  2.txt -11 -21
+			file 1 2
+
+		join 1.txt  2.txt -12 -22
+			什麼都不會輸出
+	)
+</pre>
+		</p>
+		<p><span class="flag">paste 合併檔案</span>
+<pre>//將 兩個 檔案 對應行 合併 並輸出 合併後 數據
+//將 合併 結果 輸出到 stdout
+paste file1 file 2
+	-d	合併時使用的 單個分隔字符 默認 tab
+</pre>
+		</p>
+		<p><span class="flag">expand</span>
+<pre>//將 tab 轉爲空格
+//將 結果 輸出到 stdout
+expand -t file
+	-t n	將tab轉爲 n個空格 默認 8個
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="split"></a>
+		<p><span class="flag">檔案分割</span>
+<pre>//分割 檔案
+split file PREFIX
+	PREFIX	切割檔案 前導符
+	-b	切割大小 可以使用 b k m g ... 等單位
+	-l	以行數 切割
+</pre>
+		</p>
+	</div>
 </div>
 </body>
 </html>
