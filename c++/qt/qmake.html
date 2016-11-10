@@ -9,7 +9,10 @@
 <div class="main">
 	<div class="title">
 		<a href="#qmake">qmake</a>
+		<a href="#INCLUDEPATH">INCLUDEPATH</a>
+		<a href="#LIBPATH">LIBPATH</a>
 		<a href="#LIBS">LIBS</a>
+
 	</div>
 
 	<div class="note"><a name="qmake"></a>
@@ -17,6 +20,24 @@
 <pre>Qt 代碼不能直接被 標準 c++編譯器 編譯
 必須 先被 qmake 處理後才能 被編譯
 qmake 配置文件 一般為 *.pro
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="INCLUDEPATH"></a>
+		<p><span class="flag">INCLUDEPATH</span>
+<pre>INCLUDEPATH 設置 include 目錄
+
+INCLUDEPATH += /opt/lib/c++/boost_1_62_0/include
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="LIBPATH"></a>
+		<p><span class="flag">LIBPATH</span>
+<pre>LIBPATH 設置 lib目錄
+
+LIBPATH += /opt/lib/c++/boost_1_62_0/gcc
 </pre>
 		</p>
 	</div>
