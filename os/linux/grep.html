@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#grep">正則表達式</a>
+		<a href="#egrep">擴展的正則表達式</a>
+		<a href="#sed">刪除 增加 替換</a>
+		<a href="#printf">printf</a>
+		<a href="#awk">awk</a>
+	</div>
+
+	<div class="note"><a name="grep"></a>
+		<p><span class="flag">正則表達式</span>
+<pre>linux 的 grep 讓人類了解到 正則表達式的 強大 從而導致了 正則表達式的 大規模使用
+
+//使用 正則 對每行 進行匹配
+grep 正則 filename/stdin
+	-a	將 binary 以text方式 匹配
+	-c	統計匹配次數
+	-i	忽略大小寫
+	-n	顯示行號
+	-v	反向匹配
+
+	-A n	把匹配到的行的 其後 第n行 亦顯示
+	-B n	... 前 ...
+
+	--color=auto
+
+<table>
+<tr><th>特殊符號</th><th>含義</th></tr>
+<tr><td>[:alnum:]</td><td>[0-9A-Za-z]</td></tr>
+<tr><td>[:alpha:]</td><td>[A-Za-z]</td></tr>
+<tr><td>[:blank:]</td><td>space tab</td></tr>
+<tr><td>[:cntrl:]</td><td>控制鍵 如 CR LE Tab Del ...</td></tr>
+<tr><td>[:digit:]</td><td>[0-9]</td></tr>
+<tr><td>[:graph:]</td><td>非 space tab</td></tr>
+<tr><td>[:lower:]</td><td>[a-z]</td></tr>
+<tr><td>[:print:]</td><td>可打印字符</td></tr>
+<tr><td>[:punct:]</td><td>標點</td></tr>
+<tr><td>[:upper:]</td><td>[A-Z]</td></tr>
+<tr><td>[:space:]</td><td>空白字符 space tab cr ...</td></tr>
+<tr><td>[:xdigit:]</td><td>16進制數字 [0-9] [A-F] [a-f]</td></tr>
+</table>
+<table>
+<tr><th>RE字符</th><th>含義</th></tr>
+<tr><td>^word</td><td>word 在行首</td></tr>
+<tr><td>word$</td><td>word 在行尾</td></tr>
+<tr><td>.</td><td>一定有一個 任意字符</td></tr>
+<tr><td>\</td><td>轉義</td></tr>
+<tr><td>c*</td><td>重複 字符c 任意次[0,...)</td></tr>
+<tr><td>[list]]</td><td>單個 list 中的 字符</td></tr>
+<tr><td>[n1-n2]</td><td>編碼在 [n1,n2] 間的一個字符</td></tr>
+<tr><td>[^list]</td><td>不再 list 中的 單個字符</td></tr>
+<tr><td>[^n1-n2]</td><td>不再 [n1,n2] ...</td></tr>
+<tr><td>c\{n,m\}</td><td>當個字符c 重複 [n,m] 次
+{n} n次
+{n,} [n,...)次</td></tr>
+</table>
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>//顯示目錄下所有 檔案夾 
+ls -al | grep '^d*'
+
+//再檔案 file.txt 中 匹配 以 d開始的行
+grep '^d*' file.txt
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="egrep"></a>
+		<p><span class="flag">擴展的正則表達式</span>
+<pre>grep 只支持標準的 posix 正則表達式 
+對於擴展的 語法 linux 提供了 egrep 進行支持
+
+RE字符	含義
++	重複 [1,..] 次
+?	重複 [0,1] 次
+|	邏輯 或
+()	將括號內 作爲同一個組
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="sed"></a>
+		<p><span class="flag">刪除 增加 替換</span>
+<pre>除了匹配 linux 提供了 sed 對行數據 進行 刪除 增加 替換
+
+sed '動作'
+	-n	只有被 sed 處理過的 數據才顯示
+	-e	
+	-f	對檔案進行 sed 而非默認的 stdin
+	<span class="care">-r	使用 擴展的 正則語法</span>
+	-i	字節修改檔案 而非輸出到 stdout
+
+動作 由 [n1,n2]func 組成
+	n1,n2 代表 要處理的行 從1開始計數
+	(
+		'1,2'	[1,2] 行
+		'1'	第1行
+		'2,$'	[2,...]行
+		默認 全部行
+	)
+	func 代表 如果 操作
+	a	後接字符串 在原行 下 新加一行 字符串
+	i	... 上 ...
+	c	後接字符串 替換 原行
+	d	刪除 原行
+	p	打印 原行
+	s/正則/字符串/g	將匹配的行 用 字符串替換
+</pre>
+		</p>
+
+		<p><span class="flag">example</span>
+<pre>//顯示 第 [1,5] 行
+ls / -l | sed -n '1,5p' 
+ls / -l | sed -n '-e1,5p' 
+ ls / -l | sed -n '-e1,2p' '-e3,5p'
+</pre>
+		</p>
+
+		<p><span class="flag">注意</span>
+<pre>sed 可以同時 使用 多個 動作 不過 每個動作前 都需要增加 -e
+sed '-e動作' '-e動作'
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="printf"></a>
+		<p><span class="flag">printf</span>
+<pre>printf 使用 類似 c 語言 printf 當方式 
+將每行的 每個字段 格式化後 輸出
+字段 以 [tab] 或 [space] 分割 
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
