@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>qt</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#plugin">Qt platform plugin "windows"</a>
+		<a href="#xp">xp</a>
+
+		
+	</div>
+
+	<div class="note"><a name="plugin"></a>
+		<p><span class="flag">Qt platform plugin "windows"</span>
+<pre>如果將 qt 程式 放到沒安裝qt的 環境中 運行 可能會出現 這個錯誤 
+
+將 qt 安裝目錄下的  Qt5.7.0\5.7\msvc2015\plugins\platforms 檔案夾 複雜到 
+程式運行目錄即可
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="xp"></a>
+		<p><span class="flag">xp</span>
+<pre>如果使用 vs 作爲 編譯器 vs2012 開始 默認編譯的 程式 不可運行在 xp上
+
+對此 可以在 *.pro 中 加入 設置
+
+//控制檯
+QMAKE_LFLAGS_CONSOLE    = /SUBSYSTEM:CONSOLE,5.01
+
+//桌面
+QMAKE_LFLAGS_WINDOWS    = /SUBSYSTEM:WINDOWS,5.01
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>

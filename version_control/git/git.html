@@ -9,6 +9,7 @@
 <div class="main">
 	<div class="title">
 		<a href="#git">git</a>
+		<a href="#proxy">proxy</a>
 		<a href="#version">git 初始化</a>
 		<a href="#cache">暫存區</a>
 		<a href="#reset">git reset 重置</a>
@@ -23,6 +24,22 @@
 git由 linus(linux 之父) 創作
 
 官網 <a target="_blank" href="http://git-scm.com/">http://git-scm.com/</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="proxy"></a>
+		<p><span class="flag">proxy</span>
+<pre>//設置代理
+git config --global http.proxy 'socks5://127.0.0.1:1080'
+git config --global https.proxy 'socks5://127.0.0.1:1080'
+
+git config --global https.proxy http://127.0.0.1:1080
+git config --global https.proxy https://127.0.0.1:1080
+
+//取消代理
+git config --global unset http.proxy
+git config --global --unset https.proxy
 </pre>
 		</p>
 	</div>
