@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#template">template</a>
+		<a href="#if">if</a>
+			
+	</div>
+
+	<div class="note"><a name="template"></a>
+		<p><span class="flag">template</span>
+<pre>Revel 的 template 使用 go 標準庫中 的 html/template
+同時 加上了 幾個 Revel 定義的 模板 函數
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="if"></a>
+		<p><span class="flag">if</span>
+<pre>{{if .err}}
+	error
+{{else}}
+	success
+{{end}}
+	<span class="care">.err 被定義 並且不爲 空</span>
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+

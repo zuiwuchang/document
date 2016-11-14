@@ -756,7 +756,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		//連接到數據庫
 		Poco::Data::Session  session(Poco::Data::ODBC::Connector::KEY	//std::string 指明數據庫種類
 			,"DSN=odbc_games"	//連接字符串
-			//"DSN=ODBC源名;UID=用户名;PWD=密码;"
+			//"DSN=ODBC源名;UID=用户名;PWD=密码;DATABASE=數據庫名;"
 			);
 		//其他 參加 SQLite
 	}
