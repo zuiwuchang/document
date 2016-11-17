@@ -10,6 +10,7 @@
 	<div class="title">
 		<a href="#template">template</a>
 		<a href="#if">if</a>
+		<a href="#for">for</a>
 			
 	</div>
 
@@ -23,16 +24,44 @@
 
 	<div class="note"><a name="if"></a>
 		<p><span class="flag">if</span>
-<pre>{{if .err}}
+<pre><span class="care">//.err 被定義 並且不爲 空</span>
+{{if .err}}
 	error
 {{else}}
 	success
 {{end}}
-	<span class="care">.err 被定義 並且不爲 空</span>
+	
+
+<span class="care">//.err 未定義 將引發錯誤
+//.err 不爲空</span>
+{{if eq .err ""}}
+{{else}}
+	不爲空 執行 
+{{end}}
+
 </pre>
 		</p>
 	</div>
+	<div class="note"><a name="for"></a>
+		<p><span class="flag">for</span>
+<pre>//遍歷 slice map 將 val 設置爲 當前環境 . 
+{{range .nodes}}
+	val = {{.}}
+{{end}}
 
+//同上 然 將 key val 設置到 指定 變量
+{{range $key,$val := .nodes}}
+	key = {{$key}}
+	val = {{$val}}
+{{end}}
+<tr>
+	<td>1</td>
+</tr>
+	
+{{end}}
+</pre>
+		</p>
+	</div>
 </div>
 </body>
 </html>
