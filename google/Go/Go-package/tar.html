@@ -1,0 +1,163 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#tar">archive/tar</a>
+		<a href="#Writer">Writer</a>
+		<a href="#Reader">Reader</a>
+			
+	</div>
+
+	<div class="note"><a name="tar"></a>
+		<p><span class="flag">archive/tar</span>
+<pre>archive/tar 包 提供了 對 linux 的 tar 檔案進行 操作 的 接口
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Writer"></a>
+		<p><span class="flag">Writer</span>
+<pre>Writer 提供了 寫入 tar 功能
+
+func NewWriter(w io.Writer) *Writer
+func (tw *Writer) Close() error
+func (tw *Writer) Flush() error
+func (tw *Writer) Write(b []byte) (n int, err error)
+func (tw *Writer) WriteHeader(hdr *Header) error
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"archive/tar"
+	//"bytes"
+	"log"
+	"os"
+)
+
+func main() {
+	//創建 tar 檔案 io.Writer
+	file, err := os.Create("test.tar")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer file.Close()
+
+	//創建 tar writer
+	tw := tar.NewWriter(file)
+	defer func() {
+		//關閉 writer
+		if err = tw.Close(); err != nil {
+			log.Fatalln(err)
+		}
+	}()
+
+	//將被打包的 檔案
+	var files = []struct {
+		Name, Body string
+	}{
+		{"readme.txt", "This archive contains some text files."},
+		{"gopher.txt", "Gopher names:\nGeorge\nGeoffrey\nGonzo"},
+		{"todo.txt", "Get animal handling license."},
+	}
+
+	//將 檔案 寫入到 writer
+	for _, file := range files {
+		hdr := &tar.Header{
+			Name: file.Name,
+			Mode: 0600,
+			Size: int64(len(file.Body)),
+		}
+		//寫入 header
+		if err := tw.WriteHeader(hdr); err != nil {
+			log.Fatalln(err)
+		}
+		//寫入 body
+		if _, err := tw.Write([]byte(file.Body)); err != nil {
+			log.Fatalln(err)
+		}
+	}
+
+	log.Println("success")
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>Writer 只能直接 創建 tar 檔案
+不能 在已存在的 tar 中 添加新的 檔案
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Reader"></a>
+		<p><span class="flag">Reader</span>
+<pre>Reader 提供了 tar 的 讀取能力
+
+func NewReader(r io.Reader) *Reader
+func (tr *Reader) Next() (*Header, error)
+func (tr *Reader) Read(b []byte) (n int, err error)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"archive/tar"
+	//"bytes"
+	"io"
+	"log"
+	"os"
+)
+
+func main() {
+	//創建 io.Reader
+	file, err := os.Open("test.tar")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer file.Close()
+
+	//創建 tar reader
+	tr := tar.NewReader(file)
+
+	//遍歷所有檔案
+	for {
+		hdr, err := tr.Next()
+		if err == io.EOF {
+			// end of tar archive
+			break
+		}
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		//讀取 body
+		buf := make([]byte, hdr.Size)
+
+		if _, err = tr.Read(buf); err != nil {
+			log.Fatalln(err)
+		}
+		log.Println(hdr.Name, ":", string(buf))
+
+	}
+
+}
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>Reader 只能 遍歷 tar 檔案 無法 只讀取 其中某個檔案
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
+
