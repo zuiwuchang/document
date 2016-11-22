@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>kindeditor</title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+
+	<div class="title">
+		<a href="#WebUploader">WebUploader</a>
+		<a href="#env">環境配置</a>
+		<a href="#example">example</a>
+	</div>
+	
+
+	<div class="note"><a name="WebUploader"></a>
+		<p><span class="flag">WebUploader</span>
+<pre>WebUploader 是一個 功能齊全 開源(BSD) 的 javascript 上傳組件
+由 中華淪陷區 的百度公司的fex小組 開發
+
+WebUploader 沒提供任何 ui 全部功能以 api的方式 提供
+WebUploader 默認使用 html5 同時在不支持html5時 使用 flash進行上傳
+
+官網 <a target="_blank" href="http://fex.baidu.com/webuploader/">http://fex.baidu.com/webuploader/</a>
+github <a target="_blank" href="https://github.com/fex-team/webuploader">https://github.com/fex-team/webuploader</a>
+</pre>
+		</p>
+		
+	</div>
+
+	<div class="note"><a name="env"></a>
+		<p><span class="flag">環境配置</span>
+<pre>1	從官網下載最新源碼 並解壓
+2	將 webuploader.nolog.min.js webuploader.css 引入項目
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>webuploader.js 會將一些日誌 發送到 百度 nolog版本 則不會 發送
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="example"></a>
+		<p><span class="flag">example</span>
+<pre><span class="care">//將 js css 引入項目</span>
+&lt;link rel="stylesheet" type="text/css" href="/public/js/webuploader/webuploader.css"&gt;
+&lt;script type="text/javascript" src="/public/js/webuploader/webuploader.nolog.min.js"&gt;&lt;/script&gt;
+
+
+<span class="care">//在html中 創建一些 必要的 標籤 作爲 webuploader 容器</span>
+&lt;div id="uploader" class="wu-example"&gt;
+	&lt;!--存放檔案信息的容器--&gt;
+	&lt;div id="thelist" class="uploader-list"&gt;&lt;/div&gt;
+	&lt;div class="btns"&gt;
+	&lt;div id="picker"&gt;選擇檔案&lt;/div&gt;
+	&lt;button id="ctlBtn" class="btn btn-default"&gt;開始上傳&lt;/button&gt;
+&lt;/div&gt;
+
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
