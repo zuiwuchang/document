@@ -11,6 +11,7 @@
 		<a href="#Sublime_Text_3">Sublime Text 3</a>
 		<a href="#linux">linux 中文輸入</a>
 		<a href="#plugin">插件安裝</a>
+		<a href="#InputHelper">linux InputHelper</a>
 		<a href="#fast">快捷鍵</a>
 	</div>
 		
@@ -198,6 +199,8 @@ E585BBA1 2538C270 E2E857C2 194283CA
 </pre>
 		</p>
 	</div>
+	
+
 	<div class="note">
 		<p><a name="plugin"></a><span class="flag">插件安裝</span>
 <pre>方式一
@@ -221,6 +224,27 @@ import urllib.request,os,hashlib; h = '2915d1851351e5ee549c20394736b442' + '8bc5
 </pre>
 		</p>
 	</div>
+
+	<div class="note">
+		<p><a name="InputHelper"></a><span class="flag">linux InputHelper</span>
+<pre>linux下另外一個 輸入中文的方案是 安裝 InputHelper 插件
+所以 Package Control 安裝InputHelper後 InputHelper插件不會被 解包 需要 手動解包
+
+1	安裝InputHelper
+2	在 sublime中 Preferences->Browse Packages... 打開 包目錄
+3	將 Installed Packages 中的 InputHelper.sublime-package 解壓到 Packages/InputHelper
+4	爲 InputHelper/lib/linux_text_input_gui.py 加上 x 權限
+</pre>
+		</p>
+		<p><a name="InputHelper"></a><span class="flag">快捷鍵 修改</span>
+<pre>InputHelper 默認 使用 ctrl+shift+z 打開輸入框
+在 sublime的快捷鍵中 加入 如下設置 增加 ctrl+space
+
+{ "keys": ["ctrl+space"], "command": "input_helper" }
+</pre>
+		</p>
+	</div>
+	
 
 	<div class="note">
 		<p><a name="fast"></a><span class="flag">快捷鍵</span>
