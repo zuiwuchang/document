@@ -10,6 +10,7 @@
 
 	<div class="title">
 		<a href="#jstree">jstree</a>
+		<a href="#example">example</a>
 	</div>
 
 
@@ -35,7 +36,68 @@
 		</p>
 	</div>
 
+	<div class="note"><a name="example"></a>
+		<p><span class="flag">example</span>
+<pre>&lt;link rel="stylesheet" href="/public/js/jstree/themes/default/style.min.css" /&gt;
+&lt;script src="/public/js/jstree/jstree.min.js"&gt;&lt;/script&gt;
 
+&lt;-- tree 容器 --&gt;
+&lt;div id="idTree"&gt;
+&lt;/div&gt;
+
+&lt;script type="text/javascript"&gt;
+$(document).ready(function() {
+	var jq = $('#idTree');
+	//初始化 jsTree
+	jq.jstree({
+		plugins : [ 
+			"wholerow",	//整行
+			"checkbox",	//添加 checkbox
+		],
+		checkbox : {
+			//three_state : false,	//對子項的選擇 不影響 祖先
+		},
+		core:{
+			//設置 初始 節點
+			data:[
+				{
+					id:"1",
+					parent:"#",
+					text:"root",
+					 state:{
+						opened:true,
+						disabled:false,
+						selected:true,
+					},
+				},
+				{
+					id:"10",
+					parent:"1",
+					//設置 圖標 
+					icon:"/public/js/jstree/themes/default/throbber.gif",
+					text:"home",
+				},
+				{
+					id:"11",
+					parent:"1",
+					text:"bin",
+				},
+				{
+					id:"101",
+					parent:"10",
+					text:"king",
+				},
+			]
+		},
+	});
+
+	//返回 tree 實例 以便調用其方法
+	var jqTree = jq.jstree(true);
+});
+&lt;/script&gt;
+</pre>
+		</p>
+	</div>
 </div>
 </body>
 </html>
