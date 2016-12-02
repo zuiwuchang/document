@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#bits">位運算</a>
+	</div>
+
+	<div class="note"><a name="bits"></a>
+		<p><span class="flag">位運算</span>
+<pre>golang 提供了 位運算 能力
+//取反
+^l
+
+//異或
+l ^ r
+l ^= r
+
+//或
+|
+|=
+
+//與
+&amp;
+&amp;=
+
+//左移
+&lt;&lt;
+&lt;&lt;=
+
+//右移
+&gt;&gt;
+&gt;&gt;=
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>go 的 移位 操作 
+對於 有符號 型別 都是 帶符號移位
+對於 無符號 型別 都是 無符號移位
+(如果 需要 對 無符號 型別 進行 帶符號 移位 只能 先 將其 轉化爲 有符號 型別
+... 有符號 型別 ... 無符號移位 ... 無符號 型別)
+</pre>
+		</p>
+	</div>
+
+</div>
+</body>
+</html>
