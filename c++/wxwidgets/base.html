@@ -9,6 +9,7 @@
 <div class="main">
 	<div class="title">
 		<a href="#wxWidgets">wxWidgets</a>
+		<a href="#linux">linux 環境配置</a>
 		<a href="#win32">win32 環境配置</a>
 		<a href="#run">wxwidgets 運行流程</a>
 
@@ -22,6 +23,43 @@ wxWidgets 使用陽數版本 代表一個 開發中的 版本 如 3.1.x
 wxWidgets 使用陰數版本 代表一個 已穩定的 版本 如 3.0.x
 
 官網 <a href="http://www.wxwidgets.org/" target="_blank">http://www.wxwidgets.org/</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="linux"></a>
+		<p><span class="flag">linux 環境配置</span>
+<pre>1	從官網下載源碼 並解壓
+	tar -xvjf wxWidgets-3.0.2.tar.bz2
+2	執行 configure 創建makefile檔案
+	(
+		mkdir gtk-build && cd gtk-build
+		../configure --enable-monolithic --enable-unicode --disable-shared
+	)
+	<span class="care">
+	(
+		--enable-monolithic
+		--enable-debug
+		-enable-unicode	makes a Unicode build
+		--with-opengl	enables OpenGL support
+		--disable-shared	builds static libs instead of shared ones
+		--prefix=[...]	makes wxWidgets install to a different location from the default /usr/local
+
+	)
+	</span>
+3	執行 make 編譯 源碼
+	(
+		<span class="care">make clean</span>
+		make
+	)
+4	將 lib 檔案夾下的 *.a 和 include 等 檔案 加入 c++項目依賴
+</pre>
+		</p>
+		<p><span class="flag">注意</span>
+<pre>一定要先 make clean 之後再 make
+否則 可能 出現 
+make: *** No rule to make target `lib/wx/include/xxx/wx/setup.h', needed by `wxregex_regcomp.o'. Stop.
+錯誤
 </pre>
 		</p>
 	</div>
