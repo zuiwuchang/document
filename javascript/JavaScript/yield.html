@@ -10,7 +10,8 @@
 	<div class="title">
 		<a href="#yield">yield</a>
 		<a href="#sync">同步</a>
-		
+		<a href="#myAsync">孤實現的 Generator 的 替代組件</a>
+		<a href="#AsyncExample">孤的 Async 示例</a>
 	</div>
 
 	<div class="note"><a name="yield"></a>
@@ -196,6 +197,229 @@ $(document).ready(function() {
 </pre>
 		</p>
 	</div>
+
+	<div class="note"><a name="myAsync"></a>
+		<p><span class="flag">孤實現的 Generator 的 替代組件</span>
+<pre>解決 js 異步調用 問題的最好方案 無疑 是 es6 加入的 Generator 特性
+然 一些 瀏覽器 並未支持 Generator 出於某些無奈 暫時還不能 使用  Generator
+
+故孤實現了 此 Async 組件 用於 將異步代碼 流程 轉化到 一個看似同步的寫法中 
+</pre>
+		</p>
+		<p><span class="flag">source</span>
+<pre>var Async = {
+	//流程 狀態
+	STATUS_NONE:"none",
+	STATUS_RUNING:"runing",
+	STATUS_OK:"ok",
+	STATUS_ERROR:"error",
+
+	//創建 一個 流程
+	New:function(){
+		//保存流程
+		var _funcs = [
+			/*{
+				Func:...,//流程函數
+				OnError:...,//錯誤處理函數
+			},*/
+		];
+		var _n = 0;	//當前 流程進度
+
+		//回調通知
+		var onOk;
+		var onEnd;
+		var onError;
+		var _funcError;
+
+		var ctxObj = this;
+		var _status = ctxObj.STATUS_NONE;
+		return {
+			//返回 流程 狀態
+			Status:function(){
+				return _status;
+			},
+			//增加一個 流程
+			Sync:function(funcSync,funcError){
+				var funcs = _funcs;
+				funcs.push({
+					Func:funcSync,
+					OnError:funcError,
+				});
+				return this;
+			},
+			//通知 執行下個流程
+			Notify:function(channel){
+				if(_status != ctxObj.STATUS_RUNING){
+					return this;
+				}
+
+				var err = channel.Error;
+				var ctx = channel.Content;
+				//流程錯誤
+				if(err){
+					_status = ctxObj.STATUS_ERROR;
+
+					//通知 錯誤處理
+					var funcError = _funcError;
+					var nextError = true;
+					if(funcError){
+						nextError = funcError(err,ctx);
+					}
+					//通知 全局 錯誤 處理
+					if(nextError && onError){
+						onError(err,ctx);
+					}
+					//通知 流程結束
+					if(onEnd){
+						onEnd(err,ctx);
+					}
+					return;
+				}else{
+					err = null;
+				}
+
+				var funcs = _funcs;
+				var len = funcs.length;
+				if(len > _n){
+					//執行 流程
+					var obj = funcs[_n];
+					_funcError = obj.OnError;
+					obj.Func(this,channel.Content);
+					++_n;
+				}else{
+					//所有流程 執行完成 發送 成功 通知
+					_status = ctxObj.STATUS_OK;
+					if(onOk){
+						onOk(ctx);
+					}
+
+					if(onEnd){
+						onEnd(err,ctx);
+					}
+				}
+
+				return this;
+			},
+			//開始 執行 流程
+			Do:function(obj){
+				if(_status != ctxObj.STATUS_NONE){
+					return this;
+				}
+				_status = ctxObj.STATUS_RUNING;
+
+				if(!obj){
+					obj = {};
+				}
+				onOk = obj.Ok;
+				onEnd = obj.End;
+				onError = obj.Error;
+				this.Notify({});
+
+				return this;
+			},
+		};
+	},
+};
+</pre>
+		</p>
+		
+	</div>
+	<div class="note"><a name="AsyncExample"></a>
+		<p><span class="flag">孤的 Async 示例</span>
+<pre>1	使用  var async = Async.New(); 創建一個 實例
+2	多次調用 async.Sync(f1,f2) 註冊 流程
+	(
+		f2 是可選 參數 當本流程出錯時 被回調
+		如果 指定了 f2 Do 指定的  Error將 不會被 通知 除非 f2 返回 true
+	)
+	(
+		f1 是一個 異步調用
+		在 異步 結束 時 需要 使用
+		async.Notify(
+			Content:,傳遞給 下個流程的 參數
+			Error:,僅當 本流程 錯誤時 設置錯誤傳遞給 錯誤處理回調
+		) 通知 async 進入下個流程		 
+	)
+3	使用 async.Do({
+		Ok:,//所有流程 成功是通知
+		Error,//任何流程出錯時 ...
+		End,//無論 是否出錯 在 OK Error 之後被調用
+	}) 執行 流程
+	(
+		一旦 任何一個流程 出錯 都將結束 全部流程
+		並通知 Do 參數指定 的 Error 和 End
+	)
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>$(document).ready(function() {
+	var async = Async.New();
+	async.Sync(function(async){
+		//do something
+		var ctx = {};
+		ctx.sum = 0;
+
+		//async call
+		setTimeout(function(){
+			console.log(ctx.sum++);
+
+			//喚醒 下個流程
+			async.Notify({
+				Content:ctx,
+				Error:"流程錯誤",
+			});
+		},1000);
+	},function(err,ctx){
+		console.log("error at step 0 " + err);
+
+		return true;	//返回 true 使用 全局 Error 亦被調用
+	}).Sync(function(async,ctx){
+		//do something
+
+		//async call
+		setTimeout(function(){
+			console.log(ctx.sum++);
+
+			//喚醒 下個流程
+			async.Notify({
+				Content:ctx,
+				//Error:"流程錯誤",
+			});
+		},1000);
+	},function(err,ctx){
+		console.log("error at step 1 " + err);
+	}).Sync(function(async,ctx){
+		//do something
+
+		//async call
+		setTimeout(function(){
+			console.log(ctx.sum++);
+
+			//喚醒 下個流程
+			async.Notify({
+				Content:ctx,
+			});
+		},1000);
+	})//執行流程
+	.Do({
+		//成功時 被調用
+		Ok:function(ctx){
+			console.log(async.Status() + " sum="+ ctx.sum);
+		},
+		//失敗時 被調用
+		Error:function(err,ctx){
+			console.log(async.Status() + " err=" + err);
+		},
+		//在 Ok Error 之後被調用
+		End:function(err,ctx){
+			console.log("End " + async.Status() + " err="+ err);
+		},
+	});
+});
+</pre>
+		</p>
+	</div>
+
 </div>
 </body>
 </html>

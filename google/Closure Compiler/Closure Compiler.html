@@ -1,0 +1,52 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>v8</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#Closure Compiler">Closure Compiler</a>
+		<a href="#local">本地使用</a>
+	</div>
+	<div class="note"><a name="Closure Compiler"></a>
+		<p><span class="flag">Closure Compiler</span>
+<pre>Closure Compiler 是 google 開發的 一個 js編譯工具 可以 將 js進行優化(壓縮到最小)
+
+Closure Compiler 可以 在線使用 或者 下載 包 再本地使用(需要java7環境)
+
+官網 <a href="http://closure-compiler.appspot.com/home" target="_blank">http://closure-compiler.appspot.com/home</a>
+</pre>
+		</p>
+		<p><span class="flag">參數</span>
+<pre>//如何 優化
+Optimization
+	Whitespace only	值移除 空格
+	Simple		在Whitespace only之上 還將 區域內的 函數 變量 改名爲更簡短的方式
+			(不會影響和其他代碼的 交換)
+	Advanced	在Simple之上 還會改名 全局 函數 變量 以inline替換某些函數
+			(可能會導致 某些代碼 無法執行)
+
+//如果 輸出 優化 後代碼
+Formatting
+	Pretty print	重新排版 以然人類觀看
+	Print input delimiter	標識代碼段來源
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="local"></a>
+		<p><span class="flag">本地使用</span>
+<pre>1	安裝java7環境
+2	從官網 下載 <a href="http://dl.google.com/closure-compiler/compiler-latest.zip" target="_blank">Closure Compiler</a> 並解壓 得到 closure-compiler-vXXX.jar
+
+執行 優化命令
+java -jar closure-compiler-vXXX.jar --js my.js --js_output_file my.min.js --compilation_level SIMPLE
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>

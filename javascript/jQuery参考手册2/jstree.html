@@ -58,6 +58,9 @@ $(document).ready(function() {
 			//three_state : false,	//對子項的選擇 不影響 祖先
 		},
 		core:{
+			//允許 check_callback 否則一些api不能調用(這些api需要使用 此功能)
+			//如 create_node 動態 創建 節點
+			check_callback : true,
 			//設置 初始 節點
 			data:[
 				{
