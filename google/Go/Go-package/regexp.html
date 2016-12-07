@@ -1,0 +1,146 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Go</title>
+<link href="../../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#regexp">regexp</a>
+		<a href="#Match">匹配</a>
+		<a href="#get">截取數據</a>
+		<a href="#Replace">替換數據</a>
+	</div>
+
+	<div class="note"><a name="regexp"></a>
+		<p><span class="flag">regexp</span>
+<pre>regexp 包 爲 go 提供了 正則表達式 (RE2 標準)
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Match"></a>
+		<p><span class="flag">匹配</span>
+<pre>//匹配
+func Match(pattern string, b []byte) (matched bool, err error)
+func MatchReader(pattern string, r io.RuneReader) (matched bool, err error)
+func MatchString(pattern string, s string) (matched bool, err error)
+
+//編譯 一個 正則 並返回Regexp 對象指針
+func Compile(expr string) (*Regexp, error)
+
+//同 Compile 但在  發生error 時 panic
+func MustCompile(str string) *Regexp
+
+//使用 posix 風格 匹配 使用 最左最長 方式 搜索
+func CompilePOSIX(expr string) (*Regexp, error)
+func MustCompilePOSIX(str string) *Regexp
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"log"
+	"regexp"
+)
+
+func main() {
+	pattern := "^[a-zA-Z][a-zA-Z0-9]+@gmail.com$"
+	log.Println(regexp.MatchString(pattern, "zuiwuchang@gmail.com"))
+	log.Println(regexp.MatchString(pattern, "0zuiwuchang@gmail.com"))
+
+	match, err := regexp.Compile(pattern)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Println(match.MatchString("zuiwuchang@gmail.com"))
+	log.Println(match.MatchString("0zuiwuchang@gmail.com"))
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="get"></a>
+		<p><span class="flag">截取數據</span>
+<pre>Find***XXX
+Find 和 Mattch 一樣 提供了 對三種 數據源的 處理 []byte string io.RuneReader 
+
+//返回 第一個 被匹配的 字符串
+//沒有 匹配字符串 返回 空字符串
+func (re *Regexp) FindString(s string) string
+
+//同 FindString 不過 返回 的是 匹配字符串位置 (匹配字符串爲 <span class="care">s[loc[0]:loc[1]]</span>)
+//... 返回 nil
+func (re *Regexp) FindStringIndex(s string) (loc []int)
+
+//同 FindString 同時 如果存在 () 子表達式 返回 子表達式
+//... 返回 nil
+func (re *Regexp) FindStringSubmatch(s string) []string
+
+//同 FindStringSubmatch 但 返回 位置
+func (re *Regexp) FindStringSubmatchIndex(s string) []int
+
+//返回 所有被 匹配的 字符串 的 slice
+//沒有 匹配字符串 返回 nil
+func (re *Regexp) FindAllString(s string, n int) []string
+FindAllXXX
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"log"
+	"regexp"
+)
+
+func main() {
+	pattern := `[a-zA-Z]+=[a-zA-Z0-9]+,`
+	str := "id=1,name=king,"
+
+	reg, err := regexp.Compile(pattern)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	strs := reg.FindAllString(str, -1)
+	for _, str := range strs {
+		log.Println(str)
+	}
+}
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="Replace"></a>
+		<p><span class="flag">替換數據</span>
+<pre>//替換 字符串 可以使用 ecma-262  語法
+func (re *Regexp) ReplaceAllString(src, repl string) string
+func (re *Regexp) ReplaceAllStringFunc(src string, repl func(string) string) string
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>package main
+
+import (
+	"fmt"
+	"regexp"
+)
+
+func main() {
+	re := regexp.MustCompile("a(x*)b")
+	fmt.Println(re.ReplaceAllString("-ab-axxb-", "T"))
+	fmt.Println(re.ReplaceAllString("-ab-axxb-", "$1"))
+	fmt.Println(re.ReplaceAllString("-ab-axxb-", "$1W"))
+	fmt.Println(re.ReplaceAllString("-ab-axxb-", "${1}W"))
+}
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+
