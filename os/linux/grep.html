@@ -13,6 +13,7 @@
 		<a href="#sed">刪除 增加 替換</a>
 		<a href="#printf">printf</a>
 		<a href="#awk">awk</a>
+		<a href="#diff">檔案比較</a>
 	</div>
 
 	<div class="note"><a name="grep"></a>
@@ -137,6 +138,53 @@ sed '-e動作' '-e動作'
 </pre>
 		</p>
 	</div>
+	<div class="note"><a name="awk"></a>
+		<p><span class="flag">awk</span>
+<pre>将数据每行以指定分隔符(默认空格 [tab])分成不同字段 多每个字段进行处理	
+awk '条件1{动作1}条件2{动作2}...' filename
+$0 //整行数据
+$1 //字段1
+$2 //字段2
+
+NF	//第几行拥有的字段总数
+NR	//正在处理的是 第几行 数据
+FS	//当前分隔符
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>cat /etc/passwd | awk '{FS=":"}$3&lt;10{print $1 "\t" $3}'
+//将管道中 字段3数据 小于10的 行 字段1 指定3 打印 那之前改变分隔符为: 
+
+比较符号
+&gt;
+&lt;
+&gt;=
+&lt;=
+==
+!=
+</pre>
+		</p>
+	</div>
+	<div class="note"><a name="diff"></a>
+		<p><span class="flag">檔案比較</span>
+<pre>diff [-bBi] from-file to-file
+以行为单位比较文件
+-b	//忽略空格的不同 (a b) 和 (a     b)相同
+-B	//忽略空白行区别
+-i	//忽略大小写 
+结果
+4d3	//左边第4行被删除了 基准是右边第三行
+6c5	//左边第6行被替换成右边第5行
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>cmp [-s] file1 file2
+以字节为单位比较文件
+-s //将所有不同列出 默认只列出第一处
+</pre>
+		</p>
+	</div>
+
 </div>
 </body>
 </html>
