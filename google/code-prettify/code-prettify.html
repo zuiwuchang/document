@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>code-prettify</title>
+<link rel="stylesheet" type="text/css" href="../../source/css/css.css">
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#code-prettify">code-prettify</a>
+		<a href="#how">使用</a>
+	</div>
+
+	<div class="note"><a name="code-prettify"></a>
+		<p><span class="flag">code-prettify</span>
+<pre>code-prettify 是google 提供的一個 用於 在 html上 高光顯示 代碼的 開源(Apache License 2.0) js 庫 
+
+官網 <a href="https://github.com/google/code-prettify" target="_blank">https://github.com/google/code-prettify</a>
+</pre>
+		</p>
+	</div>
+
+	<div class="note"><a name="how"></a>
+		<p><span class="flag">使用</span>
+<pre>1	將 code-prettify-master/src 加入項目
+	&lt;link rel="stylesheet" type="text/css" href="../src/prettify.css"&gt;
+	&lt;script src="../src/prettify.js"&gt;&lt;/script&gt;
+
+2	將可選的 顯示風格 引入 
+	code-prettify-master/styles/ 下提供了 4個 默認 風格
+	desert.css
+	doxy.css
+	sons-of-obsidian.css
+	sunburst.css
+
+3	在html中定義一個 pre 或 code 標籤 並指定 class='prettyprint'
+	如果需要行號 class='prettyprint linenums'
+	指定行號 起始索引 class='prettyprint linenums:5'
+
+4	在html加載完成後調用 prettyPrint 函數 
+</pre>
+		</p>
+	</div>
+	
+</div>
+</body>
+</html>

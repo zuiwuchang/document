@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+<link href="../../source/css/css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="main">
+	<div class="title">
+		<a href="#script">shell script</a>
+		<a href="#params">參數讀取</a>
+		<a href="#func">函數</a>
+	</div>
+
+	<div class="note"><a name="script"></a>
+		<p><span class="flag">shell script</span>
+<pre>linux 提供了 強大的 shell script 用於 簡化 重複的 shell 命令執行
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>
+#!/bin/bash
+#Program:
+#       this program is test shell script
+#History:
+#       2013-03-21 illusive_man first release
+#       2016-12-12 illusive_man second release
+#Email:
+#       zuiwuchang@gmail.com
+
+echo "Hellow world"
+exit 0
+
+
+第1行 聲明了 使用bash shell
+第[2,8]行 可選的聲明了 script 描述
+echo 執行腳本 命令
+exit 0 退出腳本 並設置 錯誤碼爲 0
+</pre>
+		</p>
+	</div>
+	
+	<div class="note"><a name="params"></a>
+		<p><span class="flag">參數讀取</span>
+<pre>執行 script 時可以使用 參數 用 空格隔開
+在script中 使用如下方式 操作 參數
+
+$#		//獲取參數數量
+$1 $2 ... $n	//操作第n個參數
+$@		//獲取全部變量
+$*		//獲取全部變量
+</pre>
+		</p>
+		<p><span class="flag">參數讀取</span>
+<pre>
+echo "參數總數  : $#"
+echo "參數內容  : $@"
+echo "參數內容  : $*"
+echo "第n個參數 : $1"
+echo
+
+echo "遍歷參數"
+declare -i i
+i=0
+for v in $@
+do
+	i=i+1
+	echo "第$i個參數        :$v"
+done
+</pre>
+	</p>
+	</div>
+
+	<div class="note"><a name="func"></a>
+		<p><span class="flag">函數</span>
+<pre>使用
+function funcName(){
+	...
+}
+定義 函數
+使用 
+funcName p1 p2 ... pn 調用函數
+函數 讀取參數的方法 同 腳本讀取參數
+</pre>
+		</p>
+		<p><span class="flag">example</span>
+<pre>function Show(){
+
+	declare -i i
+	i=0
+	for v in $@
+	do
+		i=i+1
+		echo "第$i個參數        :$v"
+	done
+	
+	return 1
+	echo "不會顯示 已經返回"
+}
+
+Show 一 二 三 四
+echo $?
+</pre>
+		</p>
+	</div>
+</div>
+</body>
+</html>
