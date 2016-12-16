@@ -9,6 +9,7 @@
 <div class="main">
 	<div class="title">
 		<a href="#packages">packages 包</a>
+		<a href="#vendor">vendor</a>
 		<a href="#function">function 函数</a>
 		<a href="#var">var 变量</a>
 		<a href="#string">string</a>
@@ -48,7 +49,14 @@ math.pi	(錯誤寫法)
 </pre>
 		</p>
 	</div>
-
+	<div class="note"><a name="vendor"></a>
+		<p><span class="flag">vendor</span>
+<pre>go從1.7開始 正式 支持 vendor
+go會 先從當前目錄下的 vendor目錄中 加載 import 指定的包
+之後 才 查找 GOPATH
+</pre>
+		</p>
+	</div>
 	<div class="note"><a name="function"></a>
 		<p><span class="flag">function 函数</span>
 <pre>//Go 使用func 定义函数 返回值型别 在函数定义之后
